@@ -49,28 +49,12 @@ export const sendMpNewsDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlySendMpNews,
 		},
-		description: 'mpnews类型的图文消息，一个图文消息支持1到8条图文',
+		description: 'Mpnews类型的图文消息，一个图文消息支持1到8条图文',
 		options: [
 			{
 				displayName: '图文',
 				name: 'article',
 				values: [
-					{
-						displayName: '标题',
-						name: 'title',
-						type: 'string',
-						required: true,
-						default: '',
-						description: '标题，不超过128个字节，超过会自动截断',
-					},
-					{
-						displayName: '图文消息缩略图的media_id',
-						name: 'thumb_media_id',
-						type: 'string',
-						required: true,
-						default: '',
-						description: '图文消息缩略图的media_id，可以在上传多媒体文件接口中获得。此处thumb_media_id即上传接口返回的media_id',
-					},
 					{
 						displayName: '作者',
 						name: 'author',
@@ -79,20 +63,16 @@ export const sendMpNewsDescription: INodeProperties[] = [
 						description: '图文消息的作者，不超过64个字节',
 					},
 					{
-						displayName: '图文消息点击"阅读原文"之后的页面链接',
+						displayName: '图文消息点击\'阅读原文\'之后的页面链接',
 						name: 'content_source_url',
 						type: 'string',
 						default: '',
-						description: '图文消息点击"阅读原文"之后的页面链接',
 					},
 					{
 						displayName: '图文消息的内容',
 						name: 'content',
 						type: 'string',
-						typeOptions: {
-							rows: 4,
-						},
-						required: true,
+							required:	true,
 						default: '',
 						description: '图文消息的内容，支持html标签，不超过666 K个字节',
 					},
@@ -100,11 +80,24 @@ export const sendMpNewsDescription: INodeProperties[] = [
 						displayName: '图文消息的描述',
 						name: 'digest',
 						type: 'string',
-						typeOptions: {
-							rows: 2,
-						},
 						default: '',
 						description: '图文消息的描述，不超过512个字节，超过会自动截断',
+					},
+					{
+						displayName: '图文消息缩略图的Media_id',
+						name: 'thumb_media_id',
+						type: 'string',
+							required:	true,
+						default: '',
+						description: '图文消息缩略图的media_id，可以在上传多媒体文件接口中获得。此处thumb_media_id即上传接口返回的media_id',
+					},
+					{
+						displayName: '标题',
+						name: 'title',
+						type: 'string',
+							required:	true,
+						default: '',
+						description: '标题，不超过128个字节，超过会自动截断',
 					},
 				],
 			},

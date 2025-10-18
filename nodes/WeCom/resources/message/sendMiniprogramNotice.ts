@@ -37,7 +37,7 @@ export const sendMiniprogramNoticeDescription: INodeProperties[] = [
 		description: '标签ID列表，多个接收者用 | 分隔，最多支持100个。当touser为@all时忽略本参数',
 	},
 	{
-		displayName: '小程序appid',
+		displayName: '小程序Appid',
 		name: 'appid',
 		type: 'string',
 		required: true,
@@ -48,7 +48,7 @@ export const sendMiniprogramNoticeDescription: INodeProperties[] = [
 		description: '小程序appid，必须是与当前应用关联的小程序',
 	},
 	{
-		displayName: '小程序page路径',
+		displayName: '小程序Page路径',
 		name: 'page',
 		type: 'string',
 		default: '',
@@ -66,7 +66,7 @@ export const sendMiniprogramNoticeDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlySendMiniprogramNotice,
 		},
-		description: '消息标题，长度限制4-12个汉字（支持id转译）',
+		description: '消息标题，长度限制4-12个汉字（支持ID转译）',
 	},
 	{
 		displayName: '消息描述',
@@ -79,10 +79,10 @@ export const sendMiniprogramNoticeDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlySendMiniprogramNotice,
 		},
-		description: '消息描述，长度限制4-12个汉字（支持id转译）',
+		description: '消息描述，长度限制4-12个汉字（支持ID转译）',
 	},
 	{
-		displayName: '是否放大第一个content_item',
+		displayName: '是否放大第一个Content_item',
 		name: 'emphasis_first_item',
 		type: 'boolean',
 		default: false,
@@ -116,7 +116,6 @@ export const sendMiniprogramNoticeDescription: INodeProperties[] = [
 						type: 'string',
 						required: true,
 						default: '',
-						description: '长度10个汉字以内',
 					},
 					{
 						displayName: '长度30个汉字以内',
@@ -124,7 +123,7 @@ export const sendMiniprogramNoticeDescription: INodeProperties[] = [
 						type: 'string',
 						required: true,
 						default: '',
-						description: '长度30个汉字以内（支持id转译）',
+						description: '长度30个汉字以内（支持ID转译）',
 					},
 				],
 			},

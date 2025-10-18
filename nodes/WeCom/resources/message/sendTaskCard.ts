@@ -45,7 +45,7 @@ export const sendTaskCardDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlySendTaskCard,
 		},
-		description: '标题，不超过128个字节，超过会自动截断（支持id转译）',
+		description: '标题，不超过128个字节，超过会自动截断（支持ID转译）',
 	},
 	{
 		displayName: '描述',
@@ -59,7 +59,7 @@ export const sendTaskCardDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlySendTaskCard,
 		},
-		description: '描述，不超过512个字节，超过会自动截断（支持id转译）',
+		description: '描述，不超过512个字节，超过会自动截断（支持ID转译）',
 	},
 	{
 		displayName: '跳转链接',
@@ -69,10 +69,10 @@ export const sendTaskCardDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlySendTaskCard,
 		},
-		description: '点击后跳转的链接。最长2048字节，请确保包含了协议头(http/https)，小程序或者url必须填写一个',
+		description: '点击后跳转的链接。最长2048字节，请确保包含了协议头(http/https)，小程序或者URL必须填写一个',
 	},
 	{
-		displayName: '任务id',
+		displayName: '任务ID',
 		name: 'task_id',
 		type: 'string',
 		required: true,
@@ -80,7 +80,7 @@ export const sendTaskCardDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlySendTaskCard,
 		},
-		description: '任务id，同一个应用发送的任务卡片消息的任务id不能重复，只能由数字、字母和"_-@"组成，最长支持128字节',
+		description: '任务 ID，同一个应用发送的任务卡片消息的任务id不能重复，只能由数字、字母和"_-@"组成，最长支持128字节',
 	},
 	{
 		displayName: '按钮列表',
@@ -102,27 +102,26 @@ export const sendTaskCardDescription: INodeProperties[] = [
 				name: 'button',
 				values: [
 					{
-						displayName: '按钮key值',
+						displayName: '按钮Key值',
 						name: 'key',
 						type: 'string',
-						required: true,
+							required:	true,
 						default: '',
-						description: '按钮key值，用户点击后，会产生任务卡片回调事件，回调事件会将本参数作为EventKey返回，只能由数字、字母和"_-@"组成，最长支持128字节',
+						description: '按钮key值，用户点击后，会产生任务卡片回调事件，回调事件会将本参数作为EventKey返回，只能由数字、字母和\'_-@\'组成，最长支持128字节',
 					},
 					{
 						displayName: '按钮名称',
 						name: 'name',
 						type: 'string',
-						required: true,
+							required:	true,
 						default: '',
-						description: '按钮名称',
 					},
 					{
-						displayName: '点击按钮后替换文案',
-						name: 'replace_name',
-						type: 'string',
-						default: '',
-						description: '点击按钮后显示的名称，默认为"已处理"',
+						displayName: '按钮字体是否加粗',
+						name: 'is_bold',
+						type: 'boolean',
+						default: false,
+						description: 'Whether the button font is bold, default is false',
 					},
 					{
 						displayName: '按钮字体颜色',
@@ -142,13 +141,13 @@ export const sendTaskCardDescription: INodeProperties[] = [
 						description: '按钮字体颜色，可选red或者blue，默认为blue',
 					},
 					{
-						displayName: '按钮字体是否加粗',
-						name: 'is_bold',
-						type: 'boolean',
-						default: false,
-						description: 'Whether the button font is bold, default is false',
+						displayName: '点击按钮后替换文案',
+						name: 'replace_name',
+						type: 'string',
+						default: '',
+						description: '点击按钮后显示的名称，默认为\'已处理\'',
 					},
-				],
+			],
 			},
 		],
 	},

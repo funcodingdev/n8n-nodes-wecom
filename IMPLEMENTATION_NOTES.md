@@ -4,9 +4,9 @@
 
 本次更新完全实现了企业微信官方文档（https://developer.work.weixin.qq.com/document/path/90236）中定义的所有发送应用消息接口。
 
-## 实现的消息类型
+## 实现的消息操作
 
-根据官方文档，企业微信应用消息支持 12 种消息类型，本次实现已全部覆盖：
+根据官方文档，企业微信应用消息支持 12 种消息类型的发送，以及模板卡片消息的更新操作，本次实现已全部覆盖：
 
 ### 1. ✅ 文本消息 (text) - 已实现
 - 文件：`sendText.ts`
@@ -80,13 +80,25 @@
   - `multiple_interaction` - 多项选择型
 - 特性：最灵活的卡片消息类型，支持复杂的交互和展示
 
+### 13. ✅ 更新模板卡片消息 (updateTemplateCard) - 新增
+- 文件：`updateTemplateCard.ts`
+- API接口：`/cgi-bin/message/update_template_card`
+- 功能：更新已发送的模板卡片消息内容
+- 特性：
+  - 需要使用发送消息时返回的 `response_code`
+  - 一个 code 只能调用一次更新接口
+  - 只能在24小时内更新
+  - 支持所有模板卡片类型的更新
+  - 支持任务卡片的升级（通过 `button_key` 参数）
+- 参考文档：https://developer.work.weixin.qq.com/document/path/94888
+
 ## 技术实现细节
 
 ### 文件结构
 ```
 nodes/WeCom/resources/message/
 ├── index.ts                    # 消息资源入口，导出所有消息类型
-├── execute.ts                  # 执行逻辑，处理所有消息类型的发送
+├── execute.ts                  # 执行逻辑，处理所有消息操作
 ├── sendText.ts                 # 文本消息定义
 ├── sendMarkdown.ts             # Markdown消息定义
 ├── sendImage.ts                # 图片消息定义
@@ -98,7 +110,8 @@ nodes/WeCom/resources/message/
 ├── sendMpNews.ts               # 图文消息（mpnews）定义（新增）
 ├── sendMiniprogramNotice.ts    # 小程序通知消息定义（新增）
 ├── sendTaskCard.ts             # 任务卡片消息定义（新增）
-└── sendTemplateCard.ts         # 模板卡片消息定义（新增）
+├── sendTemplateCard.ts         # 模板卡片消息定义（新增）
+└── updateTemplateCard.ts       # 更新模板卡片消息定义（新增）
 ```
 
 ### 代码特性
@@ -177,6 +190,26 @@ nodes/WeCom/resources/message/
 }
 ```
 
+### 更新模板卡片消息
+```javascript
+{
+  "touser": "zhangsan",
+  "response_code": "response_code_from_send_message",
+  "card_type": "text_notice",
+  "main_title": {
+    "title": "更新后的标题",
+    "desc": "状态已更新"
+  },
+  "sub_title_text": "处理完成"
+}
+```
+
+**重要提示**：
+- `response_code` 从发送消息的返回值中获取
+- 每个 code 只能使用一次
+- 必须在24小时内更新
+- 可以通过回调接口获取用户交互后的 code
+
 ## 测试建议
 
 1. **基础消息测试**
@@ -209,6 +242,7 @@ nodes/WeCom/resources/message/
 ## 参考文档
 
 - [企业微信发送应用消息接口](https://developer.work.weixin.qq.com/document/path/90236)
+- [企业微信更新模板卡片消息接口](https://developer.work.weixin.qq.com/document/path/94888)
 - [n8n 节点开发文档](https://docs.n8n.io/integrations/creating-nodes/)
 
 ## 更新日期

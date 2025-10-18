@@ -1,18 +1,18 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-const showOnlySendTemplateCard = {
+const showOnlyUpdateTemplateCard = {
 	resource: ['message'],
-	operation: ['sendTemplateCard'],
+	operation: ['updateTemplateCard'],
 };
 
-export const sendTemplateCardDescription: INodeProperties[] = [
+export const updateTemplateCardDescription: INodeProperties[] = [
 	{
 		displayName: '接收人',
 		name: 'touser',
 		type: 'string',
 		default: '',
 		displayOptions: {
-			show: showOnlySendTemplateCard,
+			show: showOnlyUpdateTemplateCard,
 		},
 		description: '成员ID列表（消息接收者，多个接收者用 | 分隔，最多支持1000个）。特殊情况：指定为 @all，则向该企业应用的全部成员发送',
 	},
@@ -22,7 +22,7 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		displayOptions: {
-			show: showOnlySendTemplateCard,
+			show: showOnlyUpdateTemplateCard,
 		},
 		description: '部门ID列表，多个接收者用 | 分隔，最多支持100个。当touser为@all时忽略本参数',
 	},
@@ -32,9 +32,20 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		displayOptions: {
-			show: showOnlySendTemplateCard,
+			show: showOnlyUpdateTemplateCard,
 		},
 		description: '标签ID列表，多个接收者用 | 分隔，最多支持100个。当touser为@all时忽略本参数',
+	},
+	{
+		displayName: '原消息的Response_code',
+		name: 'response_code',
+		type: 'string',
+		required: true,
+		default: '',
+		displayOptions: {
+			show: showOnlyUpdateTemplateCard,
+		},
+		description: '更新卡片所需要消费的code，可通过发消息接口及回调接口返回值获取，一个code只能调用一次更新接口，且只能在24小时内更新',
 	},
 	{
 		displayName: '模板卡片类型',
@@ -70,7 +81,7 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		required: true,
 		default: 'text_notice',
 		displayOptions: {
-			show: showOnlySendTemplateCard,
+			show: showOnlyUpdateTemplateCard,
 		},
 		description: '选择模板卡片的类型',
 	},
@@ -80,9 +91,9 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		type: 'json',
 		default: '{}',
 		displayOptions: {
-			show: showOnlySendTemplateCard,
+			show: showOnlyUpdateTemplateCard,
 		},
-		description: '模板卡片来源样式信息，不需要来源样式可不填写，JSON格式。参考文档：https://developer.work.weixin.qq.com/document/path/90236#%E6%A8%A1%E6%9D%BF%E5%8D%A1%E7%89%87%E6%B6%88%E6%81%AF',
+		description: '模板卡片来源样式信息，不需要来源样式可不填写，JSON格式。参考文档：https://developer.work.weixin.qq.com/document/path/94888',
 	},
 	{
 		displayName: '一级标题',
@@ -90,7 +101,7 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		type: 'json',
 		default: '{"title": ""}',
 		displayOptions: {
-			show: showOnlySendTemplateCard,
+			show: showOnlyUpdateTemplateCard,
 		},
 		description: '模板卡片的主要内容，包含一级标题和标题辅助信息，JSON格式',
 	},
@@ -100,7 +111,7 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		type: 'json',
 		default: '{}',
 		displayOptions: {
-			show: showOnlySendTemplateCard,
+			show: showOnlyUpdateTemplateCard,
 		},
 		description: '关键数据样式，JSON格式',
 	},
@@ -110,7 +121,7 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		type: 'json',
 		default: '{}',
 		displayOptions: {
-			show: showOnlySendTemplateCard,
+			show: showOnlyUpdateTemplateCard,
 		},
 		description: '引用文献样式，建议不与关键数据共用，JSON格式',
 	},
@@ -120,7 +131,7 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		displayOptions: {
-			show: showOnlySendTemplateCard,
+			show: showOnlyUpdateTemplateCard,
 		},
 		description: '二级普通文本，建议不超过160个字，（支持ID转译）',
 	},
@@ -133,7 +144,7 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		},
 		default: '[]',
 		displayOptions: {
-			show: showOnlySendTemplateCard,
+			show: showOnlyUpdateTemplateCard,
 		},
 		description: '二级标题+文本列表，该字段可为空数组，但有数据的话需确认对应字段是否必填，列表长度不超过6，JSON数组格式',
 	},
@@ -146,7 +157,7 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		},
 		default: '[]',
 		displayOptions: {
-			show: showOnlySendTemplateCard,
+			show: showOnlyUpdateTemplateCard,
 		},
 		description: '跳转指引样式的列表，该字段可为空数组，但有数据的话需确认对应字段是否必填，列表长度不超过3，JSON数组格式',
 	},
@@ -156,7 +167,7 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		type: 'json',
 		default: '{}',
 		displayOptions: {
-			show: showOnlySendTemplateCard,
+			show: showOnlyUpdateTemplateCard,
 		},
 		description: '整体卡片的点击跳转事件，text_notice必填，news_notice不需要，JSON格式',
 	},
@@ -166,9 +177,9 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		displayOptions: {
-			show: showOnlySendTemplateCard,
+			show: showOnlyUpdateTemplateCard,
 		},
-		description: '任务 ID，同一个应用任务id不能重复，只能由数字、字母和"_-@"组成，最长128字节，填了action_menu字段的话本字段必填',
+		description: '任务 ID，同一个应用任务id不能重复，只能由数字、字母和"_-@"组成，最长128字节',
 	},
 	{
 		displayName: '按钮列表',
@@ -180,7 +191,7 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		default: '[]',
 		displayOptions: {
 			show: {
-				...showOnlySendTemplateCard,
+				...showOnlyUpdateTemplateCard,
 				card_type: ['button_interaction'],
 			},
 		},
@@ -193,7 +204,7 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		default: '',
 		displayOptions: {
 			show: {
-				...showOnlySendTemplateCard,
+				...showOnlyUpdateTemplateCard,
 				card_type: ['vote_interaction', 'multiple_interaction'],
 			},
 		},
@@ -216,7 +227,7 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		default: 'single',
 		displayOptions: {
 			show: {
-				...showOnlySendTemplateCard,
+				...showOnlyUpdateTemplateCard,
 				card_type: ['vote_interaction', 'multiple_interaction'],
 			},
 		},
@@ -232,7 +243,7 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		default: '[]',
 		displayOptions: {
 			show: {
-				...showOnlySendTemplateCard,
+				...showOnlyUpdateTemplateCard,
 				card_type: ['vote_interaction', 'multiple_interaction'],
 			},
 		},
@@ -246,7 +257,7 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		default: '提交',
 		displayOptions: {
 			show: {
-				...showOnlySendTemplateCard,
+				...showOnlyUpdateTemplateCard,
 				card_type: ['vote_interaction', 'multiple_interaction'],
 			},
 		},
@@ -259,7 +270,7 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		default: '',
 		displayOptions: {
 			show: {
-				...showOnlySendTemplateCard,
+				...showOnlyUpdateTemplateCard,
 				card_type: ['vote_interaction', 'multiple_interaction'],
 			},
 		},
@@ -273,7 +284,7 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		default: '{}',
 		displayOptions: {
 			show: {
-				...showOnlySendTemplateCard,
+				...showOnlyUpdateTemplateCard,
 				card_type: ['news_notice'],
 			},
 		},
@@ -285,42 +296,19 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		type: 'json',
 		default: '{}',
 		displayOptions: {
-			show: showOnlySendTemplateCard,
+			show: showOnlyUpdateTemplateCard,
 		},
 		description: '卡片右上角更多操作按钮，JSON格式',
 	},
 	{
-		displayName: '是否开启ID转译',
-		name: 'enable_id_trans',
-		type: 'boolean',
-		default: false,
+		displayName: '更新卡片所需要消费的按钮Key值',
+		name: 'button_key',
+		type: 'string',
+		default: '',
 		displayOptions: {
-			show: showOnlySendTemplateCard,
+			show: showOnlyUpdateTemplateCard,
 		},
-		description: 'Whether to enable ID translation. 0 means no, 1 means yes, default is 0.',
-	},
-	{
-		displayName: '是否开启重复消息检查',
-		name: 'enable_duplicate_check',
-		type: 'boolean',
-		default: false,
-		displayOptions: {
-			show: showOnlySendTemplateCard,
-		},
-		description: 'Whether to enable duplicate message check. 0 means no, 1 means yes, default is 0.',
-	},
-	{
-		displayName: '重复消息检查时间',
-		name: 'duplicate_check_interval',
-		type: 'number',
-		default: 1800,
-		displayOptions: {
-			show: {
-				...showOnlySendTemplateCard,
-				enable_duplicate_check: [true],
-			},
-		},
-		description: '表示是否重复消息检查的时间间隔，默认1800s，最大不超过4小时',
+		description: '仅用于任务卡片消息的升级场景，如果需要更新任务卡片消息时需要填写',
 	},
 ];
 
