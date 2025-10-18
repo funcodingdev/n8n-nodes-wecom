@@ -549,9 +549,9 @@ export async function executeMessage(
 						if (Array.isArray(buttonListObj) && buttonListObj.length > 0) {
 							template_card.button_list = buttonListObj;
 						}
-					} catch (error) {
-						// 忽略解析错误
-					}
+				} catch {
+					// 忽略解析错误
+				}
 				} else if (
 					card_type === 'vote_interaction' ||
 					card_type === 'multiple_interaction'
@@ -593,9 +593,9 @@ export async function executeMessage(
 						if (Object.keys(imageTextObj).length > 0) {
 							template_card.image_text_area = imageTextObj;
 						}
-					} catch (error) {
-						// 忽略解析错误
-					}
+				} catch {
+					// 忽略解析错误
+				}
 				}
 
 				// 添加action_menu
@@ -734,9 +734,9 @@ export async function executeMessage(
 						if (Array.isArray(buttonListObj) && buttonListObj.length > 0) {
 							template_card.button_list = buttonListObj;
 						}
-					} catch (error) {
-						// 忽略解析错误
-					}
+				} catch {
+					// 忽略解析错误
+				}
 				} else if (
 					card_type === 'vote_interaction' ||
 					card_type === 'multiple_interaction'
@@ -778,9 +778,9 @@ export async function executeMessage(
 						if (Object.keys(imageTextObj).length > 0) {
 							template_card.image_text_area = imageTextObj;
 						}
-					} catch (error) {
-						// 忽略解析错误
-					}
+				} catch {
+					// 忽略解析错误
+				}
 				}
 
 				// 添加action_menu

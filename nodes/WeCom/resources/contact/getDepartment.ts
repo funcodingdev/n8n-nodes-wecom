@@ -7,17 +7,17 @@ const showOnlyGetDepartment = {
 
 export const getDepartmentDescription: INodeProperties[] = [
 	{
-		displayName: '部门',
+		displayName: '部门 Name or ID',
 		name: 'id',
 		type: 'options',
 		typeOptions: {
 			loadOptionsMethod: 'getDepartments',
 		},
-		default: '1',
+		default: '',
 		displayOptions: {
 			show: showOnlyGetDepartment,
 		},
-		description: '部门ID。（注：如果不填，默认获取全量组织架构）',
+		description: '部门ID。（注：如果不填，默认获取全量组织架构）. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 	},
 ];
 

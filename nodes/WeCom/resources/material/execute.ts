@@ -63,13 +63,17 @@ export async function executeMaterial(
 					buffer = Buffer.from(responseData.body as string);
 				}
 
-				// 尝试从响应头获取文件名
-				if (responseData.headers && responseData.headers['content-disposition']) {
-					const match = (responseData.headers['content-disposition'] as string).match(/filename="?(.+?)"?$/);
+			// 尝试从响应头获取文件名
+			if (responseData.headers) {
+				const headers = responseData.headers as IDataObject;
+				const contentDisposition = headers['content-disposition'];
+				if (typeof contentDisposition === 'string') {
+					const match = contentDisposition.match(/filename="?(.+?)"?$/);
 					if (match) {
 						filename = match[1];
 					}
 				}
+			}
 
 				const binaryData = await this.helpers.prepareBinaryData(buffer, filename);
 
@@ -132,13 +136,17 @@ export async function executeMaterial(
 					buffer = Buffer.from(responseData.body as string);
 				}
 
-				// 尝试从响应头获取文件名
-				if (responseData.headers && responseData.headers['content-disposition']) {
-					const match = (responseData.headers['content-disposition'] as string).match(/filename="?(.+?)"?$/);
+			// 尝试从响应头获取文件名
+			if (responseData.headers) {
+				const headers = responseData.headers as IDataObject;
+				const contentDisposition = headers['content-disposition'];
+				if (typeof contentDisposition === 'string') {
+					const match = contentDisposition.match(/filename="?(.+?)"?$/);
 					if (match) {
 						filename = match[1];
 					}
 				}
+			}
 
 				const binaryData = await this.helpers.prepareBinaryData(buffer, filename);
 

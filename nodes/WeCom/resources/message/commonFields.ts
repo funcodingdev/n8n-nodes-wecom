@@ -15,28 +15,28 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 			displayName: '接收人类型',
 			name: 'recipientType',
 			type: 'options',
-			options: [
-				{
-					name: '指定成员',
-					value: 'users',
-				},
-				{
-					name: '指定部门',
-					value: 'departments',
-				},
-				{
-					name: '指定标签',
-					value: 'tags',
-				},
-				{
-					name: '全体成员',
-					value: 'all',
-				},
-				{
-					name: '手动输入',
-					value: 'manual',
-				},
-			],
+		options: [
+		{
+			name: '全体成员',
+			value: 'all',
+		},
+		{
+			name: '手动输入',
+			value: 'manual',
+		},
+		{
+			name: '指定成员',
+			value: 'users',
+		},
+		{
+			name: '指定标签',
+			value: 'tags',
+		},
+		{
+			name: '指定部门',
+			value: 'departments',
+		},
+		],
 			default: 'users',
 			displayOptions: {
 				show: showCondition,
@@ -44,7 +44,7 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 			description: '选择接收人的方式',
 		},
 		{
-			displayName: '成员',
+			displayName: '成员 Names or IDs',
 			name: 'touser',
 			type: 'multiOptions',
 			typeOptions: {
@@ -57,10 +57,10 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 					recipientType: ['users'],
 				},
 			},
-			description: '成员ID列表（最多支持1000个）',
+			description: '成员ID列表（最多支持1000个）. Choose from the list, or specify IDs using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 		},
 		{
-			displayName: '部门',
+			displayName: '部门 Names or IDs',
 			name: 'toparty',
 			type: 'multiOptions',
 			typeOptions: {
@@ -73,10 +73,10 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 					recipientType: ['departments'],
 				},
 			},
-			description: '部门ID列表（最多支持100个）',
+			description: '部门ID列表（最多支持100个）. Choose from the list, or specify IDs using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 		},
 		{
-			displayName: '标签',
+			displayName: '标签 Names or IDs',
 			name: 'totag',
 			type: 'multiOptions',
 			typeOptions: {
@@ -89,7 +89,7 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 					recipientType: ['tags'],
 				},
 			},
-			description: '标签ID列表（最多支持100个）',
+			description: '标签ID列表（最多支持100个）. Choose from the list, or specify IDs using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 		},
 		{
 			displayName: '手动输入接收人',
