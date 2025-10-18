@@ -1,247 +1,300 @@
-![Banner image](https://user-images.githubusercontent.com/10284570/173569848-c624317f-42b1-45a6-ab09-f0ea3c247648.png)
+# n8n-nodes-wecom
 
-# n8n-nodes-starter
+这是一个 n8n 社区节点。它让你可以在 n8n 工作流中使用企业微信。
 
-This starter repository helps you build custom integrations for [n8n](https://n8n.io). It includes example nodes, credentials, the node linter, and all the tooling you need to get started.
+企业微信是腾讯推出的企业通讯与办公工具，为企业提供即时通讯、视频会议、日程管理等功能。
 
-## Quick Start
+[n8n](https://n8n.io/) 是一个 [fair-code licensed](https://docs.n8n.io/reference/license/) 的工作流自动化平台。
 
-> [!TIP]
-> **New to building n8n nodes?** The fastest way to get started is with `npm create @n8n/node`. This command scaffolds a complete node package for you using the [@n8n/node-cli](https://www.npmjs.com/package/@n8n/node-cli).
+[安装](#安装)  
+[操作](#操作)  
+[凭证](#凭证)  
+[兼容性](#兼容性)  
+[使用](#使用)  
+[资源](#资源)  
+[版本历史](#版本历史)  
 
-**To create a new node package from scratch:**
+## 安装
 
-```bash
-npm create @n8n/node
+按照 n8n 社区节点文档中的[安装指南](https://docs.n8n.io/integrations/community-nodes/installation/)进行安装。
+
+## 操作
+
+本节点支持以下操作：
+
+### 消息资源
+
+- **发送文本消息** - 发送纯文本消息给成员、部门或标签
+- **发送 Markdown 消息** - 发送格式化的 Markdown 消息
+- **发送图片消息** - 通过 Media ID 或直接上传文件发送图片
+- **发送语音消息** - 通过 Media ID 或直接上传文件发送语音（支持 AMR、MP3 格式）
+- **发送视频消息** - 通过 Media ID 或直接上传文件发送视频（支持 MP4 格式）
+- **发送文件消息** - 通过 Media ID 或直接上传文件发送文件
+- **发送文本卡片消息** - 发送带标题、描述和跳转链接的卡片消息
+- **发送图文消息** - 发送图文消息（news类型），支持1-8条图文
+- **发送图文消息（mpnews）** - 发送图文消息（mpnews类型），支持html内容
+- **发送小程序通知消息** - 发送小程序通知类型的消息
+- **发送任务卡片消息** - 发送带按钮的任务卡片消息，支持交互
+- **发送模板卡片消息** - 发送模板卡片消息，支持多种卡片类型（文本通知型、图文展示型、按钮交互型、投票选择型、多项选择型）
+- **撤回应用消息** - 撤回已发送的应用消息（需要消息的 msgid）
+- **更新模板卡片消息** - 更新已发送的模板卡片消息内容（需要 response_code，在24小时内有效）
+
+### 通讯录资源
+
+- **获取成员信息** - 根据 UserID 获取成员详细信息，支持从所有成员列表动态选择
+- **获取部门成员列表** - 获取指定部门的成员列表（基本信息），支持递归获取子部门
+- **获取部门成员详情** - 获取指定部门的成员列表（完整信息），包含职位、邮箱等详细信息
+- **获取成员ID列表** - 获取企业所有成员的 UserID 列表，支持分页查询（每页最多1000条）
+- **获取部门信息** - 获取企业部门列表和详细信息，支持从部门列表动态选择
+- **UserID转OpenID** - 将企业成员的 userid 转换为 openid
+- **OpenID转UserID** - 将 openid 转换为企业成员的 userid
+- **获取标签列表** - 获取企业标签列表，支持按类型筛选
+- **获取标签成员** - 获取指定标签的成员列表，支持从标签列表动态选择
+
+### 素材管理资源
+
+- **上传临时素材** - 上传临时素材文件（图片、语音、视频、文件），有效期3天
+- **获取临时素材** - 通过media_id下载临时素材文件
+- **上传永久素材** - 上传永久素材文件（图片、语音、视频、文件）
+- **获取永久素材** - 通过media_id下载永久素材文件
+
+### 动态选项加载
+
+本节点支持从企业微信实时获取数据并展示在选项中，让你可以直接选择而无需手动输入 ID：
+
+- **消息接收人选择**：
+  - 从通讯录选择成员（支持多选）
+  - 从部门列表选择部门（支持多选）
+  - 从标签列表选择标签（支持多选）
+  - 快速选择发送给全体成员
+  - 也支持传统的手动输入方式
+
+- **通讯录操作选择**：
+  - 选择部门时自动加载企业部门列表
+  - 选择成员时自动加载企业成员列表
+  - 选择标签时自动加载企业标签列表
+
+## 凭证
+
+使用此节点需要企业微信应用的凭证。
+
+### 前置条件
+
+1. 拥有企业微信管理员权限
+2. 创建或使用现有的企业微信应用
+
+### 获取凭证
+
+1. 登录[企业微信管理后台](https://work.weixin.qq.com/)
+2. 进入"我的企业" > "企业信息"，复制**企业ID** (CorpID)
+3. 进入"应用管理" > 选择或创建一个应用
+4. 复制**AgentId**（应用ID）
+5. 点击"查看Secret"，复制**Secret**
+
+### 在 n8n 中配置
+
+1. 在 n8n 中添加"企业微信"节点
+2. 点击"Credential to connect with"
+3. 选择"创建新凭证 - 企业微信 API"
+4. 填入以下信息：
+   - **企业 ID** - 你的企业 CorpID
+   - **应用 Secret** - 应用的 Secret
+   - **应用 ID** - 应用的 AgentID
+5. 保存凭证
+
+### 权限配置
+
+确保你的企业微信应用具有以下权限：
+
+- **消息发送权限** - 用于发送各类消息（必须）
+- **通讯录读取权限** - 用于查询成员、部门和标签信息（必须）
+  - 读取成员信息
+  - 读取部门信息  
+  - 读取标签信息
+- **应用可见范围** - 设置哪些成员可以接收应用消息（建议设置为全员）
+
+**配置方法**：
+1. 进入企业微信管理后台
+2. 选择你的应用
+3. 点击"API权限"
+4. 开启所需的权限
+
+## 兼容性
+
+- **最低 n8n 版本**: 1.0.0
+- **测试版本**: 1.0.0+
+
+此节点使用 n8n 的标准 API，与最新版本的 n8n 完全兼容。
+
+## 使用
+
+### 发送文本消息（使用动态选择）
+
+1. 添加"企业微信"节点到工作流
+2. 选择**资源**: 消息
+3. 选择**操作**: 发送文本消息
+4. 配置接收人：
+   - **接收人类型**: 选择"指定成员"、"指定部门"、"指定标签"或"全体成员"
+   - **成员/部门/标签**: 从自动加载的下拉列表中选择（支持多选）
+   - 也可以选择"手动输入"使用传统方式
+5. 输入**消息内容**
+
+### 发送文本消息（传统方式）
+
+如果选择"手动输入"方式：
+- **接收人**: 成员ID，用 `|` 分隔多个，或使用 `@all` 发送给所有人
+- **部门ID**: 可选，部门ID列表
+- **标签ID**: 可选，标签ID列表
+
+### 发送 Markdown 消息
+
+适合发送格式化的报告、通知等。支持标题、加粗、列表等 Markdown 语法。
+
+### 发送图片或文件
+
+1. 选择**文件来源**: 上传文件
+2. 输入**输入数据字段名**（默认为 `data`）
+3. 节点会自动上传文件并发送
+
+### 接收人配置
+
+**推荐方式（动态选择）**:
+1. 选择**接收人类型**（指定成员/指定部门/指定标签/全体成员）
+2. 从自动加载的下拉列表中选择目标（支持多选）
+3. 节点自动转换为正确的格式
+
+**传统方式（手动输入）**:
+- **单个用户**: `touser: "zhangsan"`
+- **多个用户**: `touser: "zhangsan|lisi|wangwu"`
+- **所有人**: `touser: "@all"`
+- **按部门**: `toparty: "1|2|3"`
+- **按标签**: `totag: "1|2"`
+
+### 使用表达式
+
+接收人字段支持 n8n 表达式：
+
+```javascript
+// 从输入数据获取用户ID
+{{ $json.userId }}
+
+// 从数组拼接用户ID列表
+{{ $json.users.join('|') }}
 ```
 
-**Already using this starter? Start developing with:**
+### 常见使用场景
 
-```bash
-npm run dev
+#### 定时发送日报
+
+```
+Schedule Trigger → HTTP Request (获取数据) → 企业微信 (发送Markdown消息)
 ```
 
-This starts n8n with your nodes loaded and hot reload enabled.
+#### 监控告警
 
-## What's Included
-
-This starter repository includes two example nodes to learn from:
-
-- **[Example Node](nodes/Example/)** - A simple starter node that shows the basic structure with a custom `execute` method
-- **[GitHub Issues Node](nodes/GithubIssues/)** - A complete, production-ready example built using the **declarative style**:
-  - **Low-code approach** - Define operations declaratively without writing request logic
-  - Multiple resources (Issues, Comments)
-  - Multiple operations (Get, Get All, Create)
-  - Two authentication methods (OAuth2 and Personal Access Token)
-  - List search functionality for dynamic dropdowns
-  - Proper error handling and typing
-  - Ideal for HTTP API-based integrations
-
-> [!TIP]
-> The declarative/low-code style (used in GitHub Issues) is the recommended approach for building nodes that interact with HTTP APIs. It significantly reduces boilerplate code and handles requests automatically.
-
-Browse these examples to understand both approaches, then modify them or create your own.
-
-## Finding Inspiration
-
-Looking for more examples? Check out these resources:
-
-- **[npm Community Nodes](https://www.npmjs.com/search?q=keywords:n8n-community-node-package)** - Browse thousands of community-built nodes on npm using the `n8n-community-node-package` tag
-- **[n8n Built-in Nodes](https://github.com/n8n-io/n8n/tree/master/packages/nodes-base/nodes)** - Study the source code of n8n's official nodes for production-ready patterns and best practices
-- **[n8n Credentials](https://github.com/n8n-io/n8n/tree/master/packages/nodes-base/credentials)** - See how authentication is implemented for various services
-
-These are excellent resources to understand how to structure your nodes, handle different API patterns, and implement advanced features.
-
-## Prerequisites
-
-Before you begin, install the following on your development machine:
-
-### Required
-
-- **[Node.js](https://nodejs.org/)** (v22 or higher) and npm
-  - Linux/Mac/WSL: Install via [nvm](https://github.com/nvm-sh/nvm)
-  - Windows: Follow [Microsoft's NodeJS guide](https://learn.microsoft.com/en-us/windows/dev-environment/javascript/nodejs-on-windows)
-- **[git](https://git-scm.com/downloads)**
-
-### Recommended
-
-- Follow n8n's [development environment setup guide](https://docs.n8n.io/integrations/creating-nodes/build/node-development-environment/)
-
-> [!NOTE]
-> The `@n8n/node-cli` is included as a dev dependency and will be installed automatically when you run `npm install`. The CLI includes n8n for local development, so you don't need to install n8n globally.
-
-## Getting Started with this Starter
-
-Follow these steps to create your own n8n community node package:
-
-### 1. Create Your Repository
-
-[Generate a new repository](https://github.com/n8n-io/n8n-nodes-starter/generate) from this template, then clone it:
-
-```bash
-git clone https://github.com/<your-organization>/<your-repo-name>.git
-cd <your-repo-name>
+```
+Webhook (接收告警) → IF (判断严重程度) → 企业微信 (发送文本消息)
 ```
 
-### 2. Install Dependencies
+#### 批量通知
 
-```bash
-npm install
+```
+Spreadsheet (读取用户列表) → 企业微信 (批量发送消息)
 ```
 
-This installs all required dependencies including the `@n8n/node-cli`.
+### API 限制
 
-### 3. Explore the Examples
+根据企业微信官方文档：
 
-Browse the example nodes in [nodes/](nodes/) and [credentials/](credentials/) to understand the structure:
+- 每个应用每分钟最多调用 200 次 API
+- 文本消息最长 2048 字节
+- 图片文件不超过 2MB
+- 普通文件不超过 20MB
+- 接收人列表最多 1000 个成员
 
-- Start with [nodes/Example/](nodes/Example/) for a basic node
-- Study [nodes/GithubIssues/](nodes/GithubIssues/) for a real-world implementation
+建议对高频场景启用消息去重功能。
 
-### 4. Build Your Node
+## 资源
 
-Edit the example nodes to fit your use case, or create new node files by copying the structure from [nodes/Example/](nodes/Example/).
+### n8n 相关
+- [n8n 社区节点文档](https://docs.n8n.io/integrations/#community-nodes)
+- [n8n 节点开发文档](https://docs.n8n.io/integrations/creating-nodes/)
 
-> [!TIP]
-> If you want to scaffold a completely new node package, use `npm create @n8n/node` to start fresh with the CLI's interactive generator.
+### 企业微信 API 文档
+- [企业微信开发文档](https://developer.work.weixin.qq.com/document/)
+- [消息发送 API](https://developer.work.weixin.qq.com/document/path/90236)
+- [撤回应用消息 API](https://developer.work.weixin.qq.com/document/path/94867)
+- [更新模板卡片消息 API](https://developer.work.weixin.qq.com/document/path/94888)
 
-### 5. Configure Your Package
+### 通讯录管理 API
+- [通讯录管理概览](https://developer.work.weixin.qq.com/document/path/90193)
+- [获取成员](https://developer.work.weixin.qq.com/document/path/90196)
+- [获取部门成员](https://developer.work.weixin.qq.com/document/path/90200)
+- [获取部门成员详情](https://developer.work.weixin.qq.com/document/path/90201)
+- [获取部门列表](https://developer.work.weixin.qq.com/document/path/90208)
+- [获取标签成员](https://developer.work.weixin.qq.com/document/path/90213)
+- [获取标签列表](https://developer.work.weixin.qq.com/document/path/90216)
+- [userid与openid互转](https://developer.work.weixin.qq.com/document/path/90202)
 
-Update `package.json` with your details:
+### 素材管理 API
+- [上传临时素材](https://developer.work.weixin.qq.com/document/path/90253)
+- [获取临时素材](https://developer.work.weixin.qq.com/document/path/90254)
+- [上传永久素材](https://developer.work.weixin.qq.com/document/path/90255)
+- [获取永久素材](https://developer.work.weixin.qq.com/document/path/90256)
 
-- `name` - Your package name (must start with `n8n-nodes-`)
-- `author` - Your name and email
-- `repository` - Your repository URL
-- `description` - What your node does
+## 版本历史
 
-Make sure your node is registered in the `n8n.nodes` array.
+### 1.0.0 (2025-10-18)
 
-### 6. Develop and Test Locally
+初始版本发布，完全实现企业微信发送应用消息接口，包含以下功能：
 
-Start n8n with your node loaded:
+**消息功能**（完整支持官方文档所有消息类型）:
+- 发送文本消息（支持去重、ID转译、保密消息）
+- 发送 Markdown 消息
+- 发送图片消息（支持 Media ID 或直接上传）
+- 发送语音消息（支持 Media ID 或直接上传，AMR/MP3格式）
+- 发送视频消息（支持 Media ID 或直接上传，MP4格式，支持标题和描述）
+- 发送文件消息（支持 Media ID 或直接上传）
+- 发送文本卡片消息（支持标题、描述、跳转链接和自定义按钮文字）
+- 发送图文消息（news类型，支持1-8条图文，每条包含标题、描述、图片和链接）
+- 发送图文消息（mpnews类型，支持html内容，适合富文本展示）
+- 发送小程序通知消息（支持小程序跳转和内容键值对）
+- 发送任务卡片消息（支持自定义按钮，实现交互功能）
+- 发送模板卡片消息（支持5种卡片类型：文本通知型、图文展示型、按钮交互型、投票选择型、多项选择型）
+- 撤回应用消息（支持撤回已发送的消息）
+- 更新模板卡片消息（支持更新已发送的模板卡片，实现动态卡片更新）
 
-```bash
-npm run dev
-```
+**通讯录功能**（共9个接口）:
+- 获取成员信息（支持从所有成员列表动态选择）
+- 获取部门成员列表（基本信息，支持递归）
+- 获取部门成员详情（完整信息，支持递归）
+- 获取成员ID列表（支持分页，每页最多1000条）
+- 获取部门信息（支持从部门列表动态选择）
+- UserID与OpenID互转（2个接口）
+- 获取标签列表（支持按类型筛选）
+- 获取标签成员（支持从标签列表动态选择）
 
-This command runs `n8n-node dev` which:
+**素材管理功能**（共4个接口）:
+- 上传临时素材（支持图片、语音、视频、文件，3天有效期）
+- 获取临时素材（下载临时素材文件）
+- 上传永久素材（支持图片、语音、视频、文件）
+- 获取永久素材（下载永久素材文件）
 
-- Builds your node with watch mode
-- Starts n8n with your node available
-- Automatically rebuilds when you make changes
-- Opens n8n in your browser (usually http://localhost:5678)
+**动态选项加载功能**:
+- 6个 loadOptions 方法实现实时数据加载
+- 消息接收人支持5种选择方式（指定成员、指定部门、指定标签、全体成员、手动输入）
+- 通讯录操作支持从下拉列表选择部门、成员、标签
+- 支持多选，自动格式转换
+- 向后兼容传统手动输入方式
 
-You can now test your node in n8n workflows!
+**技术特性**:
+- Access Token 自动缓存管理（支持多租户）
+- Token 失效自动重试
+- 完整的 TypeScript 类型支持
+- 遵循 n8n 节点开发最佳实践
+- 完善的错误处理
+- 友好的用户界面
 
-> [!NOTE]
-> Learn more about CLI commands in the [@n8n/node-cli documentation](https://www.npmjs.com/package/@n8n/node-cli).
+## 许可证
 
-### 7. Lint Your Code
-
-Check for errors:
-
-```bash
-npm run lint
-```
-
-Auto-fix issues when possible:
-
-```bash
-npm run lint:fix
-```
-
-### 8. Build for Production
-
-When ready to publish:
-
-```bash
-npm run build
-```
-
-This compiles your TypeScript code to the `dist/` folder.
-
-### 9. Prepare for Publishing
-
-Before publishing:
-
-1. **Update documentation**: Replace this README with your node's documentation. Use [README_TEMPLATE.md](README_TEMPLATE.md) as a starting point.
-2. **Update the LICENSE**: Add your details to the [LICENSE](LICENSE.md) file.
-3. **Test thoroughly**: Ensure your node works in different scenarios.
-
-### 10. Publish to npm
-
-Publish your package to make it available to the n8n community:
-
-```bash
-npm publish
-```
-
-Learn more about [publishing to npm](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry).
-
-### 11. Submit for Verification (Optional)
-
-Get your node verified for n8n Cloud:
-
-1. Ensure your node meets the [requirements](https://docs.n8n.io/integrations/creating-nodes/deploy/submit-community-nodes/):
-   - Uses MIT license ✅ (included in this starter)
-   - No external package dependencies
-   - Follows n8n's design guidelines
-   - Passes quality and security review
-
-2. Submit through the [n8n Creator Portal](https://creators.n8n.io/nodes)
-
-**Benefits of verification:**
-
-- Available directly in n8n Cloud
-- Discoverable in the n8n nodes panel
-- Verified badge for quality assurance
-- Increased visibility in the n8n community
-
-## Available Scripts
-
-This starter includes several npm scripts to streamline development:
-
-| Script                | Description                                                      |
-| --------------------- | ---------------------------------------------------------------- |
-| `npm run dev`         | Start n8n with your node and watch for changes (runs `n8n-node dev`) |
-| `npm run build`       | Compile TypeScript to JavaScript for production (runs `n8n-node build`) |
-| `npm run build:watch` | Build in watch mode (auto-rebuild on changes)                    |
-| `npm run lint`        | Check your code for errors and style issues (runs `n8n-node lint`) |
-| `npm run lint:fix`    | Automatically fix linting issues when possible (runs `n8n-node lint --fix`) |
-| `npm run release`     | Create a new release (runs `n8n-node release`)                   |
-
-> [!TIP]
-> These scripts use the [@n8n/node-cli](https://www.npmjs.com/package/@n8n/node-cli) under the hood. You can also run CLI commands directly, e.g., `npx n8n-node dev`.
-
-## Troubleshooting
-
-### My node doesn't appear in n8n
-
-1. Make sure you ran `npm install` to install dependencies
-2. Check that your node is listed in `package.json` under `n8n.nodes`
-3. Restart the dev server with `npm run dev`
-4. Check the console for any error messages
-
-### Linting errors
-
-Run `npm run lint:fix` to automatically fix most common issues. For remaining errors, check the [n8n node development guidelines](https://docs.n8n.io/integrations/creating-nodes/).
-
-### TypeScript errors
-
-Make sure you're using Node.js v22 or higher and have run `npm install` to get all type definitions.
-
-## Resources
-
-- **[n8n Node Documentation](https://docs.n8n.io/integrations/creating-nodes/)** - Complete guide to building nodes
-- **[n8n Community Forum](https://community.n8n.io/)** - Get help and share your nodes
-- **[@n8n/node-cli Documentation](https://www.npmjs.com/package/@n8n/node-cli)** - CLI tool reference
-- **[n8n Creator Portal](https://creators.n8n.io/nodes)** - Submit your node for verification
-- **[Submit Community Nodes Guide](https://docs.n8n.io/integrations/creating-nodes/deploy/submit-community-nodes/)** - Verification requirements and process
-
-## Contributing
-
-Have suggestions for improving this starter? [Open an issue](https://github.com/n8n-io/n8n-nodes-starter/issues) or submit a pull request!
-
-## License
-
-[MIT](https://github.com/n8n-io/n8n-nodes-starter/blob/master/LICENSE.md)
+[MIT](LICENSE.md)
