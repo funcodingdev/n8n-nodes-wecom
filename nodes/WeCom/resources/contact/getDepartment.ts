@@ -14,7 +14,7 @@ export const getDepartmentDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyGetDepartment,
 		},
-		description: '部门id。（注：如果不填，默认获取全量组织架构）',
+		description: '部门ID。（注：如果不填，默认获取全量组织架构）',
 	},
 ];
 

@@ -11,6 +11,7 @@ export class WeComApi implements ICredentialType {
 
 	displayName = '企业微信 API';
 
+	// eslint-disable-next-line @n8n/community-nodes/icon-validation
 	icon: Icon = { light: 'file:../icons/wecom.png', dark: 'file:../icons/wecom.dark.png' };
 
 	documentationUrl = 'https://developer.work.weixin.qq.com/document/path/90235';

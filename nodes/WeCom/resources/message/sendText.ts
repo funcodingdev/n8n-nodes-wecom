@@ -58,7 +58,7 @@ export const sendTextDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlySendText,
 		},
-		description: '是否是保密消息，0表示否，1表示是，默认0',
+		description: 'Whether this is a confidential message. 0 means no, 1 means yes, default is 0.',
 	},
 	{
 		displayName: '是否开启ID转译',
@@ -68,7 +68,7 @@ export const sendTextDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlySendText,
 		},
-		description: '是否开启id转译，0表示否，1表示是，默认0',
+		description: 'Whether to enable ID translation. 0 means no, 1 means yes, default is 0.',
 	},
 	{
 		displayName: '是否开启重复消息检查',
@@ -78,7 +78,7 @@ export const sendTextDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlySendText,
 		},
-		description: '是否开启重复消息检查，0表示否，1表示是，默认0',
+		description: 'Whether to enable duplicate message check. 0 means no, 1 means yes, default is 0.',
 	},
 	{
 		displayName: '重复消息检查时间',

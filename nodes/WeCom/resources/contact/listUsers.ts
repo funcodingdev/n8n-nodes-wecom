@@ -15,7 +15,7 @@ export const listUsersDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyListUsers,
 		},
-		description: '获取的部门id，默认为根部门',
+		description: '获取的部门ID，默认为根部门',
 	},
 	{
 		displayName: '是否递归获取',
@@ -25,7 +25,7 @@ export const listUsersDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyListUsers,
 		},
-		description: '是否递归获取子部门下面的成员：1-递归获取，0-只获取本部门',
+		description: 'Whether to recursively fetch members from sub-departments: 1 - fetch recursively, 0 - fetch only from this department',
 	},
 ];
 

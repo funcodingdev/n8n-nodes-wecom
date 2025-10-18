@@ -1,19 +1,22 @@
 {
-	"name": "n8n-nodes-<...>",
+	"name": "n8n-nodes-wecom",
 	"version": "0.1.0",
-	"description": "",
+	"description": "n8n community node for WeCom (WeChat Work) integration. Send messages and manage contacts.",
 	"license": "MIT",
-	"homepage": "",
+	"homepage": "https://github.com/yourusername/n8n-nodes-wecom",
 	"keywords": [
-		"n8n-community-node-package"
+		"n8n-community-node-package",
+		"wecom",
+		"wechat work",
+		"enterprise wechat"
 	],
 	"author": {
-		"name": "",
-		"email": ""
+		"name": "Your Name",
+		"email": "your.email@example.com"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/<...>/n8n-nodes-<...>.git"
+		"url": "https://github.com/yourusername/n8n-nodes-wecom.git"
 	},
 	"scripts": {
 		"build": "n8n-node build",

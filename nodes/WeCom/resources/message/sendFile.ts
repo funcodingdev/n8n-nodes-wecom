@@ -70,7 +70,7 @@ export const sendFileDescription: INodeProperties[] = [
 				fileSource: ['mediaId'],
 			},
 		},
-		description: '文件id，可以调用上传临时素材接口获取',
+		description: '文件ID，可以调用上传临时素材接口获取',
 	},
 	{
 		displayName: '输入数据字段名',

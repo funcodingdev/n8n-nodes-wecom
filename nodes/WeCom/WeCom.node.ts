@@ -14,6 +14,7 @@ export class WeCom implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: '企业微信',
 		name: 'weCom',
+		// eslint-disable-next-line @n8n/community-nodes/icon-validation
 		icon: { light: 'file:../../icons/wecom.png', dark: 'file:../../icons/wecom.dark.png' },
 		group: ['transform'],
 		version: 1,
@@ -22,6 +23,7 @@ export class WeCom implements INodeType {
 		defaults: {
 			name: '企业微信',
 		},
+		usableAsTool: true,
 		inputs: [NodeConnectionTypes.Main],
 		outputs: [NodeConnectionTypes.Main],
 		credentials: [
