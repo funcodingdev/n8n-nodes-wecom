@@ -1,0 +1,81 @@
+import type {
+	IExecuteFunctions,
+	INodeExecutionData,
+	INodeType,
+	INodeTypeDescription,
+} from 'n8n-workflow';
+import { NodeConnectionTypes } from 'n8n-workflow';
+import { messageDescription } from './resources/message';
+import { contactDescription } from './resources/contact';
+import { executeMessage } from './resources/message/execute';
+import { executeContact } from './resources/contact/execute';
+
+export class WeCom implements INodeType {
+	description: INodeTypeDescription = {
+		displayName: '企业微信',
+		name: 'weCom',
+		icon: { light: 'file:../../icons/wecom.png', dark: 'file:../../icons/wecom.dark.png' },
+		group: ['transform'],
+		version: 1,
+		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
+		description: '企业微信消息发送与通讯录管理',
+		defaults: {
+			name: '企业微信',
+		},
+		inputs: [NodeConnectionTypes.Main],
+		outputs: [NodeConnectionTypes.Main],
+		credentials: [
+			{
+				name: 'weComApi',
+				required: true,
+			},
+		],
+		requestDefaults: {
+			baseURL: 'https://qyapi.weixin.qq.com',
+			headers: {
+				Accept: 'application/json',
+				'Content-Type': 'application/json',
+			},
+		},
+		properties: [
+			{
+				displayName: '资源',
+				name: 'resource',
+				type: 'options',
+				noDataExpression: true,
+				options: [
+					{
+						name: '消息',
+						value: 'message',
+						description: '发送各类消息（文本、图片、文件等）',
+					},
+					{
+						name: '通讯录',
+						value: 'contact',
+						description: '管理通讯录（成员、部门）',
+					},
+				],
+				default: 'message',
+			},
+			...messageDescription,
+			...contactDescription,
+		],
+	};
+
+	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
+		const items = this.getInputData();
+		const resource = this.getNodeParameter('resource', 0);
+		const operation = this.getNodeParameter('operation', 0);
+
+		let returnData: INodeExecutionData[] = [];
+
+		if (resource === 'message') {
+			returnData = await executeMessage.call(this, operation as string, items);
+		} else if (resource === 'contact') {
+			returnData = await executeContact.call(this, operation as string, items);
+		}
+
+		return [returnData];
+	}
+}
+
