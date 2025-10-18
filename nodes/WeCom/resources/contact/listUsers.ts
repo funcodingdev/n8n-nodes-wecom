@@ -18,7 +18,7 @@ export const listUsersDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyListUsers,
 		},
-		description: '获取的部门ID，默认为根部门. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+		description: '获取的部门ID，默认为根部门。从列表中选择，或使用<a href="https://docs.n8n.io/code/expressions/">表达式</a>指定ID',
 	},
 	{
 		displayName: '是否递归获取',
@@ -28,7 +28,7 @@ export const listUsersDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyListUsers,
 		},
-		description: 'Whether to recursively fetch members from sub-departments: 1 - fetch recursively, 0 - fetch only from this department',
+		description: '是否递归获取子部门成员：true - 递归获取，false - 仅获取本部门',
 	},
 ];
 

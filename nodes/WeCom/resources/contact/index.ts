@@ -26,13 +26,13 @@ export const contactDescription: INodeProperties[] = [
 			{
 				name: 'OpenID转UserID',
 				value: 'convertToUserid',
-				action: 'Open id userid',
+				action: 'OpenID转UserID',
 				description: '将 openid 转换为企业成员的 userid',
 			},
 			{
 				name: 'UserID转OpenID',
 				value: 'convertToOpenid',
-				action: 'Userid open id',
+				action: 'UserID转OpenID',
 				description: '将企业成员的 userid 转换为 openid',
 			},
 			{

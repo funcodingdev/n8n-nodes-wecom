@@ -18,7 +18,7 @@ export const getTagDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyGetTag,
 		},
-		description: '标签 ID. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+		description: '标签 ID。从列表中选择，或使用<a href="https://docs.n8n.io/code/expressions/">表达式</a>指定ID',
 	},
 ];
 
