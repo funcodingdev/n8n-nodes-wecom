@@ -80,7 +80,19 @@
   - `multiple_interaction` - 多项选择型
 - 特性：最灵活的卡片消息类型，支持复杂的交互和展示
 
-### 13. ✅ 更新模板卡片消息 (updateTemplateCard) - 新增
+### 13. ✅ 撤回应用消息 (recallMessage) - 新增
+- 文件：`recallMessage.ts`
+- API接口：`/cgi-bin/message/recall`
+- 功能：撤回已发送的应用消息
+- 特性：
+  - 需要使用发送消息时返回的 `msgid`
+  - 只能撤回应用自己发送的消息
+  - 仅可撤回24小时内发送的消息
+- 参数：
+  - `msgid` - 消息ID，从发送消息接口返回值中获取
+- 参考文档：https://developer.work.weixin.qq.com/document/path/94867
+
+### 14. ✅ 更新模板卡片消息 (updateTemplateCard) - 新增
 - 文件：`updateTemplateCard.ts`
 - API接口：`/cgi-bin/message/update_template_card`
 - 功能：更新已发送的模板卡片消息内容
@@ -111,6 +123,7 @@ nodes/WeCom/resources/message/
 ├── sendMiniprogramNotice.ts    # 小程序通知消息定义（新增）
 ├── sendTaskCard.ts             # 任务卡片消息定义（新增）
 ├── sendTemplateCard.ts         # 模板卡片消息定义（新增）
+├── recallMessage.ts            # 撤回应用消息定义（新增）
 └── updateTemplateCard.ts       # 更新模板卡片消息定义（新增）
 ```
 
@@ -190,6 +203,19 @@ nodes/WeCom/resources/message/
 }
 ```
 
+### 撤回应用消息
+```javascript
+{
+  "msgid": "msgid_from_send_message"
+}
+```
+
+**重要提示**：
+- `msgid` 从发送消息的返回值中获取
+- 只能撤回应用自己发送的消息
+- 只能撤回24小时内发送的消息
+- 撤回后消息将从对话列表中移除
+
 ### 更新模板卡片消息
 ```javascript
 {
@@ -232,6 +258,11 @@ nodes/WeCom/resources/message/
    - 测试消息去重功能
    - 测试ID转译功能
 
+5. **消息管理测试**
+   - 测试撤回应用消息
+   - 测试更新模板卡片消息
+   - 验证24小时时间限制
+
 ## 兼容性
 
 - ✅ 完全兼容企业微信官方 API
@@ -242,6 +273,7 @@ nodes/WeCom/resources/message/
 ## 参考文档
 
 - [企业微信发送应用消息接口](https://developer.work.weixin.qq.com/document/path/90236)
+- [企业微信撤回应用消息接口](https://developer.work.weixin.qq.com/document/path/94867)
 - [企业微信更新模板卡片消息接口](https://developer.work.weixin.qq.com/document/path/94888)
 - [n8n 节点开发文档](https://docs.n8n.io/integrations/creating-nodes/)
 

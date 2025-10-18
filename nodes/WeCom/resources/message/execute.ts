@@ -784,6 +784,26 @@ export async function executeMessage(
 					pairedItem: { item: i },
 				});
 				continue;
+			} else if (operation === 'recallMessage') {
+				const msgid = this.getNodeParameter('msgid', i) as string;
+
+				const recallBody = {
+					msgid,
+				};
+
+				// 使用撤回消息接口
+				const response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/message/recall',
+					recallBody,
+				);
+
+				returnData.push({
+					json: response as IDataObject,
+					pairedItem: { item: i },
+				});
+				continue;
 			}
 
 			const response = await weComApiRequest.call(this, 'POST', '/cgi-bin/message/send', body);

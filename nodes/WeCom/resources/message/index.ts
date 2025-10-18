@@ -12,6 +12,7 @@ import { sendMiniprogramNoticeDescription } from './sendMiniprogramNotice';
 import { sendTaskCardDescription } from './sendTaskCard';
 import { sendTemplateCardDescription } from './sendTemplateCard';
 import { updateTemplateCardDescription } from './updateTemplateCard';
+import { recallMessageDescription } from './recallMessage';
 
 const showOnlyForMessage = {
 	resource: ['message'],
@@ -100,6 +101,12 @@ export const messageDescription: INodeProperties[] = [
 				description: '发送语音类型的消息',
 			},
 			{
+				name: '撤回应用消息',
+				value: 'recallMessage',
+				action: '撤回应用消息',
+				description: '撤回已发送的应用消息',
+			},
+			{
 				name: '更新模板卡片消息',
 				value: 'updateTemplateCard',
 				action: '更新模板卡片消息',
@@ -120,6 +127,7 @@ export const messageDescription: INodeProperties[] = [
 	...sendMiniprogramNoticeDescription,
 	...sendTaskCardDescription,
 	...sendTemplateCardDescription,
+	...recallMessageDescription,
 	...updateTemplateCardDescription,
 ];
 

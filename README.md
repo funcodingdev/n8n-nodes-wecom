@@ -36,6 +36,7 @@
 - **发送小程序通知消息** - 发送小程序通知类型的消息
 - **发送任务卡片消息** - 发送带按钮的任务卡片消息，支持交互
 - **发送模板卡片消息** - 发送模板卡片消息，支持多种卡片类型（文本通知型、图文展示型、按钮交互型、投票选择型、多项选择型）
+- **撤回应用消息** - 撤回已发送的应用消息（需要消息的 msgid）
 - **更新模板卡片消息** - 更新已发送的模板卡片消息内容（需要 response_code，在24小时内有效）
 
 ### 通讯录资源
@@ -168,6 +169,8 @@ Spreadsheet (读取用户列表) → 企业微信 (批量发送消息)
 - [n8n 社区节点文档](https://docs.n8n.io/integrations/#community-nodes)
 - [企业微信开发文档](https://developer.work.weixin.qq.com/document/)
 - [消息发送 API](https://developer.work.weixin.qq.com/document/path/90236)
+- [撤回应用消息 API](https://developer.work.weixin.qq.com/document/path/94867)
+- [更新模板卡片消息 API](https://developer.work.weixin.qq.com/document/path/94888)
 - [通讯录管理 API](https://developer.work.weixin.qq.com/document/path/90194)
 
 ## 版本历史
@@ -189,6 +192,7 @@ Spreadsheet (读取用户列表) → 企业微信 (批量发送消息)
 - 发送小程序通知消息（支持小程序跳转和内容键值对）
 - 发送任务卡片消息（支持自定义按钮，实现交互功能）
 - 发送模板卡片消息（支持5种卡片类型：文本通知型、图文展示型、按钮交互型、投票选择型、多项选择型）
+- 撤回应用消息（支持撤回已发送的消息）
 - 更新模板卡片消息（支持更新已发送的模板卡片，实现动态卡片更新）
 
 **通讯录功能**:
