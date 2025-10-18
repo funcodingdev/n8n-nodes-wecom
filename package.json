@@ -25,7 +25,10 @@
 		"lint": "n8n-node lint",
 		"lint:fix": "n8n-node lint --fix",
 		"release": "n8n-node release",
-		"prepublishOnly": "n8n-node prerelease"
+		"prepublishOnly": "n8n-node prerelease",
+		"install:local": "./scripts/dev-install.sh",
+		"uninstall:local": "./scripts/dev-uninstall.sh",
+		"start:local": "./scripts/dev-start.sh"
 	},
 	"files": [
 		"dist"
