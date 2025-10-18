@@ -8,21 +8,86 @@ import type {
 import { NodeOperationError } from 'n8n-workflow';
 import type { IWeComAccessTokenResponse, IWeComCredentials } from './types';
 
-let cachedAccessToken: { token: string; expiresAt: number } | null = null;
+/**
+ * Access Token 缓存结构
+ * 使用 Map 按凭证隔离，支持多租户场景
+ */
+interface TokenCache {
+	token: string;
+	expiresAt: number;
+	pending?: Promise<string>;
+}
+
+const accessTokenCache = new Map<string, TokenCache>();
+
+/**
+ * 生成缓存 Key（基于凭证信息）
+ */
+function getCacheKey(credentials: IWeComCredentials): string {
+	return `${credentials.corpId}-${credentials.corpSecret}`;
+}
+
+/**
+ * 清除指定凭证的 Access Token 缓存
+ */
+export function clearAccessTokenCache(credentials: IWeComCredentials): void {
+	const cacheKey = getCacheKey(credentials);
+	accessTokenCache.delete(cacheKey);
+}
 
 /**
  * 获取企业微信 Access Token
+ * 
+ * 特性：
+ * - 按凭证缓存，支持多租户
+ * - 并发请求控制，避免重复调用
+ * - 提前 5 分钟过期，确保安全性
  */
 export async function getAccessToken(
 	this: IExecuteFunctions | ILoadOptionsFunctions,
 ): Promise<string> {
 	const credentials = (await this.getCredentials('weComApi')) as IWeComCredentials;
+	const cacheKey = getCacheKey(credentials);
+	const cached = accessTokenCache.get(cacheKey);
 
-	// 检查缓存的 token 是否有效
-	if (cachedAccessToken && cachedAccessToken.expiresAt > Date.now()) {
-		return cachedAccessToken.token;
+	// 如果有正在进行的请求，等待它完成（避免并发重复请求）
+	if (cached?.pending) {
+		return await cached.pending;
 	}
 
+	// 检查缓存的 token 是否有效
+	if (cached && cached.expiresAt > Date.now()) {
+		return cached.token;
+	}
+
+	// 创建获取 token 的 Promise
+	const tokenPromise = fetchAccessToken.call(this, credentials, cacheKey);
+
+	// 保存 pending 状态，防止并发重复请求
+	accessTokenCache.set(cacheKey, {
+		token: '',
+		expiresAt: 0,
+		pending: tokenPromise,
+	});
+
+	try {
+		const token = await tokenPromise;
+		return token;
+	} catch (error) {
+		// 请求失败时清除缓存
+		accessTokenCache.delete(cacheKey);
+		throw error;
+	}
+}
+
+/**
+ * 实际获取 Access Token 的函数
+ */
+async function fetchAccessToken(
+	this: IExecuteFunctions | ILoadOptionsFunctions,
+	credentials: IWeComCredentials,
+	cacheKey: string,
+): Promise<string> {
 	const options: IHttpRequestOptions = {
 		method: 'GET',
 		url: 'https://qyapi.weixin.qq.com/cgi-bin/gettoken',
@@ -42,17 +107,22 @@ export async function getAccessToken(
 		);
 	}
 
-	// 缓存 token，提前 5 分钟过期以确保安全
-	cachedAccessToken = {
+	// 缓存 token，提前 5 分钟过期以确保安全（企业微信官方建议）
+	const expiresIn = response.expires_in || 7200; // 默认 7200 秒（2 小时）
+	accessTokenCache.set(cacheKey, {
 		token: response.access_token,
-		expiresAt: Date.now() + (response.expires_in! - 300) * 1000,
-	};
+		expiresAt: Date.now() + (expiresIn - 300) * 1000, // 提前 5 分钟过期
+	});
 
 	return response.access_token;
 }
 
 /**
  * 发送企业微信 API 请求
+ * 
+ * 特性：
+ * - 自动处理 Access Token 失效（40014, 42001）并重试
+ * - 完善的错误处理
  */
 export async function weComApiRequest(
 	this: IExecuteFunctions | ILoadOptionsFunctions,
@@ -60,6 +130,7 @@ export async function weComApiRequest(
 	resource: string,
 	body: IDataObject = {},
 	qs: IDataObject = {},
+	maxRetries: number = 1,
 ): Promise<IDataObject> {
 	const accessToken = await getAccessToken.call(this);
 
@@ -76,6 +147,16 @@ export async function weComApiRequest(
 
 	try {
 		const response = (await this.helpers.httpRequest(options)) as IDataObject;
+
+		// 处理 Access Token 失效错误（40014: 不合法的access_token, 42001: access_token已过期）
+		if ((response.errcode === 40014 || response.errcode === 42001) && maxRetries > 0) {
+			// 清除缓存的 token
+			const credentials = (await this.getCredentials('weComApi')) as IWeComCredentials;
+			clearAccessTokenCache(credentials);
+
+			// 重试请求
+			return await weComApiRequest.call(this, method, resource, body, qs, maxRetries - 1);
+		}
 
 		if (response.errcode !== undefined && response.errcode !== 0) {
 			throw new NodeOperationError(
