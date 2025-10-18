@@ -7,9 +7,12 @@ const showOnlyGetDepartment = {
 
 export const getDepartmentDescription: INodeProperties[] = [
 	{
-		displayName: '部门 ID',
+		displayName: '部门',
 		name: 'id',
-		type: 'string',
+		type: 'options',
+		typeOptions: {
+			loadOptionsMethod: 'getDepartments',
+		},
 		default: '1',
 		displayOptions: {
 			show: showOnlyGetDepartment,

@@ -1,11 +1,11 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-const showOnlyGetUser = {
+const showOnlyConvertToOpenid = {
 	resource: ['contact'],
-	operation: ['getUser'],
+	operation: ['convertToOpenid'],
 };
 
-export const getUserDescription: INodeProperties[] = [
+export const convertToOpenidDescription: INodeProperties[] = [
 	{
 		displayName: '成员',
 		name: 'userid',
@@ -16,9 +16,9 @@ export const getUserDescription: INodeProperties[] = [
 		required: true,
 		default: '',
 		displayOptions: {
-			show: showOnlyGetUser,
+			show: showOnlyConvertToOpenid,
 		},
-		description: '成员UserID。对应管理端的账号，企业内必须唯一',
+		description: '企业成员的 userid',
 	},
 ];
 

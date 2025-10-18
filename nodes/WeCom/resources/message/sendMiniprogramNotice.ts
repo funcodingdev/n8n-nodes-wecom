@@ -1,4 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { getRecipientFields } from './commonFields';
 
 const showOnlySendMiniprogramNotice = {
 	resource: ['message'],
@@ -6,36 +7,7 @@ const showOnlySendMiniprogramNotice = {
 };
 
 export const sendMiniprogramNoticeDescription: INodeProperties[] = [
-	{
-		displayName: '接收人',
-		name: 'touser',
-		type: 'string',
-		default: '',
-		displayOptions: {
-			show: showOnlySendMiniprogramNotice,
-		},
-		description: '成员ID列表（消息接收者，多个接收者用 | 分隔，最多支持1000个）。特殊情况：指定为 @all，则向该企业应用的全部成员发送',
-	},
-	{
-		displayName: '部门ID',
-		name: 'toparty',
-		type: 'string',
-		default: '',
-		displayOptions: {
-			show: showOnlySendMiniprogramNotice,
-		},
-		description: '部门ID列表，多个接收者用 | 分隔，最多支持100个。当touser为@all时忽略本参数',
-	},
-	{
-		displayName: '标签ID',
-		name: 'totag',
-		type: 'string',
-		default: '',
-		displayOptions: {
-			show: showOnlySendMiniprogramNotice,
-		},
-		description: '标签ID列表，多个接收者用 | 分隔，最多支持100个。当touser为@all时忽略本参数',
-	},
+	...getRecipientFields('sendMiniprogramNotice'),
 	{
 		displayName: '小程序Appid',
 		name: 'appid',

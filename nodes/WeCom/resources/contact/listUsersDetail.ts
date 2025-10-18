@@ -1,11 +1,11 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-const showOnlyListUsers = {
+const showOnlyListUsersDetail = {
 	resource: ['contact'],
-	operation: ['listUsers'],
+	operation: ['listUsersDetail'],
 };
 
-export const listUsersDescription: INodeProperties[] = [
+export const listUsersDetailDescription: INodeProperties[] = [
 	{
 		displayName: '部门',
 		name: 'department_id',
@@ -16,7 +16,7 @@ export const listUsersDescription: INodeProperties[] = [
 		required: true,
 		default: '1',
 		displayOptions: {
-			show: showOnlyListUsers,
+			show: showOnlyListUsersDetail,
 		},
 		description: '获取的部门ID，默认为根部门',
 	},
@@ -26,9 +26,9 @@ export const listUsersDescription: INodeProperties[] = [
 		type: 'boolean',
 		default: false,
 		displayOptions: {
-			show: showOnlyListUsers,
+			show: showOnlyListUsersDetail,
 		},
-		description: 'Whether to recursively fetch members from sub-departments: 1 - fetch recursively, 0 - fetch only from this department',
+		description: '是否递归获取子部门下的成员：1-递归获取，0-只获取本部门',
 	},
 ];
 

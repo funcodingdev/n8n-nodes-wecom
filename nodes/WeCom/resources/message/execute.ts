@@ -1,6 +1,7 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { weComApiRequest, uploadMedia } from '../../shared/transport';
+import { extractRecipients } from './commonFields';
 
 export async function executeMessage(
 	this: IExecuteFunctions,
@@ -14,9 +15,42 @@ export async function executeMessage(
 			const credentials = await this.getCredentials('weComApi');
 			const agentId = credentials.agentId as string;
 
-			const touser = this.getNodeParameter('touser', i, '') as string;
-			const toparty = this.getNodeParameter('toparty', i, '') as string;
-			const totag = this.getNodeParameter('totag', i, '') as string;
+			// 获取接收人信息（支持新旧两种方式）
+			let touser = '';
+			let toparty = '';
+			let totag = '';
+
+			// 检查是否使用新的接收人选择方式
+			const recipientType = this.getNodeParameter('recipientType', i, null) as string | null;
+			
+			if (recipientType !== null) {
+				// 新方式：使用 recipientType 选择
+				const touserArray = this.getNodeParameter('touser', i, []) as string[];
+				const topartyArray = this.getNodeParameter('toparty', i, []) as string[];
+				const totagArray = this.getNodeParameter('totag', i, []) as string[];
+				const touserManual = this.getNodeParameter('touser_manual', i, '') as string;
+				const topartyManual = this.getNodeParameter('toparty_manual', i, '') as string;
+				const totagManual = this.getNodeParameter('totag_manual', i, '') as string;
+
+				const recipients = extractRecipients(
+					recipientType,
+					touserArray,
+					topartyArray,
+					totagArray,
+					touserManual,
+					topartyManual,
+					totagManual,
+				);
+
+				touser = recipients.touser || '';
+				toparty = recipients.toparty || '';
+				totag = recipients.totag || '';
+			} else {
+				// 旧方式：直接获取字段（向后兼容）
+				touser = this.getNodeParameter('touser', i, '') as string;
+				toparty = this.getNodeParameter('toparty', i, '') as string;
+				totag = this.getNodeParameter('totag', i, '') as string;
+			}
 
 			if (!touser && !toparty && !totag) {
 				throw new NodeOperationError(

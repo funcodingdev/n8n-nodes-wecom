@@ -29,6 +29,20 @@ export async function executeContact(
 						fetch_child: fetch_child ? 1 : 0,
 					},
 				);
+			} else if (operation === 'listUsersDetail') {
+				const department_id = this.getNodeParameter('department_id', i, '1') as string;
+				const fetch_child = this.getNodeParameter('fetch_child', i, false) as boolean;
+
+				response = await weComApiRequest.call(
+					this,
+					'GET',
+					'/cgi-bin/user/list',
+					{},
+					{
+						department_id,
+						fetch_child: fetch_child ? 1 : 0,
+					},
+				);
 			} else if (operation === 'getDepartment') {
 				const id = this.getNodeParameter('id', i, '') as string;
 				const qs: IDataObject = {};
@@ -37,6 +51,49 @@ export async function executeContact(
 				}
 
 				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/department/list', {}, qs);
+			} else if (operation === 'convertToOpenid') {
+				const userid = this.getNodeParameter('userid', i) as string;
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/user/convert_to_openid',
+					{ userid },
+				);
+			} else if (operation === 'convertToUserid') {
+				const openid = this.getNodeParameter('openid', i) as string;
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/user/convert_to_userid',
+					{ openid },
+				);
+			} else if (operation === 'getJoinQrcode') {
+				const size_type = this.getNodeParameter('size_type', i, 1) as number;
+				response = await weComApiRequest.call(
+					this,
+					'GET',
+					'/cgi-bin/corp/get_join_qrcode',
+					{},
+					{ size_type },
+				);
+			} else if (operation === 'getActiveStat') {
+				const date = this.getNodeParameter('date', i) as string;
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/user/get_active_stat',
+					{ date },
+				);
+			} else if (operation === 'getTagList') {
+				const tag_type = this.getNodeParameter('tag_type', i, '') as string;
+				const qs: IDataObject = {};
+				if (tag_type) {
+					qs.tag_type = tag_type;
+				}
+				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/tag/list', {}, qs);
+			} else if (operation === 'getTag') {
+				const tagid = this.getNodeParameter('tagid', i) as string;
+				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/tag/get', {}, { tagid });
 			} else {
 				response = {};
 			}
