@@ -7,7 +7,7 @@ const showOnlyGetUser = {
 
 export const getUserDescription: INodeProperties[] = [
 	{
-		displayName: '成员',
+		displayName: '成员 Name or ID',
 		name: 'userid',
 		type: 'options',
 		typeOptions: {
@@ -18,7 +18,7 @@ export const getUserDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyGetUser,
 		},
-		description: '成员UserID。对应管理端的账号，企业内必须唯一',
+		description: '成员UserID。对应管理端的账号，企业内必须唯一. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 	},
 ];
 

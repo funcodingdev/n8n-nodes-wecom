@@ -33,7 +33,6 @@ export const uploadPermanentDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyUploadPermanent,
 		},
-		description: '素材类型',
 	},
 	{
 		displayName: '文件',

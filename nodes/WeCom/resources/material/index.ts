@@ -34,7 +34,6 @@ export const materialDescription: INodeProperties[] = [
 				name: '上传永久素材',
 				value: 'uploadPermanent',
 				action: '上传永久素材',
-				description: '上传永久素材',
 			},
 			{
 				name: '获取永久素材',

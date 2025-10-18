@@ -52,7 +52,7 @@ export const sendTaskCardDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlySendTaskCard,
 		},
-		description: '任务 ID，同一个应用发送的任务卡片消息的任务id不能重复，只能由数字、字母和"_-@"组成，最长支持128字节',
+		description: '任务 ID，同一个应用发送的任务卡片消息的任务 ID 不能重复，只能由数字、字母和"_-@"组成，最长支持128字节',
 	},
 	{
 		displayName: '按钮列表',

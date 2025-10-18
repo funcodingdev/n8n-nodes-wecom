@@ -133,7 +133,7 @@ export async function weComApiRequest(
 	headers: IDataObject = {},
 	option: IDataObject = {},
 	maxRetries: number = 1,
-): Promise<any> {
+): Promise<IDataObject> {
 	const accessToken = await getAccessToken.call(this);
 
 	const options: IHttpRequestOptions = {

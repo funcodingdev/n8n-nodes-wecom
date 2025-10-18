@@ -7,7 +7,7 @@ const showOnlyConvertToOpenid = {
 
 export const convertToOpenidDescription: INodeProperties[] = [
 	{
-		displayName: '成员',
+		displayName: '成员 Name or ID',
 		name: 'userid',
 		type: 'options',
 		typeOptions: {
@@ -18,7 +18,7 @@ export const convertToOpenidDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyConvertToOpenid,
 		},
-		description: '企业成员的 userid',
+		description: '企业成员的 userid. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 	},
 ];
 

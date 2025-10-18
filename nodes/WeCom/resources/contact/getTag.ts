@@ -7,7 +7,7 @@ const showOnlyGetTag = {
 
 export const getTagDescription: INodeProperties[] = [
 	{
-		displayName: '标签',
+		displayName: '标签 Name or ID',
 		name: 'tagid',
 		type: 'options',
 		typeOptions: {
@@ -18,7 +18,7 @@ export const getTagDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyGetTag,
 		},
-		description: '标签 ID',
+		description: '标签 ID. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 	},
 ];
 

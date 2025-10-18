@@ -33,7 +33,6 @@ export const uploadTempDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyUploadTemp,
 		},
-		description: '素材类型',
 	},
 	{
 		displayName: '文件',

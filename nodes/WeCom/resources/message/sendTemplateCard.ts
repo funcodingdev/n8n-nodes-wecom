@@ -140,7 +140,7 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlySendTemplateCard,
 		},
-		description: '任务 ID，同一个应用任务id不能重复，只能由数字、字母和"_-@"组成，最长128字节，填了action_menu字段的话本字段必填',
+		description: '任务 ID，同一个应用任务 ID 不能重复，只能由数字、字母和"_-@"组成，最长128字节，填了action_menu字段的话本字段必填',
 	},
 	{
 		displayName: '按钮列表',
