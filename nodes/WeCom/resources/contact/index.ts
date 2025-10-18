@@ -2,6 +2,7 @@ import type { INodeProperties } from 'n8n-workflow';
 import { getUserDescription } from './getUser';
 import { listUsersDescription } from './listUsers';
 import { listUsersDetailDescription } from './listUsersDetail';
+import { listUserIdsDescription } from './listUserIds';
 import { getDepartmentDescription } from './getDepartment';
 import { convertToOpenidDescription } from './convertToOpenid';
 import { convertToUseridDescription } from './convertToUserid';
@@ -23,40 +24,28 @@ export const contactDescription: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: '获取成员信息',
-				value: 'getUser',
-				action: '获取成员信息',
-				description: '读取成员详细信息',
-			},
-			{
-				name: '获取部门成员列表',
-				value: 'listUsers',
-				action: '获取部门成员列表',
-				description: '获取部门成员列表（仅包含基本信息）',
-			},
-			{
-				name: '获取部门成员详情',
-				value: 'listUsersDetail',
-				action: '获取部门成员详情列表',
-				description: '获取部门成员列表（包含完整信息）',
-			},
-			{
-				name: '获取部门信息',
-				value: 'getDepartment',
-				action: '获取部门信息',
-				description: '获取部门列表',
+				name: 'OpenID转UserID',
+				value: 'convertToUserid',
+				action: 'openID转userid',
+				description: '将 openid 转换为企业成员的 userid',
 			},
 			{
 				name: 'UserID转OpenID',
 				value: 'convertToOpenid',
-				action: 'UserID转OpenID',
+				action: 'userid转openID',
 				description: '将企业成员的 userid 转换为 openid',
 			},
 			{
-				name: 'OpenID转UserID',
-				value: 'convertToUserid',
-				action: 'OpenID转UserID',
-				description: '将 openid 转换为企业成员的 userid',
+				name: '获取成员ID列表',
+				value: 'listUserIds',
+				action: '获取成员ID列表',
+				description: '获取企业所有成员的UserID列表，支持分页',
+			},
+			{
+				name: '获取成员信息',
+				value: 'getUser',
+				action: '获取成员信息',
+				description: '读取成员详细信息',
 			},
 			{
 				name: '获取标签列表',
@@ -70,12 +59,31 @@ export const contactDescription: INodeProperties[] = [
 				action: '获取标签成员',
 				description: '获取标签成员列表',
 			},
+			{
+				name: '获取部门信息',
+				value: 'getDepartment',
+				action: '获取部门信息',
+				description: '获取部门列表',
+			},
+			{
+				name: '获取部门成员列表',
+				value: 'listUsers',
+				action: '获取部门成员列表',
+				description: '获取部门成员列表（仅包含基本信息）',
+			},
+			{
+				name: '获取部门成员详情',
+				value: 'listUsersDetail',
+				action: '获取部门成员详情列表',
+				description: '获取部门成员列表（包含完整信息）',
+			},
 		],
 		default: 'getUser',
 	},
 	...getUserDescription,
 	...listUsersDescription,
 	...listUsersDetailDescription,
+	...listUserIdsDescription,
 	...getDepartmentDescription,
 	...convertToOpenidDescription,
 	...convertToUseridDescription,

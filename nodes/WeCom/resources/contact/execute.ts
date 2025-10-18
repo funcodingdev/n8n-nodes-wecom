@@ -43,6 +43,19 @@ export async function executeContact(
 						fetch_child: fetch_child ? 1 : 0,
 					},
 				);
+			} else if (operation === 'listUserIds') {
+				const cursor = this.getNodeParameter('cursor', i, '') as string;
+				const limit = this.getNodeParameter('limit', i, 1000) as number;
+
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/user/list_id',
+					{
+						cursor,
+						limit,
+					},
+				);
 			} else if (operation === 'getDepartment') {
 				const id = this.getNodeParameter('id', i, '') as string;
 				const qs: IDataObject = {};

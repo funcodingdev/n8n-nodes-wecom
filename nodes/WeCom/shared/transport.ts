@@ -130,42 +130,64 @@ export async function weComApiRequest(
 	resource: string,
 	body: IDataObject = {},
 	qs: IDataObject = {},
+	headers: IDataObject = {},
+	option: IDataObject = {},
 	maxRetries: number = 1,
-): Promise<IDataObject> {
+): Promise<any> {
 	const accessToken = await getAccessToken.call(this);
 
 	const options: IHttpRequestOptions = {
 		method,
-		body,
 		qs: {
 			...qs,
 			access_token: accessToken,
 		},
 		url: `https://qyapi.weixin.qq.com${resource}`,
 		json: true,
+		...option,
 	};
 
+	// 如果有formData，使用formData；否则使用body
+	if (option.formData) {
+		options.body = option.formData;
+		delete options.json; // formData不需要json
+	} else {
+		options.body = body;
+	}
+
+	// 合并自定义headers
+	if (Object.keys(headers).length > 0) {
+		options.headers = { ...options.headers, ...headers };
+	}
+
 	try {
-		const response = (await this.helpers.httpRequest(options)) as IDataObject;
+		const response = await this.helpers.httpRequest(options);
+
+		// 如果是二进制响应（如下载文件），直接返回
+		if (option.encoding === null || option.resolveWithFullResponse) {
+			return response;
+		}
+
+		const jsonResponse = response as IDataObject;
 
 		// 处理 Access Token 失效错误（40014: 不合法的access_token, 42001: access_token已过期）
-		if ((response.errcode === 40014 || response.errcode === 42001) && maxRetries > 0) {
+		if ((jsonResponse.errcode === 40014 || jsonResponse.errcode === 42001) && maxRetries > 0) {
 			// 清除缓存的 token
 			const credentials = (await this.getCredentials('weComApi')) as IWeComCredentials;
 			clearAccessTokenCache(credentials);
 
 			// 重试请求
-			return await weComApiRequest.call(this, method, resource, body, qs, maxRetries - 1);
+			return await weComApiRequest.call(this, method, resource, body, qs, headers, option, maxRetries - 1);
 		}
 
-		if (response.errcode !== undefined && response.errcode !== 0) {
+		if (jsonResponse.errcode !== undefined && jsonResponse.errcode !== 0) {
 			throw new NodeOperationError(
 				this.getNode(),
-				`企业微信 API 错误: ${response.errmsg} (错误码: ${response.errcode})`,
+				`企业微信 API 错误: ${jsonResponse.errmsg} (错误码: ${jsonResponse.errcode})`,
 			);
 		}
 
-		return response;
+		return jsonResponse;
 	} catch (error) {
 		const err = error as Error;
 		throw new NodeOperationError(this.getNode(), `API 请求失败: ${err.message}`);

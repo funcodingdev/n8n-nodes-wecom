@@ -9,8 +9,10 @@ import type {
 import { NodeConnectionTypes } from 'n8n-workflow';
 import { messageDescription } from './resources/message';
 import { contactDescription } from './resources/contact';
+import { materialDescription } from './resources/material';
 import { executeMessage } from './resources/message/execute';
 import { executeContact } from './resources/contact/execute';
+import { executeMaterial } from './resources/material/execute';
 import { weComApiRequest } from './shared/transport';
 
 export class WeCom implements INodeType {
@@ -59,11 +61,17 @@ export class WeCom implements INodeType {
 						value: 'contact',
 						description: '管理通讯录（成员、部门）',
 					},
+					{
+						name: '素材管理',
+						value: 'material',
+						description: '上传和管理素材文件',
+					},
 				],
 				default: 'message',
 			},
 			...messageDescription,
 			...contactDescription,
+			...materialDescription,
 		],
 	};
 
@@ -180,6 +188,8 @@ export class WeCom implements INodeType {
 			returnData = await executeMessage.call(this, operation as string, items);
 		} else if (resource === 'contact') {
 			returnData = await executeContact.call(this, operation as string, items);
+		} else if (resource === 'material') {
+			returnData = await executeMaterial.call(this, operation as string, items);
 		}
 
 		return [returnData];
