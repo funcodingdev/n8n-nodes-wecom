@@ -67,23 +67,6 @@ export async function executeContact(
 					'/cgi-bin/user/convert_to_userid',
 					{ openid },
 				);
-			} else if (operation === 'getJoinQrcode') {
-				const size_type = this.getNodeParameter('size_type', i, 1) as number;
-				response = await weComApiRequest.call(
-					this,
-					'GET',
-					'/cgi-bin/corp/get_join_qrcode',
-					{},
-					{ size_type },
-				);
-			} else if (operation === 'getActiveStat') {
-				const date = this.getNodeParameter('date', i) as string;
-				response = await weComApiRequest.call(
-					this,
-					'POST',
-					'/cgi-bin/user/get_active_stat',
-					{ date },
-				);
 			} else if (operation === 'getTagList') {
 				const tag_type = this.getNodeParameter('tag_type', i, '') as string;
 				const qs: IDataObject = {};
