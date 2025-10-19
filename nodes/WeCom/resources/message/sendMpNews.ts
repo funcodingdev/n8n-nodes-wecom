@@ -57,11 +57,11 @@ export const sendMpNewsDescription: INodeProperties[] = [
 					},
 					{
 						displayName: '图文消息缩略图的Media_id',
-						name: 'thumb_media_id',
+						name: 'thumb_media_ID',
 						type: 'string',
 							required:	true,
 						default: '',
-						description: '图文消息缩略图的media_id，可以在上传多媒体文件接口中获得。此处thumb_media_id即上传接口返回的media_id',
+						description: '图文消息缩略图的media_ID，可以在上传多媒体文件接口中获得。此处thumb_media_ID即上传接口返回的media_ID',
 					},
 					{
 						displayName: '标题',

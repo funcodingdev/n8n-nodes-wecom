@@ -8,14 +8,14 @@ const showOnlyForBatchReplace = {
 export const batchReplaceUserDescription: INodeProperties[] = [
 	{
 		displayName: 'Media ID',
-		name: 'media_id',
+		name: 'media_ID',
 		type: 'string',
 		required: true,
 		displayOptions: {
 			show: showOnlyForBatchReplace,
 		},
 		default: '',
-		description: '上传的csv文件的media_id，通过素材管理接口上传文件获得。',
+		description: '上传的csv文件的media_ID，通过素材管理接口上传文件获得。',
 		hint: '素材Media ID',
 	},
 	{

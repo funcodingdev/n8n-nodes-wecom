@@ -37,11 +37,11 @@ export const sendFileDescription: INodeProperties[] = [
 		],
 		default: 'binary',
 		description: '选择文件来源方式',
-		hint: '可以直接提供 media_id 或上传二进制文件',
+		hint: '可以直接提供 media_ID 或上传二进制文件',
 	},
 	{
 		displayName: 'Media ID',
-		name: 'media_id',
+		name: 'media_ID',
 		type: 'string',
 		displayOptions: {
 			show: {
@@ -51,7 +51,7 @@ export const sendFileDescription: INodeProperties[] = [
 		},
 		default: '',
 		required: true,
-		description: '文件的 media_id',
+		description: '文件的 media_ID',
 		hint: '通过素材管理接口上传文件获得',
 	},
 	{

@@ -72,43 +72,43 @@ export class WeCom implements INodeType {
 				name: 'resource',
 				type: 'options',
 				noDataExpression: true,
-				options: [
-					{
-						name: '应用消息',
-						value: 'message',
-						description: '发送各类消息（文本、图片、文件等）',
-					},
-					{
-						name: '消息推送',
-						value: 'pushMessage',
-						description: '通过群机器人 Webhook 发送消息到群聊',
-					},
-					{
-						name: '素材管理',
-						value: 'material',
-						description: '上传和管理素材文件',
-					},
-					{
-						name: '群聊会话',
-						value: 'appChat',
-						description: '获取群聊会话和发送消息到群聊会话',
-					},
-					{
-						name: '通讯录',
-						value: 'contact',
-						description: '获取通讯录信息（成员、部门）',
-					},
-					{
-						name: '企业互联',
-						value: 'linkedcorp',
-						description: '企业互联和上下游管理',
-					},
-					{
-						name: '文档',
-						value: 'wedoc',
-						description: '企业微信文档管理',
-					},
-				],
+			options: [
+				{
+					name: '企业互联',
+					value: 'linkedcorp',
+					description: '企业互联和上下游管理',
+				},
+				{
+					name: '应用消息',
+					value: 'message',
+					description: '发送各类消息（文本、图片、文件等）',
+				},
+				{
+					name: '文档',
+					value: 'wedoc',
+					description: '企业微信文档管理',
+				},
+				{
+					name: '消息推送',
+					value: 'pushMessage',
+					description: '通过群机器人 Webhook 发送消息到群聊',
+				},
+				{
+					name: '素材管理',
+					value: 'material',
+					description: '上传和管理素材文件',
+				},
+				{
+					name: '群聊会话',
+					value: 'appChat',
+					description: '获取群聊会话和发送消息到群聊会话',
+				},
+				{
+					name: '通讯录',
+					value: 'contact',
+					description: '获取通讯录信息（成员、部门）',
+				},
+			],
 				default: 'pushMessage',
 			},
 			...pushMessageDescription,
@@ -166,9 +166,15 @@ export class WeCom implements INodeType {
 						fetch_child: 0,
 					},
 				);
-				const users = response.userlist as Array<{ userid: string; name: string; position?: string }>;
+				const users = response.userlist as Array<{
+					userid: string;
+					name: string;
+					position?: string;
+				}>;
 				return users.map((user) => ({
-					name: user.position ? `${user.name} - ${user.position} (${user.userid})` : `${user.name} (${user.userid})`,
+					name: user.position
+						? `${user.name} - ${user.position} (${user.userid})`
+						: `${user.name} (${user.userid})`,
 					value: user.userid,
 				}));
 			},
@@ -214,7 +220,11 @@ export class WeCom implements INodeType {
 						fetch_child: 1,
 					},
 				);
-				const users = response.userlist as Array<{ userid: string; name: string; department?: number[] }>;
+				const users = response.userlist as Array<{
+					userid: string;
+					name: string;
+					department?: number[];
+				}>;
 				return users.map((user) => ({
 					name: `${user.name} (${user.userid})`,
 					value: user.userid,
@@ -249,4 +259,3 @@ export class WeCom implements INodeType {
 		return [returnData];
 	}
 }
-

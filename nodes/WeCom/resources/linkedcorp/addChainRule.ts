@@ -15,7 +15,7 @@ export const addChainRuleDescription: INodeProperties[] = [
 			show: showOnlyForAddRule,
 		},
 		default: '',
-		description: '上下游的唯一id。',
+		description: '上下游的唯一ID。',
 		hint: '上下游ID',
 	},
 	{

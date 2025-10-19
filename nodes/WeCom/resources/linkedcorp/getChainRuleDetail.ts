@@ -15,7 +15,7 @@ export const getChainRuleDetailDescription: INodeProperties[] = [
 			show: showOnlyForGetRuleDetail,
 		},
 		default: '',
-		description: '上下游的唯一id。',
+		description: '上下游的唯一ID。',
 		hint: '上下游ID',
 	},
 	{
@@ -27,7 +27,7 @@ export const getChainRuleDetailDescription: INodeProperties[] = [
 			show: showOnlyForGetRuleDetail,
 		},
 		default: '',
-		description: '对接规则的唯一id。',
+		description: '对接规则的唯一ID。',
 		hint: '规则ID',
 	},
 ];

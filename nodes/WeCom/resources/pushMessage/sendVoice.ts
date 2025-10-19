@@ -15,7 +15,7 @@ export const sendVoiceDescription: INodeProperties[] = [
 		},
 		default: '',
 		required: true,
-		description: '语音文件的 media_id',
+		description: '语音文件的 media_ID',
 		hint: '通过上传临时素材接口获取，格式为AMR或SILK，大小不超过2M',
 	},
 ];

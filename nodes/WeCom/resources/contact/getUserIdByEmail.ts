@@ -11,10 +11,10 @@ export const getUserIdByEmailDescription: INodeProperties[] = [
 		name: 'email',
 		type: 'string',
 		required: true,
-		placeholder: 'name@email.com',
 		displayOptions: {
 			show: showOnlyForGetByEmail,
 		},
+		placeholder: 'name@email.com',
 		default: '',
 		description: '邮箱地址。长度为5~64个字节。',
 		hint: '邮箱地址',

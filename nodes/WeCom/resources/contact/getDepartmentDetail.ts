@@ -15,7 +15,7 @@ export const getDepartmentDetailDescription: INodeProperties[] = [
 			show: showOnlyForGetDeptDetail,
 		},
 		default: '',
-		description: '部门id。',
+		description: '部门ID。',
 		hint: '部门ID',
 	},
 ];

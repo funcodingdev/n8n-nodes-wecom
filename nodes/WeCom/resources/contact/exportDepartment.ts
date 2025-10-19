@@ -14,7 +14,7 @@ export const exportDepartmentDescription: INodeProperties[] = [
 			show: showOnlyForExportDept,
 		},
 		default: '',
-		description: 'base64encode的加密密钥，长度固定为43字节，使用加密需要填写此字段。',
+		description: 'Base64encode的加密密钥，长度固定为43字节，使用加密需要填写此字段。',
 		hint: '加密密钥',
 	},
 	{

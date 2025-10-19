@@ -26,7 +26,7 @@ export const createTagDescription: INodeProperties[] = [
 			show: showOnlyForCreateTag,
 		},
 		default: '',
-		description: '标签id，非负整型，指定此参数时新增的标签会生成对应的标签id，不指定时则以目前最大的id自增。',
+		description: '标签ID，非负整型，指定此参数时新增的标签会生成对应的标签ID，不指定时则以目前最大的ID自增。',
 		hint: '标签ID（可选）',
 	},
 ];

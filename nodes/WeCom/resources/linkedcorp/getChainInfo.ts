@@ -14,7 +14,7 @@ export const getChainInfoDescription: INodeProperties[] = [
 			show: showOnlyForGetChain,
 		},
 		default: '',
-		description: '上下游的唯一id。不填则返回该企业作为上游企业的所有上下游列表。',
+		description: '上下游的唯一ID。不填则返回该企业作为上游企业的所有上下游列表。',
 		hint: '上下游ID（可选）',
 	},
 ];

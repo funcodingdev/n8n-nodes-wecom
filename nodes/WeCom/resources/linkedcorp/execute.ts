@@ -72,11 +72,11 @@ export async function executeLinkedcorp(
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/externalcontact/get_chain_group_list', qs);
 			} else if (operation === 'batchImportChainContact') {
 				const chain_id = this.getNodeParameter('chain_id', i) as string;
-				const media_id = this.getNodeParameter('media_id', i) as string;
+				const media_ID = this.getNodeParameter('media_ID', i) as string;
 
 				const body: IDataObject = {
 					chain_id,
-					media_id,
+					media_ID,
 				};
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/externalcontact/import_chain_contact', body);

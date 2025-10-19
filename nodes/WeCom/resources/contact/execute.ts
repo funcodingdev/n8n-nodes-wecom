@@ -295,8 +295,8 @@ export async function executeContact(
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/tag/deltagusers', body);
 			} else if (operation === 'batchSyncUser') {
-				const media_id = this.getNodeParameter('media_id', i) as string;
-				const body: IDataObject = { media_id };
+				const media_ID = this.getNodeParameter('media_ID', i) as string;
+				const body: IDataObject = { media_ID };
 
 				const callback = this.getNodeParameter('callback', i, '{}') as string;
 				if (callback && callback !== '{}') {
@@ -305,8 +305,8 @@ export async function executeContact(
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/batch/syncuser', body);
 			} else if (operation === 'batchReplaceUser') {
-				const media_id = this.getNodeParameter('media_id', i) as string;
-				const body: IDataObject = { media_id };
+				const media_ID = this.getNodeParameter('media_ID', i) as string;
+				const body: IDataObject = { media_ID };
 
 				const callback = this.getNodeParameter('callback', i, '{}') as string;
 				if (callback && callback !== '{}') {
@@ -315,8 +315,8 @@ export async function executeContact(
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/batch/replaceuser', body);
 			} else if (operation === 'batchReplaceDepartment') {
-				const media_id = this.getNodeParameter('media_id', i) as string;
-				const body: IDataObject = { media_id };
+				const media_ID = this.getNodeParameter('media_ID', i) as string;
+				const body: IDataObject = { media_ID };
 
 				const callback = this.getNodeParameter('callback', i, '{}') as string;
 				if (callback && callback !== '{}') {

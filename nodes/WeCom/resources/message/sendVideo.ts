@@ -30,7 +30,7 @@ export const sendVideoDescription: INodeProperties[] = [
 	},
 	{
 		displayName: 'Media ID',
-		name: 'media_id',
+		name: 'media_ID',
 		type: 'string',
 		default: '',
 		required: true,
@@ -40,7 +40,7 @@ export const sendVideoDescription: INodeProperties[] = [
 				videoSource: ['mediaId'],
 			},
 		},
-		description: '视频文件的media_id，可以调用上传临时素材接口获取',
+		description: '视频文件的media_ID，可以调用上传临时素材接口获取',
 	},
 	{
 		displayName: '二进制属性名',

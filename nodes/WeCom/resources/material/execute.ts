@@ -48,7 +48,7 @@ export async function executeMaterial(
 					throw new Error(`企业微信 API 错误: ${response.errmsg} (错误码: ${response.errcode})`);
 				}
 			} else if (operation === 'getTemp') {
-				const media_id = this.getNodeParameter('media_id', i) as string;
+				const media_ID = this.getNodeParameter('media_ID', i) as string;
 				const binaryPropertyName = this.getNodeParameter('binaryProperty', i) as string;
 
 				const responseData = await weComApiRequest.call(
@@ -56,7 +56,7 @@ export async function executeMaterial(
 					'GET',
 					'/cgi-bin/media/get',
 					{},
-					{ media_id },
+					{ media_ID },
 					{},
 					{ encoding: null, resolveWithFullResponse: true },
 				);
@@ -86,7 +86,7 @@ export async function executeMaterial(
 				const binaryData = await this.helpers.prepareBinaryData(buffer, filename);
 
 				returnData.push({
-					json: { media_id },
+					json: { media_ID },
 					binary: {
 						[binaryPropertyName]: binaryData,
 					},
@@ -129,7 +129,7 @@ export async function executeMaterial(
 					throw new Error(`企业微信 API 错误: ${response.errmsg} (错误码: ${response.errcode})`);
 				}
 			} else if (operation === 'getPermanent') {
-				const media_id = this.getNodeParameter('media_id', i) as string;
+				const media_ID = this.getNodeParameter('media_ID', i) as string;
 				const binaryPropertyName = this.getNodeParameter('binaryProperty', i) as string;
 
 				const responseData = await weComApiRequest.call(
@@ -137,7 +137,7 @@ export async function executeMaterial(
 					'GET',
 					'/cgi-bin/material/get',
 					{},
-					{ media_id },
+					{ media_ID },
 					{},
 					{ encoding: null, resolveWithFullResponse: true },
 				);
@@ -167,7 +167,7 @@ export async function executeMaterial(
 				const binaryData = await this.helpers.prepareBinaryData(buffer, filename);
 
 				returnData.push({
-					json: { media_id },
+					json: { media_ID },
 					binary: {
 						[binaryPropertyName]: binaryData,
 					},
@@ -209,14 +209,14 @@ export async function executeMaterial(
 					throw new Error(`企业微信 API 错误: ${response.errmsg} (错误码: ${response.errcode})`);
 				}
 			} else if (operation === 'getHighQualityVoice') {
-				const media_id = this.getNodeParameter('media_id', i) as string;
+				const media_ID = this.getNodeParameter('media_ID', i) as string;
 
 				response = await weComApiRequest.call(
 					this,
 					'GET',
 					'/cgi-bin/media/get/jssdk',
 					{},
-					{ media_id },
+					{ media_ID },
 				);
 			} else if (operation === 'uploadTempAsync') {
 				const type = this.getNodeParameter('type', i) as string;

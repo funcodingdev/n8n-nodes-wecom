@@ -32,7 +32,7 @@ export const sendFileDescription: INodeProperties[] = [
 	},
 	{
 		displayName: 'Media ID',
-		name: 'media_id',
+		name: 'media_ID',
 		type: 'string',
 		default: '',
 		required: true,

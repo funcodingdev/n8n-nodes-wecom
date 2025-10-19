@@ -50,7 +50,7 @@ export const createUserDescription: INodeProperties[] = [
 			show: showOnlyForCreate,
 		},
 		default: '',
-		description: '成员所属部门id列表，多个部门用逗号分隔。不超过100个。',
+		description: '成员所属部门ID列表，多个部门用逗号分隔。不超过100个。',
 		hint: '部门ID列表，用逗号分隔',
 	},
 	{
@@ -93,6 +93,7 @@ export const createUserDescription: INodeProperties[] = [
 		displayName: '邮箱',
 		name: 'email',
 		type: 'string',
+		placeholder: 'name@email.com',
 		displayOptions: {
 			show: showOnlyForCreate,
 		},
@@ -162,7 +163,7 @@ export const createUserDescription: INodeProperties[] = [
 			},
 		],
 		default: 1,
-		description: 'Whether to enable this member. 1 to enable, 0 to disable.',
+		description: 'Whether to enable this member',
 		hint: '启用状态',
 	},
 	{
@@ -195,7 +196,7 @@ export const createUserDescription: INodeProperties[] = [
 			show: showOnlyForCreate,
 		},
 		default: true,
-		description: '是否邀请该成员使用企业微信。',
+		description: 'Whether to invite the member to use WeCom',
 		hint: '是否邀请使用',
 	},
 ];

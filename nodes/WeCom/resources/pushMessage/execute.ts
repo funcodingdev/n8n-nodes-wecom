@@ -94,7 +94,7 @@ export async function executePushMessage(
 				body = {
 					msgtype: 'file',
 					file: {
-						media_id: mediaId,
+						media_ID: mediaId,
 					},
 				};
 
@@ -105,7 +105,7 @@ export async function executePushMessage(
 				body = {
 					msgtype: 'voice',
 					voice: {
-						media_id: mediaId,
+						media_ID: mediaId,
 					},
 				};
 

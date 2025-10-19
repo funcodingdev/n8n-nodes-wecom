@@ -48,7 +48,7 @@ export const updateUserDescription: INodeProperties[] = [
 			show: showOnlyForUpdate,
 		},
 		default: '',
-		description: '成员所属部门id列表，多个部门用逗号分隔。',
+		description: '成员所属部门ID列表，多个部门用逗号分隔。',
 		hint: '部门ID列表，用逗号分隔',
 	},
 	{
@@ -91,6 +91,7 @@ export const updateUserDescription: INodeProperties[] = [
 		displayName: '邮箱',
 		name: 'email',
 		type: 'string',
+		placeholder: 'name@email.com',
 		displayOptions: {
 			show: showOnlyForUpdate,
 		},

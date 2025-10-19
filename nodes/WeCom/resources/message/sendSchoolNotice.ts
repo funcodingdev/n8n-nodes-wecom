@@ -82,7 +82,7 @@ export const sendSchoolNoticeDescription: INodeProperties[] = [
 			show: showOnlyForSchoolNotice,
 		},
 		default: false,
-		description: '是否放大第一个card样式。',
+		description: 'Whether to enlarge the first card style',
 		hint: '是否放大第一项',
 	},
 	{

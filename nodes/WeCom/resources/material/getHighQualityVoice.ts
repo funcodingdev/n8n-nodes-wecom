@@ -8,14 +8,14 @@ const showOnlyForGetVoice = {
 export const getHighQualityVoiceDescription: INodeProperties[] = [
 	{
 		displayName: 'Media ID',
-		name: 'media_id',
+		name: 'media_ID',
 		type: 'string',
 		required: true,
 		displayOptions: {
 			show: showOnlyForGetVoice,
 		},
 		default: '',
-		description: '通过JSSDK的uploadVoice接口上传的语音文件id。',
+		description: '通过JSSDK的uploadVoice接口上传的语音文件ID。',
 		hint: '语音文件Media ID',
 	},
 ];

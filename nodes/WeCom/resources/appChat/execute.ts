@@ -132,7 +132,7 @@ export async function executeAppChat(
 					let mediaId: string;
 
 					if (imageSource === 'mediaId') {
-						mediaId = this.getNodeParameter('media_id', i) as string;
+						mediaId = this.getNodeParameter('media_ID', i) as string;
 					} else {
 						// 上传图片
 						const binaryPropertyName = this.getNodeParameter('binaryPropertyName', i) as string;
@@ -151,7 +151,7 @@ export async function executeAppChat(
 						...body,
 						msgtype: 'image',
 						image: {
-							media_id: mediaId,
+							media_ID: mediaId,
 						},
 						safe: safe ? 1 : 0,
 					};
@@ -161,7 +161,7 @@ export async function executeAppChat(
 					let mediaId: string;
 
 					if (fileSource === 'mediaId') {
-						mediaId = this.getNodeParameter('media_id', i) as string;
+						mediaId = this.getNodeParameter('media_ID', i) as string;
 					} else {
 						// 上传文件
 						const binaryPropertyName = this.getNodeParameter('binaryPropertyName', i) as string;
@@ -180,7 +180,7 @@ export async function executeAppChat(
 						...body,
 						msgtype: 'file',
 						file: {
-							media_id: mediaId,
+							media_ID: mediaId,
 						},
 						safe: safe ? 1 : 0,
 					};

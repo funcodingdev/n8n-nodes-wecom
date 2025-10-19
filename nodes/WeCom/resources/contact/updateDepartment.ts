@@ -15,7 +15,7 @@ export const updateDepartmentDescription: INodeProperties[] = [
 			show: showOnlyForUpdateDept,
 		},
 		default: '',
-		description: '部门id，32位整型。',
+		description: '部门ID，32位整型。',
 		hint: '部门ID',
 	},
 	{
@@ -26,7 +26,7 @@ export const updateDepartmentDescription: INodeProperties[] = [
 			show: showOnlyForUpdateDept,
 		},
 		default: '',
-		description: '部门名称。长度限制为1~64个utf8字符，字符不能包括\\:*?"<>|。',
+		description: '部门名称。长度限制为1~64个utf8字符，字符不能包括\\:*?"&lt;&gt;|。',
 		hint: '部门名称',
 	},
 	{
@@ -37,7 +37,7 @@ export const updateDepartmentDescription: INodeProperties[] = [
 			show: showOnlyForUpdateDept,
 		},
 		default: '',
-		description: '英文名称。长度限制为1~64个字符，字符不能包括\\:*?"<>|。',
+		description: '英文名称。长度限制为1~64个字符，字符不能包括\\:*?"&lt;&gt;|。',
 		hint: '英文名称',
 	},
 	{
@@ -48,7 +48,7 @@ export const updateDepartmentDescription: INodeProperties[] = [
 			show: showOnlyForUpdateDept,
 		},
 		default: '',
-		description: '父部门id，32位整型。',
+		description: '父部门ID，32位整型。',
 		hint: '父部门ID',
 	},
 	{

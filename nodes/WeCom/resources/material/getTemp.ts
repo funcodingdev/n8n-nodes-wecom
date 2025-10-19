@@ -8,14 +8,14 @@ const showOnlyGetTemp = {
 export const getTempDescription: INodeProperties[] = [
 	{
 		displayName: '素材ID',
-		name: 'media_id',
+		name: 'media_ID',
 		type: 'string',
 		default: '',
 		required: true,
 		displayOptions: {
 			show: showOnlyGetTemp,
 		},
-		description: '临时素材的media_id',
+		description: '临时素材的media_ID',
 	},
 	{
 		displayName: '下载到二进制属性',

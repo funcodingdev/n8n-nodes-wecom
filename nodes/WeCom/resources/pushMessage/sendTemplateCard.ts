@@ -205,7 +205,7 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 					},
 					{
 						displayName: 'Media ID',
-						name: 'media_id',
+						name: 'media_ID',
 						type: 'string',
 						displayOptions: {
 							show: {
@@ -213,7 +213,7 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 							},
 						},
 						default: '',
-						description: '图片的media_id',
+						description: '图片的media_ID',
 					},
 					{
 						displayName: '图片描述',
