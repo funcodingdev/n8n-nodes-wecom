@@ -1,11 +1,12 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { receiveTextDescription } from './receiveText';
-import { receiveImageDescription } from './receiveImage';
-import { receiveVoiceDescription } from './receiveVoice';
-import { receiveVideoDescription } from './receiveVideo';
-import { receiveLocationDescription } from './receiveLocation';
-import { receiveLinkDescription } from './receiveLink';
-import { receiveEventDescription } from './receiveEvent';
+import { sendTextDescription } from './sendText';
+import { sendMarkdownDescription } from './sendMarkdown';
+import { sendMarkdownV2Description } from './sendMarkdownV2';
+import { sendImageDescription } from './sendImage';
+import { sendNewsDescription } from './sendNews';
+import { sendFileDescription } from './sendFile';
+import { sendVoiceDescription } from './sendVoice';
+import { sendTemplateCardDescription } from './sendTemplateCard';
 
 const showOnlyForPushMessage = {
 	resource: ['pushMessage'],
@@ -22,56 +23,62 @@ export const pushMessageDescription: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: '接收事件推送',
-				value: 'receiveEvent',
-				action: '接收事件推送',
-				description: '接收各类事件推送（成员变更、部门变更等）',
+				name: '发送 Markdown V2 消息',
+				value: 'sendMarkdownV2',
+				action: '发送 Markdown V2 消息',
+				description: '发送 Markdown V2 格式的消息到群聊',
 			},
 			{
-				name: '接收位置消息',
-				value: 'receiveLocation',
-				action: '接收位置消息',
-				description: '接收用户发送的地理位置消息',
+				name: '发送 Markdown 消息',
+				value: 'sendMarkdown',
+				action: '发送 Markdown 消息',
+				description: '发送 Markdown 格式的消息到群聊',
 			},
 			{
-				name: '接收图片消息',
-				value: 'receiveImage',
-				action: '接收图片消息',
-				description: '接收用户发送的图片消息',
+				name: '发送图文消息',
+				value: 'sendNews',
+				action: '发送图文消息',
+				description: '发送图文消息到群聊',
 			},
 			{
-				name: '接收文本消息',
-				value: 'receiveText',
-				action: '接收文本消息',
-				description: '接收用户发送的文本消息',
+				name: '发送图片消息',
+				value: 'sendImage',
+				action: '发送图片消息',
+				description: '发送图片消息到群聊',
 			},
 			{
-				name: '接收视频消息',
-				value: 'receiveVideo',
-				action: '接收视频消息',
-				description: '接收用户发送的视频消息',
+				name: '发送文件消息',
+				value: 'sendFile',
+				action: '发送文件消息',
+				description: '发送文件消息到群聊',
 			},
 			{
-				name: '接收语音消息',
-				value: 'receiveVoice',
-				action: '接收语音消息',
-				description: '接收用户发送的语音消息',
+				name: '发送文本消息',
+				value: 'sendText',
+				action: '发送文本消息',
+				description: '发送文本消息到群聊',
 			},
 			{
-				name: '接收链接消息',
-				value: 'receiveLink',
-				action: '接收链接消息',
-				description: '接收用户发送的链接消息',
+				name: '发送模板卡片消息',
+				value: 'sendTemplateCard',
+				action: '发送模板卡片消息',
+				description: '发送模板卡片消息到群聊',
+			},
+			{
+				name: '发送语音消息',
+				value: 'sendVoice',
+				action: '发送语音消息',
+				description: '发送语音消息到群聊',
 			},
 		],
-		default: 'receiveText',
+		default: 'sendText',
 	},
-	...receiveTextDescription,
-	...receiveImageDescription,
-	...receiveVoiceDescription,
-	...receiveVideoDescription,
-	...receiveLocationDescription,
-	...receiveLinkDescription,
-	...receiveEventDescription,
+	...sendTextDescription,
+	...sendMarkdownDescription,
+	...sendMarkdownV2Description,
+	...sendImageDescription,
+	...sendNewsDescription,
+	...sendFileDescription,
+	...sendVoiceDescription,
+	...sendTemplateCardDescription,
 ];
-

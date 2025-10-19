@@ -10,131 +10,177 @@ export async function executePushMessage(
 
 	for (let i = 0; i < items.length; i++) {
 		try {
-			let result: IDataObject = {};
+			const credentials = await this.getCredentials('weComWebhookApi');
+			const webhookUrl = credentials.webhookUrl as string;
 
-			if (operation === 'receiveText') {
-				// 接收文本消息
-				const messageDataStr = this.getNodeParameter('messageData', i) as string;
-				const messageData = JSON.parse(messageDataStr);
-				
-				result = {
-					msgType: 'text',
-					fromUser: messageData.FromUserName,
-					toUser: messageData.ToUserName,
-					content: messageData.Content,
-					msgId: messageData.MsgId,
-					createTime: messageData.CreateTime,
-					agentId: messageData.AgentID,
-					raw: messageData,
+			let body: IDataObject = {};
+
+			if (operation === 'sendText') {
+				// 发送文本消息
+				const content = this.getNodeParameter('content', i) as string;
+				const mentionedList = this.getNodeParameter('mentionedList', i, '') as string;
+				const mentionedMobileList = this.getNodeParameter('mentionedMobileList', i, '') as string;
+
+				body = {
+					msgtype: 'text',
+					text: {
+						content,
+						...(mentionedList && {
+							mentioned_list: mentionedList.split('|').map((id) => id.trim()),
+						}),
+						...(mentionedMobileList && {
+							mentioned_mobile_list: mentionedMobileList.split('|').map((mobile) => mobile.trim()),
+						}),
+					},
 				};
 
-			} else if (operation === 'receiveImage') {
-				// 接收图片消息
-				const messageDataStr = this.getNodeParameter('messageData', i) as string;
-				const messageData = JSON.parse(messageDataStr);
-				
-				result = {
-					msgType: 'image',
-					fromUser: messageData.FromUserName,
-					toUser: messageData.ToUserName,
-					picUrl: messageData.PicUrl,
-					mediaId: messageData.MediaId,
-					msgId: messageData.MsgId,
-					createTime: messageData.CreateTime,
-					agentId: messageData.AgentID,
-					raw: messageData,
+			} else if (operation === 'sendMarkdown') {
+				// 发送 Markdown 消息
+				const content = this.getNodeParameter('content', i) as string;
+
+				body = {
+					msgtype: 'markdown',
+					markdown: {
+						content,
+					},
 				};
 
-			} else if (operation === 'receiveVoice') {
-				// 接收语音消息
-				const messageDataStr = this.getNodeParameter('messageData', i) as string;
-				const messageData = JSON.parse(messageDataStr);
-				
-				result = {
-					msgType: 'voice',
-					fromUser: messageData.FromUserName,
-					toUser: messageData.ToUserName,
-					mediaId: messageData.MediaId,
-					format: messageData.Format,
-					msgId: messageData.MsgId,
-					createTime: messageData.CreateTime,
-					agentId: messageData.AgentID,
-					raw: messageData,
+			} else if (operation === 'sendImage') {
+				// 发送图片消息
+				const imageSource = this.getNodeParameter('imageSource', i) as string;
+
+				if (imageSource === 'base64') {
+					const base64 = this.getNodeParameter('base64', i) as string;
+					body = {
+						msgtype: 'image',
+						image: {
+							base64,
+						},
+					};
+				} else {
+					const md5 = this.getNodeParameter('md5', i) as string;
+					body = {
+						msgtype: 'image',
+						image: {
+							md5,
+						},
+					};
+				}
+
+			} else if (operation === 'sendNews') {
+				// 发送图文消息
+				const articlesData = this.getNodeParameter('articles', i) as IDataObject;
+				const articles = (articlesData.article as IDataObject[]) || [];
+
+				body = {
+					msgtype: 'news',
+					news: {
+						articles: articles.map((article) => ({
+							title: article.title,
+							description: article.description,
+							url: article.url,
+							picurl: article.picurl,
+						})),
+					},
 				};
 
-			} else if (operation === 'receiveVideo') {
-				// 接收视频消息
-				const messageDataStr = this.getNodeParameter('messageData', i) as string;
-				const messageData = JSON.parse(messageDataStr);
-				
-				result = {
-					msgType: 'video',
-					fromUser: messageData.FromUserName,
-					toUser: messageData.ToUserName,
-					mediaId: messageData.MediaId,
-					thumbMediaId: messageData.ThumbMediaId,
-					msgId: messageData.MsgId,
-					createTime: messageData.CreateTime,
-					agentId: messageData.AgentID,
-					raw: messageData,
+			} else if (operation === 'sendMarkdownV2') {
+				// 发送 Markdown V2 消息
+				const content = this.getNodeParameter('content', i) as string;
+
+				body = {
+					msgtype: 'markdown_v2',
+					markdown_v2: {
+						content,
+					},
 				};
 
-			} else if (operation === 'receiveLocation') {
-				// 接收位置消息
-				const messageDataStr = this.getNodeParameter('messageData', i) as string;
-				const messageData = JSON.parse(messageDataStr);
-				
-				result = {
-					msgType: 'location',
-					fromUser: messageData.FromUserName,
-					toUser: messageData.ToUserName,
-					locationX: messageData.Location_X,
-					locationY: messageData.Location_Y,
-					scale: messageData.Scale,
-					label: messageData.Label,
-					msgId: messageData.MsgId,
-					createTime: messageData.CreateTime,
-					agentId: messageData.AgentID,
-					appType: messageData.AppType,
-					raw: messageData,
+			} else if (operation === 'sendFile') {
+				// 发送文件消息
+				const mediaId = this.getNodeParameter('mediaId', i) as string;
+
+				body = {
+					msgtype: 'file',
+					file: {
+						media_id: mediaId,
+					},
 				};
 
-			} else if (operation === 'receiveLink') {
-				// 接收链接消息
-				const messageDataStr = this.getNodeParameter('messageData', i) as string;
-				const messageData = JSON.parse(messageDataStr);
-				
-				result = {
-					msgType: 'link',
-					fromUser: messageData.FromUserName,
-					toUser: messageData.ToUserName,
-					title: messageData.Title,
-					description: messageData.Description,
-					url: messageData.Url,
-					picUrl: messageData.PicUrl,
-					msgId: messageData.MsgId,
-					createTime: messageData.CreateTime,
-					agentId: messageData.AgentID,
-					raw: messageData,
+			} else if (operation === 'sendVoice') {
+				// 发送语音消息
+				const mediaId = this.getNodeParameter('mediaId', i) as string;
+
+				body = {
+					msgtype: 'voice',
+					voice: {
+						media_id: mediaId,
+					},
 				};
 
-			} else if (operation === 'receiveEvent') {
-				// 接收事件推送
-				const eventType = this.getNodeParameter('eventType', i) as string;
-				const eventDataStr = this.getNodeParameter('eventData', i) as string;
-				const eventData = JSON.parse(eventDataStr);
+			} else if (operation === 'sendTemplateCard') {
+				// 发送模板卡片消息
+				const cardType = this.getNodeParameter('cardType', i) as string;
 				
-				result = {
-					msgType: 'event',
-					eventType,
-					fromUser: eventData.FromUserName,
-					toUser: eventData.ToUserName,
-					createTime: eventData.CreateTime,
-					event: eventData.Event,
-					changeType: eventData.ChangeType,
-					eventKey: eventData.EventKey,
-					data: eventData,
-					raw: eventData,
+				// 构建模板卡片数据
+				const templateCard: IDataObject = {
+					card_type: cardType,
+				};
+
+				// 卡片来源
+				const sourceData = this.getNodeParameter('source', i, {}) as IDataObject;
+				if (sourceData.sourceValue) {
+					templateCard.source = sourceData.sourceValue;
+				}
+
+				// 主要内容
+				const mainTitleData = this.getNodeParameter('mainTitle', i) as IDataObject;
+				if (mainTitleData.mainTitleValue) {
+					templateCard.main_title = mainTitleData.mainTitleValue;
+				}
+
+				// 关键数据样式（仅文本通知）
+				if (cardType === 'text_notice') {
+					const emphasisData = this.getNodeParameter('emphasisContent', i, {}) as IDataObject;
+					if (emphasisData.emphasisValue) {
+						templateCard.emphasis_content = emphasisData.emphasisValue;
+					}
+				}
+
+				// 图文展示样式（仅图文展示）
+				if (cardType === 'news_notice') {
+					const imageTextData = this.getNodeParameter('imageTextArea', i, {}) as IDataObject;
+					if (imageTextData.imageTextValue) {
+						templateCard.image_text_area = imageTextData.imageTextValue;
+					}
+				}
+
+				// 二级普通文本
+				const subTitleText = this.getNodeParameter('subTitleText', i, '') as string;
+				if (subTitleText) {
+					templateCard.sub_title_text = subTitleText;
+				}
+
+				// 二级标题+文本列表
+				const horizontalData = this.getNodeParameter('horizontalContentList', i, {}) as IDataObject;
+				if (horizontalData.item && Array.isArray(horizontalData.item)) {
+					templateCard.horizontal_content_list = horizontalData.item;
+				}
+
+				// 跳转链接
+				const jumpListData = this.getNodeParameter('jumpList', i, {}) as IDataObject;
+				if (jumpListData.jump && Array.isArray(jumpListData.jump)) {
+					templateCard.jump_list = jumpListData.jump;
+				}
+
+				// 整体卡片点击跳转
+				const cardActionData = this.getNodeParameter('cardAction', i, {}) as IDataObject;
+				if (cardActionData.actionValue) {
+					templateCard.card_action = cardActionData.actionValue;
+				}
+
+				body = {
+					msgtype: 'template_card',
+					template_card: templateCard,
 				};
 
 			} else {
@@ -145,8 +191,16 @@ export async function executePushMessage(
 				);
 			}
 
+			// 发送消息到 webhook
+			const response = await this.helpers.httpRequest({
+				method: 'POST',
+				url: webhookUrl,
+				body,
+				json: true,
+			});
+
 			returnData.push({
-				json: result,
+				json: response as IDataObject,
 				pairedItem: { item: i },
 			});
 
@@ -166,4 +220,3 @@ export async function executePushMessage(
 
 	return returnData;
 }
-

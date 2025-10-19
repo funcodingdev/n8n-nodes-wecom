@@ -37,7 +37,8 @@
 		"n8nNodesApiVersion": 1,
 		"strict": true,
 		"credentials": [
-			"dist/credentials/WeComApi.credentials.js"
+			"dist/credentials/WeComApi.credentials.js",
+			"dist/credentials/WeComWebhookApi.credentials.js"
 		],
 		"nodes": [
 			"dist/nodes/WeCom/WeCom.node.js"

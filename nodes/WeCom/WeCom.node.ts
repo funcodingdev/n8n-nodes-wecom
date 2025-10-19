@@ -35,6 +35,15 @@ export class WeCom implements INodeType {
 		outputs: [NodeConnectionTypes.Main],
 		credentials: [
 			{
+				name: 'weComWebhookApi',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['pushMessage'],
+					},
+				},
+			},
+			{
 				name: 'weComApi',
 				required: true,
 				displayOptions: {
@@ -61,7 +70,7 @@ export class WeCom implements INodeType {
 					{
 						name: '消息推送',
 						value: 'pushMessage',
-						description: '接收企业微信推送的消息和事件（无需凭证）',
+						description: '通过群机器人 Webhook 发送消息到群聊',
 					},
 					{
 						name: '应用消息',
