@@ -7,9 +7,11 @@ import type {
 	INodeTypeDescription,
 } from 'n8n-workflow';
 import { NodeConnectionTypes } from 'n8n-workflow';
+import { pushMessageDescription } from './resources/pushMessage';
 import { messageDescription } from './resources/message';
 import { contactDescription } from './resources/contact';
 import { materialDescription } from './resources/material';
+import { executePushMessage } from './resources/pushMessage/execute';
 import { executeMessage } from './resources/message/execute';
 import { executeContact } from './resources/contact/execute';
 import { executeMaterial } from './resources/material/execute';
@@ -35,6 +37,11 @@ export class WeCom implements INodeType {
 			{
 				name: 'weComApi',
 				required: true,
+				displayOptions: {
+					show: {
+						resource: ['message', 'contact', 'material'],
+					},
+				},
 			},
 		],
 		requestDefaults: {
@@ -52,7 +59,12 @@ export class WeCom implements INodeType {
 				noDataExpression: true,
 				options: [
 					{
-						name: '消息',
+						name: '消息推送',
+						value: 'pushMessage',
+						description: '接收企业微信推送的消息和事件（无需凭证）',
+					},
+					{
+						name: '应用消息',
 						value: 'message',
 						description: '发送各类消息（文本、图片、文件等）',
 					},
@@ -67,8 +79,9 @@ export class WeCom implements INodeType {
 						description: '上传和管理素材文件',
 					},
 				],
-				default: 'message',
+				default: 'pushMessage',
 			},
+			...pushMessageDescription,
 			...messageDescription,
 			...contactDescription,
 			...materialDescription,
@@ -184,7 +197,9 @@ export class WeCom implements INodeType {
 
 		let returnData: INodeExecutionData[] = [];
 
-		if (resource === 'message') {
+		if (resource === 'pushMessage') {
+			returnData = await executePushMessage.call(this, operation as string, items);
+		} else if (resource === 'message') {
 			returnData = await executeMessage.call(this, operation as string, items);
 		} else if (resource === 'contact') {
 			returnData = await executeContact.call(this, operation as string, items);
