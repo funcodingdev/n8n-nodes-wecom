@@ -1,5 +1,5 @@
 {
-	"node": "n8n-nodes-base.weComTrigger",
+	"node": "n8n-nodes-wecom.weComTrigger",
 	"nodeVersion": "1.0",
 	"codexVersion": "1.0",
 	"categories": ["Communication"],
@@ -14,6 +14,7 @@
 				"url": "https://developer.work.weixin.qq.com/document/path/90238"
 			}
 		]
-	}
+	},
+	"alias": ["企业微信触发器", "WeCom Trigger", "Work Weixin Trigger"]
 }
 
