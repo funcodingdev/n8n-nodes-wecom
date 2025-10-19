@@ -118,8 +118,8 @@ npm install n8n-nodes-wecom
 - ✅ 获取部门信息
 - ✅ 获取标签列表
 - ✅ 获取标签成员
-- ✅ UserID 转 OpenID
-- ✅ OpenID 转 UserID
+- ✅ 用户ID转OpenID
+- ✅ OpenID转用户ID
 
 ### 📦 素材管理
 

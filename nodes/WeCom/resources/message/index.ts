@@ -42,14 +42,8 @@ export const messageDescription: INodeProperties[] = [
 			},
 			{
 				name: '发送图文消息',
-				value: 'sendNews',
-				action: '发送图文消息',
-				description: '发送图文消息（news类型）',
-			},
-			{
-				name: '发送图文消息（Mpnews）',
 				value: 'sendMpNews',
-				action: 'Send mpnews message',
+				action: '发送图文消息',
 				description: '发送图文消息（mpnews类型）',
 			},
 			{
@@ -81,6 +75,12 @@ export const messageDescription: INodeProperties[] = [
 				value: 'sendText',
 				action: '发送文本消息',
 				description: '发送文本类型的消息',
+			},
+			{
+				name: '发送普通图文消息',
+				value: 'sendNews',
+				action: '发送普通图文消息',
+				description: '发送图文消息（news类型）',
 			},
 			{
 				name: '发送模板卡片消息',
@@ -130,4 +130,3 @@ export const messageDescription: INodeProperties[] = [
 	...recallMessageDescription,
 	...updateTemplateCardDescription,
 ];
-
