@@ -38,10 +38,12 @@
 		"strict": true,
 		"credentials": [
 			"dist/credentials/WeComApi.credentials.js",
-			"dist/credentials/WeComWebhookApi.credentials.js"
+			"dist/credentials/WeComWebhookApi.credentials.js",
+			"dist/credentials/WeComReceiveApi.credentials.js"
 		],
 		"nodes": [
-			"dist/nodes/WeCom/WeCom.node.js"
+			"dist/nodes/WeCom/WeCom.node.js",
+			"dist/nodes/WeComTrigger/WeComTrigger.node.js"
 		]
 	},
 	"devDependencies": {
