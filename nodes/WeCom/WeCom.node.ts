@@ -12,11 +12,15 @@ import { messageDescription } from './resources/message';
 import { contactDescription } from './resources/contact';
 import { materialDescription } from './resources/material';
 import { appChatDescription } from './resources/appChat';
+import { linkedcorpDescription } from './resources/linkedcorp';
+import { wedocDescription } from './resources/wedoc';
 import { executePushMessage } from './resources/pushMessage/execute';
 import { executeMessage } from './resources/message/execute';
 import { executeContact } from './resources/contact/execute';
 import { executeMaterial } from './resources/material/execute';
 import { executeAppChat } from './resources/appChat/execute';
+import { executeLinkedcorp } from './resources/linkedcorp/execute';
+import { executeWedoc } from './resources/wedoc/execute';
 import { weComApiRequest } from './shared/transport';
 
 export class WeCom implements INodeType {
@@ -50,7 +54,7 @@ export class WeCom implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						resource: ['message', 'contact', 'material', 'appChat'],
+						resource: ['message', 'contact', 'material', 'appChat', 'linkedcorp', 'wedoc'],
 					},
 				},
 			},
@@ -94,6 +98,16 @@ export class WeCom implements INodeType {
 						value: 'contact',
 						description: '获取通讯录信息（成员、部门）',
 					},
+					{
+						name: '企业互联',
+						value: 'linkedcorp',
+						description: '企业互联和上下游管理',
+					},
+					{
+						name: '文档',
+						value: 'wedoc',
+						description: '企业微信文档管理',
+					},
 				],
 				default: 'pushMessage',
 			},
@@ -102,6 +116,8 @@ export class WeCom implements INodeType {
 			...appChatDescription,
 			...contactDescription,
 			...materialDescription,
+			...linkedcorpDescription,
+			...wedocDescription,
 		],
 	};
 
@@ -224,6 +240,10 @@ export class WeCom implements INodeType {
 			returnData = await executeContact.call(this, operation as string, items);
 		} else if (resource === 'material') {
 			returnData = await executeMaterial.call(this, operation as string, items);
+		} else if (resource === 'linkedcorp') {
+			returnData = await executeLinkedcorp.call(this, operation as string, items);
+		} else if (resource === 'wedoc') {
+			returnData = await executeWedoc.call(this, operation as string, items);
 		}
 
 		return [returnData];

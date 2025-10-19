@@ -838,6 +838,59 @@ export async function executeMessage(
 					pairedItem: { item: i },
 				});
 				continue;
+			} else if (operation === 'sendSchoolNotice') {
+				const schoolTouser = this.getNodeParameter('touser', i, '') as string;
+				const schoolToparty = this.getNodeParameter('toparty', i, '') as string;
+				const schoolTotag = this.getNodeParameter('totag', i, '') as string;
+				const title = this.getNodeParameter('title', i) as string;
+				const description = this.getNodeParameter('description', i) as string;
+				const url = this.getNodeParameter('url', i, '') as string;
+				const emphasis_first_item = this.getNodeParameter('emphasis_first_item', i, false) as boolean;
+				const content_item = this.getNodeParameter('content_item', i, '[]') as string;
+
+				const schoolBody: IDataObject = {
+					touser: schoolTouser,
+					toparty: schoolToparty,
+					totag: schoolTotag,
+					agentid: agentId,
+					msgtype: 'school_notice',
+					school_notice: {
+						title,
+						description,
+					},
+				};
+
+				if (url) {
+					(schoolBody.school_notice as IDataObject).url = url;
+				}
+
+				(schoolBody.school_notice as IDataObject).emphasis_first_item = emphasis_first_item;
+
+				if (content_item && content_item !== '[]') {
+					try {
+						(schoolBody.school_notice as IDataObject).content_item = JSON.parse(content_item);
+					} catch (error) {
+						throw new NodeOperationError(
+							this.getNode(),
+							`content_item 必须是有效的 JSON 数组: ${error.message}`,
+							{ itemIndex: i },
+						);
+					}
+				}
+
+				// 使用发送学校通知接口
+				const response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/message/send',
+					schoolBody,
+				);
+
+				returnData.push({
+					json: response as IDataObject,
+					pairedItem: { item: i },
+				});
+				continue;
 			}
 
 			const response = await weComApiRequest.call(this, 'POST', '/cgi-bin/message/send', body);

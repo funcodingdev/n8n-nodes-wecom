@@ -1,0 +1,7 @@
+import type { INodeProperties } from 'n8n-workflow';
+const showOnly = { resource: ['wedoc'], operation: ['addSmartsheetRecord'] };
+export const addSmartsheetRecordDescription: INodeProperties[] = [
+	{ displayName: '文档ID', name: 'docid', type: 'string', required: true, displayOptions: { show: showOnly }, default: '', description: '智能表格的docid。', hint: '文档ID' },
+	{ displayName: '子表ID', name: 'sheet_id', type: 'string', required: true, displayOptions: { show: showOnly }, default: '', description: '子表的sheet_id。', hint: '子表ID' },
+	{ displayName: '记录列表', name: 'records', type: 'json', required: true, displayOptions: { show: showOnly }, default: '[]', description: '记录列表，JSON数组格式。', hint: '记录列表JSON' },
+];

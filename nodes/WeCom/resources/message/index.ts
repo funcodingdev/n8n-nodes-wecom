@@ -13,6 +13,7 @@ import { sendTaskCardDescription } from './sendTaskCard';
 import { sendTemplateCardDescription } from './sendTemplateCard';
 import { updateTemplateCardDescription } from './updateTemplateCard';
 import { recallMessageDescription } from './recallMessage';
+import { sendSchoolNoticeDescription } from './sendSchoolNotice';
 
 const showOnlyForMessage = {
 	resource: ['message'],
@@ -101,6 +102,12 @@ export const messageDescription: INodeProperties[] = [
 				description: '发送语音类型的消息',
 			},
 			{
+				name: '发送学校通知',
+				value: 'sendSchoolNotice',
+				action: '发送学校通知',
+				description: '发送家校应用的学校通知消息',
+			},
+			{
 				name: '撤回应用消息',
 				value: 'recallMessage',
 				action: '撤回应用消息',
@@ -129,4 +136,5 @@ export const messageDescription: INodeProperties[] = [
 	...sendTemplateCardDescription,
 	...recallMessageDescription,
 	...updateTemplateCardDescription,
+	...sendSchoolNoticeDescription,
 ];
