@@ -24,7 +24,7 @@ export class WeCom implements INodeType {
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: '企业微信消息发送与通讯录管理',
+		description: '企业微信API接口汇总',
 		defaults: {
 			name: '企业微信',
 		},
@@ -59,7 +59,7 @@ export class WeCom implements INodeType {
 					{
 						name: '通讯录',
 						value: 'contact',
-						description: '管理通讯录（成员、部门）',
+						description: '获取通讯录信息（成员、部门）',
 					},
 					{
 						name: '素材管理',
