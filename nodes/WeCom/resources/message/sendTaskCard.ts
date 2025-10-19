@@ -93,7 +93,8 @@ export const sendTaskCardDescription: INodeProperties[] = [
 						name: 'is_bold',
 						type: 'boolean',
 						default: false,
-						description: '按钮字体是否加粗，默认为否',
+						hint: '按钮字体加粗，默认为否',
+						description: 'Whether the button font is bold',
 					},
 					{
 						displayName: '按钮字体颜色',
@@ -131,7 +132,8 @@ export const sendTaskCardDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlySendTaskCard,
 		},
-		description: '是否开启ID转译，开启后会将消息中的userid转为@对应成员',
+		hint: '开启后会将消息中的userid转为@对应成员',
+		description: 'Whether to enable ID translation',
 	},
 	{
 		displayName: '是否开启重复消息检查',
@@ -141,7 +143,8 @@ export const sendTaskCardDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlySendTaskCard,
 		},
-		description: '是否开启重复消息检查，开启后在时间间隔内相同内容的消息不会重复发送',
+		hint: '开启后在时间间隔内相同内容的消息不会重复发送',
+		description: 'Whether to enable duplicate message check',
 	},
 	{
 		displayName: '重复消息检查时间',

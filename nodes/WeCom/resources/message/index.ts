@@ -49,7 +49,7 @@ export const messageDescription: INodeProperties[] = [
 			{
 				name: '发送图文消息（Mpnews）',
 				value: 'sendMpNews',
-				action: '发送图文消息（Mpnews）',
+				action: 'Send mpnews message',
 				description: '发送图文消息（mpnews类型）',
 			},
 			{

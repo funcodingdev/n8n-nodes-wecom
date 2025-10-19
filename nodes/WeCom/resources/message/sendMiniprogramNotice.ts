@@ -61,7 +61,8 @@ export const sendMiniprogramNoticeDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlySendMiniprogramNotice,
 		},
-		description: '是否放大第一个内容项',
+		hint: '放大第一个内容项',
+		description: 'Whether to emphasize the first content item',
 	},
 	{
 		displayName: '消息内容键值对',
@@ -109,7 +110,8 @@ export const sendMiniprogramNoticeDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlySendMiniprogramNotice,
 		},
-		description: '是否开启ID转译，开启后会将消息中的userid转为@对应成员',
+		hint: '开启后会将消息中的userid转为@对应成员',
+		description: 'Whether to enable ID translation',
 	},
 	{
 		displayName: '是否开启重复消息检查',
@@ -119,7 +121,8 @@ export const sendMiniprogramNoticeDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlySendMiniprogramNotice,
 		},
-		description: '是否开启重复消息检查，开启后在时间间隔内相同内容的消息不会重复发送',
+		hint: '开启后在时间间隔内相同内容的消息不会重复发送',
+		description: 'Whether to enable duplicate message check',
 	},
 	{
 		displayName: '重复消息检查时间',

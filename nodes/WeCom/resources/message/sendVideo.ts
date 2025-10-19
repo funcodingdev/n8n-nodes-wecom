@@ -87,7 +87,8 @@ export const sendVideoDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlySendVideo,
 		},
-		description: '是否是保密消息，开启后消息不可转发、复制等',
+		hint: '保密消息，开启后消息不可转发、复制等',
+		description: 'Whether this is a confidential message',
 	},
 	{
 		displayName: '是否开启ID转译',
@@ -97,7 +98,8 @@ export const sendVideoDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlySendVideo,
 		},
-		description: '是否开启ID转译，开启后会将消息中的userid转为@对应成员',
+		hint: '开启后会将消息中的userid转为@对应成员',
+		description: 'Whether to enable ID translation',
 	},
 	{
 		displayName: '是否开启重复消息检查',
@@ -107,7 +109,8 @@ export const sendVideoDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlySendVideo,
 		},
-		description: '是否开启重复消息检查，开启后在时间间隔内相同内容的消息不会重复发送',
+		hint: '开启后在时间间隔内相同内容的消息不会重复发送',
+		description: 'Whether to enable duplicate message check',
 	},
 	{
 		displayName: '重复消息检查时间',

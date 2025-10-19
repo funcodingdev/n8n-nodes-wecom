@@ -25,7 +25,7 @@ export const listUserIdsDescription: INodeProperties[] = [
 			show: showOnlyListUserIds,
 		},
 		hint: '每次拉取的数据量，默认值50，最大值1000',
-		description: '返回结果的最大数量',
+		description: 'Max number of results to return',
 		typeOptions: {
 			minValue: 1,
 			maxValue: 1000,

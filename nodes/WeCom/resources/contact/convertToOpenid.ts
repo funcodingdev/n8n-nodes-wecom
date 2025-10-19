@@ -18,7 +18,8 @@ export const convertToOpenidDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyConvertToOpenid,
 		},
-		description: '企业成员的 userid。从列表中选择，或使用<a href="https://docs.n8n.io/code/expressions/">表达式</a>指定ID',
+		hint: '企业成员的 userid',
+		description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
 	},
 ];
 

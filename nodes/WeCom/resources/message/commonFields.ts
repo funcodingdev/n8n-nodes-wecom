@@ -57,7 +57,8 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 					recipientType: ['users'],
 				},
 			},
-			description: '成员ID列表（最多支持1000个）。从列表中选择，或使用<a href="https://docs.n8n.io/code/expressions/">表达式</a>指定多个ID',
+			hint: '成员ID列表（最多支持1000个）',
+			description: 'Choose from the list, or specify IDs using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
 		},
 		{
 			displayName: '部门 Names or IDs',
@@ -73,7 +74,8 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 					recipientType: ['departments'],
 				},
 			},
-			description: '部门ID列表（最多支持100个）。从列表中选择，或使用<a href="https://docs.n8n.io/code/expressions/">表达式</a>指定多个ID',
+			hint: '部门ID列表（最多支持100个）',
+			description: 'Choose from the list, or specify IDs using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
 		},
 		{
 			displayName: '标签 Names or IDs',
@@ -89,7 +91,8 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 					recipientType: ['tags'],
 				},
 			},
-			description: '标签ID列表（最多支持100个）。从列表中选择，或使用<a href="https://docs.n8n.io/code/expressions/">表达式</a>指定多个ID',
+			hint: '标签ID列表（最多支持100个）',
+			description: 'Choose from the list, or specify IDs using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
 		},
 		{
 			displayName: '手动输入接收人',

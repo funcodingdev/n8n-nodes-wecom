@@ -18,7 +18,8 @@ export const getUserDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyGetUser,
 		},
-		description: '成员UserID。对应管理端的账号，企业内必须唯一。从列表中选择，或使用<a href="https://docs.n8n.io/code/expressions/">表达式</a>指定ID',
+		hint: '成员UserID。对应管理端的账号，企业内必须唯一',
+		description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
 	},
 ];
 
