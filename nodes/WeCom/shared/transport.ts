@@ -11,14 +11,44 @@ import type { IWeComAccessTokenResponse, IWeComCredentials } from './types';
 /**
  * Access Token 缓存结构
  * 使用 Map 按凭证隔离，支持多租户场景
+ * 
+ * 注意事项：
+ * - 缓存存储在 Node.js 进程内存中
+ * - 进程重启后缓存会丢失（这是正常的）
+ * - 如果 n8n 运行在集群模式，每个实例会有独立的缓存
+ * - 过期的缓存会在下次访问时自动清理
  */
 interface TokenCache {
 	token: string;
 	expiresAt: number;
 	pending?: Promise<string>;
+	lastAccess: number; // 添加最后访问时间，用于清理
 }
 
 const accessTokenCache = new Map<string, TokenCache>();
+
+// 缓存清理配置
+const MAX_CACHE_AGE = 3 * 60 * 60 * 1000; // 3 小时未访问的缓存将被清理
+const CLEANUP_THRESHOLD = 50; // 当缓存数量超过此值时触发清理
+
+/**
+ * 懒惰清理过期的缓存
+ * 在每次访问缓存时执行，避免使用定时器
+ */
+function cleanupExpiredCache(): void {
+	// 只有当缓存数量超过阈值时才执行清理，避免频繁操作
+	if (accessTokenCache.size <= CLEANUP_THRESHOLD) {
+		return;
+	}
+	
+	const now = Date.now();
+	for (const [key, cache] of accessTokenCache.entries()) {
+		// 清理已过期或长时间未访问的缓存
+		if (cache.expiresAt < now || now - cache.lastAccess > MAX_CACHE_AGE) {
+			accessTokenCache.delete(key);
+		}
+	}
+}
 
 /**
  * 生成缓存 Key（基于凭证信息）
@@ -48,6 +78,10 @@ export async function getAccessToken(
 ): Promise<string> {
 	const credentials = (await this.getCredentials('weComApi')) as IWeComCredentials;
 	const cacheKey = getCacheKey(credentials);
+	
+	// 执行懒惰清理
+	cleanupExpiredCache();
+	
 	const cached = accessTokenCache.get(cacheKey);
 
 	// 如果有正在进行的请求，等待它完成（避免并发重复请求）
@@ -57,6 +91,8 @@ export async function getAccessToken(
 
 	// 检查缓存的 token 是否有效
 	if (cached && cached.expiresAt > Date.now()) {
+		// 更新最后访问时间
+		cached.lastAccess = Date.now();
 		return cached.token;
 	}
 
@@ -68,6 +104,7 @@ export async function getAccessToken(
 		token: '',
 		expiresAt: 0,
 		pending: tokenPromise,
+		lastAccess: Date.now(),
 	});
 
 	try {
@@ -112,6 +149,7 @@ async function fetchAccessToken(
 	accessTokenCache.set(cacheKey, {
 		token: response.access_token,
 		expiresAt: Date.now() + (expiresIn - 300) * 1000, // 提前 5 分钟过期
+		lastAccess: Date.now(),
 	});
 
 	return response.access_token;
@@ -147,11 +185,8 @@ export async function weComApiRequest(
 		...option,
 	};
 
-	// 如果有formData，使用formData；否则使用body
-	if (option.formData) {
-		options.body = option.formData;
-		delete options.json; // formData不需要json
-	} else {
+	// 设置请求体
+	if (Object.keys(body).length > 0) {
 		options.body = body;
 	}
 

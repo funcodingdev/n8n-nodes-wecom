@@ -1,5 +1,5 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
-import { weComApiRequest } from '../../shared/transport';
+import { weComApiRequest, getAccessToken } from '../../shared/transport';
 
 export async function executeMaterial(
 	this: IExecuteFunctions,
@@ -19,26 +19,34 @@ export async function executeMaterial(
 				const binaryData = this.helpers.assertBinaryData(i, binaryPropertyName);
 				const dataBuffer = await this.helpers.getBinaryDataBuffer(i, binaryPropertyName);
 
-				// 使用n8n内置的FormData构建方式
-				const formData = {
-					media: {
-						value: dataBuffer,
-						options: {
-							filename: binaryData.fileName || 'file',
-							contentType: binaryData.mimeType,
+				// 获取 access token
+				const accessToken = await getAccessToken.call(this);
+
+				// 直接使用 n8n 的 httpRequest 发送 multipart/form-data
+				const uploadOptions = {
+					method: 'POST' as const,
+					url: 'https://qyapi.weixin.qq.com/cgi-bin/media/upload',
+					qs: {
+						access_token: accessToken,
+						type,
+					},
+					formData: {
+						media: {
+							value: dataBuffer,
+							options: {
+								filename: binaryData.fileName || 'file',
+								contentType: binaryData.mimeType,
+							},
 						},
 					},
+					json: true,
 				};
 
-				response = await weComApiRequest.call(
-					this,
-					'POST',
-					'/cgi-bin/media/upload',
-					{},
-					{ type },
-					{},
-					{ formData },
-				);
+				response = await this.helpers.httpRequest(uploadOptions) as IDataObject;
+
+				if (response.errcode !== undefined && response.errcode !== 0) {
+					throw new Error(`企业微信 API 错误: ${response.errmsg} (错误码: ${response.errcode})`);
+				}
 			} else if (operation === 'getTemp') {
 				const media_id = this.getNodeParameter('media_id', i) as string;
 				const binaryPropertyName = this.getNodeParameter('binaryProperty', i) as string;
@@ -92,26 +100,34 @@ export async function executeMaterial(
 				const binaryData = this.helpers.assertBinaryData(i, binaryPropertyName);
 				const dataBuffer = await this.helpers.getBinaryDataBuffer(i, binaryPropertyName);
 
-				// 使用n8n内置的FormData构建方式
-				const formData = {
-					media: {
-						value: dataBuffer,
-						options: {
-							filename: binaryData.fileName || 'file',
-							contentType: binaryData.mimeType,
+				// 获取 access token
+				const accessToken = await getAccessToken.call(this);
+
+				// 直接使用 n8n 的 httpRequest 发送 multipart/form-data
+				const uploadOptions = {
+					method: 'POST' as const,
+					url: 'https://qyapi.weixin.qq.com/cgi-bin/material/add_material',
+					qs: {
+						access_token: accessToken,
+						type,
+					},
+					formData: {
+						media: {
+							value: dataBuffer,
+							options: {
+								filename: binaryData.fileName || 'file',
+								contentType: binaryData.mimeType,
+							},
 						},
 					},
+					json: true,
 				};
 
-				response = await weComApiRequest.call(
-					this,
-					'POST',
-					'/cgi-bin/material/add_material',
-					{},
-					{ type },
-					{},
-					{ formData },
-				);
+				response = await this.helpers.httpRequest(uploadOptions) as IDataObject;
+
+				if (response.errcode !== undefined && response.errcode !== 0) {
+					throw new Error(`企业微信 API 错误: ${response.errmsg} (错误码: ${response.errcode})`);
+				}
 			} else if (operation === 'getPermanent') {
 				const media_id = this.getNodeParameter('media_id', i) as string;
 				const binaryPropertyName = this.getNodeParameter('binaryProperty', i) as string;
