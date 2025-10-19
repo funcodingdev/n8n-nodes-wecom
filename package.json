@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-wecom",
-	"version": "0.1.9",
+	"version": "0.1.10",
 	"description": "n8n community node for WeCom (WeChat Work) integration. Send messages and manage contacts.",
 	"license": "MIT",
 	"homepage": "https://github.com/funcodingdev/n8n-nodes-wecom",
