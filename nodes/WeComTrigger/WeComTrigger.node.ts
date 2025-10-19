@@ -9,6 +9,7 @@ import type {
 import { NodeOperationError, NodeConnectionTypes } from 'n8n-workflow';
 import { WeComCrypto, parseXML } from '../WeCom/shared/crypto';
 
+// eslint-disable-next-line @n8n/community-nodes/node-usable-as-tool
 export class WeComTrigger implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: '企业微信消息接收 Trigger',
@@ -105,7 +106,6 @@ export class WeComTrigger implements INodeType {
 				hint: '开启后会在输出中包含原始的 XML 字符串',
 			},
 		],
-		usableAsTool: true,
 	};
 
 	webhookMethods = {
