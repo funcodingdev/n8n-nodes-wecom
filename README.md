@@ -68,7 +68,7 @@ npm install n8n-nodes-wecom
 
 ### 📩 消息推送（群机器人 Webhook）
 
-- ✅ 发送文本消息（支持@成员）
+- ✅ 发送文本消息
 - ✅ 发送 Markdown 消息
 - ✅ 发送 Markdown V2 消息
 - ✅ 发送图片消息

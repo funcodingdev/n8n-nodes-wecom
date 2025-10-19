@@ -18,19 +18,11 @@ export async function executePushMessage(
 			if (operation === 'sendText') {
 				// 发送文本消息
 				const content = this.getNodeParameter('content', i) as string;
-				const mentionedList = this.getNodeParameter('mentionedList', i, '') as string;
-				const mentionedMobileList = this.getNodeParameter('mentionedMobileList', i, '') as string;
 
 				body = {
 					msgtype: 'text',
 					text: {
 						content,
-						...(mentionedList && {
-							mentioned_list: mentionedList.split('|').map((id) => id.trim()),
-						}),
-						...(mentionedMobileList && {
-							mentioned_mobile_list: mentionedMobileList.split('|').map((mobile) => mobile.trim()),
-						}),
 					},
 				};
 
