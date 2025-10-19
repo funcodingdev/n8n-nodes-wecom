@@ -11,10 +11,12 @@ import { pushMessageDescription } from './resources/pushMessage';
 import { messageDescription } from './resources/message';
 import { contactDescription } from './resources/contact';
 import { materialDescription } from './resources/material';
+import { appChatDescription } from './resources/appChat';
 import { executePushMessage } from './resources/pushMessage/execute';
 import { executeMessage } from './resources/message/execute';
 import { executeContact } from './resources/contact/execute';
 import { executeMaterial } from './resources/material/execute';
+import { executeAppChat } from './resources/appChat/execute';
 import { weComApiRequest } from './shared/transport';
 
 export class WeCom implements INodeType {
@@ -48,7 +50,7 @@ export class WeCom implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						resource: ['message', 'contact', 'material'],
+						resource: ['message', 'contact', 'material', 'appChat'],
 					},
 				},
 			},
@@ -68,30 +70,36 @@ export class WeCom implements INodeType {
 				noDataExpression: true,
 				options: [
 					{
-						name: '消息推送',
-						value: 'pushMessage',
-						description: '通过群机器人 Webhook 发送消息到群聊',
-					},
-					{
 						name: '应用消息',
 						value: 'message',
 						description: '发送各类消息（文本、图片、文件等）',
 					},
 					{
-						name: '通讯录',
-						value: 'contact',
-						description: '获取通讯录信息（成员、部门）',
+						name: '消息推送',
+						value: 'pushMessage',
+						description: '通过群机器人 Webhook 发送消息到群聊',
 					},
 					{
 						name: '素材管理',
 						value: 'material',
 						description: '上传和管理素材文件',
 					},
+					{
+						name: '群聊会话',
+						value: 'appChat',
+						description: '获取群聊会话和发送消息到群聊会话',
+					},
+					{
+						name: '通讯录',
+						value: 'contact',
+						description: '获取通讯录信息（成员、部门）',
+					},
 				],
 				default: 'pushMessage',
 			},
 			...pushMessageDescription,
 			...messageDescription,
+			...appChatDescription,
 			...contactDescription,
 			...materialDescription,
 		],
@@ -210,6 +218,8 @@ export class WeCom implements INodeType {
 			returnData = await executePushMessage.call(this, operation as string, items);
 		} else if (resource === 'message') {
 			returnData = await executeMessage.call(this, operation as string, items);
+		} else if (resource === 'appChat') {
+			returnData = await executeAppChat.call(this, operation as string, items);
 		} else if (resource === 'contact') {
 			returnData = await executeContact.call(this, operation as string, items);
 		} else if (resource === 'material') {
