@@ -6,7 +6,7 @@ export const fileShareSettingsDescription: INodeProperties[] = [
 		name: 'params',
 		type: 'string',
 		default: '',
-		description: 'fileShareSettings操作的参数',
+		description: 'FileShareSettings操作的参数',
 		displayOptions: {
 			show: {
 				resource: ['wefile'],

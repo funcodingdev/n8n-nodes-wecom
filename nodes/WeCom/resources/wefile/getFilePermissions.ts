@@ -6,7 +6,7 @@ export const getFilePermissionsDescription: INodeProperties[] = [
 		name: 'params',
 		type: 'string',
 		default: '',
-		description: 'getFilePermissions操作的参数',
+		description: 'GetFilePermissions操作的参数',
 		displayOptions: {
 			show: {
 				resource: ['wefile'],

@@ -6,7 +6,7 @@ export const removeFileMembersDescription: INodeProperties[] = [
 		name: 'params',
 		type: 'string',
 		default: '',
-		description: 'removeFileMembers操作的参数',
+		description: 'RemoveFileMembers操作的参数',
 		displayOptions: {
 			show: {
 				resource: ['wefile'],

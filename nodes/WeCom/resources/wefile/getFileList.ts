@@ -82,8 +82,11 @@ export const getFileListDescription: INodeProperties[] = [
 		displayName: '返回数量',
 		name: 'limit',
 		type: 'number',
-		default: 100,
-		description: '返回的文件数量，最大100',
+		typeOptions: {
+			minValue: 1,
+		},
+		default: 50,
+		description: 'Max number of results to return',
 		displayOptions: {
 			show: {
 				resource: ['wefile'],

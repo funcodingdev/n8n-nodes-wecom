@@ -6,7 +6,7 @@ export const renameSpaceDescription: INodeProperties[] = [
 		name: 'params',
 		type: 'string',
 		default: '',
-		description: 'renameSpace操作的参数',
+		description: 'RenameSpace操作的参数',
 		displayOptions: {
 			show: {
 				resource: ['wefile'],

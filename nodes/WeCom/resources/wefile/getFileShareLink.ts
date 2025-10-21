@@ -6,7 +6,7 @@ export const getFileShareLinkDescription: INodeProperties[] = [
 		name: 'params',
 		type: 'string',
 		default: '',
-		description: 'getFileShareLink操作的参数',
+		description: 'GetFileShareLink操作的参数',
 		displayOptions: {
 			show: {
 				resource: ['wefile'],

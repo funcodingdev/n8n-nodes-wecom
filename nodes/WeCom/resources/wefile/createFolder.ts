@@ -6,7 +6,7 @@ export const createFolderDescription: INodeProperties[] = [
 		name: 'params',
 		type: 'string',
 		default: '',
-		description: 'createFolder操作的参数',
+		description: 'CreateFolder操作的参数',
 		displayOptions: {
 			show: {
 				resource: ['wefile'],

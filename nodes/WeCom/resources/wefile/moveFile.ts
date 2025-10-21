@@ -6,7 +6,7 @@ export const moveFileDescription: INodeProperties[] = [
 		name: 'params',
 		type: 'string',
 		default: '',
-		description: 'moveFile操作的参数',
+		description: 'MoveFile操作的参数',
 		displayOptions: {
 			show: {
 				resource: ['wefile'],

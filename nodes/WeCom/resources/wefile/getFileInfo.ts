@@ -6,7 +6,7 @@ export const getFileInfoDescription: INodeProperties[] = [
 		name: 'params',
 		type: 'string',
 		default: '',
-		description: 'getFileInfo操作的参数',
+		description: 'GetFileInfo操作的参数',
 		displayOptions: {
 			show: {
 				resource: ['wefile'],

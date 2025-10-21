@@ -6,7 +6,7 @@ export const fileSecuritySettingsDescription: INodeProperties[] = [
 		name: 'params',
 		type: 'string',
 		default: '',
-		description: 'fileSecuritySettings操作的参数',
+		description: 'FileSecuritySettings操作的参数',
 		displayOptions: {
 			show: {
 				resource: ['wefile'],

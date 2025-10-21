@@ -6,7 +6,7 @@ export const addSpaceMembersDescription: INodeProperties[] = [
 		name: 'params',
 		type: 'string',
 		default: '',
-		description: 'addSpaceMembers操作的参数',
+		description: 'AddSpaceMembers操作的参数',
 		displayOptions: {
 			show: {
 				resource: ['wefile'],

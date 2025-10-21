@@ -144,7 +144,13 @@ export async function executeWefile(
 				const start = this.getNodeParameter('start', i, 0) as number;
 				const limit = this.getNodeParameter('limit', i, 100) as number;
 
-				const body: any = {
+				const body: {
+					spaceid: string;
+					sort_type: number;
+					start: number;
+					limit: number;
+					fatherid?: string;
+				} = {
 					spaceid: spaceId,
 					sort_type: sortType,
 					start: start,
@@ -211,7 +217,11 @@ export async function executeWefile(
 				const fatherId = this.getNodeParameter('fatherId', i, '') as string;
 				const folderName = this.getNodeParameter('folderName', i) as string;
 
-				const body: any = {
+				const body: {
+					spaceid: string;
+					file_name: string;
+					fatherid?: string;
+				} = {
 					spaceid: spaceId,
 					file_name: folderName,
 				};

@@ -6,7 +6,7 @@ export const downloadFileDescription: INodeProperties[] = [
 		name: 'params',
 		type: 'string',
 		default: '',
-		description: 'downloadFile操作的参数',
+		description: 'DownloadFile操作的参数',
 		displayOptions: {
 			show: {
 				resource: ['wefile'],

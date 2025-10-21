@@ -86,6 +86,11 @@ export class WeCom implements INodeType {
 					description: '发送各类消息（文本、图片、文件等）',
 				},
 				{
+					name: '微盘',
+					value: 'wefile',
+					description: '管理微盘空间和文件',
+				},
+				{
 					name: '文档',
 					value: 'wedoc',
 					description: '企业微信文档管理',
@@ -109,11 +114,6 @@ export class WeCom implements INodeType {
 					name: '通讯录',
 					value: 'contact',
 					description: '获取通讯录信息（成员、部门）',
-				},
-				{
-					name: '微盘',
-					value: 'wefile',
-					description: '管理微盘空间和文件',
 				},
 			],
 				default: 'pushMessage',

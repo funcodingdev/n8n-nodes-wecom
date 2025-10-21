@@ -6,7 +6,7 @@ export const spaceSecuritySettingsDescription: INodeProperties[] = [
 		name: 'params',
 		type: 'string',
 		default: '',
-		description: 'spaceSecuritySettings操作的参数',
+		description: 'SpaceSecuritySettings操作的参数',
 		displayOptions: {
 			show: {
 				resource: ['wefile'],

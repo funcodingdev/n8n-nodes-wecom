@@ -6,7 +6,7 @@ export const getSpaceInviteLinkDescription: INodeProperties[] = [
 		name: 'params',
 		type: 'string',
 		default: '',
-		description: 'getSpaceInviteLink操作的参数',
+		description: 'GetSpaceInviteLink操作的参数',
 		displayOptions: {
 			show: {
 				resource: ['wefile'],
