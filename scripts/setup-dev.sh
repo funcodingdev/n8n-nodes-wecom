@@ -66,3 +66,4 @@ echo -e "- 如果看到 ENOENT 警告，可以忽略，不会影响节点使用"
 echo -e "- 修改代码后需要重新运行 ${YELLOW}npm run build${NC}"
 echo -e "- 使用 ${YELLOW}npm run build:watch${NC} 可以自动监听文件变化\n"
 
+
