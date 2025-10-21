@@ -41,7 +41,26 @@ export class WeCom implements INodeType {
 		usableAsTool: true,
 		inputs: [NodeConnectionTypes.Main],
 		outputs: [NodeConnectionTypes.Main],
-		credentials: [],
+		credentials: [
+			{
+				name: 'weComApi',
+				required: false,
+				displayOptions: {
+					show: {
+						resource: ['message', 'contact', 'material', 'appChat', 'linkedcorp', 'wedoc', 'wefile'],
+					},
+				},
+			},
+			{
+				name: 'weComWebhookApi',
+				required: false,
+				displayOptions: {
+					show: {
+						resource: ['pushMessage'],
+					},
+				},
+			},
+		],
 		properties: [
 			{
 				displayName: '资源',
