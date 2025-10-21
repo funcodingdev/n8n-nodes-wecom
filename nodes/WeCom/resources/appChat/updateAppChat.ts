@@ -25,28 +25,28 @@ export const updateAppChatDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForUpdateAppChat,
 		},
-		options: [
-			{
-				name: '修改群主',
-				value: 'owner',
-			},
-			{
-				name: '修改群名称',
-				value: 'name',
-			},
-			{
-				name: '删除成员',
-				value: 'delUsers',
-			},
-			{
-				name: '添加成员',
-				value: 'addUsers',
-			},
-			{
-				name: '组合更新',
-				value: 'combined',
-			},
-		],
+	options: [
+		{
+			name: '删除成员',
+			value: 'delUsers',
+		},
+		{
+			name: '添加成员',
+			value: 'addUsers',
+		},
+		{
+			name: '修改群名称',
+			value: 'name',
+		},
+		{
+			name: '修改群主',
+			value: 'owner',
+		},
+		{
+			name: '组合更新',
+			value: 'combined',
+		},
+	],
 		default: 'name',
 		description: '选择要更新的内容',
 		hint: '可以单独更新或组合更新多个字段',

@@ -74,14 +74,6 @@ export const sendTaskCardDescription: INodeProperties[] = [
 				name: 'button',
 				values: [
 					{
-						displayName: '按钮Key值',
-						name: 'key',
-						type: 'string',
-							required:	true,
-						default: '',
-						description: '按钮key值，用户点击后，会产生任务卡片回调事件，回调事件会将本参数作为EventKey返回，只能由数字、字母和\'_-@\'组成，最长支持128字节',
-					},
-					{
 						displayName: '按钮名称',
 						name: 'name',
 						type: 'string',
@@ -93,7 +85,7 @@ export const sendTaskCardDescription: INodeProperties[] = [
 						name: 'is_bold',
 						type: 'boolean',
 						default: false,
-						hint: '按钮字体加粗，默认为否',
+							hint:	'按钮字体加粗，默认为否',
 						description: 'Whether the button font is bold',
 					},
 					{
@@ -112,6 +104,14 @@ export const sendTaskCardDescription: INodeProperties[] = [
 						],
 						default: 'blue',
 						description: '按钮字体颜色，可选red或者blue，默认为blue',
+					},
+					{
+						displayName: '按钮Key值',
+						name: 'key',
+						type: 'string',
+							required:	true,
+						default: '',
+						description: '按钮key值，用户点击后，会产生任务卡片回调事件，回调事件会将本参数作为EventKey返回，只能由数字、字母和\'_-@\'组成，最长支持128字节',
 					},
 					{
 						displayName: '点击按钮后替换文案',

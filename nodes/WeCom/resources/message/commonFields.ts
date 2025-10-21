@@ -25,16 +25,16 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 			value: 'manual',
 		},
 		{
-			name: '指定成员',
-			value: 'users',
-		},
-		{
 			name: '指定标签',
 			value: 'tags',
 		},
 		{
 			name: '指定部门',
 			value: 'departments',
+		},
+		{
+			name: '指定成员',
+			value: 'users',
 		},
 		],
 			default: 'users',

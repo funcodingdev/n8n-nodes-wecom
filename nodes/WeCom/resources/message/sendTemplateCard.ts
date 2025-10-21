@@ -12,33 +12,33 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		displayName: '模板卡片类型',
 		name: 'card_type',
 		type: 'options',
-		options: [
-			{
-				name: '图文展示型',
-				value: 'news_notice',
-				description: '图文展示型模板卡片',
-			},
-			{
-				name: '多项选择型',
-				value: 'multiple_interaction',
-				description: '多项选择型模板卡片',
-			},
-			{
-				name: '投票选择型',
-				value: 'vote_interaction',
-				description: '投票选择型模板卡片',
-			},
-			{
-				name: '按钮交互型',
-				value: 'button_interaction',
-				description: '按钮交互型模板卡片',
-			},
-			{
-				name: '文本通知型',
-				value: 'text_notice',
-				description: '文本通知型模板卡片',
-			},
-		],
+	options: [
+		{
+			name: '按钮交互型',
+			value: 'button_interaction',
+			description: '按钮交互型模板卡片',
+		},
+		{
+			name: '多项选择型',
+			value: 'multiple_interaction',
+			description: '多项选择型模板卡片',
+		},
+		{
+			name: '投票选择型',
+			value: 'vote_interaction',
+			description: '投票选择型模板卡片',
+		},
+		{
+			name: '图文展示型',
+			value: 'news_notice',
+			description: '图文展示型模板卡片',
+		},
+		{
+			name: '文本通知型',
+			value: 'text_notice',
+			description: '文本通知型模板卡片',
+		},
+	],
 		required: true,
 		default: 'text_notice',
 		displayOptions: {

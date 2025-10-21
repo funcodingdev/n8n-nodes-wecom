@@ -301,30 +301,6 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 				displayName: '跳转链接',
 				values: [
 					{
-						displayName: '小程序 AppID',
-						name: 'appid',
-						type: 'string',
-						displayOptions: {
-							show: {
-								type: [2],
-							},
-						},
-						default: '',
-						description: '小程序的appid',
-					},
-					{
-						displayName: '小程序页面路径',
-						name: 'pagepath',
-						type: 'string',
-						displayOptions: {
-							show: {
-								type: [2],
-							},
-						},
-						default: '',
-						description: '小程序的页面路径',
-					},
-					{
 						displayName: '跳转标题',
 						name: 'title',
 						type: 'string',
@@ -336,8 +312,14 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 						name: 'type',
 						type: 'options',
 						options: [
-							{ name: '跳转URL', value: 1 },
-							{ name: '小程序', value: 2 },
+							{
+								name: '跳转URL',
+								value: 1
+							},
+							{
+								name: '小程序',
+								value: 2
+							},
 						],
 						default: 1,
 						description: '跳转链接类型',
@@ -346,15 +328,24 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 						displayName: '跳转链接',
 						name: 'url',
 						type: 'string',
-						displayOptions: {
-							show: {
-								type: [1],
-							},
-						},
 						default: '',
 						description: '跳转的URL地址',
 					},
-				],
+					{
+						displayName: '小程序	AppID',
+						name: 'appid',
+						type: 'string',
+						default: '',
+						description: '小程序的appid',
+					},
+					{
+						displayName: '小程序页面路径',
+						name: 'pagepath',
+						type: 'string',
+						default: '',
+						description: '小程序的页面路径',
+					},
+			],
 			},
 		],
 	},

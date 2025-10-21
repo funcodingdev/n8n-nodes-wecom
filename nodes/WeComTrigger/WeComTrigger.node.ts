@@ -45,48 +45,48 @@ export class WeComTrigger implements INodeType {
 				displayName: '事件类型',
 				name: 'events',
 				type: 'multiOptions',
-				options: [
-					{
-						name: '事件消息',
-						value: 'event',
-						description: '接收事件推送（如成员变更、部门变更等）',
-					},
-					{
-						name: '位置消息',
-						value: 'location',
-						description: '接收用户发送的位置消息',
-					},
-					{
-						name: '图片消息',
-						value: 'image',
-						description: '接收用户发送的图片消息',
-					},
-					{
-						name: '所有事件',
-						value: '*',
-						description: '接收所有类型的消息和事件',
-					},
-					{
-						name: '文本消息',
-						value: 'text',
-						description: '接收用户发送的文本消息',
-					},
-					{
-						name: '视频消息',
-						value: 'video',
-						description: '接收用户发送的视频消息',
-					},
-					{
-						name: '语音消息',
-						value: 'voice',
-						description: '接收用户发送的语音消息',
-					},
-					{
-						name: '链接消息',
-						value: 'link',
-						description: '接收用户发送的链接消息',
-					},
-				],
+			options: [
+				{
+					name: '链接消息',
+					value: 'link',
+					description: '接收用户发送的链接消息',
+				},
+				{
+					name: '事件消息',
+					value: 'event',
+					description: '接收事件推送（如成员变更、部门变更等）',
+				},
+				{
+					name: '视频消息',
+					value: 'video',
+					description: '接收用户发送的视频消息',
+				},
+				{
+					name: '所有事件',
+					value: '*',
+					description: '接收所有类型的消息和事件',
+				},
+				{
+					name: '图片消息',
+					value: 'image',
+					description: '接收用户发送的图片消息',
+				},
+				{
+					name: '位置消息',
+					value: 'location',
+					description: '接收用户发送的位置消息',
+				},
+				{
+					name: '文本消息',
+					value: 'text',
+					description: '接收用户发送的文本消息',
+				},
+				{
+					name: '语音消息',
+					value: 'voice',
+					description: '接收用户发送的语音消息',
+				},
+			],
 				default: ['*'],
 				required: true,
 				description: '选择要接收的消息和事件类型',
