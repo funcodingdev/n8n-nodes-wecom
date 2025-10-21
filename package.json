@@ -46,6 +46,9 @@
 			"dist/nodes/WeComTrigger/WeComTrigger.node.js"
 		]
 	},
+	"dependencies": {
+		"@types/node": "^24.9.1"
+	},
 	"devDependencies": {
 		"@n8n/node-cli": "*",
 		"eslint": "9.32.0",
