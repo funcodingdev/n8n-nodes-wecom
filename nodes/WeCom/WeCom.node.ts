@@ -14,6 +14,7 @@ import { materialDescription } from './resources/material';
 import { appChatDescription } from './resources/appChat';
 import { linkedcorpDescription } from './resources/linkedcorp';
 import { wedocDescription } from './resources/wedoc';
+import { wefileDescription } from './resources/wefile';
 import { executePushMessage } from './resources/pushMessage/execute';
 import { executeMessage } from './resources/message/execute';
 import { executeContact } from './resources/contact/execute';
@@ -21,6 +22,7 @@ import { executeMaterial } from './resources/material/execute';
 import { executeAppChat } from './resources/appChat/execute';
 import { executeLinkedcorp } from './resources/linkedcorp/execute';
 import { executeWedoc } from './resources/wedoc/execute';
+import { executeWefile } from './resources/wefile/execute';
 import { weComApiRequest } from './shared/transport';
 
 export class WeCom implements INodeType {
@@ -54,7 +56,7 @@ export class WeCom implements INodeType {
 				required: true,
 				displayOptions: {
 					show: {
-						resource: ['message', 'contact', 'material', 'appChat', 'linkedcorp', 'wedoc'],
+						resource: ['message', 'contact', 'material', 'appChat', 'linkedcorp', 'wedoc', 'wefile'],
 					},
 				},
 			},
@@ -108,6 +110,11 @@ export class WeCom implements INodeType {
 					value: 'contact',
 					description: '获取通讯录信息（成员、部门）',
 				},
+				{
+					name: '微盘',
+					value: 'wefile',
+					description: '管理微盘空间和文件',
+				},
 			],
 				default: 'pushMessage',
 			},
@@ -118,6 +125,7 @@ export class WeCom implements INodeType {
 			...materialDescription,
 			...linkedcorpDescription,
 			...wedocDescription,
+			...wefileDescription,
 		],
 	};
 
@@ -254,6 +262,8 @@ export class WeCom implements INodeType {
 			returnData = await executeLinkedcorp.call(this, operation as string, items);
 		} else if (resource === 'wedoc') {
 			returnData = await executeWedoc.call(this, operation as string, items);
+		} else if (resource === 'wefile') {
+			returnData = await executeWefile.call(this, operation as string, items);
 		}
 
 		return [returnData];
