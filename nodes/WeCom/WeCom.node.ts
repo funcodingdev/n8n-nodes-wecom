@@ -34,62 +34,73 @@ export class WeCom implements INodeType {
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: '企业微信API接口汇总',
+		description: '与企业微信 API 交互',
 		defaults: {
 			name: '企业微信',
 		},
-		usableAsTool: true,
 		inputs: [NodeConnectionTypes.Main],
 		outputs: [NodeConnectionTypes.Main],
-		credentials: [],
+		credentials: [
+			{
+				name: 'weComApi',
+				required: true,
+			},
+		],
+		requestDefaults: {
+			baseURL: 'https://qyapi.weixin.qq.com',
+			headers: {
+				Accept: 'application/json',
+				'Content-Type': 'application/json',
+			},
+		},
 		properties: [
 			{
 				displayName: '资源',
 				name: 'resource',
 				type: 'options',
 				noDataExpression: true,
-			options: [
-				{
-					name: '企业互联',
-					value: 'linkedcorp',
-					description: '企业互联和上下游管理',
-				},
-				{
-					name: '应用消息',
-					value: 'message',
-					description: '发送各类消息（文本、图片、文件等）',
-				},
-				{
-					name: '微盘',
-					value: 'wefile',
-					description: '管理微盘空间和文件',
-				},
-				{
-					name: '文档',
-					value: 'wedoc',
-					description: '企业微信文档管理',
-				},
-				{
-					name: '消息推送',
-					value: 'pushMessage',
-					description: '通过群机器人 Webhook 发送消息到群聊',
-				},
-				{
-					name: '素材管理',
-					value: 'material',
-					description: '上传和管理素材文件',
-				},
-				{
-					name: '群聊会话',
-					value: 'appChat',
-					description: '获取群聊会话和发送消息到群聊会话',
-				},
-				{
-					name: '通讯录',
-					value: 'contact',
-					description: '获取通讯录信息（成员、部门）',
-				},
-			],
+				options: [
+					{
+						name: '企业互联',
+						value: 'linkedcorp',
+						description: '企业互联和上下游管理',
+					},
+					{
+						name: '群聊会话',
+						value: 'appChat',
+						description: '获取群聊会话和发送消息到群聊会话',
+					},
+					{
+						name: '素材管理',
+						value: 'material',
+						description: '上传和管理素材文件',
+					},
+					{
+						name: '通讯录',
+						value: 'contact',
+						description: '获取通讯录信息（成员、部门）',
+					},
+					{
+						name: '微盘',
+						value: 'wefile',
+						description: '管理微盘空间和文件',
+					},
+					{
+						name: '文档',
+						value: 'wedoc',
+						description: '企业微信文档管理',
+					},
+					{
+						name: '消息推送',
+						value: 'pushMessage',
+						description: '通过群机器人 Webhook 发送消息到群聊',
+					},
+					{
+						name: '应用消息',
+						value: 'message',
+						description: '发送各类消息（文本、图片、文件等）',
+					},
+				],
 				default: 'pushMessage',
 			},
 			...pushMessageDescription,
@@ -101,6 +112,7 @@ export class WeCom implements INodeType {
 			...wedocDescription,
 			...wefileDescription,
 		],
+		usableAsTool: true,
 	};
 
 	methods = {

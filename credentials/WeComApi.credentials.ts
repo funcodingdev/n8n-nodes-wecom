@@ -14,16 +14,16 @@ export class WeComApi implements ICredentialType {
 	// eslint-disable-next-line @n8n/community-nodes/icon-validation
 	icon: Icon = { light: 'file:../icons/wecom.png', dark: 'file:../icons/wecom.dark.png' };
 
-	documentationUrl = 'https://developer.work.weixin.qq.com/document/path/90235';
+	documentationUrl = 'https://developer.work.weixin.qq.com/document/path/90664';
 
 	properties: INodeProperties[] = [
 		{
-			displayName: '企业 ID',
+			displayName: '企业 ID (Corp ID)',
 			name: 'corpId',
 			type: 'string',
 			default: '',
 			required: true,
-			description: '企业微信的企业 ID（CorpID）',
+			description: '企业微信的企业 ID，在"管理后台 - 我的企业 - 企业信息"中查看',
 		},
 		{
 			displayName: '应用 Secret',
@@ -32,15 +32,15 @@ export class WeComApi implements ICredentialType {
 			typeOptions: { password: true },
 			default: '',
 			required: true,
-			description: '企业微信应用的 Secret',
+			description: '应用的密钥，在"应用管理 - 自建应用"中查看',
 		},
 		{
-			displayName: '应用 ID',
+			displayName: '应用 ID (Agent ID)',
 			name: 'agentId',
 			type: 'string',
 			default: '',
 			required: true,
-			description: '企业微信应用的 AgentID',
+			description: '应用的唯一标识，在"应用管理 - 自建应用"中查看',
 		},
 	];
 
@@ -51,15 +51,26 @@ export class WeComApi implements ICredentialType {
 		properties: {},
 	};
 
+	// 测试认证是否有效
 	test: ICredentialTestRequest = {
 		request: {
 			baseURL: 'https://qyapi.weixin.qq.com',
-			url: '/cgi-bin/user/get',
-			method: 'GET',
+			url: '/cgi-bin/gettoken',
 			qs: {
-				userid: '@me',
+				corpid: '={{$credentials.corpId}}',
+				corpsecret: '={{$credentials.corpSecret}}',
 			},
 		},
+		rules: [
+			{
+				type: 'responseSuccessBody',
+				properties: {
+					key: 'errcode',
+					value: 0,
+					message: '认证失败：Corp ID 或 Secret 不正确',
+				},
+			},
+		],
 	};
 }
 
