@@ -25,12 +25,7 @@ export class WeComTrigger implements INodeType {
 		},
 		inputs: [],
 		outputs: [NodeConnectionTypes.Main],
-		credentials: [
-			{
-				name: 'weComReceiveApi',
-				required: true,
-			},
-		],
+		credentials: [],
 		webhooks: [
 			{
 				name: 'default',

@@ -44,13 +44,11 @@ export class WeComApi implements ICredentialType {
 		},
 	];
 
+	// 企业微信需要先获取 access_token，不能直接在这里配置
+	// authenticate 留空，在节点执行时动态获取 token
 	authenticate: IAuthenticateGeneric = {
 		type: 'generic',
-		properties: {
-			qs: {
-				access_token: '={{$credentials.accessToken}}',
-			},
-		},
+		properties: {},
 	};
 
 	test: ICredentialTestRequest = {

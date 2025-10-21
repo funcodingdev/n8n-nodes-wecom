@@ -41,33 +41,7 @@ export class WeCom implements INodeType {
 		usableAsTool: true,
 		inputs: [NodeConnectionTypes.Main],
 		outputs: [NodeConnectionTypes.Main],
-		credentials: [
-			{
-				name: 'weComWebhookApi',
-				required: true,
-				displayOptions: {
-					show: {
-						resource: ['pushMessage'],
-					},
-				},
-			},
-			{
-				name: 'weComApi',
-				required: true,
-				displayOptions: {
-					show: {
-						resource: ['message', 'contact', 'material', 'appChat', 'linkedcorp', 'wedoc', 'wefile'],
-					},
-				},
-			},
-		],
-		requestDefaults: {
-			baseURL: 'https://qyapi.weixin.qq.com',
-			headers: {
-				Accept: 'application/json',
-				'Content-Type': 'application/json',
-			},
-		},
+		credentials: [],
 		properties: [
 			{
 				displayName: '资源',
