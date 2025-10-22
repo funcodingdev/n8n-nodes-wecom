@@ -16,7 +16,6 @@ export const emergencyDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForEmergency,
 		},
-		// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
 		options: [
 			{
 				name: '发起语音电话',

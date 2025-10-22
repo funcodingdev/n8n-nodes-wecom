@@ -18,7 +18,6 @@ export const journalDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForJournal,
 		},
-		// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
 		options: [
 			{
 				name: '批量获取汇报记录单号',

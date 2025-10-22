@@ -45,11 +45,14 @@ export const getApplicationListDescription: INodeProperties[] = [
 		displayName: '每次拉取数量',
 		name: 'limit',
 		type: 'number',
+		typeOptions: {
+			maxValue: 100,
+		},
 		displayOptions: {
 			show: showOnlyForGetApplicationList,
 		},
-		default: 100,
-		description: 'Number of records to fetch',
+		default: 50,
+		description: 'Max number of results to return',
 		hint: '每次拉取的数量',
 	},
 ];

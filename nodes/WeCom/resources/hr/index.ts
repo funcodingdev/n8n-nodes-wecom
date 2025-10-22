@@ -17,7 +17,6 @@ export const hrDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForHr,
 		},
-		// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
 		options: [
 			{
 				name: '获取员工字段配置',

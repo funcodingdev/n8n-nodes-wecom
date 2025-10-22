@@ -45,11 +45,14 @@ export const getRecordListDescription: INodeProperties[] = [
 		displayName: '每次拉取数量',
 		name: 'limit',
 		type: 'number',
+		typeOptions: {
+			maxValue: 100,
+		},
 		displayOptions: {
 			show: showOnlyForGetRecordList,
 		},
-		default: 100,
-		description: 'Number of records to fetch, max 100',
+		default: 50,
+		description: 'Max number of results to return',
 		hint: '每次拉取的数量，最大100',
 	},
 	{

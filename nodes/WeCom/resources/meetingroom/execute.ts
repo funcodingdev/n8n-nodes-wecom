@@ -49,7 +49,7 @@ export async function executeMeetingroom(
 				const starttime = this.getNodeParameter('starttime', i) as number;
 				const endtime = this.getNodeParameter('endtime', i) as number;
 				const cursor = this.getNodeParameter('cursor', i, '') as string;
-				const limit = this.getNodeParameter('limit', i, 100) as number;
+				const limit = this.getNodeParameter('limit', i, 50) as number;
 
 				responseData = await weComApiRequest.call(
 					this,

@@ -14,6 +14,7 @@ export const manageMeetingroomDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForManageMeetingroom,
 		},
+		// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
 		options: [
 			{ name: '添加会议室', value: 'add' },
 			{ name: '编辑会议室', value: 'edit' },

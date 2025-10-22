@@ -18,7 +18,7 @@ export async function executeJournal(
 				const starttime = this.getNodeParameter('starttime', i) as number;
 				const endtime = this.getNodeParameter('endtime', i) as number;
 				const cursor = this.getNodeParameter('cursor', i, 0) as number;
-				const limit = this.getNodeParameter('limit', i, 100) as number;
+				const limit = this.getNodeParameter('limit', i, 50) as number;
 				const filters = this.getNodeParameter('filters', i, '[]') as string;
 
 				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/oa/journal/get_record_list', {
@@ -43,7 +43,12 @@ export async function executeJournal(
 				const endtime = this.getNodeParameter('endtime', i) as number;
 				const useridlist = this.getNodeParameter('useridlist', i, '') as string;
 
-				const body: any = {
+				const body: {
+					template_type: number;
+					starttime: number;
+					endtime: number;
+					useridlist?: string[];
+				} = {
 					template_type,
 					starttime,
 					endtime,
