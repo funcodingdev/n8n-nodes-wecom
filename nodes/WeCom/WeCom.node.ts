@@ -43,7 +43,11 @@ export class WeCom implements INodeType {
 		credentials: [
 			{
 				name: 'weComApi',
-				required: true,
+				required: false,
+			},
+			{
+				name: 'weComWebhookApi',
+				required: false,
 			},
 		],
 		requestDefaults: {
@@ -59,6 +63,7 @@ export class WeCom implements INodeType {
 				name: 'resource',
 				type: 'options',
 				noDataExpression: true,
+				// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
 				options: [
 					{
 						name: '企业互联',

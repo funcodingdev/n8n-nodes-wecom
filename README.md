@@ -275,6 +275,8 @@ npm install n8n-nodes-wecom
 
 - [企业微信开发文档](https://developer.work.weixin.qq.com/document/)
 - [n8n 官方文档](https://docs.n8n.io/)
+- [n8n 社区节点开发文档](https://docs.n8n.io/integrations/creating-nodes/overview/)
+- [n8n 社区节点开发示例](https://docs.n8n.io/integrations/creating-nodes/build/declarative-style-node/)
 
 ## 许可证
 

@@ -25,7 +25,12 @@ export class WeComTrigger implements INodeType {
 		},
 		inputs: [],
 		outputs: [NodeConnectionTypes.Main],
-		credentials: [],
+		credentials: [
+			{
+				name: 'weComReceiveApi',
+				required: true,
+			},
+		],
 		webhooks: [
 			{
 				name: 'default',
@@ -45,48 +50,49 @@ export class WeComTrigger implements INodeType {
 				displayName: '事件类型',
 				name: 'events',
 				type: 'multiOptions',
-			options: [
-				{
-					name: '链接消息',
-					value: 'link',
-					description: '接收用户发送的链接消息',
-				},
-				{
-					name: '事件消息',
-					value: 'event',
-					description: '接收事件推送（如成员变更、部门变更等）',
-				},
-				{
-					name: '视频消息',
-					value: 'video',
-					description: '接收用户发送的视频消息',
-				},
-				{
-					name: '所有事件',
-					value: '*',
-					description: '接收所有类型的消息和事件',
-				},
-				{
-					name: '图片消息',
-					value: 'image',
-					description: '接收用户发送的图片消息',
-				},
-				{
-					name: '位置消息',
-					value: 'location',
-					description: '接收用户发送的位置消息',
-				},
-				{
-					name: '文本消息',
-					value: 'text',
-					description: '接收用户发送的文本消息',
-				},
-				{
-					name: '语音消息',
-					value: 'voice',
-					description: '接收用户发送的语音消息',
-				},
-			],
+				// eslint-disable-next-line n8n-nodes-base/node-param-multi-options-type-unsorted-items
+				options: [
+					{
+						name: '所有事件',
+						value: '*',
+						description: '接收所有类型的消息和事件',
+					},
+					{
+						name: '事件消息',
+						value: 'event',
+						description: '接收事件推送（如成员变更、部门变更等）',
+					},
+					{
+						name: '位置消息',
+						value: 'location',
+						description: '接收用户发送的位置消息',
+					},
+					{
+						name: '图片消息',
+						value: 'image',
+						description: '接收用户发送的图片消息',
+					},
+					{
+						name: '文本消息',
+						value: 'text',
+						description: '接收用户发送的文本消息',
+					},
+					{
+						name: '视频消息',
+						value: 'video',
+						description: '接收用户发送的视频消息',
+					},
+					{
+						name: '语音消息',
+						value: 'voice',
+						description: '接收用户发送的语音消息',
+					},
+					{
+						name: '链接消息',
+						value: 'link',
+						description: '接收用户发送的链接消息',
+					},
+				],
 				default: ['*'],
 				required: true,
 				description: '选择要接收的消息和事件类型',
@@ -132,10 +138,7 @@ export class WeComTrigger implements INodeType {
 		// GET 请求：URL 验证
 		if (webhookName === 'setup') {
 			if (!msg_signature || !timestamp || !nonce || !echostr) {
-				throw new NodeOperationError(
-					this.getNode(),
-					'缺少必要的验证参数',
-				);
+				throw new NodeOperationError(this.getNode(), '缺少必要的验证参数');
 			}
 
 			// 验证签名
@@ -148,10 +151,7 @@ export class WeComTrigger implements INodeType {
 			);
 
 			if (!isValid) {
-				throw new NodeOperationError(
-					this.getNode(),
-					'签名验证失败',
-				);
+				throw new NodeOperationError(this.getNode(), '签名验证失败');
 			}
 
 			// 解密 echostr
@@ -172,10 +172,7 @@ export class WeComTrigger implements INodeType {
 		const { Encrypt } = xmlData;
 
 		if (!Encrypt) {
-			throw new NodeOperationError(
-				this.getNode(),
-				'无效的消息格式：缺少加密数据',
-			);
+			throw new NodeOperationError(this.getNode(), '无效的消息格式：缺少加密数据');
 		}
 
 		// 验证签名
@@ -188,10 +185,7 @@ export class WeComTrigger implements INodeType {
 		);
 
 		if (!isValid) {
-			throw new NodeOperationError(
-				this.getNode(),
-				'消息签名验证失败',
-			);
+			throw new NodeOperationError(this.getNode(), '消息签名验证失败');
 		}
 
 		// 解密消息
@@ -236,4 +230,3 @@ export class WeComTrigger implements INodeType {
 		};
 	}
 }
-
