@@ -26,15 +26,6 @@ export class WeComApi implements ICredentialType {
 			description: '企业微信的企业 ID，在"管理后台 - 我的企业 - 企业信息"中查看',
 		},
 		{
-			displayName: '应用 Secret',
-			name: 'corpSecret',
-			type: 'string',
-			typeOptions: { password: true },
-			default: '',
-			required: true,
-			description: '应用的密钥，在"应用管理 - 自建应用"中查看',
-		},
-		{
 			displayName: '应用 ID (Agent ID)',
 			name: 'agentId',
 			type: 'string',
@@ -42,6 +33,15 @@ export class WeComApi implements ICredentialType {
 			required: true,
 			description: '应用的唯一标识，在"应用管理 - 自建应用"中查看',
 		},
+		{
+			displayName: '应用 Secret',
+			name: 'corpSecret',
+			type: 'string',
+			typeOptions: { password: true },
+			default: '',
+			required: true,
+			description: '应用的密钥，在"应用管理 - 自建应用"中查看，注意应用需要是启用状态',
+		}
 	];
 
 	// 企业微信需要先获取 access_token，不能直接在这里配置
@@ -54,6 +54,7 @@ export class WeComApi implements ICredentialType {
 	// 测试认证是否有效
 	test: ICredentialTestRequest = {
 		request: {
+			method: 'GET',
 			baseURL: 'https://qyapi.weixin.qq.com',
 			url: '/cgi-bin/gettoken',
 			qs: {
