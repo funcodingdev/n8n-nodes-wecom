@@ -116,7 +116,7 @@ export class WeComBase implements INodeType {
 						description: '获取企业微信系统信息（IP段等）',
 					},
 				],
-				default: 'contact',
+				default: 'pushMessage',
 			},
 			...contactDescription,
 			...messageDescription,

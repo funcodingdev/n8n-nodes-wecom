@@ -50,11 +50,12 @@ export class WeComOffice implements INodeType {
 				name: 'resource',
 				type: 'options',
 				noDataExpression: true,
+				// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
 				options: [
 					{
-						name: '会议',
-						value: 'meeting',
-						description: '管理企业微信会议（预约会议、会议控制、录制管理等）',
+						name: '文档',
+						value: 'wedoc',
+						description: '管理企业微信文档（在线文档、表格、智能表格）',
 					},
 					{
 						name: '微盘',
@@ -62,20 +63,20 @@ export class WeComOffice implements INodeType {
 						description: '管理微盘空间和文件',
 					},
 					{
-						name: '文档',
-						value: 'wedoc',
-						description: '管理企业微信文档（在线文档、表格、智能表格）',
+						name: '邮件',
+						value: 'mail',
+						description: '管理企业邮箱（发送邮件、邮件群组、公共邮箱等）',
+					},
+					{
+						name: '会议',
+						value: 'meeting',
+						description: '管理企业微信会议（预约会议、会议控制、录制管理等）',
 					},
 					{
 						name: '日程',
 						value: 'calendar',
 						description: '管理日历和日程（创建日历、创建日程、管理参与者等）',
-					},
-					{
-						name: '邮件',
-						value: 'mail',
-						description: '管理企业邮箱（发送邮件、邮件群组、公共邮箱等）',
-					},
+					}
 				],
 				default: 'wedoc',
 			},
