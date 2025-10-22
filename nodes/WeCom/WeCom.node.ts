@@ -84,36 +84,6 @@ export class WeCom implements INodeType {
 				// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
 				options: [
 					{
-						name: '企业互联',
-						value: 'linkedcorp',
-						description: '企业互联和上下游管理',
-					},
-					{
-						name: '群聊会话',
-						value: 'appChat',
-						description: '获取群聊会话和发送消息到群聊会话',
-					},
-					{
-						name: '素材管理',
-						value: 'material',
-						description: '上传和管理素材文件',
-					},
-					{
-						name: '通讯录',
-						value: 'contact',
-						description: '获取通讯录信息（成员、部门）',
-					},
-					{
-						name: '微盘',
-						value: 'wefile',
-						description: '管理微盘空间和文件',
-					},
-					{
-						name: '文档',
-						value: 'wedoc',
-						description: '企业微信文档管理',
-					},
-					{
 						name: '消息推送',
 						value: 'pushMessage',
 						description: '通过群机器人 Webhook 发送消息到群聊',
@@ -122,6 +92,36 @@ export class WeCom implements INodeType {
 						name: '应用消息',
 						value: 'message',
 						description: '发送各类消息（文本、图片、文件等）',
+					},
+					{
+						name: '群聊会话',
+						value: 'appChat',
+						description: '获取群聊会话和发送消息到群聊会话',
+					},
+					{
+						name: '通讯录',
+						value: 'contact',
+						description: '获取通讯录信息（成员、部门）',
+					},
+					{
+						name: '素材管理',
+						value: 'material',
+						description: '上传和管理素材文件',
+					},
+					{
+						name: '企业互联',
+						value: 'linkedcorp',
+						description: '企业互联和上下游管理',
+					},
+					{
+						name: '文档',
+						value: 'wedoc',
+						description: '企业微信文档管理',
+					},
+					{
+						name: '微盘',
+						value: 'wefile',
+						description: '管理微盘空间和文件',
 					},
 				],
 				default: 'pushMessage',

@@ -312,6 +312,41 @@ npm install n8n-nodes-wecom
 
 - ✅ [上传文档图片](https://developer.work.weixin.qq.com/document/path/99933)
 
+### 💾 微盘管理
+
+> 📖 [官方文档：微盘](https://developer.work.weixin.qq.com/document/path/93654)
+
+#### 空间管理
+
+- ✅ [创建空间](https://developer.work.weixin.qq.com/document/path/93654)
+- ✅ [重命名空间](https://developer.work.weixin.qq.com/document/path/93656)
+- ✅ [删除空间](https://developer.work.weixin.qq.com/document/path/97884)
+- ✅ [获取空间信息](https://developer.work.weixin.qq.com/document/path/93655)
+- ✅ [添加空间成员](https://developer.work.weixin.qq.com/document/path/93658)
+- ✅ [移除空间成员](https://developer.work.weixin.qq.com/document/path/93659)
+- ✅ [空间安全设置](https://developer.work.weixin.qq.com/document/path/97886)
+- ✅ [获取空间邀请链接](https://developer.work.weixin.qq.com/document/path/97967)
+
+#### 文件管理
+
+- ✅ [获取文件列表](https://developer.work.weixin.qq.com/document/path/93657)
+- ✅ [上传文件](https://developer.work.weixin.qq.com/document/path/93662)
+- ✅ [下载文件](https://developer.work.weixin.qq.com/document/path/93663)
+- ✅ [创建文件夹](https://developer.work.weixin.qq.com/document/path/97970)
+- ✅ [重命名文件](https://developer.work.weixin.qq.com/document/path/97971)
+- ✅ [移动文件](https://developer.work.weixin.qq.com/document/path/97972)
+- ✅ [删除文件](https://developer.work.weixin.qq.com/document/path/97973)
+- ✅ [获取文件信息](https://developer.work.weixin.qq.com/document/path/97974)
+
+#### 文件权限管理
+
+- ✅ [添加文件成员](https://developer.work.weixin.qq.com/document/path/97975)
+- ✅ [移除文件成员](https://developer.work.weixin.qq.com/document/path/97976)
+- ✅ [文件分享设置](https://developer.work.weixin.qq.com/document/path/97977)
+- ✅ [获取文件分享链接](https://developer.work.weixin.qq.com/document/path/97978)
+- ✅ [获取文件权限信息](https://developer.work.weixin.qq.com/document/path/97979)
+- ✅ [文件安全设置](https://developer.work.weixin.qq.com/document/path/97980)
+
 ## 参考资源
 
 - [企业微信开发文档](https://developer.work.weixin.qq.com/document/)
