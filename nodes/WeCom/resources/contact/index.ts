@@ -225,7 +225,7 @@ export const contactDescription: INodeProperties[] = [
 			{
 				name: '手机号获取UserID',
 				value: 'getUserIdByMobile',
-				action: 'User id',
+				action: '手机号获取 User ID',
 				description: '通过手机号获取成员UserID',
 			},
 			{
@@ -237,7 +237,7 @@ export const contactDescription: INodeProperties[] = [
 			{
 				name: '邮箱获取UserID',
 				value: 'getUserIdByEmail',
-				action: 'User id',
+				action: '邮箱获取 User ID',
 				description: '通过邮箱获取成员UserID',
 			},
 			{
@@ -255,13 +255,13 @@ export const contactDescription: INodeProperties[] = [
 			{
 				name: 'OpenID转UserID',
 				value: 'convertToUserid',
-				action: 'Convert openid to userid',
+				action: 'Openid 转 userid',
 				description: '将 openid 转换为企业成员的 userid',
 			},
 			{
 				name: 'UserID转OpenID',
 				value: 'convertToOpenid',
-				action: 'Convert userid to openid',
+				action: 'Userid to openid',
 				description: '将企业成员的 userid 转换为 openid',
 			},
 		],
