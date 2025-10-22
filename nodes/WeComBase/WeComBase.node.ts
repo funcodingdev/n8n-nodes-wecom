@@ -13,12 +13,14 @@ import { materialDescription } from '../WeCom/resources/material';
 import { appChatDescription } from '../WeCom/resources/appChat';
 import { linkedcorpDescription } from '../WeCom/resources/linkedcorp';
 import { pushMessageDescription } from '../WeCom/resources/pushMessage';
+import { systemDescription } from '../WeCom/resources/system';
 import { executeMessage } from '../WeCom/resources/message/execute';
 import { executeContact } from '../WeCom/resources/contact/execute';
 import { executeMaterial } from '../WeCom/resources/material/execute';
 import { executeAppChat } from '../WeCom/resources/appChat/execute';
 import { executeLinkedcorp } from '../WeCom/resources/linkedcorp/execute';
 import { executePushMessage } from '../WeCom/resources/pushMessage/execute';
+import { executeSystem } from '../WeCom/resources/system/execute';
 import { weComApiRequest } from '../WeCom/shared/transport';
 
 export class WeComBase implements INodeType {
@@ -30,7 +32,7 @@ export class WeComBase implements INodeType {
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: '企业微信基础功能 - 通讯录、应用消息、群聊、消息推送、企业互联、素材',
+		description: '企业微信基础功能 - 通讯录、应用消息、群聊、消息推送、企业互联、素材、系统',
 		defaults: {
 			name: '企业微信-基础',
 		},
@@ -48,6 +50,7 @@ export class WeComBase implements INodeType {
 							'contact',
 							'material',
 							'linkedcorp',
+							'system',
 						],
 					},
 				},
@@ -107,6 +110,11 @@ export class WeComBase implements INodeType {
 						value: 'material',
 						description: '上传和管理素材文件',
 					},
+					{
+						name: '系统',
+						value: 'system',
+						description: '获取企业微信系统信息（IP段等）',
+					},
 				],
 				default: 'contact',
 			},
@@ -116,6 +124,7 @@ export class WeComBase implements INodeType {
 			...pushMessageDescription,
 			...linkedcorpDescription,
 			...materialDescription,
+			...systemDescription,
 		],
 		usableAsTool: true,
 	};
@@ -251,6 +260,11 @@ export class WeComBase implements INodeType {
 			returnData = await executeLinkedcorp.call(this, operation as string, items);
 		} else if (resource === 'material') {
 			returnData = await executeMaterial.call(this, operation as string, items);
+		} else if (resource === 'system') {
+			for (let i = 0; i < items.length; i++) {
+				const responseData = await executeSystem.call(this, i);
+				returnData.push({ json: responseData[0] });
+			}
 		}
 
 		return [returnData];

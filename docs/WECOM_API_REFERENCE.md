@@ -96,6 +96,8 @@
 - 消息格式：https://developer.work.weixin.qq.com/document/path/90239
 - 事件格式：https://developer.work.weixin.qq.com/document/path/90240
 - 被动回复消息格式：https://developer.work.weixin.qq.com/document/path/90241
+- 回调机制说明：https://developer.work.weixin.qq.com/document/path/92520
+- 回调机制示例代码：https://developer.work.weixin.qq.com/document/path/92521
 
 ### 应用发送消息到群聊会话
 - 概述：https://developer.work.weixin.qq.com/document/path/90244
@@ -120,6 +122,14 @@
 - 获取临时素材：https://developer.work.weixin.qq.com/document/path/90254
 - 获取高清语音素材：https://developer.work.weixin.qq.com/document/path/90255
 - 异步上传临时素材：https://developer.work.weixin.qq.com/document/path/96219
+
+---
+
+## 系统
+
+### 获取IP段
+- 获取企业微信接口IP段：https://developer.work.weixin.qq.com/document/path/92520
+- 获取企业微信回调IP段：https://developer.work.weixin.qq.com/document/path/92521
 
 ---
 
@@ -296,10 +306,11 @@
 - **通讯录管理**：52个接口文档
 - **消息接收与发送**：16个接口文档
 - **素材管理**：6个接口文档
+- **系统**：2个接口文档
 - **企业互联**：4个接口文档
 - **上下游**：20个接口文档
 - **文档**：48个接口文档
 - **微盘**：36个接口文档
-- **总计**：185个接口文档
+- **总计**：187个接口文档
 
 所有链接均来自企业微信官方开发者文档。

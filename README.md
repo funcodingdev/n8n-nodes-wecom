@@ -213,6 +213,11 @@ Set 节点配置：
 - ✅ 自动加密和签名
 - ✅ 支持从工作流输出中读取回复内容
 
+**回调机制参考文档：**
+
+- 📖 [回调机制说明](https://developer.work.weixin.qq.com/document/path/92520)
+- 📖 [回调机制示例代码](https://developer.work.weixin.qq.com/document/path/92521)
+
 ### 📩 消息推送（群机器人）
 
 > 📖 [官方文档：消息推送配置说明](https://developer.work.weixin.qq.com/document/path/99110)
@@ -375,6 +380,21 @@ Set 节点配置：
 - ✅ [获取对接规则详情](https://developer.work.weixin.qq.com/document/path/95633)
 - ✅ [新增对接规则](https://developer.work.weixin.qq.com/document/path/95634)
 - ✅ [更新对接规则](https://developer.work.weixin.qq.com/document/path/95635)
+
+### ⚙️ 系统
+
+> 📖 [官方文档：获取企业微信服务器IP段](https://developer.work.weixin.qq.com/document/path/92520)
+
+- ✅ [获取企业微信接口IP段](https://developer.work.weixin.qq.com/document/path/92520)
+- ✅ [获取企业微信回调IP段](https://developer.work.weixin.qq.com/document/path/92521)
+
+**用途说明：**
+
+这些接口用于获取企业微信服务器的IP地址段，可用于：
+- **安全配置**：将获取到的IP段添加到防火墙白名单，只允许企业微信服务器访问
+- **接口调用安全**：配置API接口IP段白名单，防止非法调用
+- **回调安全**：配置回调服务器IP段白名单，确保只接收来自企业微信官方服务器的回调请求
+- **网络隔离**：在专网或VPN环境中，只开放对企业微信服务器IP段的访问权限
 
 ---
 
