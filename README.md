@@ -16,6 +16,8 @@
 - **消息推送** - 群机器人 Webhook 推送
 - **企业互联** - 企业互联和上下游管理
 - **素材管理** - 素材上传和管理
+- **客户联系** - 客户管理、标签、继承、客户群、朋友圈、群发等
+- **电子发票** - 电子发票查询和状态管理
 
 ### 2. 企业微信-办公
 
@@ -440,6 +442,102 @@ npm install n8n-nodes-wecom
 - **接口调用安全**：配置API接口IP段白名单，防止非法调用
 - **回调安全**：配置回调服务器IP段白名单，确保只接收来自企业微信官方服务器的回调请求
 - **网络隔离**：在专网或VPN环境中，只开放对企业微信服务器IP段的访问权限
+
+### 🤝 客户联系
+
+> 📖 [官方文档：客户联系](https://developer.work.weixin.qq.com/document/path/92109)
+
+#### 企业服务人员管理
+
+- ✅ [获取配置了客户联系功能的成员列表](https://developer.work.weixin.qq.com/document/path/92571)
+
+#### 客户管理
+
+- ✅ [获取客户列表](https://developer.work.weixin.qq.com/document/path/92113)
+- ✅ [获取客户详情](https://developer.work.weixin.qq.com/document/path/92114)
+- ✅ [批量获取客户详情](https://developer.work.weixin.qq.com/document/path/92994)
+- ✅ [修改客户备注信息](https://developer.work.weixin.qq.com/document/path/92115)
+
+#### 客户标签管理
+
+- ✅ [获取企业标签库](https://developer.work.weixin.qq.com/document/path/92117)
+- ✅ [添加企业客户标签](https://developer.work.weixin.qq.com/document/path/92117)
+- ✅ [编辑企业客户标签](https://developer.work.weixin.qq.com/document/path/92117)
+- ✅ [删除企业客户标签](https://developer.work.weixin.qq.com/document/path/92117)
+- ✅ [编辑客户企业标签](https://developer.work.weixin.qq.com/document/path/92118)
+
+#### 在职继承
+
+- ✅ [分配在职成员的客户](https://developer.work.weixin.qq.com/document/path/92125)
+- ✅ [查询客户接替状态](https://developer.work.weixin.qq.com/document/path/94088)
+- ✅ [分配在职成员的客户群](https://developer.work.weixin.qq.com/document/path/95703)
+
+#### 离职继承
+
+- ✅ [获取待分配的离职成员列表](https://developer.work.weixin.qq.com/document/path/92124)
+- ✅ [分配离职成员的客户](https://developer.work.weixin.qq.com/document/path/94081)
+- ✅ [查询客户接替状态](https://developer.work.weixin.qq.com/document/path/94082)
+- ✅ [分配离职成员的客户群](https://developer.work.weixin.qq.com/document/path/92127)
+
+#### 客户群管理
+
+- ✅ [获取客户群列表](https://developer.work.weixin.qq.com/document/path/92120)
+- ✅ [获取客户群详情](https://developer.work.weixin.qq.com/document/path/92122)
+- ✅ [客户群opengid转换](https://developer.work.weixin.qq.com/document/path/94822)
+
+#### 联系我与客户入群方式
+
+- ✅ [配置客户联系「联系我」方式](https://developer.work.weixin.qq.com/document/path/92228)
+- ✅ [获取企业已配置的「联系我」方式](https://developer.work.weixin.qq.com/document/path/92228)
+- ✅ [更新企业已配置的「联系我」方式](https://developer.work.weixin.qq.com/document/path/92228)
+- ✅ [删除企业已配置的「联系我」方式](https://developer.work.weixin.qq.com/document/path/92228)
+- ✅ [配置客户群进群方式](https://developer.work.weixin.qq.com/document/path/92229)
+- ✅ [获取客户群进群方式配置](https://developer.work.weixin.qq.com/document/path/92229)
+- ✅ [更新客户群进群方式配置](https://developer.work.weixin.qq.com/document/path/92229)
+- ✅ [删除客户群进群方式配置](https://developer.work.weixin.qq.com/document/path/92229)
+
+#### 客户朋友圈
+
+> 📖 [官方文档：客户朋友圈概述](https://developer.work.weixin.qq.com/document/path/93506)
+
+- ✅ [企业发表内容到客户的朋友圈](https://developer.work.weixin.qq.com/document/path/95094)
+- ✅ [停止发表企业朋友圈](https://developer.work.weixin.qq.com/document/path/97612)
+- ✅ [获取客户朋友圈全部的发表记录](https://developer.work.weixin.qq.com/document/path/93333)
+- ✅ [获取客户朋友圈企业发表的列表](https://developer.work.weixin.qq.com/document/path/93333)
+
+#### 消息推送
+
+- ✅ [创建企业群发](https://developer.work.weixin.qq.com/document/path/92135)
+- ✅ [提醒成员群发](https://developer.work.weixin.qq.com/document/path/97610)
+- ✅ [停止企业群发](https://developer.work.weixin.qq.com/document/path/97611)
+- ✅ [获取企业的全部群发记录](https://developer.work.weixin.qq.com/document/path/93338)
+- ✅ [发送新客户欢迎语](https://developer.work.weixin.qq.com/document/path/92137)
+- ✅ [添加入群欢迎语素材](https://developer.work.weixin.qq.com/document/path/92366)
+- ✅ [编辑入群欢迎语素材](https://developer.work.weixin.qq.com/document/path/92366)
+- ✅ [获取入群欢迎语素材](https://developer.work.weixin.qq.com/document/path/92366)
+- ✅ [删除入群欢迎语素材](https://developer.work.weixin.qq.com/document/path/92366)
+
+#### 统计管理
+
+- ✅ [获取「联系客户统计」数据](https://developer.work.weixin.qq.com/document/path/92132)
+- ✅ [获取「群聊数据统计」数据](https://developer.work.weixin.qq.com/document/path/92133)
+
+#### 其他接口
+
+- ✅ [管理商品图册](https://developer.work.weixin.qq.com/document/path/95096)（创建、获取、编辑、删除、列表）
+- ✅ [管理聊天敏感词](https://developer.work.weixin.qq.com/document/path/95097)（新建、获取、修改、删除规则）
+- ✅ [上传附件资源](https://developer.work.weixin.qq.com/document/path/95098)
+- ✅ [获客助手](https://developer.work.weixin.qq.com/document/path/97297)（链接管理、客户信息、额度统计）
+- ✅ [获取已服务的外部联系人](https://developer.work.weixin.qq.com/document/path/99434)
+
+### 💰 电子发票
+
+> 📖 [官方文档：电子发票](https://developer.work.weixin.qq.com/document/path/90283)
+
+- ✅ [查询电子发票](https://developer.work.weixin.qq.com/document/path/90284)
+- ✅ [更新发票状态](https://developer.work.weixin.qq.com/document/path/90285)
+- ✅ [批量更新发票状态](https://developer.work.weixin.qq.com/document/path/90286)
+- ✅ [批量查询电子发票](https://developer.work.weixin.qq.com/document/path/90287)
 
 ---
 
