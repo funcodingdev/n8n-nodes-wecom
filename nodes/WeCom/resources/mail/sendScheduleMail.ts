@@ -39,7 +39,6 @@ export const sendScheduleMailDescription: INodeProperties[] = [
 			show: showOnlyForSendScheduleMail,
 		},
 		default: '',
-		description: '邮件主题',
 		hint: '邮件主题',
 	},
 	{

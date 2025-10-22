@@ -10,11 +10,14 @@ export const getMailAdvancedAccountListDescription: INodeProperties[] = [
 		displayName: '返回数量',
 		name: 'limit',
 		type: 'number',
+		typeOptions: {
+			minValue: 1,
+		},
 		displayOptions: {
 			show: showOnlyForGetMailAdvancedAccountList,
 		},
-		default: 100,
-		description: '返回的账号数量，默认100',
+		default: 50,
+		description: 'Max number of results to return',
 		hint: '返回数量',
 	},
 	{

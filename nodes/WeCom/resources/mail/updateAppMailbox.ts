@@ -26,7 +26,6 @@ export const updateAppMailboxDescription: INodeProperties[] = [
 			show: showOnlyForUpdateAppMailbox,
 		},
 		default: '',
-		description: '邮箱名称',
 		hint: '邮箱名称（可选）',
 	},
 	{
@@ -37,7 +36,6 @@ export const updateAppMailboxDescription: INodeProperties[] = [
 			show: showOnlyForUpdateAppMailbox,
 		},
 		default: '',
-		description: '邮箱描述',
 		hint: '邮箱描述（可选）',
 	},
 ];

@@ -26,7 +26,6 @@ export const updatePublicMailboxDescription: INodeProperties[] = [
 			show: showOnlyForUpdatePublicMailbox,
 		},
 		default: '',
-		description: '邮箱名称',
 		hint: '邮箱名称（可选）',
 	},
 	{

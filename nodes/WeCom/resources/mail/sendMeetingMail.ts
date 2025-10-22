@@ -39,7 +39,6 @@ export const sendMeetingMailDescription: INodeProperties[] = [
 			show: showOnlyForSendMeetingMail,
 		},
 		default: '',
-		description: '邮件主题',
 		hint: '邮件主题',
 	},
 	{

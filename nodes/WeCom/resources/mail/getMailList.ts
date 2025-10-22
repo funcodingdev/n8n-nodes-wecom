@@ -46,11 +46,14 @@ export const getMailListDescription: INodeProperties[] = [
 		displayName: '邮件数量',
 		name: 'limit',
 		type: 'number',
+		typeOptions: {
+			minValue: 1,
+		},
 		displayOptions: {
 			show: showOnlyForGetMailList,
 		},
-		default: 100,
-		description: '返回的邮件数量，默认100，最大1000',
+		default: 50,
+		description: 'Max number of results to return',
 		hint: '邮件数量',
 	},
 	{

@@ -15,7 +15,6 @@ export const updateUserMailAttributeDescription: INodeProperties[] = [
 			show: showOnlyForUpdateUserMailAttribute,
 		},
 		default: '',
-		description: '邮箱地址',
 		hint: '邮箱地址',
 	},
 	{

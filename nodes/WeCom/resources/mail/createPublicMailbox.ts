@@ -27,7 +27,6 @@ export const createPublicMailboxDescription: INodeProperties[] = [
 			show: showOnlyForCreatePublicMailbox,
 		},
 		default: '',
-		description: '邮箱名称',
 		hint: '邮箱名称',
 	},
 	{

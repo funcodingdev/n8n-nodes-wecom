@@ -15,13 +15,13 @@ export const deleteClientPasswordDescription: INodeProperties[] = [
 			show: showOnlyForDeleteClientPassword,
 		},
 		default: '',
-		description: '邮箱地址',
 		hint: '邮箱地址',
 	},
 	{
 		displayName: '密码ID',
 		name: 'password_id',
 		type: 'string',
+		typeOptions: { password: true },
 		required: true,
 		displayOptions: {
 			show: showOnlyForDeleteClientPassword,

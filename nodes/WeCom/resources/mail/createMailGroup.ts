@@ -27,7 +27,6 @@ export const createMailGroupDescription: INodeProperties[] = [
 			show: showOnlyForCreateMailGroup,
 		},
 		default: '',
-		description: '群组名称',
 		hint: '群组名称',
 	},
 	{

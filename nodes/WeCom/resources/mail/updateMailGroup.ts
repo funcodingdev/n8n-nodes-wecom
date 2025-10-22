@@ -26,7 +26,6 @@ export const updateMailGroupDescription: INodeProperties[] = [
 			show: showOnlyForUpdateMailGroup,
 		},
 		default: '',
-		description: '群组名称',
 		hint: '群组名称（可选）',
 	},
 	{

@@ -15,7 +15,6 @@ export const getMailContentDescription: INodeProperties[] = [
 			show: showOnlyForGetMailContent,
 		},
 		default: '',
-		description: '邮箱地址',
 		hint: '邮箱地址',
 	},
 	{
@@ -27,7 +26,6 @@ export const getMailContentDescription: INodeProperties[] = [
 			show: showOnlyForGetMailContent,
 		},
 		default: '',
-		description: '邮件ID',
 		hint: '邮件ID',
 	},
 ];
