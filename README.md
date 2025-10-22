@@ -2,7 +2,7 @@
 
 这是一个 n8n 社区节点，让你可以在 [n8n](https://n8n.io/) 工作流中使用企业微信（WeChat Work）API。
 
-## 📦 节点分类
+## 节点分类
 
 本插件按照企业微信官方文档的分类结构，提供以下节点：
 
@@ -34,16 +34,17 @@
 - **会议室管理** - 会议室和会议室预定管理
 - **紧急通知** - 语音电话等紧急通知
 
-### 3. 企业微信消息接收（Trigger）
-
-接收企业微信的消息和事件推送
-
-### 4. 企业微信-连接微信
+### 3. 企业微信-连接微信
 
 包含企业微信连接微信的功能：
 
 - **客户联系** - 客户管理、标签、继承、客户群、朋友圈、群发等
 - **微信客服** - 客服账号、接待人员、消息收发、统计管理
+
+
+### 4. 企业微信消息接收（Trigger）
+
+接收企业微信的消息和事件推送
 
 ## 隐私与安全
 
@@ -69,7 +70,7 @@ npm install n8n-nodes-wecom
 
 ## 凭证配置
 
-### 消息推送功能（群机器人Webhook需要）
+### 消息推送凭证（WebHook URL）
 
 **消息推送**功能用于通过群机器人 Webhook 发送消息到企业微信群聊
 
@@ -80,7 +81,7 @@ npm install n8n-nodes-wecom
 3. 创建一个机器人并复制 Webhook 地址
 4. 在 n8n 中配置"企业微信群机器人 Webhook"凭证，填入 Webhook 地址
 
-### 获取企业微信凭证（消息发送、通讯录、素材管理等功能需要）
+### 获取企业微信请求凭证（消息发送、通讯录、素材管理等功能需要）
 
 1. 登录 [企业微信管理后台](https://work.weixin.qq.com/)
 2. 进入"我的企业" > "企业信息"，复制 **企业ID (CorpID)**
@@ -88,138 +89,12 @@ npm install n8n-nodes-wecom
 4. 复制 **AgentId**（应用ID）
 5. 点击"查看Secret"，复制 **Secret**
 
-### 在 n8n 中配置
+### 获取企业微信消息接收凭证
 
-根据使用的节点类型选择对应的凭证：
-
-#### 企业微信-基础 节点
-
-1. 添加"企业微信-基础"节点到工作流
-2. 根据选择的资源类型配置凭证：
-
-   **通讯录、应用消息、群聊会话、企业互联、素材管理：**
-   - 点击"Credential to connect with"
-   - 选择"创建新凭证 - 企业微信 API"
-   - 填入以下信息：
-     - **企业 ID** - 你的企业 CorpID
-     - **应用 Secret** - 应用的 Secret
-     - **应用 ID** - 应用的 AgentID
-
-   **消息推送（群机器人）：**
-   - 点击"Credential to connect with"
-   - 选择"创建新凭证 - 企业微信群机器人 Webhook API"
-   - 填入群机器人的 Webhook URL
-
-#### 企业微信-办公 节点
-
-1. 添加"企业微信-办公"节点到工作流
-2. 点击"Credential to connect with"
-3. 选择"创建新凭证 - 企业微信 API"
-4. 填入企业凭证信息（同上）
-
-#### 企业微信-连接微信 节点
-
-1. 添加"企业微信-连接微信"节点到工作流
-2. 点击"Credential to connect with"
-3. 选择"创建新凭证 - 企业微信 API"
-4. 填入企业凭证信息（同上）
-
-#### 企业微信消息接收 Trigger 节点
-
-1. 添加"企业微信消息接收"触发器节点
-2. 点击"Credential to connect with"
-3. 选择"创建新凭证 - 企业微信消息接收 API"
-4. 填入以下信息：
-   - **企业 ID** - 你的企业 CorpID
-   - **Token** - 你将在企业微信后台设置的 Token（两边必须一致）
-   - **EncodingAESKey** - 你将在企业微信后台设置的密钥（两边必须一致，43位字符）
-5. 复制节点的 Webhook URL
-6. 在企业微信应用管理后台配置接收消息时，使用**相同的** Token 和 EncodingAESKey
-
-**被动回复消息配置：**
-
-如果需要在接收到用户消息后自动回复，可以启用"被动回复消息"功能：
-
-1. 在触发器节点中，启用"被动回复消息"选项
-2. 选择回复消息类型（文本、图片、语音、视频、图文）
-3. 配置对应的字段名称
-4. 在工作流中通过后续节点设置回复内容到指定字段
-
-**注意事项：**
-
-- 被动回复消息会自动进行加密和签名，无需手动处理
-- 如果未在工作流中设置相应字段，文本消息会返回默认内容"感谢您的消息，我们已收到！"
-- 媒体类型消息必须先通过素材管理接口上传获得 media_id，否则会报错
-- 图文消息需要提供包含 Title、Url 等字段的数组
-- 被动回复失败时会在输出数据的 `_passiveReplyError` 字段中记录错误信息
-
-## 💡 使用技巧
-
-### 动态选项功能
-
-本插件支持动态获取企业微信数据，让配置更加便捷，无需手动查找和输入ID：
-
-#### 企业微信-基础 节点
-
-- ✅ **成员选择**：自动获取企业所有成员列表，可按部门、标签筛选
-- ✅ **部门选择**：自动获取企业部门树结构
-- ✅ **标签选择**：自动获取企业标签列表
-
-**使用方法**：在发送消息、成员管理等操作中，相关字段会显示为下拉列表，直接选择即可，无需手动输入 UserID、部门ID、标签ID。
-
-**示例场景**：
-- 发送应用消息时，选择接收人可以从下拉列表中选择成员姓名
-- 创建成员时，选择所属部门可以从部门树中选择
-- 添加标签成员时，可以先选择标签，再选择要添加的成员
-
-#### 企业微信-连接微信 节点
-
-- ✅ **客服账号选择**：自动获取已创建的客服账号列表
-
-**使用方法**：在客服相关操作中，`客服账号` 字段会显示为下拉列表，显示客服账号名称，选择后自动填入 `open_kfid`。
-
-**支持的操作**：
-- 添加/删除接待人员
-- 获取接待人员列表
-- 发送客服消息
-- 分配客服会话
-- 获取客服账号链接
-- 修改/删除客服账号
-- 获取客服数据统计
-
-**优势**：
-- 🎯 **直观便捷**：显示友好的名称，无需记忆和查找 ID
-- 🚀 **提升效率**：配置时间从 5-10 分钟缩短到 1-2 分钟
-- ✅ **减少错误**：避免手动输入 ID 导致的错误
-- 🔄 **实时同步**：自动获取最新的企业微信数据
-
-**表达式支持**：所有动态选项字段仍支持通过 [n8n 表达式](https://docs.n8n.io/code/expressions/) 输入动态值，确保向后兼容和灵活性。
-
-### 获取ID的方法
-
-对于暂不支持动态选项的字段（如审批模板ID、日历ID等），可通过以下方式获取：
-
-1. **审批模板ID**：
-   - 登录企业微信管理后台
-   - 进入"应用管理" > "自建" > 选择应用 > "审批"
-   - 在模板列表中查看模板ID
-
-2. **日历ID**：
-   - 通过"创建日历"操作获取返回的 `cal_id`
-   - 在后续工作流中使用该ID
-
-3. **文档ID**：
-   - 通过"新建文档"操作获取返回的 `docid`
-   - 在后续工作流中使用该ID
-
-4. **空间ID**：
-   - 通过"创建空间"操作获取返回的 `spaceid`
-   - 在后续工作流中使用该ID
-
-5. **会议室ID**：
-   - 登录企业微信管理后台
-   - 进入"工作台" > "会议室"
-   - 查看会议室列表中的 ID
+1. 登录 [企业微信管理后台](https://work.weixin.qq.com/)
+2. 进入"我的企业" > "企业信息"，复制 **企业ID (CorpID)**
+3. 进入"应用管理" > 选择或创建一个应用
+4. 启用 **API接收消息**，获取Token、EncodingAESKey，创建一个节点，获取WebHook URL，填入**接收消息服务器配置**中
 
 ## 已实现功能
 
@@ -229,9 +104,9 @@ npm install n8n-nodes-wecom
 
 ## 一、基础功能（企业微信-基础 节点）
 
-### 📥 消息接收（Trigger 节点）
+### 消息接收（Trigger 节点）
 
-> 📖 [官方文档：接收消息与事件](https://developer.work.weixin.qq.com/document/path/90238)
+> [官方文档：接收消息与事件](https://developer.work.weixin.qq.com/document/path/90238)
 
 **接收消息功能：**
 
@@ -249,7 +124,7 @@ npm install n8n-nodes-wecom
 
 **被动回复消息功能：**
 
-> 📖 [官方文档：被动回复消息](https://developer.work.weixin.qq.com/document/path/90241)
+> [官方文档：被动回复消息](https://developer.work.weixin.qq.com/document/path/90241)
 
 - ✅ [被动回复文本消息](https://developer.work.weixin.qq.com/document/path/90241)
 - ✅ [被动回复图片消息](https://developer.work.weixin.qq.com/document/path/90241)
@@ -261,12 +136,12 @@ npm install n8n-nodes-wecom
 
 **回调机制参考文档：**
 
-- 📖 [回调机制说明](https://developer.work.weixin.qq.com/document/path/92520)
-- 📖 [回调机制示例代码](https://developer.work.weixin.qq.com/document/path/92521)
+- [回调机制说明](https://developer.work.weixin.qq.com/document/path/92520)
+- [回调机制示例代码](https://developer.work.weixin.qq.com/document/path/92521)
 
-### 📩 消息推送（群机器人）
+### 消息推送（群机器人）
 
-> 📖 [官方文档：消息推送配置说明](https://developer.work.weixin.qq.com/document/path/99110)
+> [官方文档：消息推送配置说明](https://developer.work.weixin.qq.com/document/path/99110)
 
 - ✅ 发送文本消息
 - ✅ 发送 Markdown 消息
@@ -279,9 +154,9 @@ npm install n8n-nodes-wecom
   - 文本通知模板卡片
   - 图文展示模板卡片
 
-### 📨 应用消息发送
+### 应用消息发送
 
-> 📖 [官方文档：发送应用消息](https://developer.work.weixin.qq.com/document/path/90236)
+> [官方文档：发送应用消息](https://developer.work.weixin.qq.com/document/path/90236)
 
 - ✅ 发送文本消息
 - ✅ 发送 Markdown 消息
@@ -299,9 +174,9 @@ npm install n8n-nodes-wecom
 - ✅ [撤回应用消息](https://developer.work.weixin.qq.com/document/path/94867)
 - ✅ [更新模板卡片消息](https://developer.work.weixin.qq.com/document/path/94888)
 
-### 💬 群聊会话
+### 群聊会话
 
-> 📖 [官方文档：应用发送消息到群聊会话](https://developer.work.weixin.qq.com/document/path/90244)
+> [官方文档：应用发送消息到群聊会话](https://developer.work.weixin.qq.com/document/path/90244)
 
 - ✅ [创建群聊会话](https://developer.work.weixin.qq.com/document/path/90245)
 - ✅ [获取群聊会话信息](https://developer.work.weixin.qq.com/document/path/98914)
@@ -313,9 +188,9 @@ npm install n8n-nodes-wecom
   - 发送 Markdown 消息到群聊
   - 发送图文消息到群聊
 
-### 👥 通讯录管理
+### 通讯录管理
 
-> 📖 [官方文档：通讯录管理](https://developer.work.weixin.qq.com/document/path/90193)
+> [官方文档：通讯录管理](https://developer.work.weixin.qq.com/document/path/90193)
 
 #### 成员管理
 
@@ -353,7 +228,7 @@ npm install n8n-nodes-wecom
 
 #### 账号ID转换
 
-> 📖 [官方文档：账号 ID](https://developer.work.weixin.qq.com/document/path/98728)
+> [官方文档：账号 ID](https://developer.work.weixin.qq.com/document/path/98728)
 
 - ✅ [用户ID转OpenID](https://developer.work.weixin.qq.com/document/path/90202)
 - ✅ [OpenID转用户ID](https://developer.work.weixin.qq.com/document/path/90202)
@@ -361,7 +236,7 @@ npm install n8n-nodes-wecom
 
 #### 异步导入接口
 
-> 📖 [官方文档：异步导入接口](https://developer.work.weixin.qq.com/document/path/90979)
+> [官方文档：异步导入接口](https://developer.work.weixin.qq.com/document/path/90979)
 
 - ✅ [增量更新成员](https://developer.work.weixin.qq.com/document/path/90980)
 - ✅ [全量覆盖成员](https://developer.work.weixin.qq.com/document/path/90981)
@@ -370,7 +245,7 @@ npm install n8n-nodes-wecom
 
 #### 异步导出接口
 
-> 📖 [官方文档：异步导出接口](https://developer.work.weixin.qq.com/document/path/94850)
+> [官方文档：异步导出接口](https://developer.work.weixin.qq.com/document/path/94850)
 
 - ✅ [导出成员](https://developer.work.weixin.qq.com/document/path/94849)
 - ✅ [导出成员详情](https://developer.work.weixin.qq.com/document/path/94851)
@@ -380,7 +255,7 @@ npm install n8n-nodes-wecom
 
 ### 📦 素材管理
 
-> 📖 [官方文档：素材管理](https://developer.work.weixin.qq.com/document/path/91054)
+> [官方文档：素材管理](https://developer.work.weixin.qq.com/document/path/91054)
 
 - ✅ [上传临时素材](https://developer.work.weixin.qq.com/document/path/90253)
 - ✅ [上传图片](https://developer.work.weixin.qq.com/document/path/90256)
@@ -392,7 +267,7 @@ npm install n8n-nodes-wecom
 
 ### 🔗 企业互联
 
-> 📖 [官方文档：企业互联](https://developer.work.weixin.qq.com/document/path/93360)
+> [官方文档：企业互联](https://developer.work.weixin.qq.com/document/path/93360)
 
 #### 企业互联基础接口
 
@@ -402,7 +277,7 @@ npm install n8n-nodes-wecom
 
 #### 上下游基础接口
 
-> 📖 [官方文档：上下游](https://developer.work.weixin.qq.com/document/path/97213)
+> [官方文档：上下游](https://developer.work.weixin.qq.com/document/path/97213)
 
 - ✅ [获取应用共享信息](https://developer.work.weixin.qq.com/document/path/95813)
 - ✅ [获取下级/下游企业的access_token](https://developer.work.weixin.qq.com/document/path/95816)
@@ -427,9 +302,9 @@ npm install n8n-nodes-wecom
 - ✅ [新增对接规则](https://developer.work.weixin.qq.com/document/path/95634)
 - ✅ [更新对接规则](https://developer.work.weixin.qq.com/document/path/95635)
 
-### ⚙️ 系统
+### 系统
 
-> 📖 [官方文档：获取企业微信服务器IP段](https://developer.work.weixin.qq.com/document/path/92520)
+> [官方文档：获取企业微信服务器IP段](https://developer.work.weixin.qq.com/document/path/92520)
 
 - ✅ [获取企业微信接口IP段](https://developer.work.weixin.qq.com/document/path/92520)
 - ✅ [获取企业微信回调IP段](https://developer.work.weixin.qq.com/document/path/92521)
@@ -443,9 +318,9 @@ npm install n8n-nodes-wecom
 - **回调安全**：配置回调服务器IP段白名单，确保只接收来自企业微信官方服务器的回调请求
 - **网络隔离**：在专网或VPN环境中，只开放对企业微信服务器IP段的访问权限
 
-### 🤝 客户联系
+### 客户联系
 
-> 📖 [官方文档：客户联系](https://developer.work.weixin.qq.com/document/path/92109)
+> [官方文档：客户联系](https://developer.work.weixin.qq.com/document/path/92109)
 
 #### 企业服务人员管理
 
@@ -498,7 +373,7 @@ npm install n8n-nodes-wecom
 
 #### 客户朋友圈
 
-> 📖 [官方文档：客户朋友圈概述](https://developer.work.weixin.qq.com/document/path/93506)
+> [官方文档：客户朋友圈概述](https://developer.work.weixin.qq.com/document/path/93506)
 
 - ✅ [企业发表内容到客户的朋友圈](https://developer.work.weixin.qq.com/document/path/95094)
 - ✅ [停止发表企业朋友圈](https://developer.work.weixin.qq.com/document/path/97612)
@@ -530,9 +405,9 @@ npm install n8n-nodes-wecom
 - ✅ [获客助手](https://developer.work.weixin.qq.com/document/path/97297)（链接管理、客户信息、额度统计）
 - ✅ [获取已服务的外部联系人](https://developer.work.weixin.qq.com/document/path/99434)
 
-### 💰 电子发票
+### 电子发票
 
-> 📖 [官方文档：电子发票](https://developer.work.weixin.qq.com/document/path/90283)
+> [官方文档：电子发票](https://developer.work.weixin.qq.com/document/path/90283)
 
 - ✅ [查询电子发票](https://developer.work.weixin.qq.com/document/path/90284)
 - ✅ [更新发票状态](https://developer.work.weixin.qq.com/document/path/90285)
@@ -543,9 +418,9 @@ npm install n8n-nodes-wecom
 
 ## 二、办公功能（企业微信-办公 节点）
 
-### 📧 邮件管理
+### 邮件管理
 
-> 📖 [官方文档：邮件](https://developer.work.weixin.qq.com/document/path/95486)
+> [官方文档：邮件](https://developer.work.weixin.qq.com/document/path/95486)
 
 #### 发送邮件
 
@@ -597,7 +472,7 @@ npm install n8n-nodes-wecom
 - ✅ [更改用户功能属性](https://developer.work.weixin.qq.com/document/path/98008)
 - ✅ [获取邮件未读数](https://developer.work.weixin.qq.com/document/path/95514)
 
-### 📄 文档管理
+### 文档管理
 
 #### 管理文档
 
@@ -666,9 +541,9 @@ npm install n8n-nodes-wecom
 
 - ✅ [上传文档图片](https://developer.work.weixin.qq.com/document/path/99933)
 
-### 📅 日程管理
+### 日程管理
 
-> 📖 [官方文档：日程](https://developer.work.weixin.qq.com/document/path/93647)
+> [官方文档：日程](https://developer.work.weixin.qq.com/document/path/93647)
 
 #### 管理日历
 
@@ -688,9 +563,9 @@ npm install n8n-nodes-wecom
 - ✅ [获取日程详情](https://developer.work.weixin.qq.com/document/path/97724)
 - ✅ [取消日程](https://developer.work.weixin.qq.com/document/path/97725)
 
-### 🎥 会议管理
+### 会议管理
 
-> 📖 [官方文档：会议](https://developer.work.weixin.qq.com/document/path/99104)
+> [官方文档：会议](https://developer.work.weixin.qq.com/document/path/99104)
 
 #### 预约会议基础管理
 
@@ -730,9 +605,9 @@ npm install n8n-nodes-wecom
 - ✅ [取消高级功能账号](https://developer.work.weixin.qq.com/document/path/99509)
 - ✅ [获取高级功能账号列表](https://developer.work.weixin.qq.com/document/path/99510)
 
-### 💾 微盘管理
+### 微盘管理
 
-> 📖 [官方文档：微盘](https://developer.work.weixin.qq.com/document/path/93654)
+> [官方文档：微盘](https://developer.work.weixin.qq.com/document/path/93654)
 
 #### 空间管理
 
@@ -765,9 +640,9 @@ npm install n8n-nodes-wecom
 - ✅ [获取文件权限信息](https://developer.work.weixin.qq.com/document/path/97979)
 - ✅ [文件安全设置](https://developer.work.weixin.qq.com/document/path/97980)
 
-### ⏰ 打卡管理
+### 打卡管理
 
-> 📖 [官方文档：打卡](https://developer.work.weixin.qq.com/document/path/90262)
+> [官方文档：打卡](https://developer.work.weixin.qq.com/document/path/90262)
 
 - ✅ [获取企业所有打卡规则](https://developer.work.weixin.qq.com/document/path/93384)
 - ✅ [获取员工打卡规则](https://developer.work.weixin.qq.com/document/path/90263)
@@ -782,9 +657,9 @@ npm install n8n-nodes-wecom
 - ✅ [获取设备打卡数据](https://developer.work.weixin.qq.com/document/path/94126)
 - ✅ [管理打卡规则](https://developer.work.weixin.qq.com/document/path/98041)
 
-### 📝 审批管理
+### 审批管理
 
-> 📖 [官方文档：审批](https://developer.work.weixin.qq.com/document/path/91854)
+> [官方文档：审批](https://developer.work.weixin.qq.com/document/path/91854)
 
 - ✅ [获取审批模板详情](https://developer.work.weixin.qq.com/document/path/91982)
 - ✅ [提交审批申请](https://developer.work.weixin.qq.com/document/path/91853)
@@ -796,26 +671,26 @@ npm install n8n-nodes-wecom
 - ✅ [创建审批模板](https://developer.work.weixin.qq.com/document/path/97437)
 - ✅ [更新审批模板](https://developer.work.weixin.qq.com/document/path/97438)
 
-### 📊 汇报管理
+### 汇报管理
 
-> 📖 [官方文档：汇报](https://developer.work.weixin.qq.com/document/path/93496)
+> [官方文档：汇报](https://developer.work.weixin.qq.com/document/path/93496)
 
 - ✅ [批量获取汇报记录单号](https://developer.work.weixin.qq.com/document/path/93393)
 - ✅ [获取汇报记录详情](https://developer.work.weixin.qq.com/document/path/93394)
 - ✅ [获取汇报统计数据](https://developer.work.weixin.qq.com/document/path/93395)
 - ✅ [下载微盘文件](https://developer.work.weixin.qq.com/document/path/98021)
 
-### 👔 人事助手
+### 人事助手
 
-> 📖 [官方文档：人事助手](https://developer.work.weixin.qq.com/document/path/99130)
+> [官方文档：人事助手](https://developer.work.weixin.qq.com/document/path/99130)
 
 - ✅ [获取员工字段配置](https://developer.work.weixin.qq.com/document/path/99131)
 - ✅ [获取员工花名册信息](https://developer.work.weixin.qq.com/document/path/99132)
 - ✅ [更新员工花名册信息](https://developer.work.weixin.qq.com/document/path/99133)
 
-### 🏢 会议室管理
+### 会议室管理
 
-> 📖 [官方文档：会议室](https://developer.work.weixin.qq.com/document/path/93618)
+> [官方文档：会议室](https://developer.work.weixin.qq.com/document/path/93618)
 
 - ✅ [会议室管理](https://developer.work.weixin.qq.com/document/path/93619)（添加、编辑、删除、查询、列表）
 - ✅ [会议室预定管理](https://developer.work.weixin.qq.com/document/path/93620)（预定、取消、查询、列表）
@@ -823,9 +698,9 @@ npm install n8n-nodes-wecom
 - ✅ [获取申请单详细信息](https://developer.work.weixin.qq.com/document/path/99885)
 - ✅ [设置审批单审批信息](https://developer.work.weixin.qq.com/document/path/99880)
 
-### 📞 紧急通知应用
+### 紧急通知应用
 
-> 📖 [官方文档：紧急通知](https://developer.work.weixin.qq.com/document/path/91623)
+> [官方文档：紧急通知](https://developer.work.weixin.qq.com/document/path/91623)
 
 - ✅ [发起语音电话](https://developer.work.weixin.qq.com/document/path/91627)
 - ✅ [获取接听状态](https://developer.work.weixin.qq.com/document/path/91628)
@@ -834,9 +709,9 @@ npm install n8n-nodes-wecom
 
 ## 三、连接微信功能（企业微信-连接微信 节点）
 
-### 📱 微信客服
+### 微信客服
 
-> 📖 [官方文档：微信客服](https://developer.work.weixin.qq.com/document/path/94638)
+> [官方文档：微信客服](https://developer.work.weixin.qq.com/document/path/94638)
 
 #### 客服账号管理
 
