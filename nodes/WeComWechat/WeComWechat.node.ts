@@ -1,12 +1,15 @@
 import type {
 	IExecuteFunctions,
+	ILoadOptionsFunctions,
 	INodeExecutionData,
+	INodePropertyOptions,
 	INodeType,
 	INodeTypeDescription,
 } from 'n8n-workflow';
 import { NodeConnectionTypes } from 'n8n-workflow';
 import { kfDescription } from '../WeCom/resources/kf';
 import { executeKf } from '../WeCom/resources/kf/execute';
+import { weComApiRequest } from '../WeCom/shared/transport';
 
 export class WeComWechat implements INodeType {
 	description: INodeTypeDescription = {
@@ -54,6 +57,51 @@ export class WeComWechat implements INodeType {
 			...kfDescription,
 		],
 		usableAsTool: true,
+	};
+
+	methods = {
+		loadOptions: {
+			// 获取客服账号列表
+			async getKfAccounts(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				try {
+					const response = await weComApiRequest.call(
+						this,
+						'POST',
+						'/cgi-bin/kf/account/list',
+						{},
+					);
+
+					const accounts = response.account_list as Array<{
+						open_kfid: string;
+						name: string;
+						avatar?: string;
+					}>;
+
+					if (!accounts || !Array.isArray(accounts) || accounts.length === 0) {
+						return [
+							{
+								name: '暂无客服账号，请先创建',
+								value: '',
+							},
+						];
+					}
+
+					return accounts.map((account) => ({
+						name: account.name,
+						value: account.open_kfid,
+						description: account.open_kfid,
+					}));
+					// eslint-disable-next-line @typescript-eslint/no-unused-vars
+				} catch (error) {
+					return [
+						{
+							name: '获取客服账号列表失败',
+							value: '',
+						},
+					];
+				}
+			},
+		},
 	};
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
