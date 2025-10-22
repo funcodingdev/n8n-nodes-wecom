@@ -8,7 +8,9 @@ import type {
 } from 'n8n-workflow';
 import { NodeConnectionTypes } from 'n8n-workflow';
 import { kfDescription } from '../WeCom/resources/kf';
+import { externalContactDescription } from '../WeCom/resources/externalContact';
 import { executeKf } from '../WeCom/resources/kf/execute';
+import { executeExternalContact } from '../WeCom/resources/externalContact/execute';
 import { weComApiRequest } from '../WeCom/shared/transport';
 
 export class WeComWechat implements INodeType {
@@ -20,7 +22,7 @@ export class WeComWechat implements INodeType {
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: '企业微信连接微信功能 - 微信客服',
+		description: '企业微信连接微信功能 - 微信客服、客户联系',
 		defaults: {
 			name: '企业微信-连接微信',
 		},
@@ -47,13 +49,19 @@ export class WeComWechat implements INodeType {
 				noDataExpression: true,
 				options: [
 					{
+						name: '客户联系',
+						value: 'externalContact',
+						description: '客户联系管理（客户、标签、继承、客户群、朋友圈、群发等）',
+					},
+					{
 						name: '微信客服',
 						value: 'kf',
 						description: '管理微信客服（客服账号、接待人员、消息收发等）',
 					},
 				],
-				default: 'kf',
+				default: 'externalContact',
 			},
+			...externalContactDescription,
 			...kfDescription,
 		],
 		usableAsTool: true,
@@ -61,6 +69,39 @@ export class WeComWechat implements INodeType {
 
 	methods = {
 		loadOptions: {
+			// 获取所有成员列表
+			async getAllUsers(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				try {
+					const response = await weComApiRequest.call(this, 'GET', '/cgi-bin/user/list', {}, {
+						department_id: 1,
+						fetch_child: 1,
+					});
+					const users = response.userlist as Array<{ userid: string; name: string }>;
+
+					if (!users || !Array.isArray(users) || users.length === 0) {
+						return [
+							{
+								name: '暂无成员，请先添加',
+								value: '',
+							},
+						];
+					}
+
+					return users.map((user) => ({
+						name: `${user.name} (${user.userid})`,
+						value: user.userid,
+					}));
+					// eslint-disable-next-line @typescript-eslint/no-unused-vars
+				} catch (error) {
+					return [
+						{
+							name: '获取成员列表失败',
+							value: '',
+						},
+					];
+				}
+			},
+
 			// 获取客服账号列表
 			async getKfAccounts(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
 				try {
@@ -111,7 +152,9 @@ export class WeComWechat implements INodeType {
 
 		let returnData: INodeExecutionData[] = [];
 
-		if (resource === 'kf') {
+		if (resource === 'externalContact') {
+			returnData = await executeExternalContact.call(this, operation as string, items);
+		} else if (resource === 'kf') {
 			returnData = await executeKf.call(this, operation as string, items);
 		}
 

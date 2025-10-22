@@ -14,7 +14,6 @@ import { appChatDescription } from '../WeCom/resources/appChat';
 import { linkedcorpDescription } from '../WeCom/resources/linkedcorp';
 import { pushMessageDescription } from '../WeCom/resources/pushMessage';
 import { systemDescription } from '../WeCom/resources/system';
-import { externalContactDescription } from '../WeCom/resources/externalContact';
 import { invoiceDescription } from '../WeCom/resources/invoice';
 import { executeMessage } from '../WeCom/resources/message/execute';
 import { executeContact } from '../WeCom/resources/contact/execute';
@@ -23,7 +22,6 @@ import { executeAppChat } from '../WeCom/resources/appChat/execute';
 import { executeLinkedcorp } from '../WeCom/resources/linkedcorp/execute';
 import { executePushMessage } from '../WeCom/resources/pushMessage/execute';
 import { executeSystem } from '../WeCom/resources/system/execute';
-import { executeExternalContact } from '../WeCom/resources/externalContact/execute';
 import { executeInvoice } from '../WeCom/resources/invoice/execute';
 import { weComApiRequest } from '../WeCom/shared/transport';
 
@@ -36,7 +34,7 @@ export class WeComBase implements INodeType {
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: '企业微信基础功能 - 通讯录、应用消息、群聊、消息推送、企业互联、素材、系统、客户联系、电子发票',
+		description: '企业微信基础功能 - 通讯录、应用消息、群聊、消息推送、企业互联、素材、系统、电子发票',
 		defaults: {
 			name: '企业微信-基础',
 		},
@@ -55,7 +53,6 @@ export class WeComBase implements INodeType {
 							'material',
 							'linkedcorp',
 							'system',
-							'externalContact',
 							'invoice',
 						],
 					},
@@ -122,11 +119,6 @@ export class WeComBase implements INodeType {
 						description: '获取企业微信系统信息（IP段等）',
 					},
 					{
-						name: '客户联系',
-						value: 'externalContact',
-						description: '客户联系管理（客户、标签、继承、客户群、朋友圈、群发等）',
-					},
-					{
 						name: '电子发票',
 						value: 'invoice',
 						description: '电子发票管理（查询、更新发票状态）',
@@ -141,7 +133,6 @@ export class WeComBase implements INodeType {
 		...linkedcorpDescription,
 		...materialDescription,
 		...systemDescription,
-		...externalContactDescription,
 		...invoiceDescription,
 	],
 	usableAsTool: true,
@@ -283,8 +274,6 @@ export class WeComBase implements INodeType {
 				const responseData = await executeSystem.call(this, i);
 				returnData.push({ json: responseData[0] });
 			}
-		} else if (resource === 'externalContact') {
-			returnData = await executeExternalContact.call(this, operation as string, items);
 		} else if (resource === 'invoice') {
 			returnData = await executeInvoice.call(this, operation as string, items);
 		}
