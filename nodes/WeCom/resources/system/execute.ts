@@ -15,10 +15,10 @@ export async function executeSystem(
 
 	switch (operation) {
 		case 'getApiDomainIp':
-			responseData = await getApiDomainIp.call(this, index);
+			responseData = await getApiDomainIp.call(this);
 			break;
 		case 'getCallbackIp':
-			responseData = await getCallbackIp.call(this, index);
+			responseData = await getCallbackIp.call(this);
 			break;
 		default:
 			throw new Error(`未知操作: ${operation}`);
