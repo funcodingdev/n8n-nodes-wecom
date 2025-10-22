@@ -13,18 +13,26 @@ export async function executeWedoc(
 		try {
 			let response: IDataObject;
 
-			// 管理文档
-			if (operation === 'createDoc') {
-				const doctype = this.getNodeParameter('doctype', i) as number;
-				const doc_name = this.getNodeParameter('doc_name', i) as string;
-				const admin_users = this.getNodeParameter('admin_users', i, '') as string;
+		// 管理文档
+		if (operation === 'createDoc') {
+			const doctype = this.getNodeParameter('doctype', i) as number;
+			const doc_name = this.getNodeParameter('doc_name', i) as string;
+			const admin_users = this.getNodeParameter('admin_users', i, '') as string;
+			const useSpaceId = this.getNodeParameter('useSpaceId', i, false) as boolean;
 
-				const body: IDataObject = { doctype, doc_name };
-				if (admin_users) {
-					body.admin_users = admin_users.split(',').map((id) => id.trim());
-				}
+			const body: IDataObject = { doctype, doc_name };
+			if (admin_users) {
+				body.admin_users = admin_users.split(',').map((id) => id.trim());
+			}
+			
+			if (useSpaceId) {
+				const spaceid = this.getNodeParameter('spaceid', i) as string;
+				const fatherid = this.getNodeParameter('fatherid', i) as string;
+				body.spaceid = spaceid;
+				body.fatherid = fatherid;
+			}
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/wedoc/create_doc', body);
+			response = await weComApiRequest.call(this, 'POST', '/cgi-bin/wedoc/create_doc', body);
 			} else if (operation === 'renameDoc') {
 				const docid = this.getNodeParameter('docid', i) as string;
 				const new_name = this.getNodeParameter('new_name', i) as string;
