@@ -299,6 +299,7 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 			{
 				name: 'jump',
 				displayName: '跳转链接',
+				// eslint-disable-next-line n8n-nodes-base/node-param-fixed-collection-type-unsorted-items
 				values: [
 					{
 						displayName: '跳转标题',

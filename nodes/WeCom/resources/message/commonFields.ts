@@ -15,6 +15,7 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 			displayName: '接收人类型',
 			name: 'recipientType',
 			type: 'options',
+		// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
 		options: [
 		{
 			name: '全体成员',
