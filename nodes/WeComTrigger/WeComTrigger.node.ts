@@ -7,7 +7,12 @@ import type {
 	IDataObject,
 } from 'n8n-workflow';
 import { NodeOperationError, NodeConnectionTypes } from 'n8n-workflow';
-import { WeComCrypto, parseXML } from '../WeCom/shared/crypto';
+import {
+	WeComCrypto,
+	parseXML,
+	generateReplyMessageXML,
+	generateEncryptedResponseXML,
+} from '../WeCom/shared/crypto';
 
 // eslint-disable-next-line @n8n/community-nodes/node-usable-as-tool
 export class WeComTrigger implements INodeType {
@@ -97,6 +102,100 @@ export class WeComTrigger implements INodeType {
 				required: true,
 				description: '选择要接收的消息和事件类型',
 				hint: '可以选择多个类型，如果选择"所有事件"则接收所有消息',
+			},
+			{
+				displayName: '被动回复消息',
+				name: 'enablePassiveReply',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to enable passive reply message',
+				hint: '启用后可以在工作流中被动回复用户发送的消息（需工作流返回响应数据）',
+			},
+			{
+				displayName: '回复消息类型',
+				name: 'replyType',
+				type: 'options',
+				displayOptions: {
+					show: {
+						enablePassiveReply: [true],
+					},
+				},
+				// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
+				options: [
+					{
+						name: '文本消息',
+						value: 'text',
+						description: '回复文本消息',
+					},
+					{
+						name: '图片消息',
+						value: 'image',
+						description: '回复图片消息',
+					},
+					{
+						name: '语音消息',
+						value: 'voice',
+						description: '回复语音消息',
+					},
+					{
+						name: '视频消息',
+						value: 'video',
+						description: '回复视频消息',
+					},
+					{
+						name: '图文消息',
+						value: 'news',
+						description: '回复图文消息',
+					},
+				],
+				default: 'text',
+				description: '被动回复的消息类型',
+				hint: '根据此类型从工作流输出中读取相应字段进行回复',
+			},
+			{
+				displayName: '文本内容字段',
+				name: 'replyTextField',
+				type: 'string',
+				displayOptions: {
+					show: {
+						enablePassiveReply: [true],
+						replyType: ['text'],
+					},
+				},
+				default: 'replyContent',
+				required: true,
+				description: 'The field name containing reply text content from workflow output',
+				hint: '从工作流输出数据中读取该字段作为回复的文本内容',
+			},
+			{
+				displayName: '媒体ID字段',
+				name: 'replyMediaIdField',
+				type: 'string',
+				displayOptions: {
+					show: {
+						enablePassiveReply: [true],
+						replyType: ['image', 'voice', 'video'],
+					},
+				},
+				default: 'mediaId',
+				required: true,
+				description: 'The field name containing media_id from workflow output',
+				hint: '从工作流输出数据中读取该字段作为媒体ID（需先通过素材管理接口上传获得）',
+			},
+			{
+				displayName: '图文消息字段',
+				name: 'replyNewsField',
+				type: 'string',
+				displayOptions: {
+					show: {
+						enablePassiveReply: [true],
+						replyType: ['news'],
+					},
+				},
+				default: 'articles',
+				required: true,
+				description: 'The field name containing articles array from workflow output',
+				hint: '从工作流输出数据中读取该字段作为图文消息数组（每个元素包含Title、Description、Url、PicUrl）',
 			},
 			{
 				displayName: '返回原始数据',
@@ -217,7 +316,104 @@ export class WeComTrigger implements INodeType {
 			outputData.rawXML = decryptedMsg;
 		}
 
-		// 返回成功响应
+		// 检查是否启用被动回复
+		const enablePassiveReply = this.getNodeParameter('enablePassiveReply', false) as boolean;
+		let webhookResponse: string | IDataObject = 'success';
+
+		if (enablePassiveReply) {
+			try {
+				// 获取回复消息类型
+				const replyType = this.getNodeParameter('replyType', 'text') as string;
+				const toUser = messageData.FromUserName as string;
+				const fromUser = corpId;
+
+				let replyContent: Record<string, unknown> = {};
+
+				// 根据消息类型构建回复内容
+				switch (replyType) {
+					case 'text': {
+						const textField = this.getNodeParameter('replyTextField', 'replyContent') as string;
+						// 从输出数据中读取文本内容（如果工作流有设置）
+						// 这里提供一个默认值，实际使用时用户需要通过工作流设置
+						const content =
+							(outputData[textField] as string) || '感谢您的消息，我们已收到！';
+						replyContent = { Content: content };
+						break;
+					}
+					case 'image':
+					case 'voice':
+					case 'video': {
+						const mediaIdField = this.getNodeParameter('replyMediaIdField', 'mediaId') as string;
+						const mediaId = outputData[mediaIdField] as string;
+						if (!mediaId) {
+							throw new NodeOperationError(
+								this.getNode(),
+								`未找到媒体ID字段: ${mediaIdField}，请确保工作流中设置了该字段`,
+							);
+						}
+						replyContent = { MediaId: mediaId };
+						if (replyType === 'video') {
+							replyContent.Title = (outputData.videoTitle as string) || '';
+							replyContent.Description = (outputData.videoDescription as string) || '';
+						}
+						break;
+					}
+					case 'news': {
+						const newsField = this.getNodeParameter('replyNewsField', 'articles') as string;
+						const articles = outputData[newsField] as Array<{
+							Title: string;
+							Description?: string;
+							Url: string;
+							PicUrl?: string;
+						}>;
+						if (!articles || !Array.isArray(articles)) {
+							throw new NodeOperationError(
+								this.getNode(),
+								`未找到图文消息字段: ${newsField}，请确保工作流中设置了该字段且格式正确`,
+							);
+						}
+						replyContent = { Articles: articles };
+						break;
+					}
+				}
+
+				// 生成回复消息 XML
+				const replyMessageXML = generateReplyMessageXML(
+					toUser,
+					fromUser,
+					replyType as 'text' | 'image' | 'voice' | 'video' | 'news',
+					replyContent,
+				);
+
+				// 生成加密的响应 XML
+				const encryptedResponseXML = generateEncryptedResponseXML(
+					crypto,
+					token,
+					replyMessageXML,
+					this.getNode(),
+				);
+
+				webhookResponse = encryptedResponseXML;
+
+				// 在输出数据中添加回复信息（方便调试）
+				outputData._passiveReply = {
+					enabled: true,
+					type: replyType,
+					content: replyContent,
+				};
+			} catch (error) {
+				// 被动回复失败时，记录错误但不影响工作流执行
+				const err = error as Error;
+				outputData._passiveReplyError = {
+					message: err.message,
+					error: err.toString(),
+				};
+				// 回退到返回 success
+				webhookResponse = 'success';
+			}
+		}
+
+		// 返回响应
 		return {
 			workflowData: [
 				[
@@ -226,7 +422,7 @@ export class WeComTrigger implements INodeType {
 					},
 				],
 			],
-			webhookResponse: 'success',
+			webhookResponse,
 		};
 	}
 }

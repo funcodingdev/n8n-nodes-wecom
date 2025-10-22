@@ -126,6 +126,55 @@ npm install n8n-nodes-wecom
 5. 复制节点的 Webhook URL
 6. 在企业微信应用管理后台配置接收消息时，使用**相同的** Token 和 EncodingAESKey
 
+**被动回复消息配置：**
+
+如果需要在接收到用户消息后自动回复，可以启用"被动回复消息"功能：
+
+1. 在触发器节点中，启用"被动回复消息"选项
+2. 选择回复消息类型（文本、图片、语音、视频、图文）
+3. 配置对应的字段名称
+4. 在工作流中通过后续节点设置回复内容到指定字段
+
+**示例：被动回复文本消息**
+
+```
+触发器配置：
+- 启用被动回复消息：是
+- 回复消息类型：文本消息
+- 文本内容字段：replyContent
+
+工作流：
+[企业微信消息接收] -> [Set] -> 工作流结束
+
+Set 节点配置：
+- 添加字段：replyContent
+- 值：您好，我们已收到您的消息：{{ $json.Content }}
+```
+
+**示例：被动回复图片消息**
+
+```
+触发器配置：
+- 启用被动回复消息：是
+- 回复消息类型：图片消息
+- 媒体ID字段：mediaId
+
+工作流：
+[企业微信消息接收] -> [企业微信-基础：上传图片] -> [Set] -> 工作流结束
+
+Set 节点配置：
+- 添加字段：mediaId
+- 值：{{ $json.media_id }}（从上传图片接口获取）
+```
+
+**注意事项：**
+
+- 被动回复消息会自动进行加密和签名，无需手动处理
+- 如果未在工作流中设置相应字段，文本消息会返回默认内容"感谢您的消息，我们已收到！"
+- 媒体类型消息必须先通过素材管理接口上传获得 media_id，否则会报错
+- 图文消息需要提供包含 Title、Url 等字段的数组
+- 被动回复失败时会在输出数据的 `_passiveReplyError` 字段中记录错误信息
+
 ## 已实现功能
 
 以下功能按照企业微信官方文档分类组织：
@@ -138,6 +187,8 @@ npm install n8n-nodes-wecom
 
 > 📖 [官方文档：接收消息与事件](https://developer.work.weixin.qq.com/document/path/90238)
 
+**接收消息功能：**
+
 - ✅ [接收企业微信应用消息回调](https://developer.work.weixin.qq.com/document/path/90238)
 - ✅ [接收文本消息](https://developer.work.weixin.qq.com/document/path/90239)
 - ✅ [接收图片消息](https://developer.work.weixin.qq.com/document/path/90239)
@@ -149,6 +200,18 @@ npm install n8n-nodes-wecom
 - ✅ URL 验证
 - ✅ 消息加解密
 - ✅ 签名验证
+
+**被动回复消息功能：**
+
+> 📖 [官方文档：被动回复消息](https://developer.work.weixin.qq.com/document/path/90241)
+
+- ✅ [被动回复文本消息](https://developer.work.weixin.qq.com/document/path/90241)
+- ✅ [被动回复图片消息](https://developer.work.weixin.qq.com/document/path/90241)
+- ✅ [被动回复语音消息](https://developer.work.weixin.qq.com/document/path/90241)
+- ✅ [被动回复视频消息](https://developer.work.weixin.qq.com/document/path/90241)
+- ✅ [被动回复图文消息](https://developer.work.weixin.qq.com/document/path/90241)
+- ✅ 自动加密和签名
+- ✅ 支持从工作流输出中读取回复内容
 
 ### 📩 消息推送（群机器人）
 
