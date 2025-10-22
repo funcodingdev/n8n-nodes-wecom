@@ -21,6 +21,8 @@
 
 包含企业微信的协同办公功能：
 
+- **日程管理** - 日历和日程管理
+- **会议管理** - 会议预约、会议控制、录制管理
 - **邮件管理** - 企业邮箱、邮件群组、公共邮箱
 - **文档管理** - 在线文档、表格、智能表格
 - **微盘管理** - 微盘空间和文件管理
@@ -410,7 +412,7 @@ npm install n8n-nodes-wecom
 - ✅ [获取客户端专用密码列表](https://developer.work.weixin.qq.com/document/path/100183)
 - ✅ [删除客户端专用密码](https://developer.work.weixin.qq.com/document/path/100184)
 
-#### 高级功能账号管理
+#### 邮件高级功能账号管理
 
 - ✅ [分配高级功能账号](https://developer.work.weixin.qq.com/document/path/99316)
 - ✅ [取消高级功能账号](https://developer.work.weixin.qq.com/document/path/99317)
@@ -482,7 +484,7 @@ npm install n8n-nodes-wecom
 - ✅ [收集表的统计信息查询](https://developer.work.weixin.qq.com/document/path/97818)
 - ✅ [读取收集表答案](https://developer.work.weixin.qq.com/document/path/97819)
 
-#### 高级功能账号管理
+#### 文档高级功能账号管理
 
 - ✅ [分配高级功能账号](https://developer.work.weixin.qq.com/document/path/99516)
 - ✅ [取消高级功能账号](https://developer.work.weixin.qq.com/document/path/99517)
@@ -491,6 +493,70 @@ npm install n8n-nodes-wecom
 #### 文档素材管理
 
 - ✅ [上传文档图片](https://developer.work.weixin.qq.com/document/path/99933)
+
+### 📅 日程管理
+
+> 📖 [官方文档：日程](https://developer.work.weixin.qq.com/document/path/93647)
+
+#### 管理日历
+
+- ✅ [创建日历](https://developer.work.weixin.qq.com/document/path/93647)
+- ✅ [更新日历](https://developer.work.weixin.qq.com/document/path/97716)
+- ✅ [获取日历详情](https://developer.work.weixin.qq.com/document/path/97717)
+- ✅ [删除日历](https://developer.work.weixin.qq.com/document/path/97718)
+
+#### 管理日程
+
+- ✅ [创建日程](https://developer.work.weixin.qq.com/document/path/93648)
+- ✅ [更新日程](https://developer.work.weixin.qq.com/document/path/97720)
+- ✅ [更新重复日程](https://developer.work.weixin.qq.com/document/path/96204)
+- ✅ [新增日程参与者](https://developer.work.weixin.qq.com/document/path/97721)
+- ✅ [删除日程参与者](https://developer.work.weixin.qq.com/document/path/97722)
+- ✅ [获取日历下的日程列表](https://developer.work.weixin.qq.com/document/path/97723)
+- ✅ [获取日程详情](https://developer.work.weixin.qq.com/document/path/97724)
+- ✅ [取消日程](https://developer.work.weixin.qq.com/document/path/97725)
+
+### 🎥 会议管理
+
+> 📖 [官方文档：会议](https://developer.work.weixin.qq.com/document/path/99104)
+
+#### 预约会议基础管理
+
+- ✅ [创建预约会议](https://developer.work.weixin.qq.com/document/path/99104)
+- ✅ [修改预约会议](https://developer.work.weixin.qq.com/document/path/99047)
+- ✅ [取消预约会议](https://developer.work.weixin.qq.com/document/path/99048)
+- ✅ [获取会议详情](https://developer.work.weixin.qq.com/document/path/99049)
+- ✅ [获取成员会议ID列表](https://developer.work.weixin.qq.com/document/path/99050)
+
+#### 会议统计管理
+
+- ✅ [获取会议发起记录](https://developer.work.weixin.qq.com/document/path/99651)
+
+#### 预约会议高级管理
+
+- ✅ [创建预约会议（高级）](https://developer.work.weixin.qq.com/document/path/98148)
+- ✅ [修改预约会议（高级）](https://developer.work.weixin.qq.com/document/path/98154)
+- ✅ [获取会议受邀成员列表](https://developer.work.weixin.qq.com/document/path/98160)
+- ✅ [更新会议受邀成员列表](https://developer.work.weixin.qq.com/document/path/98162)
+- ✅ [获取实时会中成员列表](https://developer.work.weixin.qq.com/document/path/98157)
+- ✅ [获取已参会成员列表](https://developer.work.weixin.qq.com/document/path/98156)
+
+#### 会中控制管理
+
+- ✅ [静音成员](https://developer.work.weixin.qq.com/document/path/98184)
+- ✅ [移出成员](https://developer.work.weixin.qq.com/document/path/98181)
+- ✅ [结束会议](https://developer.work.weixin.qq.com/document/path/98187)
+
+#### 录制管理
+
+- ✅ [获取会议录制列表](https://developer.work.weixin.qq.com/document/path/98192)
+- ✅ [获取会议录制地址](https://developer.work.weixin.qq.com/document/path/98196)
+
+#### 会议高级功能账号管理
+
+- ✅ [分配高级功能账号](https://developer.work.weixin.qq.com/document/path/99508)
+- ✅ [取消高级功能账号](https://developer.work.weixin.qq.com/document/path/99509)
+- ✅ [获取高级功能账号列表](https://developer.work.weixin.qq.com/document/path/99510)
 
 ### 💾 微盘管理
 
