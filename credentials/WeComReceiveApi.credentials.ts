@@ -32,8 +32,8 @@ export class WeComReceiveApi implements ICredentialType {
 			default: '',
 			required: true,
 			placeholder: 'your_token_here',
-			description: 'Used to verify message signatures. Must match the Token configured in WeCom admin panel',
-			hint: '⚠️ 重要：这是你在企业微信后台"接收消息"配置中自己设置的 Token，两边必须完全一致。用于自动验证消息签名，防止伪造请求',
+			description: '企业微信后台"接收消息"配置中自己设置的 Token，两边必须完全一致。用于自动验证消息签名，防止伪造请求',
+			hint: '可由企业任意填写，用于生成签名',
 			typeOptions: { password: true },
 		},
 		{
@@ -46,8 +46,8 @@ export class WeComReceiveApi implements ICredentialType {
 			default: '',
 			required: true,
 			placeholder: '43位随机字符串（可在企业微信后台点击"随机生成"）',
-			description: 'Used to decrypt messages. Must match the EncodingAESKey configured in WeCom admin panel',
-			hint: '⚠️ 重要：这是你在企业微信后台"接收消息"配置中设置的密钥（43位字符），两边必须完全一致。用于自动解密消息内容',
+			description: '企业微信后台"接收消息"配置中设置的密钥（43位字符），两边必须完全一致。用于自动解密消息内容',
+			hint: '用于消息体的加密，长度固定为43个字符',
 		},
 	];
 
