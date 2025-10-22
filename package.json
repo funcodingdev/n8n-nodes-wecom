@@ -44,7 +44,8 @@
 		"nodes": [
 			"dist/nodes/WeComBase/WeComBase.node.js",
 			"dist/nodes/WeComOffice/WeComOffice.node.js",
-			"dist/nodes/WeComTrigger/WeComTrigger.node.js"
+			"dist/nodes/WeComTrigger/WeComTrigger.node.js",
+			"dist/nodes/WeComWechat/WeComWechat.node.js"
 		]
 	},
 	"devDependencies": {

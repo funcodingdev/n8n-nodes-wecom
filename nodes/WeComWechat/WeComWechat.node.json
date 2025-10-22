@@ -1,0 +1,19 @@
+{
+	"node": "n8n-nodes-base.weComWechat",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Communication"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://developer.work.weixin.qq.com/document/path/94638"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://developer.work.weixin.qq.com/document/path/94638"
+			}
+		]
+	}
+}
+

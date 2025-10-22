@@ -20,6 +20,7 @@
 ### 2. 企业微信-办公
 
 包含企业微信的协同办公功能：
+
 - **邮件管理** - 企业邮箱、邮件群组、公共邮箱
 - **文档管理** - 在线文档、表格、智能表格
 - **微盘管理** - 微盘空间和文件管理
@@ -27,6 +28,12 @@
 ### 3. 企业微信消息接收（Trigger）
 
 接收企业微信的消息和事件推送
+
+### 4. 企业微信-连接微信
+
+包含企业微信连接微信的功能：
+
+- **微信客服** - 客服账号、接待人员、消息收发、统计管理
 
 ## 隐私与安全
 
@@ -96,6 +103,13 @@ npm install n8n-nodes-wecom
 #### 企业微信-办公 节点
 
 1. 添加"企业微信-办公"节点到工作流
+2. 点击"Credential to connect with"
+3. 选择"创建新凭证 - 企业微信 API"
+4. 填入企业凭证信息（同上）
+
+#### 企业微信-连接微信 节点
+
+1. 添加"企业微信-连接微信"节点到工作流
 2. 点击"Credential to connect with"
 3. 选择"创建新凭证 - 企业微信 API"
 4. 填入企业凭证信息（同上）
@@ -460,6 +474,48 @@ npm install n8n-nodes-wecom
 - ✅ [获取文件分享链接](https://developer.work.weixin.qq.com/document/path/97978)
 - ✅ [获取文件权限信息](https://developer.work.weixin.qq.com/document/path/97979)
 - ✅ [文件安全设置](https://developer.work.weixin.qq.com/document/path/97980)
+
+---
+
+## 三、连接微信功能（企业微信-连接微信 节点）
+
+### 📱 微信客服
+
+> 📖 [官方文档：微信客服](https://developer.work.weixin.qq.com/document/path/94638)
+
+#### 客服账号管理
+
+- ✅ [添加客服账号](https://developer.work.weixin.qq.com/document/path/94662)
+- ✅ [删除客服账号](https://developer.work.weixin.qq.com/document/path/94663)
+- ✅ [修改客服账号](https://developer.work.weixin.qq.com/document/path/94664)
+- ✅ [获取客服账号列表](https://developer.work.weixin.qq.com/document/path/94661)
+- ✅ [获取客服账号链接](https://developer.work.weixin.qq.com/document/path/94665)
+
+#### 接待人员管理
+
+- ✅ [添加接待人员](https://developer.work.weixin.qq.com/document/path/94646)
+- ✅ [删除接待人员](https://developer.work.weixin.qq.com/document/path/94647)
+- ✅ [获取接待人员列表](https://developer.work.weixin.qq.com/document/path/94645)
+
+#### 会话分配与消息收发
+
+- ✅ [分配客服会话](https://developer.work.weixin.qq.com/document/path/94669)
+- ✅ [发送消息](https://developer.work.weixin.qq.com/document/path/94677)
+- ✅ [发送欢迎语等事件响应消息](https://developer.work.weixin.qq.com/document/path/95122)
+- ✅ [「升级服务」配置](https://developer.work.weixin.qq.com/document/path/94674)
+- ✅ [获取客户基础信息](https://developer.work.weixin.qq.com/document/path/95159)
+
+#### 统计管理
+
+- ✅ [获取「客户数据统计」企业汇总数据](https://developer.work.weixin.qq.com/document/path/95489)
+- ✅ [获取「客户数据统计」接待人员明细数据](https://developer.work.weixin.qq.com/document/path/95490)
+
+#### 机器人管理
+
+- ✅ [知识库分组管理](https://developer.work.weixin.qq.com/document/path/95971)
+- ✅ [知识库问答管理](https://developer.work.weixin.qq.com/document/path/95972)
+
+---
 
 ## 参考资源
 
