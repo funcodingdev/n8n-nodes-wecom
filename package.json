@@ -42,7 +42,8 @@
 			"dist/credentials/WeComReceiveApi.credentials.js"
 		],
 		"nodes": [
-			"dist/nodes/WeCom/WeCom.node.js",
+			"dist/nodes/WeComBase/WeComBase.node.js",
+			"dist/nodes/WeComOffice/WeComOffice.node.js",
 			"dist/nodes/WeComTrigger/WeComTrigger.node.js"
 		]
 	},

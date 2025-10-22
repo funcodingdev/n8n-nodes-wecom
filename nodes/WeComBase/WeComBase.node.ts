@@ -7,36 +7,32 @@ import type {
 	INodeTypeDescription,
 } from 'n8n-workflow';
 import { NodeConnectionTypes } from 'n8n-workflow';
-import { pushMessageDescription } from './resources/pushMessage';
-import { messageDescription } from './resources/message';
-import { contactDescription } from './resources/contact';
-import { materialDescription } from './resources/material';
-import { appChatDescription } from './resources/appChat';
-import { linkedcorpDescription } from './resources/linkedcorp';
-import { wedocDescription } from './resources/wedoc';
-import { wefileDescription } from './resources/wefile';
-import { executePushMessage } from './resources/pushMessage/execute';
-import { executeMessage } from './resources/message/execute';
-import { executeContact } from './resources/contact/execute';
-import { executeMaterial } from './resources/material/execute';
-import { executeAppChat } from './resources/appChat/execute';
-import { executeLinkedcorp } from './resources/linkedcorp/execute';
-import { executeWedoc } from './resources/wedoc/execute';
-import { executeWefile } from './resources/wefile/execute';
-import { weComApiRequest } from './shared/transport';
+import { messageDescription } from '../WeCom/resources/message';
+import { contactDescription } from '../WeCom/resources/contact';
+import { materialDescription } from '../WeCom/resources/material';
+import { appChatDescription } from '../WeCom/resources/appChat';
+import { linkedcorpDescription } from '../WeCom/resources/linkedcorp';
+import { pushMessageDescription } from '../WeCom/resources/pushMessage';
+import { executeMessage } from '../WeCom/resources/message/execute';
+import { executeContact } from '../WeCom/resources/contact/execute';
+import { executeMaterial } from '../WeCom/resources/material/execute';
+import { executeAppChat } from '../WeCom/resources/appChat/execute';
+import { executeLinkedcorp } from '../WeCom/resources/linkedcorp/execute';
+import { executePushMessage } from '../WeCom/resources/pushMessage/execute';
+import { weComApiRequest } from '../WeCom/shared/transport';
 
-export class WeCom implements INodeType {
+export class WeComBase implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: '企业微信',
-		name: 'weCom',
+		displayName: '企业微信-基础',
+		name: 'weComBase',
 		// eslint-disable-next-line @n8n/community-nodes/icon-validation
 		icon: { light: 'file:../../icons/wecom.png', dark: 'file:../../icons/wecom.dark.png' },
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: '与企业微信 API 交互',
+		description: '企业微信基础功能 - 通讯录、应用消息、群聊、消息推送、企业互联、素材',
 		defaults: {
-			name: '企业微信',
+			name: '企业微信-基础',
 		},
 		inputs: [NodeConnectionTypes.Main],
 		outputs: [NodeConnectionTypes.Main],
@@ -52,8 +48,6 @@ export class WeCom implements INodeType {
 							'contact',
 							'material',
 							'linkedcorp',
-							'wedoc',
-							'wefile',
 						],
 					},
 				},
@@ -84,29 +78,24 @@ export class WeCom implements INodeType {
 				// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
 				options: [
 					{
-						name: '消息推送',
-						value: 'pushMessage',
-						description: '通过群机器人 Webhook 发送消息到群聊',
+						name: '通讯录',
+						value: 'contact',
+						description: '管理企业通讯录（成员、部门、标签）',
 					},
 					{
 						name: '应用消息',
 						value: 'message',
-						description: '发送各类消息（文本、图片、文件等）',
+						description: '发送各类应用消息（文本、图片、文件等）',
 					},
 					{
 						name: '群聊会话',
 						value: 'appChat',
-						description: '获取群聊会话和发送消息到群聊会话',
+						description: '管理群聊会话和发送消息到群聊',
 					},
 					{
-						name: '通讯录',
-						value: 'contact',
-						description: '获取通讯录信息（成员、部门）',
-					},
-					{
-						name: '素材管理',
-						value: 'material',
-						description: '上传和管理素材文件',
+						name: '消息推送',
+						value: 'pushMessage',
+						description: '通过群机器人 Webhook 发送消息到群聊',
 					},
 					{
 						name: '企业互联',
@@ -114,26 +103,19 @@ export class WeCom implements INodeType {
 						description: '企业互联和上下游管理',
 					},
 					{
-						name: '文档',
-						value: 'wedoc',
-						description: '企业微信文档管理',
-					},
-					{
-						name: '微盘',
-						value: 'wefile',
-						description: '管理微盘空间和文件',
+						name: '素材管理',
+						value: 'material',
+						description: '上传和管理素材文件',
 					},
 				],
-				default: 'pushMessage',
+				default: 'contact',
 			},
-			...pushMessageDescription,
+			...contactDescription,
 			...messageDescription,
 			...appChatDescription,
-			...contactDescription,
-			...materialDescription,
+			...pushMessageDescription,
 			...linkedcorpDescription,
-			...wedocDescription,
-			...wefileDescription,
+			...materialDescription,
 		],
 		usableAsTool: true,
 	};
@@ -257,24 +239,21 @@ export class WeCom implements INodeType {
 
 		let returnData: INodeExecutionData[] = [];
 
-		if (resource === 'pushMessage') {
-			returnData = await executePushMessage.call(this, operation as string, items);
+		if (resource === 'contact') {
+			returnData = await executeContact.call(this, operation as string, items);
 		} else if (resource === 'message') {
 			returnData = await executeMessage.call(this, operation as string, items);
 		} else if (resource === 'appChat') {
 			returnData = await executeAppChat.call(this, operation as string, items);
-		} else if (resource === 'contact') {
-			returnData = await executeContact.call(this, operation as string, items);
-		} else if (resource === 'material') {
-			returnData = await executeMaterial.call(this, operation as string, items);
+		} else if (resource === 'pushMessage') {
+			returnData = await executePushMessage.call(this, operation as string, items);
 		} else if (resource === 'linkedcorp') {
 			returnData = await executeLinkedcorp.call(this, operation as string, items);
-		} else if (resource === 'wedoc') {
-			returnData = await executeWedoc.call(this, operation as string, items);
-		} else if (resource === 'wefile') {
-			returnData = await executeWefile.call(this, operation as string, items);
+		} else if (resource === 'material') {
+			returnData = await executeMaterial.call(this, operation as string, items);
 		}
 
 		return [returnData];
 	}
 }
+

@@ -1,0 +1,19 @@
+{
+	"node": "n8n-nodes-wecom.weComOffice",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Communication", "Productivity"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://developer.work.weixin.qq.com/"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://github.com/yourusername/n8n-nodes-wecom"
+			}
+		]
+	}
+}
+
