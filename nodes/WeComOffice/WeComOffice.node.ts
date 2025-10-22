@@ -7,8 +7,10 @@ import type {
 import { NodeConnectionTypes } from 'n8n-workflow';
 import { wedocDescription } from '../WeCom/resources/wedoc';
 import { wefileDescription } from '../WeCom/resources/wefile';
+import { mailDescription } from '../WeCom/resources/mail';
 import { executeWedoc } from '../WeCom/resources/wedoc/execute';
 import { executeWefile } from '../WeCom/resources/wefile/execute';
+import { executeMail } from '../WeCom/resources/mail/execute';
 
 export class WeComOffice implements INodeType {
 	description: INodeTypeDescription = {
@@ -19,7 +21,7 @@ export class WeComOffice implements INodeType {
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: '企业微信办公功能 - 文档、微盘',
+		description: '企业微信办公功能 - 文档、微盘、邮件',
 		defaults: {
 			name: '企业微信-办公',
 		},
@@ -46,6 +48,11 @@ export class WeComOffice implements INodeType {
 				noDataExpression: true,
 				options: [
 					{
+						name: '邮件',
+						value: 'mail',
+						description: '管理企业邮箱（发送邮件、邮件群组、公共邮箱等）',
+					},
+					{
 						name: '文档',
 						value: 'wedoc',
 						description: '管理企业微信文档（在线文档、表格、智能表格）',
@@ -60,6 +67,7 @@ export class WeComOffice implements INodeType {
 			},
 			...wedocDescription,
 			...wefileDescription,
+			...mailDescription,
 		],
 		usableAsTool: true,
 	};
@@ -75,6 +83,8 @@ export class WeComOffice implements INodeType {
 			returnData = await executeWedoc.call(this, operation as string, items);
 		} else if (resource === 'wefile') {
 			returnData = await executeWefile.call(this, operation as string, items);
+		} else if (resource === 'mail') {
+			returnData = await executeMail.call(this, operation as string, items);
 		}
 
 		return [returnData];

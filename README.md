@@ -7,7 +7,9 @@
 本插件按照企业微信官方文档的分类结构，提供以下节点：
 
 ### 1. 企业微信-基础
+
 包含企业微信的基础通信和管理功能：
+
 - **通讯录管理** - 成员、部门、标签管理
 - **应用消息** - 发送各类应用消息
 - **群聊会话** - 群聊管理和消息发送
@@ -16,11 +18,14 @@
 - **素材管理** - 素材上传和管理
 
 ### 2. 企业微信-办公
+
 包含企业微信的协同办公功能：
+- **邮件管理** - 企业邮箱、邮件群组、公共邮箱
 - **文档管理** - 在线文档、表格、智能表格
 - **微盘管理** - 微盘空间和文件管理
 
 ### 3. 企业微信消息接收（Trigger）
+
 接收企业微信的消息和事件推送
 
 ## 隐私与安全
@@ -297,6 +302,60 @@ npm install n8n-nodes-wecom
 ---
 
 ## 二、办公功能（企业微信-办公 节点）
+
+### 📧 邮件管理
+
+> 📖 [官方文档：邮件](https://developer.work.weixin.qq.com/document/path/95486)
+
+#### 发送邮件
+
+- ✅ [发送普通邮件](https://developer.work.weixin.qq.com/document/path/97445)
+- ✅ [发送日程邮件](https://developer.work.weixin.qq.com/document/path/97854)
+- ✅ [发送会议邮件](https://developer.work.weixin.qq.com/document/path/97855)
+
+#### 获取接收的邮件
+
+- ✅ [获取收件箱邮件列表](https://developer.work.weixin.qq.com/document/path/97369)
+- ✅ [获取邮件内容](https://developer.work.weixin.qq.com/document/path/97979)
+
+#### 管理应用邮箱账号
+
+- ✅ [更新应用邮箱账号](https://developer.work.weixin.qq.com/document/path/97373)
+- ✅ [查询应用邮箱账号](https://developer.work.weixin.qq.com/document/path/97991)
+
+#### 管理邮件群组
+
+- ✅ [创建邮件群组](https://developer.work.weixin.qq.com/document/path/95510)
+- ✅ [更新邮件群组](https://developer.work.weixin.qq.com/document/path/97995)
+- ✅ [删除邮件群组](https://developer.work.weixin.qq.com/document/path/97996)
+- ✅ [获取邮件群组详情](https://developer.work.weixin.qq.com/document/path/97997)
+- ✅ [模糊搜索邮件群组](https://developer.work.weixin.qq.com/document/path/97998)
+
+#### 管理公共邮箱
+
+- ✅ [创建公共邮箱](https://developer.work.weixin.qq.com/document/path/95511)
+- ✅ [更新公共邮箱](https://developer.work.weixin.qq.com/document/path/98000)
+- ✅ [删除公共邮箱](https://developer.work.weixin.qq.com/document/path/98001)
+- ✅ [获取公共邮箱详情](https://developer.work.weixin.qq.com/document/path/98002)
+- ✅ [模糊搜索公共邮箱](https://developer.work.weixin.qq.com/document/path/98003)
+
+#### 客户端专用密码
+
+- ✅ [获取客户端专用密码列表](https://developer.work.weixin.qq.com/document/path/100183)
+- ✅ [删除客户端专用密码](https://developer.work.weixin.qq.com/document/path/100184)
+
+#### 高级功能账号管理
+
+- ✅ [分配高级功能账号](https://developer.work.weixin.qq.com/document/path/99316)
+- ✅ [取消高级功能账号](https://developer.work.weixin.qq.com/document/path/99317)
+- ✅ [获取高级功能账号列表](https://developer.work.weixin.qq.com/document/path/99318)
+- ✅ [禁用/启用邮箱账号](https://developer.work.weixin.qq.com/document/path/95512)
+
+#### 其他邮件客户端登录设置
+
+- ✅ [获取用户功能属性](https://developer.work.weixin.qq.com/document/path/95513)
+- ✅ [更改用户功能属性](https://developer.work.weixin.qq.com/document/path/98008)
+- ✅ [获取邮件未读数](https://developer.work.weixin.qq.com/document/path/95514)
 
 ### 📄 文档管理
 
