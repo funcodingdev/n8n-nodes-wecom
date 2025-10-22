@@ -193,7 +193,7 @@ export const externalContactDescription: INodeProperties[] = [
 			{
 				name: '客户群Opengid转换',
 				value: 'opengidToChatid',
-				action: 'Opengid',
+				action: '客户群 Opengid 转换',
 				description: '将客户群的opengid转换为chat_id',
 			},
 			// 联系我与客户入群方式
