@@ -14,7 +14,7 @@ npm install n8n-nodes-wecom
 
 ## 凭证配置
 
-### 消息推送功能（群机器人 Webhook）
+### 消息推送功能（群机器人Webhook需要）
 
 **消息推送**功能用于通过群机器人 Webhook 发送消息到企业微信群聊
 
@@ -24,7 +24,7 @@ npm install n8n-nodes-wecom
 3. 创建一个机器人并复制 Webhook 地址
 4. 在 n8n 中配置"企业微信群机器人 Webhook"凭证，填入 Webhook 地址
 
-### 获取企业微信凭证（消息发送、通讯录、素材管理功能需要）
+### 获取企业微信凭证（消息发送、通讯录、素材管理等功能需要）
 
 1. 登录 [企业微信管理后台](https://work.weixin.qq.com/)
 2. 进入"我的企业" > "企业信息"，复制 **企业ID (CorpID)**
@@ -39,10 +39,10 @@ npm install n8n-nodes-wecom
    
    **消息推送（群机器人）：**
    - 点击"Credential to connect with"
-   - 选择"创建新凭证 - 企业微信群机器人 Webhook"
+   - 选择"创建新凭证 - 企业微信群机器人 Webhook API"
    - 填入群机器人的 Webhook URL
    
-   **应用消息、通讯录、素材管理：**
+   **应用消息、通讯录、素材管理等：**
    - 点击"Credential to connect with"
    - 选择"创建新凭证 - 企业微信 API"
    - 填入以下信息：
@@ -60,8 +60,6 @@ npm install n8n-nodes-wecom
      - **EncodingAESKey** - 你将在企业微信后台设置的密钥（两边必须一致，43位字符）
    - 复制节点的 Webhook URL
    - 在企业微信应用管理后台配置接收消息时，使用**相同的** Token 和 EncodingAESKey
-   
-   > 💡 **说明**：Token 和 EncodingAESKey 是你自己设置的"暗号"，用于确保消息安全。节点会自动使用这些参数验证签名和解密消息，你无需手动处理这些步骤
 
 ## 已实现功能
 
