@@ -43,11 +43,29 @@ export class WeCom implements INodeType {
 		credentials: [
 			{
 				name: 'weComApi',
-				required: false,
+				required: true,
+				displayOptions: {
+					show: {
+						resource: [
+							'message',
+							'appChat',
+							'contact',
+							'material',
+							'linkedcorp',
+							'wedoc',
+							'wefile',
+						],
+					},
+				},
 			},
 			{
 				name: 'weComWebhookApi',
-				required: false,
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['pushMessage'],
+					},
+				},
 			},
 		],
 		requestDefaults: {
