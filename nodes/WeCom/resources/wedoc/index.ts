@@ -71,7 +71,8 @@ export const wedocDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForWedoc,
 		},
-	options: [
+		// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
+		options: [
 			{
 				name: '编辑表格内容',
 				value: 'modSheetContent',

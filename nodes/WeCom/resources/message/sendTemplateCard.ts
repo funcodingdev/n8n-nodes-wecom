@@ -12,7 +12,8 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		displayName: '模板卡片类型',
 		name: 'card_type',
 		type: 'options',
-	options: [
+		// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
+		options: [
 		{
 			name: '按钮交互型',
 			value: 'button_interaction',

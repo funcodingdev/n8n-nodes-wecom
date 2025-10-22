@@ -25,7 +25,8 @@ export const updateAppChatDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForUpdateAppChat,
 		},
-	options: [
+		// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
+		options: [
 		{
 			name: '删除成员',
 			value: 'delUsers',

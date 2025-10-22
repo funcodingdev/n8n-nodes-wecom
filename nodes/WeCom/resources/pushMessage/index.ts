@@ -21,13 +21,7 @@ export const pushMessageDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForPushMessage,
 		},
-	options: [
-		{
-			name: '发送 Markdown 消息',
-			value: 'sendMarkdown',
-			action: '发送 Markdown 消息',
-			description: '发送 Markdown 格式的消息到群聊',
-		},
+		options: [
 		{
 			name: '发送 Markdown V2 消息',
 			value: 'sendMarkdownV2',
@@ -35,16 +29,10 @@ export const pushMessageDescription: INodeProperties[] = [
 			description: '发送 Markdown V2 格式的消息到群聊',
 		},
 		{
-			name: '发送模板卡片消息',
-			value: 'sendTemplateCard',
-			action: '发送模板卡片消息',
-			description: '发送模板卡片消息到群聊',
-		},
-		{
-			name: '发送图片消息',
-			value: 'sendImage',
-			action: '发送图片消息',
-			description: '发送图片消息到群聊',
+			name: '发送 Markdown 消息',
+			value: 'sendMarkdown',
+			action: '发送 Markdown 消息',
+			description: '发送 Markdown 格式的消息到群聊',
 		},
 		{
 			name: '发送图文消息',
@@ -53,16 +41,28 @@ export const pushMessageDescription: INodeProperties[] = [
 			description: '发送图文消息到群聊',
 		},
 		{
-			name: '发送文本消息',
-			value: 'sendText',
-			action: '发送文本消息',
-			description: '发送文本消息到群聊',
+			name: '发送图片消息',
+			value: 'sendImage',
+			action: '发送图片消息',
+			description: '发送图片消息到群聊',
 		},
 		{
 			name: '发送文件消息',
 			value: 'sendFile',
 			action: '发送文件消息',
 			description: '发送文件消息到群聊',
+		},
+		{
+			name: '发送文本消息',
+			value: 'sendText',
+			action: '发送文本消息',
+			description: '发送文本消息到群聊',
+		},
+		{
+			name: '发送模板卡片消息',
+			value: 'sendTemplateCard',
+			action: '发送模板卡片消息',
+			description: '发送模板卡片消息到群聊',
 		},
 		{
 			name: '发送语音消息',

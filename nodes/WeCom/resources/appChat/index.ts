@@ -21,7 +21,8 @@ export const appChatDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForAppChat,
 		},
-	options: [
+		// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
+		options: [
 		{
 			name: '创建群聊会话',
 			value: 'createAppChat',
