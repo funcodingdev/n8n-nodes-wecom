@@ -7,28 +7,34 @@ const showOnly = {
 
 export const transferResultDescription: INodeProperties[] = [
 	{
-		displayName: '原成员UserID',
+		displayName: '原成员 Name or ID',
 		name: 'handover_userid',
-		type: 'string',
+		type: 'options',
+		typeOptions: {
+			loadOptionsMethod: 'getAllUsers',
+		},
 		required: true,
 		default: '',
 		displayOptions: {
 			show: showOnly,
 		},
 		hint: '原跟进成员的userid',
-		description: '原跟进成员的userid',
+		description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
 	},
 	{
-		displayName: '接替成员UserID',
+		displayName: '接替成员 Name or ID',
 		name: 'takeover_userid',
-		type: 'string',
+		type: 'options',
+		typeOptions: {
+			loadOptionsMethod: 'getAllUsers',
+		},
 		required: true,
 		default: '',
 		displayOptions: {
 			show: showOnly,
 		},
 		hint: '接替成员的userid',
-		description: '接替成员的userid',
+		description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
 	},
 	{
 		displayName: 'Cursor',

@@ -7,16 +7,19 @@ const showOnly = {
 
 export const batchGetExternalContactDescription: INodeProperties[] = [
 	{
-		displayName: '成员UserID',
+		displayName: '成员 Name or ID',
 		name: 'userid',
-		type: 'string',
+		type: 'options',
+		typeOptions: {
+			loadOptionsMethod: 'getAllUsers',
+		},
 		required: true,
 		default: '',
 		displayOptions: {
 			show: showOnly,
 		},
 		hint: '企业成员的userid',
-		description: '企业成员的userid',
+		description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
 	},
 	{
 		displayName: 'Cursor',

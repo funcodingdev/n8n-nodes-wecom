@@ -19,16 +19,19 @@ export const transferGroupChatDescription: INodeProperties[] = [
 		description: '需要转群主的客户群ID列表',
 	},
 	{
-		displayName: '新群主UserID',
+		displayName: '新群主 Name or ID',
 		name: 'new_owner',
-		type: 'string',
+		type: 'options',
+		typeOptions: {
+			loadOptionsMethod: 'getAllUsers',
+		},
 		required: true,
 		default: '',
 		displayOptions: {
 			show: showOnly,
 		},
 		hint: '新群主的userid',
-		description: '新群主的userid',
+		description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
 	},
 ];
 
