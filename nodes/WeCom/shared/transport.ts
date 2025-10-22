@@ -9,27 +9,34 @@ import { NodeOperationError } from 'n8n-workflow';
 import type { IWeComAccessTokenResponse, IWeComCredentials } from './types';
 
 /**
- * Access Token 缓存结构
- * 使用 Map 按凭证隔离，支持多租户场景
- * 
- * 注意事项：
- * - 缓存存储在 Node.js 进程内存中
- * - 进程重启后缓存会丢失（这是正常的）
- * - 如果 n8n 运行在集群模式，每个实例会有独立的缓存
- * - 过期的缓存会在下次访问时自动清理
+ * Token 缓存数据结构
  */
 interface TokenCache {
+	/** 企业微信 access_token */
 	token: string;
+	/** 过期时间戳（已提前 5 分钟） */
 	expiresAt: number;
+	/** 正在进行的请求 Promise（防止并发重复请求） */
 	pending?: Promise<string>;
-	lastAccess: number; // 添加最后访问时间，用于清理
+	/** 最后访问时间戳（用于清理长期未使用的缓存） */
+	lastAccess: number;
 }
 
+/**
+ * 全局缓存存储
+ * Key 格式: `${corpId}_${corpSecret}`
+ */
 const accessTokenCache = new Map<string, TokenCache>();
 
-// 缓存清理配置
-const MAX_CACHE_AGE = 3 * 60 * 60 * 1000; // 3 小时未访问的缓存将被清理
-const CLEANUP_THRESHOLD = 50; // 当缓存数量超过此值时触发清理
+/**
+ * 缓存清理配置
+ */
+const CACHE_CLEANUP_CONFIG = {
+	/** 最大缓存有效期：3 小时未访问的缓存将被清理 */
+	MAX_CACHE_AGE: 3 * 60 * 60 * 1000,
+	/** 清理阈值：当缓存数量超过此值时触发清理 */
+	CLEANUP_THRESHOLD: 50,
+} as const;
 
 /**
  * 懒惰清理过期的缓存
@@ -37,28 +44,32 @@ const CLEANUP_THRESHOLD = 50; // 当缓存数量超过此值时触发清理
  */
 function cleanupExpiredCache(): void {
 	// 只有当缓存数量超过阈值时才执行清理，避免频繁操作
-	if (accessTokenCache.size <= CLEANUP_THRESHOLD) {
+	if (accessTokenCache.size <= CACHE_CLEANUP_CONFIG.CLEANUP_THRESHOLD) {
 		return;
 	}
-	
+
 	const now = Date.now();
 	for (const [key, cache] of accessTokenCache.entries()) {
 		// 清理已过期或长时间未访问的缓存
-		if (cache.expiresAt < now || now - cache.lastAccess > MAX_CACHE_AGE) {
+		if (cache.expiresAt < now || now - cache.lastAccess > CACHE_CLEANUP_CONFIG.MAX_CACHE_AGE) {
 			accessTokenCache.delete(key);
 		}
 	}
 }
 
 /**
- * 生成缓存 Key（基于凭证信息）
+ * 生成缓存键
+ * 根据企业 ID 和应用 Secret 生成唯一标识
  */
 function getCacheKey(credentials: IWeComCredentials): string {
-	return `${credentials.corpId}-${credentials.corpSecret}`;
+	return `${credentials.corpId}_${credentials.corpSecret}`;
 }
 
 /**
  * 清除指定凭证的 Access Token 缓存
+ * 用于手动清除缓存或 Token 失效时强制刷新
+ *
+ * @param credentials 企业微信凭证
  */
 export function clearAccessTokenCache(credentials: IWeComCredentials): void {
 	const cacheKey = getCacheKey(credentials);
@@ -67,21 +78,18 @@ export function clearAccessTokenCache(credentials: IWeComCredentials): void {
 
 /**
  * 获取企业微信 Access Token
- * 
- * 特性：
- * - 按凭证缓存，支持多租户
- * - 并发请求控制，避免重复调用
- * - 提前 5 分钟过期，确保安全性
+ * 官方文档：https://developer.work.weixin.qq.com/document/path/91039
+ * @returns 有效的 access_token
  */
 export async function getAccessToken(
 	this: IExecuteFunctions | ILoadOptionsFunctions,
 ): Promise<string> {
 	const credentials = (await this.getCredentials('weComApi')) as IWeComCredentials;
 	const cacheKey = getCacheKey(credentials);
-	
+
 	// 执行懒惰清理
 	cleanupExpiredCache();
-	
+
 	const cached = accessTokenCache.get(cacheKey);
 
 	// 如果有正在进行的请求，等待它完成（避免并发重复请求）
@@ -89,14 +97,13 @@ export async function getAccessToken(
 		return await cached.pending;
 	}
 
-	// 检查缓存的 token 是否有效
+	// 如果缓存有效，直接返回
 	if (cached && cached.expiresAt > Date.now()) {
-		// 更新最后访问时间
-		cached.lastAccess = Date.now();
+		cached.lastAccess = Date.now(); // 更新最后访问时间
 		return cached.token;
 	}
 
-	// 创建获取 token 的 Promise
+	// 缓存不存在或已过期，重新获取
 	const tokenPromise = fetchAccessToken.call(this, credentials, cacheKey);
 
 	// 保存 pending 状态，防止并发重复请求
@@ -111,14 +118,18 @@ export async function getAccessToken(
 		const token = await tokenPromise;
 		return token;
 	} catch (error) {
-		// 请求失败时清除缓存
+		// 请求失败时清除缓存，下次重新尝试
 		accessTokenCache.delete(cacheKey);
 		throw error;
 	}
 }
 
 /**
- * 实际获取 Access Token 的函数
+ * 调用企业微信 API 获取新的 access_token 并缓存
+ *
+ * @param credentials 企业微信凭证
+ * @param cacheKey 缓存键
+ * @returns 新获取的 access_token
  */
 async function fetchAccessToken(
 	this: IExecuteFunctions | ILoadOptionsFunctions,
@@ -137,6 +148,7 @@ async function fetchAccessToken(
 
 	const response = (await this.helpers.httpRequest(options)) as IWeComAccessTokenResponse;
 
+	// 检查响应是否成功
 	if (response.errcode !== 0 || !response.access_token) {
 		throw new NodeOperationError(
 			this.getNode(),
@@ -146,9 +158,11 @@ async function fetchAccessToken(
 
 	// 缓存 token，提前 5 分钟过期以确保安全（企业微信官方建议）
 	const expiresIn = response.expires_in || 7200; // 默认 7200 秒（2 小时）
+	const TOKEN_EXPIRE_BUFFER = 300; // 提前 5 分钟过期
+
 	accessTokenCache.set(cacheKey, {
 		token: response.access_token,
-		expiresAt: Date.now() + (expiresIn - 300) * 1000, // 提前 5 分钟过期
+		expiresAt: Date.now() + (expiresIn - TOKEN_EXPIRE_BUFFER) * 1000,
 		lastAccess: Date.now(),
 	});
 
@@ -157,10 +171,20 @@ async function fetchAccessToken(
 
 /**
  * 发送企业微信 API 请求
- * 
- * 特性：
- * - 自动处理 Access Token 失效（40014, 42001）并重试
- * - 完善的错误处理
+ *
+ * Token 失效自动重试机制：
+ * 当遇到 token 失效错误时，会自动清除缓存并重新获取 token，然后重试请求
+ * - 40014: 不合法的 access_token
+ * - 42001: access_token 已过期
+ *
+ * @param method HTTP 方法
+ * @param resource API 资源路径（如 /cgi-bin/message/send）
+ * @param body 请求体
+ * @param qs 查询参数
+ * @param headers 自定义请求头
+ * @param option 其他请求选项
+ * @param maxRetries 最大重试次数
+ * @returns API 响应数据
  */
 export async function weComApiRequest(
 	this: IExecuteFunctions | ILoadOptionsFunctions,
@@ -190,7 +214,7 @@ export async function weComApiRequest(
 		options.body = body;
 	}
 
-	// 合并自定义headers
+	// 合并自定义 headers
 	if (Object.keys(headers).length > 0) {
 		options.headers = { ...options.headers, ...headers };
 	}
@@ -205,16 +229,27 @@ export async function weComApiRequest(
 
 		const jsonResponse = response as IDataObject;
 
-		// 处理 Access Token 失效错误（40014: 不合法的access_token, 42001: access_token已过期）
-		if ((jsonResponse.errcode === 40014 || jsonResponse.errcode === 42001) && maxRetries > 0) {
+		// 处理 Access Token 失效错误并自动重试
+		const isTokenInvalid = jsonResponse.errcode === 40014 || jsonResponse.errcode === 42001;
+		if (isTokenInvalid && maxRetries > 0) {
 			// 清除缓存的 token
 			const credentials = (await this.getCredentials('weComApi')) as IWeComCredentials;
 			clearAccessTokenCache(credentials);
 
 			// 重试请求
-			return await weComApiRequest.call(this, method, resource, body, qs, headers, option, maxRetries - 1);
+			return await weComApiRequest.call(
+				this,
+				method,
+				resource,
+				body,
+				qs,
+				headers,
+				option,
+				maxRetries - 1,
+			);
 		}
 
+		// 检查其他 API 错误
 		if (jsonResponse.errcode !== undefined && jsonResponse.errcode !== 0) {
 			throw new NodeOperationError(
 				this.getNode(),
@@ -231,6 +266,18 @@ export async function weComApiRequest(
 
 /**
  * 上传媒体文件到企业微信
+ * 官方文档：https://developer.work.weixin.qq.com/document/path/90253
+ *
+ * 支持的媒体类型：
+ * - image: 图片（jpg/png 等）
+ * - voice: 语音（amr/mp3 等）
+ * - video: 视频（mp4 等）
+ * - file: 普通文件（pdf/doc/xls 等）
+ *
+ * @param mediaType 媒体类型
+ * @param buffer 文件二进制数据
+ * @param filename 文件名（用于识别 MIME 类型）
+ * @returns 媒体文件 media_id
  */
 export async function uploadMedia(
 	this: IExecuteFunctions,
@@ -271,16 +318,26 @@ export async function uploadMedia(
 	return response.media_id as string;
 }
 
+/**
+ * 根据文件名获取 MIME Content-Type
+ *
+ * @param filename 文件名
+ * @returns MIME 类型
+ */
 function getContentType(filename: string): string {
 	const ext = filename.split('.').pop()?.toLowerCase();
 	const mimeTypes: { [key: string]: string } = {
+		// 图片
 		jpg: 'image/jpeg',
 		jpeg: 'image/jpeg',
 		png: 'image/png',
 		gif: 'image/gif',
+		// 音频
 		mp3: 'audio/mpeg',
 		amr: 'audio/amr',
+		// 视频
 		mp4: 'video/mp4',
+		// 文档
 		pdf: 'application/pdf',
 		doc: 'application/msword',
 		docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -289,4 +346,3 @@ function getContentType(filename: string): string {
 	};
 	return mimeTypes[ext || ''] || 'application/octet-stream';
 }
-
