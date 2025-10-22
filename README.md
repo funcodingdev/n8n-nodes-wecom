@@ -253,7 +253,7 @@ npm install n8n-nodes-wecom
 - ✅ [导出标签成员](https://developer.work.weixin.qq.com/document/path/94853)
 - ✅ [获取导出结果](https://developer.work.weixin.qq.com/document/path/94854)
 
-### 📦 素材管理
+### 素材管理
 
 > [官方文档：素材管理](https://developer.work.weixin.qq.com/document/path/91054)
 
@@ -265,7 +265,7 @@ npm install n8n-nodes-wecom
 - ✅ 上传永久素材
 - ✅ 获取永久素材
 
-### 🔗 企业互联
+### 企业互联
 
 > [官方文档：企业互联](https://developer.work.weixin.qq.com/document/path/93360)
 
@@ -308,15 +308,6 @@ npm install n8n-nodes-wecom
 
 - ✅ [获取企业微信接口IP段](https://developer.work.weixin.qq.com/document/path/92520)
 - ✅ [获取企业微信回调IP段](https://developer.work.weixin.qq.com/document/path/92521)
-
-**用途说明：**
-
-这些接口用于获取企业微信服务器的IP地址段，可用于：
-
-- **安全配置**：将获取到的IP段添加到防火墙白名单，只允许企业微信服务器访问
-- **接口调用安全**：配置API接口IP段白名单，防止非法调用
-- **回调安全**：配置回调服务器IP段白名单，确保只接收来自企业微信官方服务器的回调请求
-- **网络隔离**：在专网或VPN环境中，只开放对企业微信服务器IP段的访问权限
 
 ### 客户联系
 
