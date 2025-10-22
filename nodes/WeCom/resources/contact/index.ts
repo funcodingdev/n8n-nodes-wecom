@@ -261,7 +261,7 @@ export const contactDescription: INodeProperties[] = [
 			{
 				name: 'UserID转OpenID',
 				value: 'convertToOpenid',
-				action: 'Userid to openid',
+				action: 'Userid 转 openid',
 				description: '将企业成员的 userid 转换为 openid',
 			},
 		],
