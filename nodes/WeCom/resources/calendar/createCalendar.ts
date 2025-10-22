@@ -27,7 +27,7 @@ export const createCalendarDescription: INodeProperties[] = [
 			show: showOnlyForCreate,
 		},
 		default: '',
-		description: 'Administrator UserID list, separated by commas. The first one is the organizer',
+		description: 'Administrator UserID list, separated by commas. The first one is the organizer.',
 		hint: '管理员UserID列表，用逗号分隔，第一个为组织者',
 	},
 	{
@@ -74,7 +74,7 @@ export const createCalendarDescription: INodeProperties[] = [
 			show: showOnlyForCreate,
 		},
 		default: '',
-		description: 'Share scope, JSON format array. Example: [{"userid":"userid1"}]',
+		description: 'Share scope, JSON format array. Example: [{"userid":"userid1"}].',
 		hint: '共享范围，JSON格式数组',
 	},
 ];

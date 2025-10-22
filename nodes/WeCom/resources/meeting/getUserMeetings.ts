@@ -33,11 +33,14 @@ export const getUserMeetingsDescription: INodeProperties[] = [
 		displayName: '限制数量',
 		name: 'limit',
 		type: 'number',
+		typeOptions: {
+			minValue: 1,
+		},
 		displayOptions: {
 			show: showOnlyForGet,
 		},
-		default: 20,
-		description: 'Number of meetings to return',
+		default: 50,
+		description: 'Max number of results to return',
 		hint: '返回的会议数量',
 	},
 ];

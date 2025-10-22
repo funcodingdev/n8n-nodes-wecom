@@ -27,7 +27,7 @@ export const deleteScheduleAttendeesDescription: INodeProperties[] = [
 			show: showOnlyForDelete,
 		},
 		default: '[{"userid": "userid1"}]',
-		description: 'Attendees to delete, JSON format array. Example: [{"userid": "userid1"}]',
+		description: 'Attendees to delete, JSON format array. Example: [{"userid": "userid1"}].',
 		hint: '要删除的参与者，JSON格式数组',
 	},
 ];

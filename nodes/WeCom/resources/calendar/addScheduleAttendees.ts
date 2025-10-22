@@ -27,7 +27,7 @@ export const addScheduleAttendeesDescription: INodeProperties[] = [
 			show: showOnlyForAdd,
 		},
 		default: '[{"userid": "userid1"}]',
-		description: 'Attendees to add, JSON format array. Example: [{"userid": "userid1"}]',
+		description: 'Attendees to add, JSON format array. Example: [{"userid": "userid1"}].',
 		hint: '要添加的参与者，JSON格式数组',
 	},
 ];

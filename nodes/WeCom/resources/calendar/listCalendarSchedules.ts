@@ -33,11 +33,14 @@ export const listCalendarSchedulesDescription: INodeProperties[] = [
 		displayName: '限制数量',
 		name: 'limit',
 		type: 'number',
+		typeOptions: {
+			minValue: 1,
+		},
 		displayOptions: {
 			show: showOnlyForList,
 		},
-		default: 100,
-		description: 'Number of schedules to return, max 1000',
+		default: 50,
+		description: 'Max number of results to return',
 		hint: '返回的日程数量，最多1000',
 	},
 ];
