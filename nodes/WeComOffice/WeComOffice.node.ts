@@ -10,11 +10,23 @@ import { wefileDescription } from '../WeCom/resources/wefile';
 import { mailDescription } from '../WeCom/resources/mail';
 import { calendarDescription } from '../WeCom/resources/calendar';
 import { meetingDescription } from '../WeCom/resources/meeting';
+import { checkinDescription } from '../WeCom/resources/checkin';
+import { approvalDescription } from '../WeCom/resources/approval';
+import { journalDescription } from '../WeCom/resources/journal';
+import { hrDescription } from '../WeCom/resources/hr';
+import { meetingroomDescription } from '../WeCom/resources/meetingroom';
+import { emergencyDescription } from '../WeCom/resources/emergency';
 import { executeWedoc } from '../WeCom/resources/wedoc/execute';
 import { executeWefile } from '../WeCom/resources/wefile/execute';
 import { executeMail } from '../WeCom/resources/mail/execute';
 import { executeCalendar } from '../WeCom/resources/calendar/execute';
 import { executeMeeting } from '../WeCom/resources/meeting/execute';
+import { executeCheckin } from '../WeCom/resources/checkin/execute';
+import { executeApproval } from '../WeCom/resources/approval/execute';
+import { executeJournal } from '../WeCom/resources/journal/execute';
+import { executeHr } from '../WeCom/resources/hr/execute';
+import { executeMeetingroom } from '../WeCom/resources/meetingroom/execute';
+import { executeEmergency } from '../WeCom/resources/emergency/execute';
 
 export class WeComOffice implements INodeType {
 	description: INodeTypeDescription = {
@@ -25,7 +37,7 @@ export class WeComOffice implements INodeType {
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: '企业微信办公功能 - 文档、微盘、邮件、日程、会议',
+		description: '企业微信办公功能 - 文档、微盘、邮件、日程、会议、打卡、审批、汇报、人事、会议室、紧急通知',
 		defaults: {
 			name: '企业微信-办公',
 		},
@@ -76,7 +88,37 @@ export class WeComOffice implements INodeType {
 						name: '日程',
 						value: 'calendar',
 						description: '管理日历和日程（创建日历、创建日程、管理参与者等）',
-					}
+					},
+					{
+						name: '打卡',
+						value: 'checkin',
+						description: '管理打卡规则、打卡记录、排班等',
+					},
+					{
+						name: '审批',
+						value: 'approval',
+						description: '管理审批模板、审批申请、假期管理等',
+					},
+					{
+						name: '汇报',
+						value: 'journal',
+						description: '管理汇报记录、汇报统计等',
+					},
+					{
+						name: '人事助手',
+						value: 'hr',
+						description: '管理员工花名册信息',
+					},
+					{
+						name: '会议室',
+						value: 'meetingroom',
+						description: '管理会议室和会议室预定',
+					},
+					{
+						name: '紧急通知',
+						value: 'emergency',
+						description: '发起语音电话等紧急通知',
+					},
 				],
 				default: 'wedoc',
 			},
@@ -85,6 +127,12 @@ export class WeComOffice implements INodeType {
 			...wedocDescription,
 			...wefileDescription,
 			...mailDescription,
+			...checkinDescription,
+			...approvalDescription,
+			...journalDescription,
+			...hrDescription,
+			...meetingroomDescription,
+			...emergencyDescription,
 		],
 		usableAsTool: true,
 	};
@@ -106,6 +154,18 @@ export class WeComOffice implements INodeType {
 			returnData = await executeCalendar.call(this, operation as string, items);
 		} else if (resource === 'meeting') {
 			returnData = await executeMeeting.call(this, operation as string, items);
+		} else if (resource === 'checkin') {
+			returnData = await executeCheckin.call(this, operation as string, items);
+		} else if (resource === 'approval') {
+			returnData = await executeApproval.call(this, operation as string, items);
+		} else if (resource === 'journal') {
+			returnData = await executeJournal.call(this, operation as string, items);
+		} else if (resource === 'hr') {
+			returnData = await executeHr.call(this, operation as string, items);
+		} else if (resource === 'meetingroom') {
+			returnData = await executeMeetingroom.call(this, operation as string, items);
+		} else if (resource === 'emergency') {
+			returnData = await executeEmergency.call(this, operation as string, items);
 		}
 
 		return [returnData];

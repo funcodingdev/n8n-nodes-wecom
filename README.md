@@ -26,6 +26,12 @@
 - **邮件管理** - 企业邮箱、邮件群组、公共邮箱
 - **文档管理** - 在线文档、表格、智能表格
 - **微盘管理** - 微盘空间和文件管理
+- **打卡管理** - 打卡规则、打卡记录、排班管理
+- **审批管理** - 审批模板、审批申请、假期管理
+- **汇报管理** - 汇报记录、汇报统计
+- **人事助手** - 员工花名册信息管理
+- **会议室管理** - 会议室和会议室预定管理
+- **紧急通知** - 语音电话等紧急通知
 
 ### 3. 企业微信消息接收（Trigger）
 
@@ -592,6 +598,71 @@ npm install n8n-nodes-wecom
 - ✅ [获取文件分享链接](https://developer.work.weixin.qq.com/document/path/97978)
 - ✅ [获取文件权限信息](https://developer.work.weixin.qq.com/document/path/97979)
 - ✅ [文件安全设置](https://developer.work.weixin.qq.com/document/path/97980)
+
+### ⏰ 打卡管理
+
+> 📖 [官方文档：打卡](https://developer.work.weixin.qq.com/document/path/90262)
+
+- ✅ [获取企业所有打卡规则](https://developer.work.weixin.qq.com/document/path/93384)
+- ✅ [获取员工打卡规则](https://developer.work.weixin.qq.com/document/path/90263)
+- ✅ [获取打卡记录数据](https://developer.work.weixin.qq.com/document/path/90262)
+- ✅ [获取打卡日报数据](https://developer.work.weixin.qq.com/document/path/93374)
+- ✅ [获取打卡月报数据](https://developer.work.weixin.qq.com/document/path/93387)
+- ✅ [获取打卡人员排班信息](https://developer.work.weixin.qq.com/document/path/93380)
+- ✅ [为打卡人员排班](https://developer.work.weixin.qq.com/document/path/93385)
+- ✅ [为打卡人员补卡](https://developer.work.weixin.qq.com/document/path/95803)
+- ✅ [添加打卡记录](https://developer.work.weixin.qq.com/document/path/99647)
+- ✅ [录入打卡人员人脸信息](https://developer.work.weixin.qq.com/document/path/93378)
+- ✅ [获取设备打卡数据](https://developer.work.weixin.qq.com/document/path/94126)
+- ✅ [管理打卡规则](https://developer.work.weixin.qq.com/document/path/98041)
+
+### 📝 审批管理
+
+> 📖 [官方文档：审批](https://developer.work.weixin.qq.com/document/path/91854)
+
+- ✅ [获取审批模板详情](https://developer.work.weixin.qq.com/document/path/91982)
+- ✅ [提交审批申请](https://developer.work.weixin.qq.com/document/path/91853)
+- ✅ [批量获取审批单号](https://developer.work.weixin.qq.com/document/path/91816)
+- ✅ [获取审批申请详情](https://developer.work.weixin.qq.com/document/path/91983)
+- ✅ [获取企业假期管理配置](https://developer.work.weixin.qq.com/document/path/93375)
+- ✅ [获取成员假期余额](https://developer.work.weixin.qq.com/document/path/93376)
+- ✅ [修改成员假期余额](https://developer.work.weixin.qq.com/document/path/93377)
+- ✅ [创建审批模板](https://developer.work.weixin.qq.com/document/path/97437)
+- ✅ [更新审批模板](https://developer.work.weixin.qq.com/document/path/97438)
+
+### 📊 汇报管理
+
+> 📖 [官方文档：汇报](https://developer.work.weixin.qq.com/document/path/93496)
+
+- ✅ [批量获取汇报记录单号](https://developer.work.weixin.qq.com/document/path/93393)
+- ✅ [获取汇报记录详情](https://developer.work.weixin.qq.com/document/path/93394)
+- ✅ [获取汇报统计数据](https://developer.work.weixin.qq.com/document/path/93395)
+- ✅ [下载微盘文件](https://developer.work.weixin.qq.com/document/path/98021)
+
+### 👔 人事助手
+
+> 📖 [官方文档：人事助手](https://developer.work.weixin.qq.com/document/path/99130)
+
+- ✅ [获取员工字段配置](https://developer.work.weixin.qq.com/document/path/99131)
+- ✅ [获取员工花名册信息](https://developer.work.weixin.qq.com/document/path/99132)
+- ✅ [更新员工花名册信息](https://developer.work.weixin.qq.com/document/path/99133)
+
+### 🏢 会议室管理
+
+> 📖 [官方文档：会议室](https://developer.work.weixin.qq.com/document/path/93618)
+
+- ✅ [会议室管理](https://developer.work.weixin.qq.com/document/path/93619)（添加、编辑、删除、查询、列表）
+- ✅ [会议室预定管理](https://developer.work.weixin.qq.com/document/path/93620)（预定、取消、查询、列表）
+- ✅ [批量获取申请单ID](https://developer.work.weixin.qq.com/document/path/99883)
+- ✅ [获取申请单详细信息](https://developer.work.weixin.qq.com/document/path/99885)
+- ✅ [设置审批单审批信息](https://developer.work.weixin.qq.com/document/path/99880)
+
+### 📞 紧急通知应用
+
+> 📖 [官方文档：紧急通知](https://developer.work.weixin.qq.com/document/path/91623)
+
+- ✅ [发起语音电话](https://developer.work.weixin.qq.com/document/path/91627)
+- ✅ [获取接听状态](https://developer.work.weixin.qq.com/document/path/91628)
 
 ---
 
