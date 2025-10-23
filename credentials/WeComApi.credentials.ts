@@ -57,15 +57,12 @@ export class WeComApi implements ICredentialType {
 	// 测试认证是否有效
 	test: ICredentialTestRequest = {
 		request: {
-			method: 'GET',
 			baseURL: 'https://qyapi.weixin.qq.com',
-			url: '/cgi-bin/gettoken',
+			url: '/cgi-bin/user/get',
+			method: 'GET',
 			qs: {
-				corpid: '={{$credentials.corpId}}',
-				corpsecret: '={{$credentials.corpSecret}}',
+				userid: '@me',
 			},
-			returnFullResponse: false,
-			ignoreHttpStatusErrors: false,
 		},
 		rules: [
 			{
@@ -73,7 +70,7 @@ export class WeComApi implements ICredentialType {
 				properties: {
 					key: 'errcode',
 					value: 0,
-					message: '认证失败。请查看下方错误详情中的 errcode 和 errmsg 字段来了解具体原因',
+					message: '认证失败：Corp ID 或 Secret 不正确',
 				},
 			},
 		],
