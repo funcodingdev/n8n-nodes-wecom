@@ -64,6 +64,8 @@ export class WeComApi implements ICredentialType {
 				corpid: '={{$credentials.corpId}}',
 				corpsecret: '={{$credentials.corpSecret}}',
 			},
+			returnFullResponse: false,
+			ignoreHttpStatusErrors: false,
 		},
 		rules: [
 			{
@@ -71,7 +73,7 @@ export class WeComApi implements ICredentialType {
 				properties: {
 					key: 'errcode',
 					value: 0,
-					message: '={{$response.body.errmsg ? "认证失败: " + $response.body.errmsg + " (错误码: " + $response.body.errcode + ")" : "认证失败：Corp ID 或 Secret 不正确"}}',
+					message: '认证失败。请查看下方错误详情中的 errcode 和 errmsg 字段来了解具体原因',
 				},
 			},
 		],
