@@ -59,8 +59,8 @@ export class WeComTrigger implements INodeType {
 				type: 'string',
 				default: '',
 				required: true,
-				description: 'Webhook URL 的路径，建议使用应用ID',
-				hint: '注意：同一应用ID自能设置一个Webhook URL',
+				placeholder: '同一应用ID路径要求唯一',
+				description: 'Webhook URL 的路径，建议使用应用 ID'
 			},
 			{
 				displayName: '事件类型',
