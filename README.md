@@ -94,7 +94,19 @@ npm install n8n-nodes-wecom
 1. 登录 [企业微信管理后台](https://work.weixin.qq.com/)
 2. 进入"我的企业" > "企业信息"，复制 **企业ID (CorpID)**
 3. 进入"应用管理" > 选择或创建一个应用
-4. 启用 **API接收消息**，获取Token、EncodingAESKey，创建一个节点，获取Webhook URL，填入**接收消息服务器配置**中
+4. 复制 **AgentId**（应用ID，例如：1000001）
+5. 启用 **API接收消息**，设置Token、EncodingAESKey
+6. 在 n8n 中创建"企业微信消息接收 Trigger"节点：
+   - 配置凭证（企业ID、应用ID、Token、EncodingAESKey）
+   - **Path** 字段会自动从凭证中读取应用ID并填充
+   - 保存节点后，查看生成的 Webhook URL（例如：`https://your-n8n.com/webhook/1000001`）
+7. 将 Webhook URL 填入企业微信后台的**接收消息服务器配置**中
+
+**重要提示**：
+- 企业微信每个应用只能配置一个接收消息 URL
+- Path 字段会自动使用凭证中的应用ID，确保同一应用的所有节点生成相同的 Webhook URL
+- 多个工作流可以使用同一个凭证（同一应用ID），它们会共享同一个 Webhook URL 接收消息
+- 不同应用请创建不同的凭证，使用不同的应用ID
 
 ## 已实现功能
 

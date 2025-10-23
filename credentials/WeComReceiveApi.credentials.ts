@@ -26,6 +26,16 @@ export class WeComReceiveApi implements ICredentialType {
 			hint: '在企业微信管理后台 - 我的企业 - 企业信息中获取',
 		},
 		{
+			displayName: '应用 ID (Agent ID)',
+			name: 'agentId',
+			type: 'string',
+			default: '',
+			required: true,
+			placeholder: '1000001',
+			description: '应用的唯一标识',
+			hint: '在"应用管理 - 自建应用"中查看',
+		},
+		{
 			displayName: 'Token',
 			name: 'token',
 			type: 'string',
