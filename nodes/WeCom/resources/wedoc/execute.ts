@@ -15,12 +15,12 @@ export async function executeWedoc(
 
 		// 管理文档
 		if (operation === 'createDoc') {
-			const doctype = this.getNodeParameter('doctype', i) as number;
+			const doc_type = this.getNodeParameter('doctype', i) as number;
 			const doc_name = this.getNodeParameter('doc_name', i) as string;
 			const admin_users = this.getNodeParameter('admin_users', i, '') as string;
 			const useSpaceId = this.getNodeParameter('useSpaceId', i, false) as boolean;
 
-			const body: IDataObject = { doctype, doc_name };
+			const body: IDataObject = { doc_type, doc_name };
 			if (admin_users) {
 				body.admin_users = admin_users.split(',').map((id) => id.trim());
 			}

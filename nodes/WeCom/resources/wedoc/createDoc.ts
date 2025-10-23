@@ -25,11 +25,11 @@ export const createDocDescription: INodeProperties[] = [
 			},
 			{
 				name: '智能表格',
-				value: 5,
+				value: 10,
 			},
 		],
 		default: 3,
-		description: '文档类型。3:文档 4:表格 5:智能表格。',
+		description: '文档类型。3:文档 4:表格 10:智能表格。',
 		hint: '文档类型',
 	},
 	{
