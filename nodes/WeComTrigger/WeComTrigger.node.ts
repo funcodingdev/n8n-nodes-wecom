@@ -273,17 +273,45 @@ export class WeComTrigger implements INodeType {
 			};
 		}
 
-		// POST 请求：接收消息
-		const bodyData = this.getBodyData() as IDataObject;
-		const rawBody = (bodyData.data as string) || JSON.stringify(bodyData);
-
-		// 解析 XML
-		const xmlData = parseXML(rawBody);
-		const { Encrypt } = xmlData;
-
-		if (!Encrypt) {
-			throw new NodeOperationError(this.getNode(), '无效的消息格式：缺少加密数据');
+	// POST 请求：接收消息
+	// 获取原始请求对象以读取 XML body
+	const req = this.getRequestObject();
+	let rawBody = '';
+	
+	// 尝试多种方式获取原始 XML 数据
+	if (req.rawBody) {
+		// n8n 在某些情况下会提供 rawBody
+		rawBody = req.rawBody;
+	} else if (typeof req.body === 'string') {
+		// body 本身就是字符串
+		rawBody = req.body;
+	} else if (req.body && typeof req.body === 'object') {
+		// body 是对象，尝试从常见字段获取
+		const bodyData = req.body as IDataObject;
+		if (bodyData.data && typeof bodyData.data === 'string') {
+			rawBody = bodyData.data;
+		} else if (bodyData.xml && typeof bodyData.xml === 'string') {
+			rawBody = bodyData.xml;
+		} else {
+			// 最后尝试 JSON 序列化（不太可能是正确的 XML）
+			rawBody = JSON.stringify(bodyData);
 		}
+	}
+
+	if (!rawBody) {
+		throw new NodeOperationError(this.getNode(), '无法获取请求体数据');
+	}
+
+	// 解析 XML
+	const xmlData = parseXML(rawBody);
+	const { Encrypt } = xmlData;
+
+	if (!Encrypt) {
+		throw new NodeOperationError(
+			this.getNode(), 
+			`无效的消息格式：缺少加密数据。收到的数据：${rawBody.substring(0, 200)}`
+		);
+	}
 
 		// 验证签名
 		const isValid = WeComCrypto.verifySignature(
