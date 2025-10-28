@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-wecom",
-	"version": "0.1.42",
+	"version": "0.1.43",
 	"description": "Complete n8n integration for WeCom (企业微信/WeChat Work). Send messages, manage contacts, departments, customer relations, meetings, documents, email, calendar, approvals, and more. Full-featured enterprise WeChat automation node.",
 	"license": "MIT",
 	"homepage": "https://github.com/funcodingdev/n8n-nodes-wecom",
