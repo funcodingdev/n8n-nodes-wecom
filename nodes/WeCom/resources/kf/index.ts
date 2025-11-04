@@ -16,6 +16,7 @@ import { listServicerDescription } from './listServicer';
 import { transServiceStateDescription } from './transServiceState';
 import { sendKfMsgDescription } from './sendKfMsg';
 import { sendKfEventMsgDescription } from './sendKfEventMsg';
+import { syncMsgDescription } from './syncMsg';
 import { setUpgradeServiceDescription } from './setUpgradeService';
 import { getCustomerInfoDescription } from './getCustomerInfo';
 
@@ -101,6 +102,11 @@ export const kfDescription: INodeProperties[] = [
 				action: '发送事件响应消息',
 			},
 			{
+				name: '读取消息',
+				value: 'syncMsg',
+				action: '读取消息',
+			},
+			{
 				name: '设置升级服务配置',
 				value: 'setUpgradeService',
 				action: '设置升级服务配置',
@@ -149,6 +155,7 @@ export const kfDescription: INodeProperties[] = [
 	...transServiceStateDescription,
 	...sendKfMsgDescription,
 	...sendKfEventMsgDescription,
+	...syncMsgDescription,
 	...setUpgradeServiceDescription,
 	...getCustomerInfoDescription,
 	// 统计管理

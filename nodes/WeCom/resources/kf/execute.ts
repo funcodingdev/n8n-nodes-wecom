@@ -146,6 +146,74 @@ export async function executeKf(
 					open_kfid,
 					upgrade_config: parsedConfig,
 				});
+			} else if (operation === 'syncMsg') {
+				const open_kfid = this.getNodeParameter('open_kfid', i) as string;
+				const cursor = this.getNodeParameter('cursor', i, '') as string;
+				const token = this.getNodeParameter('token', i, '') as string;
+				const limit = this.getNodeParameter('limit', i, 100) as number;
+				const voice_format = this.getNodeParameter('voice_format', i, 0) as number;
+				const parse_message_types = this.getNodeParameter('parse_message_types', i, true) as boolean;
+
+				const body: IDataObject = {
+					open_kfid,
+					limit,
+					voice_format,
+				};
+
+				if (cursor) body.cursor = cursor;
+				if (token) body.token = token;
+
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/kf/sync_msg', body);
+
+				// 如果需要解析消息类型，对msg_list进行处理
+				if (parse_message_types && response.msg_list && Array.isArray(response.msg_list)) {
+					response.msg_list = (response.msg_list as IDataObject[]).map((msg: IDataObject) => {
+						const msgtype = msg.msgtype as string;
+						
+						// 为每个消息添加解析后的字段，便于后续处理
+						const parsedMsg: IDataObject = {
+							...msg,
+							parsed_content: null,
+						};
+
+						// 根据消息类型解析内容
+						if (msgtype === 'text' && msg.text) {
+							parsedMsg.parsed_content = msg.text;
+						} else if (msgtype === 'image' && msg.image) {
+							parsedMsg.parsed_content = msg.image;
+						} else if (msgtype === 'voice' && msg.voice) {
+							parsedMsg.parsed_content = msg.voice;
+						} else if (msgtype === 'video' && msg.video) {
+							parsedMsg.parsed_content = msg.video;
+						} else if (msgtype === 'file' && msg.file) {
+							parsedMsg.parsed_content = msg.file;
+						} else if (msgtype === 'location' && msg.location) {
+							parsedMsg.parsed_content = msg.location;
+						} else if (msgtype === 'link' && msg.link) {
+							parsedMsg.parsed_content = msg.link;
+						} else if (msgtype === 'business_card' && msg.business_card) {
+							parsedMsg.parsed_content = msg.business_card;
+						} else if (msgtype === 'miniprogram' && msg.miniprogram) {
+							parsedMsg.parsed_content = msg.miniprogram;
+						} else if (msgtype === 'msgmenu' && msg.msgmenu) {
+							parsedMsg.parsed_content = msg.msgmenu;
+						} else if (msgtype === 'channels_shop_product' && msg.channels_shop_product) {
+							parsedMsg.parsed_content = msg.channels_shop_product;
+						} else if (msgtype === 'channels_shop_order' && msg.channels_shop_order) {
+							parsedMsg.parsed_content = msg.channels_shop_order;
+						} else if (msgtype === 'merged_msg' && msg.merged_msg) {
+							parsedMsg.parsed_content = msg.merged_msg;
+						} else if (msgtype === 'channels' && msg.channels) {
+							parsedMsg.parsed_content = msg.channels;
+						} else if (msgtype === 'event' && msg.event) {
+							parsedMsg.parsed_content = msg.event;
+							// 为事件类型添加event_type字段方便筛选
+							parsedMsg.event_type = (msg.event as IDataObject).event_type;
+						}
+
+						return parsedMsg;
+					});
+				}
 			} else if (operation === 'getCustomerInfo') {
 				const open_kfid = this.getNodeParameter('open_kfid', i) as string;
 				const external_userid = this.getNodeParameter('external_userid', i) as string;

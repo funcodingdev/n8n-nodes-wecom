@@ -734,6 +734,7 @@ npm install n8n-nodes-wecom
 - ✅ [分配客服会话](https://developer.work.weixin.qq.com/document/path/94669)
 - ✅ [发送消息](https://developer.work.weixin.qq.com/document/path/94677)
 - ✅ [发送欢迎语等事件响应消息](https://developer.work.weixin.qq.com/document/path/95122)
+- ✅ [读取消息](https://developer.work.weixin.qq.com/document/path/94670)
 - ✅ [「升级服务」配置](https://developer.work.weixin.qq.com/document/path/94674)
 - ✅ [获取客户基础信息](https://developer.work.weixin.qq.com/document/path/95159)
 
