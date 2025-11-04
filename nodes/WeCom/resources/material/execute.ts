@@ -51,45 +51,61 @@ export async function executeMaterial(
 				const media_ID = this.getNodeParameter('media_ID', i) as string;
 				const binaryPropertyName = this.getNodeParameter('binaryProperty', i) as string;
 
-				const responseData = await weComApiRequest.call(
-					this,
-					'GET',
-					'/cgi-bin/media/get',
-					{},
-					{ media_ID },
-					{},
-					{ encoding: null, resolveWithFullResponse: true },
-				);
+				// 获取临时素材
+				// 官方文档：https://developer.work.weixin.qq.com/document/path/90254
+				const accessToken = await getAccessToken.call(this);
+
+				const downloadOptions = {
+					method: 'GET' as const,
+					url: 'https://qyapi.weixin.qq.com/cgi-bin/media/get',
+					qs: {
+						access_token: accessToken,
+						media_id: media_ID,
+					},
+					returnFullResponse: true,
+					encoding: 'arraybuffer' as const,
+				};
+
+				const response = await this.helpers.httpRequest(downloadOptions);
 
 				// 处理响应数据
 				let buffer: Buffer;
 				let filename = 'file';
 
-				// 检查响应数据的类型
-				if (Buffer.isBuffer(responseData)) {
-					// 如果直接是 Buffer
-					buffer = responseData as Buffer;
-				} else if (Buffer.isBuffer(responseData.body)) {
-					// 如果是完整响应对象，body 是 Buffer
-					buffer = responseData.body as Buffer;
-				} else if (responseData.body !== undefined && responseData.body !== null) {
-					// 如果 body 存在但不是 Buffer，尝试转换
-					buffer = Buffer.from(responseData.body as string);
+				// response 是完整的响应对象
+				if (response.body) {
+					if (Buffer.isBuffer(response.body)) {
+						buffer = response.body;
+					} else if (response.body instanceof ArrayBuffer) {
+						buffer = Buffer.from(response.body);
+					} else if (typeof response.body === 'string') {
+						buffer = Buffer.from(response.body, 'binary');
+					} else if (ArrayBuffer.isView(response.body)) {
+						buffer = Buffer.from(response.body.buffer);
+					} else {
+						// 其他类型尝试转换为 Buffer
+						buffer = Buffer.from(String(response.body));
+					}
 				} else {
-					throw new Error('无法获取素材内容：响应数据格式错误');
+					throw new Error('无法获取素材内容：响应中没有数据');
 				}
 
-			// 尝试从响应头获取文件名
-			if (responseData.headers) {
-				const headers = responseData.headers as IDataObject;
-				const contentDisposition = headers['content-disposition'];
-				if (typeof contentDisposition === 'string') {
-					const match = contentDisposition.match(/filename="?(.+?)"?$/);
-					if (match) {
-						filename = match[1];
+				// 尝试从响应头获取文件名
+				if (response.headers) {
+					const contentDisposition = response.headers['content-disposition'] || response.headers['Content-Disposition'];
+					if (typeof contentDisposition === 'string') {
+						const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+						if (match && match[1]) {
+							filename = match[1].replace(/['"]/g, '');
+							// 解码 URL 编码的文件名
+							try {
+								filename = decodeURIComponent(filename);
+							} catch {
+								// 如果解码失败，使用原始文件名
+							}
+						}
 					}
 				}
-			}
 
 				const binaryData = await this.helpers.prepareBinaryData(buffer, filename);
 
@@ -140,45 +156,61 @@ export async function executeMaterial(
 				const media_ID = this.getNodeParameter('media_ID', i) as string;
 				const binaryPropertyName = this.getNodeParameter('binaryProperty', i) as string;
 
-				const responseData = await weComApiRequest.call(
-					this,
-					'GET',
-					'/cgi-bin/material/get',
-					{},
-					{ media_ID },
-					{},
-					{ encoding: null, resolveWithFullResponse: true },
-				);
+				// 获取永久素材
+				// 参考官方文档：https://developer.work.weixin.qq.com/document/path/90254
+				const accessToken = await getAccessToken.call(this);
+
+				const downloadOptions = {
+					method: 'GET' as const,
+					url: 'https://qyapi.weixin.qq.com/cgi-bin/material/get',
+					qs: {
+						access_token: accessToken,
+						media_id: media_ID,
+					},
+					returnFullResponse: true,
+					encoding: 'arraybuffer' as const,
+				};
+
+				const response = await this.helpers.httpRequest(downloadOptions);
 
 				// 处理响应数据
 				let buffer: Buffer;
 				let filename = 'file';
 
-				// 检查响应数据的类型
-				if (Buffer.isBuffer(responseData)) {
-					// 如果直接是 Buffer
-					buffer = responseData as Buffer;
-				} else if (Buffer.isBuffer(responseData.body)) {
-					// 如果是完整响应对象，body 是 Buffer
-					buffer = responseData.body as Buffer;
-				} else if (responseData.body !== undefined && responseData.body !== null) {
-					// 如果 body 存在但不是 Buffer，尝试转换
-					buffer = Buffer.from(responseData.body as string);
+				// response 是完整的响应对象
+				if (response.body) {
+					if (Buffer.isBuffer(response.body)) {
+						buffer = response.body;
+					} else if (response.body instanceof ArrayBuffer) {
+						buffer = Buffer.from(response.body);
+					} else if (typeof response.body === 'string') {
+						buffer = Buffer.from(response.body, 'binary');
+					} else if (ArrayBuffer.isView(response.body)) {
+						buffer = Buffer.from(response.body.buffer);
+					} else {
+						// 其他类型尝试转换为 Buffer
+						buffer = Buffer.from(String(response.body));
+					}
 				} else {
-					throw new Error('无法获取素材内容：响应数据格式错误');
+					throw new Error('无法获取素材内容：响应中没有数据');
 				}
 
-			// 尝试从响应头获取文件名
-			if (responseData.headers) {
-				const headers = responseData.headers as IDataObject;
-				const contentDisposition = headers['content-disposition'];
-				if (typeof contentDisposition === 'string') {
-					const match = contentDisposition.match(/filename="?(.+?)"?$/);
-					if (match) {
-						filename = match[1];
+				// 尝试从响应头获取文件名
+				if (response.headers) {
+					const contentDisposition = response.headers['content-disposition'] || response.headers['Content-Disposition'];
+					if (typeof contentDisposition === 'string') {
+						const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+						if (match && match[1]) {
+							filename = match[1].replace(/['"]/g, '');
+							// 解码 URL 编码的文件名
+							try {
+								filename = decodeURIComponent(filename);
+							} catch {
+								// 如果解码失败，使用原始文件名
+							}
+						}
 					}
 				}
-			}
 
 				const binaryData = await this.helpers.prepareBinaryData(buffer, filename);
 
