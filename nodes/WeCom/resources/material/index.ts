@@ -1,8 +1,6 @@
 import type { INodeProperties } from 'n8n-workflow';
 import { uploadTempDescription } from './uploadTemp';
 import { getTempDescription } from './getTemp';
-import { uploadPermanentDescription } from './uploadPermanent';
-import { getPermanentDescription } from './getPermanent';
 import { uploadImageDescription } from './uploadImage';
 import { getHighQualityVoiceDescription } from './getHighQualityVoice';
 import { uploadTempAsyncDescription } from './uploadTempAsync';
@@ -22,20 +20,16 @@ export const materialDescription: INodeProperties[] = [
 		},
 		// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
 		options: [
-			{ name: '上传图片', value: 'uploadImage', action: '上传图片' },
-			{ name: '上传永久素材', value: 'uploadPermanent', action: '上传永久素材' },
 			{ name: '上传临时素材', value: 'uploadTemp', action: '上传临时素材' },
+			{ name: '上传图片', value: 'uploadImage', action: '上传图片' },
 			{ name: '异步上传临时素材', value: 'uploadTempAsync', action: '异步上传临时素材' },
 			{ name: '获取临时素材', value: 'getTemp', action: '获取临时素材' },
-			{ name: '获取永久素材', value: 'getPermanent', action: '获取永久素材' },
 			{ name: '获取高清语音素材', value: 'getHighQualityVoice', action: '获取高清语音素材' },
 		],
 		default: 'uploadTemp',
 	},
 	...uploadTempDescription,
 	...getTempDescription,
-	...uploadPermanentDescription,
-	...getPermanentDescription,
 	...uploadImageDescription,
 	...getHighQualityVoiceDescription,
 	...uploadTempAsyncDescription,

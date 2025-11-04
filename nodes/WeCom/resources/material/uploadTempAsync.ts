@@ -70,5 +70,16 @@ export const uploadTempAsyncDescription: INodeProperties[] = [
 		description: '附件类型，1表示临时素材（默认）。',
 		hint: '附件类型',
 	},
+	{
+		displayName: '场景值',
+		name: 'scene',
+		type: 'number',
+		displayOptions: {
+			show: showOnlyForUploadAsync,
+		},
+		default: 1,
+		description: '上传场景值，1表示客服消息（默认）。',
+		hint: '场景值（可选）',
+	},
 ];
 

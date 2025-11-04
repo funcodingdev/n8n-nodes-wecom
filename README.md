@@ -273,8 +273,6 @@ npm install n8n-nodes-wecom
 - ✅ [异步上传临时素材](https://developer.work.weixin.qq.com/document/path/96219)
 - ✅ [获取临时素材](https://developer.work.weixin.qq.com/document/path/90254)
 - ✅ [获取高清语音素材](https://developer.work.weixin.qq.com/document/path/90255)
-- ✅ 上传永久素材
-- ✅ 获取永久素材
 
 ### 企业互联
 
