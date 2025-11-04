@@ -65,10 +65,18 @@ export async function executeMaterial(
 				let buffer: Buffer;
 				let filename = 'file';
 
-				if (Buffer.isBuffer(responseData.body)) {
-					buffer = responseData.body;
-				} else {
+				// 检查响应数据的类型
+				if (Buffer.isBuffer(responseData)) {
+					// 如果直接是 Buffer
+					buffer = responseData as Buffer;
+				} else if (Buffer.isBuffer(responseData.body)) {
+					// 如果是完整响应对象，body 是 Buffer
+					buffer = responseData.body as Buffer;
+				} else if (responseData.body !== undefined && responseData.body !== null) {
+					// 如果 body 存在但不是 Buffer，尝试转换
 					buffer = Buffer.from(responseData.body as string);
+				} else {
+					throw new Error('无法获取素材内容：响应数据格式错误');
 				}
 
 			// 尝试从响应头获取文件名
@@ -146,10 +154,18 @@ export async function executeMaterial(
 				let buffer: Buffer;
 				let filename = 'file';
 
-				if (Buffer.isBuffer(responseData.body)) {
-					buffer = responseData.body;
-				} else {
+				// 检查响应数据的类型
+				if (Buffer.isBuffer(responseData)) {
+					// 如果直接是 Buffer
+					buffer = responseData as Buffer;
+				} else if (Buffer.isBuffer(responseData.body)) {
+					// 如果是完整响应对象，body 是 Buffer
+					buffer = responseData.body as Buffer;
+				} else if (responseData.body !== undefined && responseData.body !== null) {
+					// 如果 body 存在但不是 Buffer，尝试转换
 					buffer = Buffer.from(responseData.body as string);
+				} else {
+					throw new Error('无法获取素材内容：响应数据格式错误');
 				}
 
 			// 尝试从响应头获取文件名
