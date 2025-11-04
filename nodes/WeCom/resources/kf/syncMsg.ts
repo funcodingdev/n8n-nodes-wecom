@@ -37,7 +37,6 @@ export const syncMsgDescription: INodeProperties[] = [
 		displayName: 'Token',
 		name: 'token',
 		type: 'string',
-		typeOptions: { password: true },
 		displayOptions: {
 			show: showOnlyForSyncMsg,
 		},
@@ -52,12 +51,12 @@ export const syncMsgDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForSyncMsg,
 		},
-		default: 50,
+		default: 100,
 		typeOptions: {
 			minValue: 1,
 			maxValue: 1000,
 		},
-		description: 'Max number of results to return',
+		description: '期望请求的数据量，默认100，最大1000。实际返回可能小于设定值。',
 		hint: '期望拉取的消息数量，最大1000',
 	},
 	{
@@ -89,6 +88,7 @@ export const syncMsgDescription: INodeProperties[] = [
 			show: showOnlyForSyncMsg,
 		},
 		default: true,
-		hint: '是否自动解析并展开不同的消息类型到单独的字段，便于后续处理',
+		description: '是否自动解析并展开不同的消息类型到单独的字段，便于后续处理',
+		hint: '自动解析消息类型',
 	},
 ];
