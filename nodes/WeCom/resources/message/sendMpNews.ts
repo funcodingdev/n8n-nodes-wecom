@@ -26,7 +26,6 @@ export const sendMpNewsDescription: INodeProperties[] = [
 			{
 				displayName: '图文',
 				name: 'article',
-				// eslint-disable-next-line n8n-nodes-base/node-param-fixed-collection-type-unsorted-items
 				values: [
 					{
 						displayName: '标题',

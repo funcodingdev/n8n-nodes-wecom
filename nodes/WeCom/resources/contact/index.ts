@@ -50,7 +50,6 @@ export const contactDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForContact,
 		},
-		// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
 		options: [
 			{
 				name: '创建标签',

@@ -89,7 +89,6 @@ export const syncMsgDescription: INodeProperties[] = [
 			show: showOnlyForSyncMsg,
 		},
 		default: true,
-		description: '是否自动解析并展开不同的消息类型到单独的字段，便于后续处理',
-		hint: '自动解析消息类型',
+		hint: '是否自动解析并展开不同的消息类型到单独的字段，便于后续处理',
 	},
 ];

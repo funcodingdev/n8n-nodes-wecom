@@ -21,6 +21,7 @@ export const pushMessageDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForPushMessage,
 		},
+		// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
 		options: [
 		{
 			name: '发送 Markdown V2 消息',

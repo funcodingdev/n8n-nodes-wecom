@@ -72,7 +72,6 @@ export const sendTaskCardDescription: INodeProperties[] = [
 			{
 				displayName: '按钮',
 				name: 'button',
-				// eslint-disable-next-line n8n-nodes-base/node-param-fixed-collection-type-unsorted-items
 				values: [
 					{
 						displayName: '按钮名称',

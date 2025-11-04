@@ -15,29 +15,28 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 			displayName: '接收人类型',
 			name: 'recipientType',
 			type: 'options',
-		// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
-		options: [
-		{
-			name: '全体成员',
-			value: 'all',
-		},
-		{
-			name: '手动输入',
-			value: 'manual',
-		},
-		{
-			name: '指定标签',
-			value: 'tags',
-		},
-		{
-			name: '指定部门',
-			value: 'departments',
-		},
-		{
-			name: '指定成员',
-			value: 'users',
-		},
-		],
+			options: [
+				{
+					name: '全体成员',
+					value: 'all',
+				},
+				{
+					name: '手动输入',
+					value: 'manual',
+				},
+				{
+					name: '指定标签',
+					value: 'tags',
+				},
+				{
+					name: '指定部门',
+					value: 'departments',
+				},
+				{
+					name: '指定成员',
+					value: 'users',
+				},
+			],
 			default: 'users',
 			displayOptions: {
 				show: showCondition,
@@ -59,7 +58,8 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 				},
 			},
 			hint: '成员ID列表（最多支持1000个）',
-			description: 'Choose from the list, or specify IDs using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+			description:
+				'Choose from the list, or specify IDs using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
 		},
 		{
 			displayName: '部门 Names or IDs',
@@ -76,7 +76,8 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 				},
 			},
 			hint: '部门ID列表（最多支持100个）',
-			description: 'Choose from the list, or specify IDs using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+			description:
+				'Choose from the list, or specify IDs using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
 		},
 		{
 			displayName: '标签 Names or IDs',
@@ -93,7 +94,8 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 				},
 			},
 			hint: '标签ID列表（最多支持100个）',
-			description: 'Choose from the list, or specify IDs using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+			description:
+				'Choose from the list, or specify IDs using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
 		},
 		{
 			displayName: '手动输入接收人',
@@ -106,7 +108,8 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 					recipientType: ['manual'],
 				},
 			},
-			description: '成员ID列表（多个接收者用 | 分隔，最多支持1000个）。特殊情况：指定为 @all，则向该企业应用的全部成员发送',
+			description:
+				'成员ID列表（多个接收者用 | 分隔，最多支持1000个）。特殊情况：指定为 @all，则向该企业应用的全部成员发送',
 		},
 		{
 			displayName: '部门ID（手动输入）',
@@ -177,4 +180,3 @@ export function extractRecipients(
 
 	return result;
 }
-
