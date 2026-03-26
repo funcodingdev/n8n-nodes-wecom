@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 企微 API 更新日志
+    about: 记录企业微信 API 更新与仓库实现的差异分析
+    url: https://github.com/funcodingdev/n8n-nodes-wecom/issues/new?template=wecom-api-changelog.md
