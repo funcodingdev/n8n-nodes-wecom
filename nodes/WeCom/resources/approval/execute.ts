@@ -164,22 +164,63 @@ export async function executeApproval(
 			} else if (operation === 'createApprovalTemplate') {
 				// 创建审批模板
 				// https://developer.work.weixin.qq.com/document/path/97437
-				const templateData = this.getNodeParameter('templateData', i) as string;
+				const template_name_text = this.getNodeParameter('template_name_text', i) as string;
+				const template_name_lang = this.getNodeParameter('template_name_lang', i, 'zh_CN') as string;
+				const template_content_json = this.getNodeParameter('template_content_json', i) as string;
+				const templateExtraJson = this.getNodeParameter('templateExtraJson', i, '{}') as string;
+				const body: IDataObject = {
+					template_name: [{ text: template_name_text, lang: template_name_lang }],
+				};
+				try {
+					const content = JSON.parse(template_content_json || '{}');
+					body.template_content = content;
+				} catch (e) {
+					throw new Error(`模板控件内容JSON 解析失败: ${(e as Error).message}`);
+				}
+				try {
+					const extra = JSON.parse(templateExtraJson || '{}') as IDataObject;
+					if (extra && typeof extra === 'object') Object.assign(body, extra);
+				} catch {
+					/* ignore */
+				}
 				responseData = await weComApiRequest.call(
 					this,
 					'POST',
 					'/cgi-bin/oa/approval/create_template',
-					JSON.parse(templateData),
+					body,
 				);
 			} else if (operation === 'updateApprovalTemplate') {
 				// 更新审批模板
 				// https://developer.work.weixin.qq.com/document/path/97438
 				const template_id = this.getNodeParameter('template_id', i) as string;
-				const templateData = this.getNodeParameter('templateData', i) as string;
-				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/oa/approval/update_template', {
-					template_id,
-					...JSON.parse(templateData),
-				});
+				const template_name_text = this.getNodeParameter('template_name_text', i, '') as string;
+				const template_name_lang = this.getNodeParameter('template_name_lang', i, 'zh_CN') as string;
+				const template_content_json = this.getNodeParameter('template_content_json', i, '{}') as string;
+				const templateExtraJson = this.getNodeParameter('templateExtraJson', i, '{}') as string;
+				const body: IDataObject = { template_id };
+				if (template_name_text) {
+					body.template_name = [{ text: template_name_text, lang: template_name_lang }];
+				}
+				try {
+					const content = JSON.parse(template_content_json || '{}');
+					if (content && typeof content === 'object' && Object.keys(content).length) {
+						body.template_content = content;
+					}
+				} catch (e) {
+					throw new Error(`模板控件内容JSON 解析失败: ${(e as Error).message}`);
+				}
+				try {
+					const extra = JSON.parse(templateExtraJson || '{}') as IDataObject;
+					if (extra && typeof extra === 'object') Object.assign(body, extra);
+				} catch {
+					/* ignore */
+				}
+				responseData = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/oa/approval/update_template',
+					body,
+				);
 			} else if (approvalExtraHttpOpsById[operation]) {
 				const bodyDefaults: IDataObject = {};
 				const appr_starttime = this.getNodeParameter('appr_starttime', i, 0) as number;
