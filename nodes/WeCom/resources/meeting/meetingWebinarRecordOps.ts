@@ -367,14 +367,77 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		description: '分页游标，首次可不填',
 	},
 	{
-		displayName: '嘉宾列表JSON',
+		displayName: '嘉宾列表',
+		name: 'webinarGuestsCollection',
+		type: 'fixedCollection',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarUpdateGuestList'] },
+		},
+		default: {},
+		placeholder: '添加嘉宾',
+		typeOptions: { multipleValues: true },
+		options: [
+			{
+				displayName: '嘉宾',
+				name: 'guests',
+				values: [
+					{
+						displayName: '嘉宾类型',
+						name: 'guest_type',
+						type: 'options',
+						options: [
+							{ name: '内部嘉宾', value: 1 },
+							{ name: '外部嘉宾', value: 2 },
+						],
+						default: 1,
+					},
+					{
+						displayName: '成员UserID',
+						name: 'userid',
+						type: 'string',
+						default: '',
+						description: '内部嘉宾必填',
+					},
+					{
+						displayName: '国家/地区代码',
+						name: 'area',
+						type: 'string',
+						default: '86',
+						description: '外部嘉宾必填，如 86',
+					},
+					{
+						displayName: '手机号',
+						name: 'phone_number',
+						type: 'string',
+						default: '',
+						description: '外部嘉宾必填',
+					},
+					{
+						displayName: '嘉宾名称',
+						name: 'guest_name',
+						type: 'string',
+						default: '',
+						description: '外部嘉宾必填',
+					},
+					{
+						displayName: '邮箱',
+						name: 'email',
+						type: 'string',
+						default: '',
+					},
+				],
+			},
+		],
+	},
+	{
+		displayName: '嘉宾列表扩展JSON',
 		name: 'guestsJson',
 		type: 'json',
 		displayOptions: {
 			show: { resource: ['meeting'], operation: ['webinarUpdateGuestList'] },
 		},
 		default: '[]',
-		description: '嘉宾数组，字段见官方「更新网络研讨会嘉宾列表」',
+		description: '若填写非空数组则覆盖上方表单嘉宾列表',
 	},
 	{
 		displayName: '审批方式',

@@ -717,13 +717,30 @@ export async function executeMeeting(
 			} else if (operation === 'webinarUpdateGuestList') {
 				const meetingid = this.getNodeParameter('webinar_meetingid', i) as string;
 				const guestsJson = this.getNodeParameter('guestsJson', i, '[]') as string;
+				const guestsCollection = this.getNodeParameter(
+					'webinarGuestsCollection',
+					i,
+					{},
+				) as IDataObject;
 				const body: IDataObject = { meetingid };
+				let guests: IDataObject[] = ((guestsCollection?.guests as IDataObject[]) || [])
+					.map((g) => {
+						const item: IDataObject = { guest_type: g.guest_type ?? 1 };
+						if (g.userid) item.userid = g.userid;
+						if (g.area) item.area = g.area;
+						if (g.phone_number) item.phone_number = g.phone_number;
+						if (g.guest_name) item.guest_name = g.guest_name;
+						if (g.email) item.email = g.email;
+						return item;
+					})
+					.filter((g) => g.userid || g.phone_number);
 				try {
-					const guests = JSON.parse(guestsJson || '[]');
-					body.guests = guests;
+					const fromJson = JSON.parse(guestsJson || '[]');
+					if (Array.isArray(fromJson) && fromJson.length) guests = fromJson as IDataObject[];
 				} catch {
-					body.guests = [];
+					// ignore
 				}
+				body.guests = guests;
 				response = await weComApiRequest.call(
 					this,
 					'POST',
