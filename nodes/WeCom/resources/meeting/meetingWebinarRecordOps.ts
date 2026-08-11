@@ -289,6 +289,193 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		default: '',
 		description: '主持人 userid，逗号分隔；默认管理员',
 	},
+	{
+		displayName: '开启嘉宾邀请链接',
+		name: 'enable_guest_invite_link',
+		type: 'boolean',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarCreate', 'webinarUpdate'] },
+		},
+		default: false,
+		description: 'enable_guest_invite_link：通过邀请链接自动成为嘉宾',
+	},
+	{
+		displayName: '开启问答',
+		name: 'enable_qa',
+		type: 'boolean',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarCreate', 'webinarUpdate'] },
+		},
+		default: true,
+		description: 'enable_qa，默认 true',
+	},
+	{
+		displayName: '开启人工审核',
+		name: 'enable_manual_check',
+		type: 'boolean',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarCreate', 'webinarUpdate'] },
+		},
+		default: false,
+		description: 'enable_manual_check',
+	},
+	{
+		displayName: '开启活动页',
+		name: 'activity_page',
+		type: 'boolean',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarCreate', 'webinarUpdate'] },
+		},
+		default: true,
+		description: 'activity_page；封面与描述需开启活动页',
+	},
+	{
+		displayName: '展示已报名人数',
+		name: 'display_number_of_attendees',
+		type: 'options',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarCreate', 'webinarUpdate'] },
+		},
+		options: [
+			{ name: '不展示', value: 0 },
+			{ name: '展示', value: 1 },
+		],
+		default: 1,
+		description: 'display_number_of_attendees；需开启活动页',
+	},
+	{
+		displayName: '开启准备模式',
+		name: 'preparation_mode',
+		type: 'boolean',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarCreate', 'webinarUpdate'] },
+		},
+		default: false,
+		description: 'preparation_mode',
+	},
+	{
+		displayName: '聊天敏感词',
+		name: 'sensitive_words',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarCreate', 'webinarUpdate'] },
+		},
+		default: '',
+		placeholder: '敏感词1,敏感词2',
+		description: 'sensitive_words，逗号分隔，最多 50 个，单词最长 10 个中文字符',
+	},
+	// media_setting
+	{
+		displayName: '入会时静音',
+		name: 'media_enable_enter_mute',
+		type: 'boolean',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarCreate', 'webinarUpdate'] },
+		},
+		default: true,
+		description: 'media_setting.enable_enter_mute',
+	},
+	{
+		displayName: '允许取消静音',
+		name: 'media_allow_unmute_self',
+		type: 'boolean',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarCreate', 'webinarUpdate'] },
+		},
+		default: true,
+		description: 'media_setting.allow_unmute_self',
+	},
+	{
+		displayName: '允许嘉宾主持人前入会',
+		name: 'media_allow_enter_before_host',
+		type: 'boolean',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarCreate', 'webinarUpdate'] },
+		},
+		default: true,
+		description: 'media_setting.allow_enter_before_host',
+	},
+	{
+		displayName: '开启屏幕共享水印',
+		name: 'media_enable_screen_watermark',
+		type: 'boolean',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarCreate', 'webinarUpdate'] },
+		},
+		default: false,
+		description: 'media_setting.enable_screen_watermark',
+	},
+	{
+		displayName: '水印样式',
+		name: 'media_watermark_type',
+		type: 'options',
+		displayOptions: {
+			show: {
+				resource: ['meeting'],
+				operation: ['webinarCreate', 'webinarUpdate'],
+				media_enable_screen_watermark: [true],
+			},
+		},
+		options: [
+			{ name: '单排', value: 0 },
+			{ name: '多排', value: 1 },
+		],
+		default: 0,
+		description: 'media_setting.watermark_type',
+	},
+	{
+		displayName: '允许外部成员入会',
+		name: 'media_allow_external_user',
+		type: 'boolean',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarCreate', 'webinarUpdate'] },
+		},
+		default: true,
+		description: 'media_setting.allow_external_user：true 所有人；false 仅企业内',
+	},
+	{
+		displayName: '自动录制类型',
+		name: 'media_auto_record_type',
+		type: 'options',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarCreate', 'webinarUpdate'] },
+		},
+		options: [
+			{ name: '禁用 none', value: 'none' },
+			{ name: '本地 local', value: 'local' },
+			{ name: '云录制 cloud', value: 'cloud' },
+		],
+		default: 'none',
+		description: 'media_setting.auto_record_type；观众回放需 cloud',
+	},
+	{
+		displayName: '成员入会即开云录制',
+		name: 'media_attendee_join_auto_record',
+		type: 'boolean',
+		displayOptions: {
+			show: {
+				resource: ['meeting'],
+				operation: ['webinarCreate', 'webinarUpdate'],
+				media_auto_record_type: ['cloud'],
+			},
+		},
+		default: false,
+		description: 'media_setting.attendee_join_auto_record，仅 cloud 生效',
+	},
+	{
+		displayName: '允许主持人暂停云录制',
+		name: 'media_enable_host_pause_auto_record',
+		type: 'boolean',
+		displayOptions: {
+			show: {
+				resource: ['meeting'],
+				operation: ['webinarCreate', 'webinarUpdate'],
+				media_auto_record_type: ['cloud'],
+			},
+		},
+		default: true,
+		description: 'media_setting.enable_host_pause_auto_record，仅 cloud 生效',
+	},
 	// shared meeting id / code
 	{
 		displayName: '会议ID',
@@ -637,6 +824,19 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		description: 'enroll_id_list，逗号分隔',
 	},
 	{
+		displayName: '临时OpenID',
+		name: 'webinar_enroll_tmp_openid',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['meeting'],
+				operation: ['webinarEnrollQueryByTmpOpenid'],
+			},
+		},
+		default: '',
+		description: 'tmp_openid，按临时 OpenID 查询研讨会报名',
+	},
+	{
 		displayName: '审批动作',
 		name: 'webinar_enroll_action',
 		type: 'options',
@@ -664,6 +864,7 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 					'webinarEnrollImport',
 					'webinarEnrollDelete',
 					'webinarEnrollQueryByTmpOpenid',
+					'webinarEnrollList',
 				],
 			},
 		},
@@ -674,6 +875,7 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		displayName: '会议录制ID',
 		name: 'meeting_record_id',
 		type: 'string',
+		required: true,
 		displayOptions: {
 			show: {
 				resource: ['meeting'],
@@ -681,7 +883,7 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'meeting_record_id；分享设置也可使用上方录制文件 ID 字段',
+		description: 'meeting_record_id，删除录制 / 统计 / 分享设置必填',
 	},
 	{
 		displayName: '统计开始时间',

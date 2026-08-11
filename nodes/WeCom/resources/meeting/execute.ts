@@ -169,27 +169,28 @@ export async function executeMeeting(
 					.filter(Boolean);
 				if (hostIds.length) settings.hosts = { userid: hostIds };
 
+				// 普通创建 / 高级创建共用设置（高级创建另支持周期会议）
+				settings.allow_unmute_self = this.getNodeParameter(
+					'settings_allow_unmute_self',
+					i,
+					true,
+				) as boolean;
+				settings.allow_external_user = this.getNodeParameter(
+					'settings_allow_external_user',
+					i,
+					true,
+				) as boolean;
+				settings.enable_enroll = this.getNodeParameter(
+					'settings_enable_enroll',
+					i,
+					false,
+				) as boolean;
+				settings.auto_record_type = this.getNodeParameter(
+					'settings_auto_record_type',
+					i,
+					'none',
+				) as string;
 				if (operation === 'createAdvancedMeeting') {
-					settings.allow_unmute_self = this.getNodeParameter(
-						'settings_allow_unmute_self',
-						i,
-						true,
-					) as boolean;
-					settings.allow_external_user = this.getNodeParameter(
-						'settings_allow_external_user',
-						i,
-						true,
-					) as boolean;
-					settings.enable_enroll = this.getNodeParameter(
-						'settings_enable_enroll',
-						i,
-						false,
-					) as boolean;
-					settings.auto_record_type = this.getNodeParameter(
-						'settings_auto_record_type',
-						i,
-						'none',
-					) as string;
 					const reminders_is_repeat = this.getNodeParameter(
 						'reminders_is_repeat',
 						i,
@@ -266,6 +267,31 @@ export async function executeMeeting(
 				const location = this.getNodeParameter('location', i, '') as string;
 				const invitee_userids = this.getNodeParameter('invitee_userids', i, '') as string;
 				const settings_password = this.getNodeParameter('settings_password', i, '') as string;
+				const settings_enable_enter_mute = this.getNodeParameter(
+					'settings_enable_enter_mute',
+					i,
+					-1,
+				) as number;
+				const settings_remind_scope = this.getNodeParameter(
+					'settings_remind_scope',
+					i,
+					0,
+				) as number;
+				const settings_host_userids = this.getNodeParameter(
+					'settings_host_userids',
+					i,
+					'',
+				) as string;
+				const settings_auto_record_type = this.getNodeParameter(
+					'settings_auto_record_type',
+					i,
+					'',
+				) as string;
+				const update_write_settings = this.getNodeParameter(
+					'update_write_settings',
+					i,
+					false,
+				) as boolean;
 				const updateMeetingExtraJson = this.getNodeParameter(
 					'updateMeetingExtraJson',
 					i,
@@ -292,7 +318,55 @@ export async function executeMeeting(
 					.map((s) => s.trim())
 					.filter(Boolean);
 				if (inviteeIds.length) body.invitees = { userid: inviteeIds };
-				if (settings_password) body.settings = { password: settings_password };
+
+				const settings: IDataObject = {};
+				if (settings_password) settings.password = settings_password;
+				if (settings_enable_enter_mute !== -1) {
+					settings.enable_enter_mute = settings_enable_enter_mute;
+				}
+				if (settings_remind_scope > 0) settings.remind_scope = settings_remind_scope;
+				const hostIds = settings_host_userids
+					.split(',')
+					.map((s) => s.trim())
+					.filter(Boolean);
+				if (hostIds.length) settings.hosts = { userid: hostIds };
+				if (settings_auto_record_type) {
+					settings.auto_record_type = settings_auto_record_type;
+				}
+				if (update_write_settings) {
+					settings.enable_waiting_room = this.getNodeParameter(
+						'settings_enable_waiting_room',
+						i,
+						false,
+					) as boolean;
+					settings.allow_enter_before_host = this.getNodeParameter(
+						'settings_allow_enter_before_host',
+						i,
+						true,
+					) as boolean;
+					settings.enable_screen_watermark = this.getNodeParameter(
+						'settings_enable_screen_watermark',
+						i,
+						false,
+					) as boolean;
+					settings.allow_unmute_self = this.getNodeParameter(
+						'settings_allow_unmute_self',
+						i,
+						true,
+					) as boolean;
+					settings.allow_external_user = this.getNodeParameter(
+						'settings_allow_external_user',
+						i,
+						true,
+					) as boolean;
+					settings.enable_enroll = this.getNodeParameter(
+						'settings_enable_enroll',
+						i,
+						false,
+					) as boolean;
+				}
+				if (Object.keys(settings).length) body.settings = settings;
+
 				try {
 					const extra = JSON.parse(updateMeetingExtraJson || '{}') as IDataObject;
 					if (extra.settings && typeof extra.settings === 'object') {
@@ -1046,8 +1120,100 @@ export async function executeMeeting(
 						.filter(Boolean)
 						.map((userid) => ({ userid }));
 				}
+				// 活动页 / 互动
+				body.enable_guest_invite_link = this.getNodeParameter(
+					'enable_guest_invite_link',
+					i,
+					false,
+				) as boolean;
+				body.enable_qa = this.getNodeParameter('enable_qa', i, true) as boolean;
+				body.enable_manual_check = this.getNodeParameter(
+					'enable_manual_check',
+					i,
+					false,
+				) as boolean;
+				body.activity_page = this.getNodeParameter('activity_page', i, true) as boolean;
+				body.display_number_of_attendees = this.getNodeParameter(
+					'display_number_of_attendees',
+					i,
+					1,
+				) as number;
+				body.preparation_mode = this.getNodeParameter(
+					'preparation_mode',
+					i,
+					false,
+				) as boolean;
+				const sensitive_words = (this.getNodeParameter('sensitive_words', i, '') as string)
+					.split(',')
+					.map((s) => s.trim())
+					.filter(Boolean)
+					.slice(0, 50);
+				if (sensitive_words.length) body.sensitive_words = sensitive_words;
+				// media_setting
+				const media_setting: IDataObject = {
+					enable_enter_mute: this.getNodeParameter(
+						'media_enable_enter_mute',
+						i,
+						true,
+					) as boolean,
+					allow_unmute_self: this.getNodeParameter(
+						'media_allow_unmute_self',
+						i,
+						true,
+					) as boolean,
+					allow_enter_before_host: this.getNodeParameter(
+						'media_allow_enter_before_host',
+						i,
+						true,
+					) as boolean,
+					enable_screen_watermark: this.getNodeParameter(
+						'media_enable_screen_watermark',
+						i,
+						false,
+					) as boolean,
+					allow_external_user: this.getNodeParameter(
+						'media_allow_external_user',
+						i,
+						true,
+					) as boolean,
+					auto_record_type: this.getNodeParameter(
+						'media_auto_record_type',
+						i,
+						'none',
+					) as string,
+				};
+				if (media_setting.enable_screen_watermark) {
+					media_setting.watermark_type = this.getNodeParameter(
+						'media_watermark_type',
+						i,
+						0,
+					) as number;
+				}
+				if (media_setting.auto_record_type === 'cloud') {
+					media_setting.attendee_join_auto_record = this.getNodeParameter(
+						'media_attendee_join_auto_record',
+						i,
+						false,
+					) as boolean;
+					media_setting.enable_host_pause_auto_record = this.getNodeParameter(
+						'media_enable_host_pause_auto_record',
+						i,
+						true,
+					) as boolean;
+				}
+				body.media_setting = media_setting;
 				try {
-					Object.assign(body, JSON.parse(webinarExtraJson || '{}') as IDataObject);
+					const extra = JSON.parse(webinarExtraJson || '{}') as IDataObject;
+					if (extra.media_setting && typeof extra.media_setting === 'object') {
+						body.media_setting = {
+							...((body.media_setting as IDataObject) || {}),
+							...(extra.media_setting as IDataObject),
+						};
+						delete extra.media_setting;
+					}
+					Object.assign(body, extra);
+					if (admin_userid) body.admin_userid = admin_userid;
+					if (title) body.title = title;
 				} catch {
 					// ignore
 				}
@@ -1107,8 +1273,96 @@ export async function executeMeeting(
 						.filter(Boolean)
 						.map((userid) => ({ userid }));
 				}
+				body.enable_guest_invite_link = this.getNodeParameter(
+					'enable_guest_invite_link',
+					i,
+					false,
+				) as boolean;
+				body.enable_qa = this.getNodeParameter('enable_qa', i, true) as boolean;
+				body.enable_manual_check = this.getNodeParameter(
+					'enable_manual_check',
+					i,
+					false,
+				) as boolean;
+				body.activity_page = this.getNodeParameter('activity_page', i, true) as boolean;
+				body.display_number_of_attendees = this.getNodeParameter(
+					'display_number_of_attendees',
+					i,
+					1,
+				) as number;
+				body.preparation_mode = this.getNodeParameter(
+					'preparation_mode',
+					i,
+					false,
+				) as boolean;
+				const sensitive_words = (this.getNodeParameter('sensitive_words', i, '') as string)
+					.split(',')
+					.map((s) => s.trim())
+					.filter(Boolean)
+					.slice(0, 50);
+				if (sensitive_words.length) body.sensitive_words = sensitive_words;
+				const media_setting: IDataObject = {
+					enable_enter_mute: this.getNodeParameter(
+						'media_enable_enter_mute',
+						i,
+						true,
+					) as boolean,
+					allow_unmute_self: this.getNodeParameter(
+						'media_allow_unmute_self',
+						i,
+						true,
+					) as boolean,
+					allow_enter_before_host: this.getNodeParameter(
+						'media_allow_enter_before_host',
+						i,
+						true,
+					) as boolean,
+					enable_screen_watermark: this.getNodeParameter(
+						'media_enable_screen_watermark',
+						i,
+						false,
+					) as boolean,
+					allow_external_user: this.getNodeParameter(
+						'media_allow_external_user',
+						i,
+						true,
+					) as boolean,
+					auto_record_type: this.getNodeParameter(
+						'media_auto_record_type',
+						i,
+						'none',
+					) as string,
+				};
+				if (media_setting.enable_screen_watermark) {
+					media_setting.watermark_type = this.getNodeParameter(
+						'media_watermark_type',
+						i,
+						0,
+					) as number;
+				}
+				if (media_setting.auto_record_type === 'cloud') {
+					media_setting.attendee_join_auto_record = this.getNodeParameter(
+						'media_attendee_join_auto_record',
+						i,
+						false,
+					) as boolean;
+					media_setting.enable_host_pause_auto_record = this.getNodeParameter(
+						'media_enable_host_pause_auto_record',
+						i,
+						true,
+					) as boolean;
+				}
+				body.media_setting = media_setting;
 				try {
-					Object.assign(body, JSON.parse(webinarExtraJson || '{}') as IDataObject);
+					const extra = JSON.parse(webinarExtraJson || '{}') as IDataObject;
+					if (extra.media_setting && typeof extra.media_setting === 'object') {
+						body.media_setting = {
+							...((body.media_setting as IDataObject) || {}),
+							...(extra.media_setting as IDataObject),
+						};
+						delete extra.media_setting;
+					}
+					Object.assign(body, extra);
 					body.meetingid = meetingid;
 				} catch {
 					// ignore
@@ -1278,6 +1532,14 @@ export async function executeMeeting(
 						});
 					if (formList.length) body.enroll_list = formList;
 				}
+				if (operation === 'webinarEnrollQueryByTmpOpenid') {
+					const tmp_openid = this.getNodeParameter(
+						'webinar_enroll_tmp_openid',
+						i,
+						'',
+					) as string;
+					if (tmp_openid) body.tmp_openid = tmp_openid;
+				}
 				try {
 					Object.assign(body, JSON.parse(webinarEnrollJson || '{}') as IDataObject);
 					body.meetingid = meetingid;
@@ -1315,12 +1577,15 @@ export async function executeMeeting(
 			}
 			// --- 录制扩展 / 转写 ---
 			else if (operation === 'recordDelete') {
+				// https://developer.work.weixin.qq.com/document/path/98206
 				const meetingid = this.getNodeParameter('webinar_meetingid', i) as string;
+				const meeting_record_id = this.getNodeParameter('meeting_record_id', i) as string;
 				const webinarExtraJson = this.getNodeParameter('webinarExtraJson', i, '{}') as string;
-				const body: IDataObject = { meetingid };
+				const body: IDataObject = { meetingid, meeting_record_id };
 				try {
 					Object.assign(body, JSON.parse(webinarExtraJson || '{}') as IDataObject);
 					body.meetingid = meetingid;
+					body.meeting_record_id = meeting_record_id;
 				} catch {
 					// ignore
 				}
