@@ -57,6 +57,7 @@ const needMeetingId = allOps.filter(
 			'roomsGetInventory',
 			'roomsListControllers',
 			'roomsListDevices',
+			'roomsListMeetings',
 			'vipBatchDelJobResult',
 		].includes(o),
 );
