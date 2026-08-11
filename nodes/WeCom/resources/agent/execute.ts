@@ -250,67 +250,84 @@ export async function executeAgent(
 				}
 
 				// 设置用户工作台数据
-				case 'setWorkbenchData': {
-					const agentid = this.getNodeParameter('agentid', i) as number;
-					const userid = this.getNodeParameter('userid', i) as string;
-					const type = this.getNodeParameter('type', i) as string;
-
-					const templateDataJson = this.getNodeParameter(type, i) as string;
-					let templateData: IDataObject;
-					try {
-						templateData = typeof templateDataJson === 'string' ? JSON.parse(templateDataJson) : templateDataJson;
-					} catch {
-						throw new Error(`${type}模版数据JSON格式错误，请检查JSON语法`);
-					}
-
-					const body: IDataObject = {
-						agentid,
-						userid,
-						type,
-						[type]: templateData,
-					};
-
-					responseData = await weComApiRequest.call(
-						this,
-						'POST',
-						'/cgi-bin/agent/set_workbench_data',
-						body,
-					);
-					break;
-				}
-
-				// 批量设置用户工作台数据
+				case 'setWorkbenchData':
 				case 'batchSetWorkbenchData': {
 					const agentid = this.getNodeParameter('agentid', i) as number;
-					const useridListStr = this.getNodeParameter('userid_list', i) as string;
 					const type = this.getNodeParameter('type', i) as string;
-
-					// 解析用户ID列表
-					const userid_list = useridListStr.split(',').map(id => id.trim()).filter(id => id);
-
-					const templateDataJson = this.getNodeParameter(type, i) as string;
-					let templateData: IDataObject;
+					let templateData: IDataObject = {};
+					if (type === 'keydata') {
+						const collection = this.getNodeParameter('keydataItems', i, {}) as IDataObject;
+						templateData = {
+							items: ((collection?.items as IDataObject[]) || [])
+								.filter((it) => it.key)
+								.slice(0, 4)
+								.map((it) => {
+									const item: IDataObject = { key: it.key, data: it.data || '' };
+									if (it.jump_url) item.jump_url = it.jump_url;
+									if (it.pagepath) item.pagepath = it.pagepath;
+									return item;
+								}),
+						};
+					} else if (type === 'image') {
+						const url = this.getNodeParameter('image_url', i, '') as string;
+						const jump_url = this.getNodeParameter('image_jump_url', i, '') as string;
+						const pagepath = this.getNodeParameter('image_pagepath', i, '') as string;
+						if (url) templateData.url = url;
+						if (jump_url) templateData.jump_url = jump_url;
+						if (pagepath) templateData.pagepath = pagepath;
+					} else if (type === 'list') {
+						const collection = this.getNodeParameter('listItems', i, {}) as IDataObject;
+						templateData = {
+							items: ((collection?.items as IDataObject[]) || [])
+								.filter((it) => it.title)
+								.slice(0, 3)
+								.map((it) => {
+									const item: IDataObject = { title: it.title };
+									if (it.jump_url) item.jump_url = it.jump_url;
+									if (it.pagepath) item.pagepath = it.pagepath;
+									return item;
+								}),
+						};
+					} else if (type === 'webview') {
+						const url = this.getNodeParameter('webview_url', i, '') as string;
+						const jump_url = this.getNodeParameter('webview_jump_url', i, '') as string;
+						if (url) templateData.url = url;
+						if (jump_url) templateData.jump_url = jump_url;
+					}
 					try {
-						templateData = typeof templateDataJson === 'string' ? JSON.parse(templateDataJson) : templateDataJson;
+						const extra = JSON.parse(
+							this.getNodeParameter('templateExtraJson', i, '{}') as string,
+						) as IDataObject;
+						if (extra && typeof extra === 'object') Object.assign(templateData, extra);
 					} catch {
-						throw new Error(`${type}模版数据JSON格式错误，请检查JSON语法`);
+						/* ignore */
 					}
 
-					const body: IDataObject = {
-						agentid,
-						userid_list,
-						data: {
-							type,
-							[type]: templateData,
-						},
-					};
-
-					responseData = await weComApiRequest.call(
-						this,
-						'POST',
-						'/cgi-bin/agent/batch_set_workbench_data',
-						body,
-					);
+					if (operation === 'setWorkbenchData') {
+						const userid = this.getNodeParameter('userid', i) as string;
+						responseData = await weComApiRequest.call(
+							this,
+							'POST',
+							'/cgi-bin/agent/set_workbench_data',
+							{ agentid, userid, type, [type]: templateData },
+						);
+					} else {
+						const useridListStr = this.getNodeParameter('userid_list', i) as string;
+						const userid_list = useridListStr
+							.split(',')
+							.map((id) => id.trim())
+							.filter((id) => id);
+						responseData = await weComApiRequest.call(
+							this,
+							'POST',
+							'/cgi-bin/agent/batch_set_workbench_data',
+							{
+								agentid,
+								userid_list,
+								data: { type, [type]: templateData },
+							},
+						);
+					}
 					break;
 				}
 

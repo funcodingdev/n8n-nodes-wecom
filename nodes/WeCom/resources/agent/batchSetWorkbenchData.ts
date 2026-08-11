@@ -1,9 +1,6 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-const showOnlyBatchSetWorkbenchData = {
-	resource: ['agent'],
-	operation: ['batchSetWorkbenchData'],
-};
+const showOnly = { resource: ['agent'], operation: ['batchSetWorkbenchData'] };
 
 export const batchSetWorkbenchDataDescription: INodeProperties[] = [
 	{
@@ -12,10 +9,7 @@ export const batchSetWorkbenchDataDescription: INodeProperties[] = [
 		type: 'number',
 		required: true,
 		default: 0,
-		displayOptions: {
-			show: showOnlyBatchSetWorkbenchData,
-		},
-		description: '企业应用的唯一标识',
+		displayOptions: { show: showOnly },
 	},
 	{
 		displayName: '用户ID列表',
@@ -23,10 +17,9 @@ export const batchSetWorkbenchDataDescription: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		default: '',
-		displayOptions: {
-			show: showOnlyBatchSetWorkbenchData,
-		},
-		description: '需要设置的用户userid列表，用逗号分隔。多个用户ID用逗号分隔，最多1000个',
+		placeholder: 'zhangsan,lisi',
+		displayOptions: { show: showOnly },
+		description: '逗号分隔',
 	},
 	{
 		displayName: '模版类型',
@@ -34,100 +27,100 @@ export const batchSetWorkbenchDataDescription: INodeProperties[] = [
 		type: 'options',
 		required: true,
 		options: [
-			{
-				name: '关键数据型',
-				value: 'keydata',
-			},
-			{
-				name: '图片型',
-				value: 'image',
-			},
-			{
-				name: '列表型',
-				value: 'list',
-			},
-			{
-				name: 'Webview型',
-				value: 'webview',
-			},
+			{ name: '关键数据型', value: 'keydata' },
+			{ name: '图片型', value: 'image' },
+			{ name: '列表型', value: 'list' },
+			{ name: 'Webview型', value: 'webview' },
 		],
 		default: 'keydata',
-		displayOptions: {
-			show: showOnlyBatchSetWorkbenchData,
-		},
-		description: '工作台展示模版类型',
+		displayOptions: { show: showOnly },
+	},
+
+	{
+		displayName: '关键数据项',
+		name: 'keydataItems',
+		type: 'fixedCollection',
+		displayOptions: { show: { ...showOnly, type: ['keydata'] } },
+		default: {},
+		placeholder: '添加数据项',
+		typeOptions: { multipleValues: true },
+		description: '最多 4 项',
+		options: [
+			{
+				displayName: '数据项',
+				name: 'items',
+				values: [
+					{ displayName: '名称', name: 'key', type: 'string', default: '' },
+					{ displayName: '数值', name: 'data', type: 'string', default: '' },
+					{ displayName: '跳转URL', name: 'jump_url', type: 'string', default: '' },
+					{ displayName: '小程序路径', name: 'pagepath', type: 'string', default: '' },
+				],
+			},
+		],
 	},
 	{
-		displayName: '关键数据型配置（JSON）',
-		name: 'keydata',
-		type: 'json',
-		default: `{
-  "items": [
-    {
-      "key": "待审批",
-      "data": "2",
-      "jump_url": "http://www.example.com"
-    }
-  ]
-}`,
-		displayOptions: {
-			show: {
-				...showOnlyBatchSetWorkbenchData,
-				type: ['keydata'],
-			},
-		},
-		description: '关键数据型模版数据。items数组不超过4个',
+		displayName: '图片URL',
+		name: 'image_url',
+		type: 'string',
+		displayOptions: { show: { ...showOnly, type: ['image'] } },
+		default: '',
 	},
 	{
-		displayName: '图片型配置（JSON）',
-		name: 'image',
-		type: 'json',
-		default: `{
-  "url": "https://example.com/image.png",
-  "jump_url": "http://www.example.com"
-}`,
-		displayOptions: {
-			show: {
-				...showOnlyBatchSetWorkbenchData,
-				type: ['image'],
-			},
-		},
-		description: '图片型模版数据。图片最佳比例为3.35:1',
+		displayName: '图片跳转URL',
+		name: 'image_jump_url',
+		type: 'string',
+		displayOptions: { show: { ...showOnly, type: ['image'] } },
+		default: '',
 	},
 	{
-		displayName: '列表型配置（JSON）',
-		name: 'list',
-		type: 'json',
-		default: `{
-  "items": [
-    {
-      "title": "标题1",
-      "jump_url": "http://www.example.com"
-    }
-  ]
-}`,
-		displayOptions: {
-			show: {
-				...showOnlyBatchSetWorkbenchData,
-				type: ['list'],
-			},
-		},
-		description: '列表型模版数据。items数组不超过3个',
+		displayName: '图片小程序路径',
+		name: 'image_pagepath',
+		type: 'string',
+		displayOptions: { show: { ...showOnly, type: ['image'] } },
+		default: '',
 	},
 	{
-		displayName: 'Webview型配置（JSON）',
-		name: 'webview',
-		type: 'json',
-		default: `{
-  "url": "http://www.example.com",
-  "jump_url": "http://www.example.com"
-}`,
-		displayOptions: {
-			show: {
-				...showOnlyBatchSetWorkbenchData,
-				type: ['webview'],
+		displayName: '列表项',
+		name: 'listItems',
+		type: 'fixedCollection',
+		displayOptions: { show: { ...showOnly, type: ['list'] } },
+		default: {},
+		placeholder: '添加列表项',
+		typeOptions: { multipleValues: true },
+		description: '最多 3 项',
+		options: [
+			{
+				displayName: '列表项',
+				name: 'items',
+				values: [
+					{ displayName: '标题', name: 'title', type: 'string', default: '' },
+					{ displayName: '跳转URL', name: 'jump_url', type: 'string', default: '' },
+					{ displayName: '小程序路径', name: 'pagepath', type: 'string', default: '' },
+				],
 			},
-		},
-		description: 'Webview型模版数据。height可选single_row或double_row',
+		],
 	},
+	{
+		displayName: 'Webview URL',
+		name: 'webview_url',
+		type: 'string',
+		displayOptions: { show: { ...showOnly, type: ['webview'] } },
+		default: '',
+	},
+	{
+		displayName: 'Webview 跳转URL',
+		name: 'webview_jump_url',
+		type: 'string',
+		displayOptions: { show: { ...showOnly, type: ['webview'] } },
+		default: '',
+	},
+	{
+		displayName: '模版扩展JSON',
+		name: 'templateExtraJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '{}',
+		description: '合并进对应 type 配置，JSON 优先',
+	},
+
 ];
