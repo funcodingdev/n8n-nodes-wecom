@@ -383,6 +383,35 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		description: 'true 举手，false 放下',
 	},
 	{
+		displayName: '等候室操作类型',
+		name: 'waiting_operate_type',
+		type: 'options',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['rcManageWaitingRoom'] },
+		},
+		options: [
+			{ name: '等候室成员移入会议', value: 1 },
+			{ name: '会中成员移入等候室', value: 2 },
+			{ name: '等候室成员移出等候室', value: 3 },
+		],
+		default: 1,
+		description: 'operate_type',
+	},
+	{
+		displayName: '允许再次入会',
+		name: 'waiting_allow_rejoin',
+		type: 'boolean',
+		displayOptions: {
+			show: {
+				resource: ['meeting'],
+				operation: ['rcManageWaitingRoom'],
+				waiting_operate_type: [3],
+			},
+		},
+		default: true,
+		description: 'allow_rejoin，仅移出等候室时有效',
+	},
+	{
 		displayName: '游标',
 		name: 'cr_cursor',
 		type: 'string',

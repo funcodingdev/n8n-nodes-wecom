@@ -1179,6 +1179,16 @@ export async function executeMeeting(
 					const mra_raise_hand = this.getNodeParameter('mra_raise_hand', i, true) as boolean;
 					body.raise_hand = mra_raise_hand;
 				}
+				if (operation === 'rcManageWaitingRoom') {
+					body.operate_type = this.getNodeParameter('waiting_operate_type', i, 1) as number;
+					if (body.operate_type === 3) {
+						body.allow_rejoin = this.getNodeParameter(
+							'waiting_allow_rejoin',
+							i,
+							true,
+						) as boolean;
+					}
+				}
 				if (vip_jobid) body.jobid = vip_jobid;
 				if (
 					[
@@ -1209,8 +1219,13 @@ export async function executeMeeting(
 					} catch {
 						// ignore
 					}
-					if (operation === 'rcSetNicknames') body.operated_users = users;
-					else body.operated_user = users;
+					// set_nicknames / manage_waiting_room_users 用 operated_users；
+					// close_screen_share / switch_user_video 用 operated_user
+					if (operation === 'rcSetNicknames' || operation === 'rcManageWaitingRoom') {
+						body.operated_users = users;
+					} else {
+						body.operated_user = users;
+					}
 				}
 				if (operation === 'setGuests') {
 					const guestsCollection = this.getNodeParameter(
