@@ -23,6 +23,7 @@ import { licenseDescription } from '../WeCom/resources/license';
 import { paytoolDescription } from '../WeCom/resources/paytool';
 import { externalpayDescription } from '../WeCom/resources/externalpay';
 import { miniapppayDescription } from '../WeCom/resources/miniapppay';
+import { chatdataDescription } from '../WeCom/resources/chatdata';
 import { promotionQrcodeDescription } from '../WeCom/resources/promotionQrcode';
 import { accountIdDescription } from '../WeCom/resources/accountId';
 import { fileDescription } from '../WeCom/resources/file';
@@ -43,6 +44,7 @@ import { executeLicense } from '../WeCom/resources/license/execute';
 import { executePaytool } from '../WeCom/resources/paytool/execute';
 import { executeExternalpay } from '../WeCom/resources/externalpay/execute';
 import { executeMiniapppay } from '../WeCom/resources/miniapppay/execute';
+import { executeChatdata } from '../WeCom/resources/chatdata/execute';
 import { executePromotionQrcode } from '../WeCom/resources/promotionQrcode/execute';
 import { executeAccountId } from '../WeCom/resources/accountId/execute';
 import { executeFile } from '../WeCom/resources/file/execute';
@@ -85,6 +87,7 @@ export class WeComBase implements INodeType {
 							'security',
 							'externalpay',
 							'miniapppay',
+							'chatdata',
 						],
 					},
 				},
@@ -265,6 +268,11 @@ export class WeComBase implements INodeType {
 						description: '小程序接入对外收款（下单、退款、账单）',
 					},
 					{
+						name: '数据与智能专区',
+						value: 'chatdata',
+						description: '数据与智能专区（公钥、回调、调用专区程序、调试模式）',
+					},
+					{
 						name: '第三方应用推广二维码',
 						value: 'promotionQrcode',
 						description: '第三方应用推广二维码（获取注册码）',
@@ -303,6 +311,7 @@ export class WeComBase implements INodeType {
 			...paytoolDescription,
 			...externalpayDescription,
 			...miniapppayDescription,
+			...chatdataDescription,
 			...promotionQrcodeDescription,
 			...accountIdDescription,
 			...fileDescription,
@@ -501,6 +510,8 @@ export class WeComBase implements INodeType {
 				returnData = await executeExternalpay.call(this, operation, items);
 			} else if (resource === 'miniapppay') {
 				returnData = await executeMiniapppay.call(this, operation, items);
+			} else if (resource === 'chatdata') {
+				returnData = await executeChatdata.call(this, operation, items);
 			} else if (resource === 'promotionQrcode') {
 				returnData = await executePromotionQrcode.call(this, operation, items);
 			} else if (resource === 'accountId') {
