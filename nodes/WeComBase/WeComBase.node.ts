@@ -24,6 +24,7 @@ import { paytoolDescription } from '../WeCom/resources/paytool';
 import { externalpayDescription } from '../WeCom/resources/externalpay';
 import { miniapppayDescription } from '../WeCom/resources/miniapppay';
 import { chatdataDescription } from '../WeCom/resources/chatdata';
+import { msgauditDescription } from '../WeCom/resources/msgaudit';
 import { promotionQrcodeDescription } from '../WeCom/resources/promotionQrcode';
 import { accountIdDescription } from '../WeCom/resources/accountId';
 import { fileDescription } from '../WeCom/resources/file';
@@ -45,6 +46,7 @@ import { executePaytool } from '../WeCom/resources/paytool/execute';
 import { executeExternalpay } from '../WeCom/resources/externalpay/execute';
 import { executeMiniapppay } from '../WeCom/resources/miniapppay/execute';
 import { executeChatdata } from '../WeCom/resources/chatdata/execute';
+import { executeMsgaudit } from '../WeCom/resources/msgaudit/execute';
 import { executePromotionQrcode } from '../WeCom/resources/promotionQrcode/execute';
 import { executeAccountId } from '../WeCom/resources/accountId/execute';
 import { executeFile } from '../WeCom/resources/file/execute';
@@ -88,6 +90,7 @@ export class WeComBase implements INodeType {
 							'externalpay',
 							'miniapppay',
 							'chatdata',
+							'msgaudit',
 						],
 					},
 				},
@@ -273,6 +276,11 @@ export class WeComBase implements INodeType {
 						description: '数据与智能专区（公钥、回调、调用专区程序、调试模式）',
 					},
 					{
+						name: '会话内容存档',
+						value: 'msgaudit',
+						description: '会话内容存档（开启成员、同意情况、内部群、机器人）',
+					},
+					{
 						name: '第三方应用推广二维码',
 						value: 'promotionQrcode',
 						description: '第三方应用推广二维码（获取注册码）',
@@ -312,6 +320,7 @@ export class WeComBase implements INodeType {
 			...externalpayDescription,
 			...miniapppayDescription,
 			...chatdataDescription,
+			...msgauditDescription,
 			...promotionQrcodeDescription,
 			...accountIdDescription,
 			...fileDescription,
@@ -512,6 +521,8 @@ export class WeComBase implements INodeType {
 				returnData = await executeMiniapppay.call(this, operation, items);
 			} else if (resource === 'chatdata') {
 				returnData = await executeChatdata.call(this, operation, items);
+			} else if (resource === 'msgaudit') {
+				returnData = await executeMsgaudit.call(this, operation, items);
 			} else if (resource === 'promotionQrcode') {
 				returnData = await executePromotionQrcode.call(this, operation, items);
 			} else if (resource === 'accountId') {

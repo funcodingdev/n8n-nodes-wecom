@@ -848,7 +848,7 @@ export async function executeWedoc(
 			} else if (operation === 'getDocInfo') {
 				const docid = this.getNodeParameter('docid', i) as string;
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/wedoc/doc_get_info', {
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/wedoc/get_doc_base_info', {
 					docid,
 				});
 			}
@@ -1135,7 +1135,7 @@ export async function executeWedoc(
 				response = await weComApiRequest.call(
 					this,
 					'POST',
-					'/cgi-bin/wedoc/smartsheet/delete_view',
+					'/cgi-bin/wedoc/smartsheet/delete_views',
 					{
 						docid,
 						sheet_id,
@@ -1753,7 +1753,7 @@ export async function executeWedoc(
 					safe_setting.watermark = { enable: false };
 				}
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/wedoc/mod_doc_safe_setting', {
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/wedoc/mod_doc_safty_setting', {
 					docid,
 					safe_setting,
 				});
@@ -1996,7 +1996,7 @@ export async function executeWedoc(
 				response = await weComApiRequest.call(
 					this,
 					'POST',
-					'/cgi-bin/wedoc/smartsheet/set_sheet_permissions',
+					'/cgi-bin/wedoc/smartsheet/content_priv/update_sheet_priv',
 					body,
 				);
 			}
@@ -2233,7 +2233,7 @@ export async function executeWedoc(
 					form_info.setting = formSetting;
 				}
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/wedoc/mod_form', {
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/wedoc/modify_form', {
 					formid,
 					form_info,
 				});
@@ -2318,7 +2318,7 @@ export async function executeWedoc(
 			else if (operation === 'allocateAdvancedAccount') {
 				const userid_list = this.getNodeParameter('userid_list', i) as string;
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/wedoc/vip_batch_add', {
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/wedoc/vip/batch_add', {
 					userid_list: userid_list
 						.split(',')
 						.map((id) => id.trim())
@@ -2327,7 +2327,7 @@ export async function executeWedoc(
 			} else if (operation === 'deallocateAdvancedAccount') {
 				const userid_list = this.getNodeParameter('userid_list', i) as string;
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/wedoc/vip_batch_del', {
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/wedoc/vip/batch_del', {
 					userid_list: userid_list
 						.split(',')
 						.map((id) => id.trim())
@@ -2340,7 +2340,7 @@ export async function executeWedoc(
 				const body: IDataObject = { limit };
 				if (cursor) body.cursor = cursor;
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/wedoc/vip_list', body);
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/wedoc/vip/list', body);
 			} else if (operation === 'uploadDocImage') {
 				const docid = this.getNodeParameter('docid', i) as string;
 				const imageSource = this.getNodeParameter('imageSource', i) as string;

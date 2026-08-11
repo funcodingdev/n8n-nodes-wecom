@@ -22,7 +22,13 @@ export async function executeLinkedcorp(
 				const body: IDataObject = { agentid };
 				if (corpid) body.corpid = corpid;
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/linkedcorp/agent/get_perm_list', body);
+				// https://developer.work.weixin.qq.com/document/path/93403
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/corpgroup/corp/list_app_share_info',
+					body,
+				);
 			} else if (operation === 'getLinkedCorpToken') {
 				const business_type = this.getNodeParameter('business_type', i) as string;
 				const corpid = this.getNodeParameter('corpid', i) as string;
@@ -34,7 +40,8 @@ export async function executeLinkedcorp(
 					agentid,
 				};
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/linkedcorp/access_token', body);
+				// https://developer.work.weixin.qq.com/document/path/93359
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/corpgroup/corp/gettoken', body);
 			} else if (operation === 'getMiniProgramSession') {
 				const code = this.getNodeParameter('code', i) as string;
 				const business_type = this.getNodeParameter('business_type', i) as string;
@@ -48,41 +55,91 @@ export async function executeLinkedcorp(
 					agentid,
 				};
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/miniprogram/jscode2session', body);
+				// https://developer.work.weixin.qq.com/document/path/93355
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/miniprogram/transfer_session',
+					body,
+				);
 			} else if (operation === 'getLinkedCustomer') {
 				const customer_type = this.getNodeParameter('customer_type', i) as string;
-				const external_userid = this.getNodeParameter('external_userid', i) as string;
+				const external_userid = this.getNodeParameter('external_userid', i, '') as string;
+				const unionid = this.getNodeParameter('unionid', i, '') as string;
 				const corpid = this.getNodeParameter('corpid', i, '') as string;
 
-				const body: IDataObject = { external_userid };
-				if (corpid) body.corpid = corpid;
-
-				const endpoint = customer_type === 'added'
-					? '/cgi-bin/externalcontact/get_new_external_userid'
-					: '/cgi-bin/externalcontact/unionid_to_external_userid';
-
-				response = await weComApiRequest.call(this, 'POST', endpoint, body);
+				// 已添加客户：external_userid -> pending_id；否则 unionid -> external_userid
+				if (customer_type === 'added') {
+					const body: IDataObject = {
+						external_userid: external_userid
+							? external_userid.split(',').map((id) => id.trim())
+							: [],
+					};
+					if (corpid) body.corpid = corpid;
+					response = await weComApiRequest.call(
+						this,
+						'POST',
+						'/cgi-bin/corpgroup/batch/external_userid_to_pending_id',
+						body,
+					);
+				} else {
+					const body: IDataObject = {
+						unionid: unionid || external_userid,
+					};
+					if (corpid) body.corpid = corpid;
+					response = await weComApiRequest.call(
+						this,
+						'POST',
+						'/cgi-bin/corpgroup/unionid_to_external_userid',
+						body,
+					);
+				}
 			} else if (operation === 'getChainInfo') {
 				const chain_id = this.getNodeParameter('chain_id', i, '') as string;
 
-				const qs: IDataObject = {};
-				if (chain_id) qs.chain_id = chain_id;
-
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/externalcontact/get_chain_group_list', qs);
+				if (chain_id) {
+					// 获取指定上下游详情
+					response = await weComApiRequest.call(
+						this,
+						'POST',
+						'/cgi-bin/corpgroup/corp/get_chain_corpinfo_list',
+						{ chain_id },
+					);
+				} else {
+					// 获取上下游列表
+					response = await weComApiRequest.call(
+						this,
+						'POST',
+						'/cgi-bin/corpgroup/corp/get_chain_list',
+						{},
+					);
+				}
 			} else if (operation === 'batchImportChainContact') {
 				const chain_id = this.getNodeParameter('chain_id', i) as string;
 				const media_ID = this.getNodeParameter('media_ID', i) as string;
 
 				const body: IDataObject = {
 					chain_id,
-					media_ID,
+					media_id: media_ID,
 				};
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/externalcontact/import_chain_contact', body);
+				// https://developer.work.weixin.qq.com/document/path/95821
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/corpgroup/import_chain_contact',
+					body,
+				);
 			} else if (operation === 'getChainAsyncResult') {
 				const jobid = this.getNodeParameter('jobid', i) as string;
 
-				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/externalcontact/get_group_chain_result', {}, { jobid });
+				response = await weComApiRequest.call(
+					this,
+					'GET',
+					'/cgi-bin/corpgroup/getresult',
+					{},
+					{ jobid },
+				);
 			} else if (operation === 'removeChainCorp') {
 				const chain_id = this.getNodeParameter('chain_id', i) as string;
 				const corpid = this.getNodeParameter('corpid', i) as string;
@@ -92,7 +149,12 @@ export async function executeLinkedcorp(
 					corpid,
 				};
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/externalcontact/del_corp_in_chain', body);
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/corpgroup/corp/remove_corp',
+					body,
+				);
 			} else if (operation === 'getCustomUserId') {
 				const chain_id = this.getNodeParameter('chain_id', i) as string;
 				const userid_list = this.getNodeParameter('userid_list', i) as string;
@@ -102,19 +164,34 @@ export async function executeLinkedcorp(
 					userid_list: userid_list.split(',').map((id) => id.trim()),
 				};
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/externalcontact/get_custom_userid', body);
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/corpgroup/corp/get_chain_user_custom_id',
+					body,
+				);
 			} else if (operation === 'getSubCorpChainList') {
 				const corpid = this.getNodeParameter('corpid', i) as string;
 
 				const body: IDataObject = { corpid };
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/externalcontact/get_subcorp_chain_list', body);
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/corpgroup/get_corp_shared_chain_list',
+					body,
+				);
 			} else if (operation === 'getChainRuleList') {
 				const chain_id = this.getNodeParameter('chain_id', i) as string;
 
 				const body: IDataObject = { chain_id };
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/externalcontact/customer/get_rule_list', body);
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/corpgroup/rule/list_ids',
+					body,
+				);
 			} else if (operation === 'deleteChainRule') {
 				const chain_id = this.getNodeParameter('chain_id', i) as string;
 				const rule_id = this.getNodeParameter('rule_id', i) as string;
@@ -124,7 +201,12 @@ export async function executeLinkedcorp(
 					rule_id,
 				};
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/externalcontact/customer/del_rule', body);
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/corpgroup/rule/delete_rule',
+					body,
+				);
 			} else if (operation === 'getChainRuleDetail') {
 				const chain_id = this.getNodeParameter('chain_id', i) as string;
 				const rule_id = this.getNodeParameter('rule_id', i) as string;
@@ -134,7 +216,12 @@ export async function executeLinkedcorp(
 					rule_id,
 				};
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/externalcontact/customer/get_rule_detail', body);
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/corpgroup/rule/get_rule_info',
+					body,
+				);
 			} else if (operation === 'addChainRule') {
 				const chain_id = this.getNodeParameter('chain_id', i) as string;
 				const rule_name = this.getNodeParameter('rule_name', i) as string;
@@ -165,7 +252,7 @@ export async function executeLinkedcorp(
 					},
 				};
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/externalcontact/customer/add_rule', body);
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/corpgroup/rule/add_rule', body);
 			} else if (operation === 'updateChainRule') {
 				const chain_id = this.getNodeParameter('chain_id', i) as string;
 				const rule_id = this.getNodeParameter('rule_id', i) as string;
@@ -204,7 +291,7 @@ export async function executeLinkedcorp(
 					};
 				}
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/externalcontact/customer/update_rule', body);
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/corpgroup/rule/modify_rule', body);
 			} else {
 				response = {};
 			}
