@@ -513,6 +513,7 @@ export class WeComAiBotTrigger implements INodeType {
 		// 保存nonce用于被动回复加密
 		outputData._nonce = nonce;
 		outputData._timestamp = timestamp;
+		outputData._msgSignature = msg_signature;
 
 		return {
 			workflowData: [
