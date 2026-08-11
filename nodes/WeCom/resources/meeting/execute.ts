@@ -1621,9 +1621,12 @@ export async function executeMeeting(
 					}
 				}
 				if (operation === 'getQuality') {
+					// https://developer.work.weixin.qq.com/document/path/98821
 					const quality_start_time = this.getNodeParameter('quality_start_time', i, 0) as number;
 					const sub_meetingid = this.getNodeParameter('sub_meetingid', i, '') as string;
-					if (quality_start_time) body.start_time = quality_start_time;
+					// start_time 必填：默认取近 1 小时起点
+					body.start_time =
+						quality_start_time || Math.floor(Date.now() / 1000) - 3600;
 					if (sub_meetingid) body.sub_meetingid = sub_meetingid;
 				}
 				if (operation === 'checkDeviceInMeeting') {

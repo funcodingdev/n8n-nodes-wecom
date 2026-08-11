@@ -510,11 +510,12 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		displayName: '质量查询开始时间',
 		name: 'quality_start_time',
 		type: 'number',
+		required: true,
 		displayOptions: {
 			show: { resource: ['meeting'], operation: ['getQuality'] },
 		},
 		default: 0,
-		description: 'start_time，秒；查过去 7 天内',
+		description: 'start_time（秒），必填；可查询过去 7 天内；0 时默认近 1 小时',
 	},
 	{
 		displayName: '周期性子会议ID',
@@ -656,7 +657,8 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: 20,
-		description: 'getQuality 最大 50',
+		typeOptions: { minValue: 1, maxValue: 50 },
+		description: '分页大小；getQuality 最大 50',
 	},
 	{
 		displayName: '扩展请求JSON',
