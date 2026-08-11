@@ -295,15 +295,18 @@ export async function executeMeeting(
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/get_info', body);
 			} else if (operation === 'getUserMeetings') {
+				// https://developer.work.weixin.qq.com/document/path/98150
 				const userid = this.getNodeParameter('userid', i) as string;
 				const cursor = this.getNodeParameter('cursor', i, '') as string;
-				const limit = this.getNodeParameter('limit', i, 20) as number;
+				const limit = this.getNodeParameter('limit', i, 50) as number;
+				const begin_time = this.getNodeParameter('begin_time', i, 0) as number;
+				const end_time = this.getNodeParameter('end_time', i, 0) as number;
 
-				const body: IDataObject = { userid, limit };
+				const body: IDataObject = { userid, limit: Math.min(limit || 50, 100) };
 				if (cursor) body.cursor = cursor;
+				if (begin_time) body.begin_time = begin_time;
+				if (end_time) body.end_time = end_time;
 
-				// 官方路径：get_user_meetingid
-				// https://developer.work.weixin.qq.com/document/path/98150
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/get_user_meetingid', body);
 			}
 			// 会议统计管理
