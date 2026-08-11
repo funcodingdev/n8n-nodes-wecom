@@ -32,7 +32,12 @@ export async function executeApproval(
 					1,
 				) as number;
 				const choose_department = this.getNodeParameter('choose_department', i, 0) as number;
-				const apply_data_json = this.getNodeParameter('apply_data_json', i) as string;
+				const apply_data_json = this.getNodeParameter('apply_data_json', i, '{}') as string;
+				const applyContentsCollection = this.getNodeParameter(
+					'applyContentsCollection',
+					i,
+					{},
+				) as IDataObject;
 				const summaryCollection = this.getNodeParameter('summaryLines', i, {}) as IDataObject;
 				const processCollection = this.getNodeParameter(
 					'processNodeCollection',
@@ -48,10 +53,32 @@ export async function executeApproval(
 				};
 				if (choose_department) body.choose_department = choose_department;
 
+				const formContents = ((applyContentsCollection?.contents as IDataObject[]) || [])
+					.filter((c) => c.id)
+					.map((c) => {
+						const control = String(c.control || 'Text');
+						const value: IDataObject = {};
+						if (control === 'Money' && c.new_money) {
+							value.new_money = String(c.new_money);
+						} else if (control === 'Number') {
+							value.new_number = String(c.text ?? '');
+						} else {
+							value.text = String(c.text ?? '');
+						}
+						return { control, id: c.id, value };
+					});
+
 				try {
-					const apply_data = JSON.parse(apply_data_json || '{}');
-					body.apply_data = apply_data;
+					const apply_data = JSON.parse(apply_data_json || '{}') as IDataObject;
+					if (apply_data && typeof apply_data === 'object' && Object.keys(apply_data).length) {
+						body.apply_data = apply_data;
+					} else if (formContents.length) {
+						body.apply_data = { contents: formContents };
+					} else {
+						throw new Error('请填写申请表单控件值或申请表单数据JSON');
+					}
 				} catch (e) {
+					if ((e as Error).message.includes('请填写')) throw e;
 					throw new Error(`申请表单数据JSON 解析失败: ${(e as Error).message}`);
 				}
 
@@ -166,15 +193,65 @@ export async function executeApproval(
 				// https://developer.work.weixin.qq.com/document/path/97437
 				const template_name_text = this.getNodeParameter('template_name_text', i) as string;
 				const template_name_lang = this.getNodeParameter('template_name_lang', i, 'zh_CN') as string;
-				const template_content_json = this.getNodeParameter('template_content_json', i) as string;
+				const template_content_json = this.getNodeParameter('template_content_json', i, '{}') as string;
 				const templateExtraJson = this.getNodeParameter('templateExtraJson', i, '{}') as string;
+				const controlsCollection = this.getNodeParameter(
+					'templateControlsCollection',
+					i,
+					{},
+				) as IDataObject;
 				const body: IDataObject = {
 					template_name: [{ text: template_name_text, lang: template_name_lang }],
 				};
+
+				const formControls = ((controlsCollection?.controls as IDataObject[]) || []).map(
+					(c, idx) => {
+						const control = String(c.control || 'Text');
+						const id =
+							String(c.id || '').trim() ||
+							`${control}-${String(idx + 1).padStart(2, '0')}`;
+						const property: IDataObject = {
+							control,
+							id,
+							title: [{ text: c.title || control, lang: template_name_lang }],
+							require: c.require === false ? 0 : 1,
+							un_print: c.un_print ? 1 : 0,
+						};
+						if (c.placeholder) {
+							property.placeholder = [
+								{ text: c.placeholder, lang: template_name_lang },
+							];
+						}
+						const config: IDataObject = {};
+						if (control === 'Selector') {
+							const opts = String(c.selector_options || '')
+								.split(',')
+								.map((s) => s.trim())
+								.filter(Boolean)
+								.map((text, oi) => ({
+									key: `option-${oi + 1}`,
+									value: { text, lang: template_name_lang },
+								}));
+							config.selector = {
+								type: c.selector_type || 'single',
+								options: opts,
+							};
+						}
+						return { property, config };
+					},
+				);
+
 				try {
-					const content = JSON.parse(template_content_json || '{}');
-					body.template_content = content;
+					const content = JSON.parse(template_content_json || '{}') as IDataObject;
+					if (content && typeof content === 'object' && Object.keys(content).length) {
+						body.template_content = content;
+					} else if (formControls.length) {
+						body.template_content = { controls: formControls };
+					} else {
+						throw new Error('请填写模板控件表单或模板控件内容JSON');
+					}
 				} catch (e) {
+					if ((e as Error).message.includes('请填写')) throw e;
 					throw new Error(`模板控件内容JSON 解析失败: ${(e as Error).message}`);
 				}
 				try {
@@ -197,14 +274,57 @@ export async function executeApproval(
 				const template_name_lang = this.getNodeParameter('template_name_lang', i, 'zh_CN') as string;
 				const template_content_json = this.getNodeParameter('template_content_json', i, '{}') as string;
 				const templateExtraJson = this.getNodeParameter('templateExtraJson', i, '{}') as string;
+				const controlsCollection = this.getNodeParameter(
+					'templateControlsCollection',
+					i,
+					{},
+				) as IDataObject;
 				const body: IDataObject = { template_id };
 				if (template_name_text) {
 					body.template_name = [{ text: template_name_text, lang: template_name_lang }];
 				}
+				const formControls = ((controlsCollection?.controls as IDataObject[]) || []).map(
+					(c, idx) => {
+						const control = String(c.control || 'Text');
+						const id =
+							String(c.id || '').trim() ||
+							`${control}-${String(idx + 1).padStart(2, '0')}`;
+						const property: IDataObject = {
+							control,
+							id,
+							title: [{ text: c.title || control, lang: template_name_lang }],
+							require: c.require === false ? 0 : 1,
+							un_print: c.un_print ? 1 : 0,
+						};
+						if (c.placeholder) {
+							property.placeholder = [
+								{ text: c.placeholder, lang: template_name_lang },
+							];
+						}
+						const config: IDataObject = {};
+						if (control === 'Selector') {
+							const opts = String(c.selector_options || '')
+								.split(',')
+								.map((s) => s.trim())
+								.filter(Boolean)
+								.map((text, oi) => ({
+									key: `option-${oi + 1}`,
+									value: { text, lang: template_name_lang },
+								}));
+							config.selector = {
+								type: c.selector_type || 'single',
+								options: opts,
+							};
+						}
+						return { property, config };
+					},
+				);
 				try {
-					const content = JSON.parse(template_content_json || '{}');
+					const content = JSON.parse(template_content_json || '{}') as IDataObject;
 					if (content && typeof content === 'object' && Object.keys(content).length) {
 						body.template_content = content;
+					} else if (formControls.length) {
+						body.template_content = { controls: formControls };
 					}
 				} catch (e) {
 					throw new Error(`模板控件内容JSON 解析失败: ${(e as Error).message}`);

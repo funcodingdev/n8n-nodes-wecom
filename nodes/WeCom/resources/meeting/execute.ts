@@ -400,12 +400,39 @@ export async function executeMeeting(
 					i,
 					true,
 				) as boolean;
+				const enrollQuestionsCollection = this.getNodeParameter(
+					'enrollQuestionsCollection',
+					i,
+					{},
+				) as IDataObject;
 				const body: IDataObject = {
 					meetingid,
 					approve_type: enroll_approve_type,
 					is_collect_question: enroll_is_collect_question,
 					no_registration_needed_for_staff: enroll_no_registration_needed_for_staff,
 				};
+				const formQuestions = ((enrollQuestionsCollection?.questions as IDataObject[]) || [])
+					.map((q) => {
+						const item: IDataObject = {
+							is_required: q.is_required ?? 1,
+						};
+						if (q.special_type && Number(q.special_type) !== 1) {
+							item.special_type = q.special_type;
+						} else {
+							item.special_type = 1;
+							if (q.question_type) item.question_type = q.question_type;
+							if (q.question_title) item.question_title = q.question_title;
+							const opts = String(q.option_contents || '')
+								.split(',')
+								.map((s) => s.trim())
+								.filter(Boolean)
+								.slice(0, 8)
+								.map((content) => ({ content }));
+							if (opts.length) item.option_list = opts;
+						}
+						return item;
+					});
+				if (formQuestions.length) body.question_list = formQuestions;
 				try {
 					Object.assign(body, JSON.parse(enrollConfigJson || '{}') as IDataObject);
 					body.meetingid = meetingid;
@@ -419,24 +446,36 @@ export async function executeMeeting(
 				const enroll_status = this.getNodeParameter('enroll_status', i, 0) as number;
 				const cursor = this.getNodeParameter('cursor', i, '') as string;
 				const limit = this.getNodeParameter('limit', i, 20) as number;
-				const body: IDataObject = { meetingid, limit };
-				if (enroll_status) body.status = enroll_status;
+				const body: IDataObject = { meetingid, limit, status: enroll_status };
 				if (cursor) body.cursor = cursor;
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/enroll/list', body);
 			} else if (operation === 'approveEnroll') {
 				const meetingid = this.getNodeParameter('meetingid', i) as string;
 				const enroll_id_list = this.getNodeParameter('enroll_id_list', i, '') as string;
-				const enroll_approve_status = this.getNodeParameter('enroll_approve_status', i, 1) as number;
+				// 兼容旧字段 enroll_approve_status；官方为 action：1取消批准 2拒绝 3批准
+				let enroll_approve_action = this.getNodeParameter(
+					'enroll_approve_action',
+					i,
+					0,
+				) as number;
+				if (!enroll_approve_action) {
+					const legacy = this.getNodeParameter('enroll_approve_status', i, 0) as number;
+					// 旧枚举 1=通过→3, 2=驳回→2
+					if (legacy === 1) enroll_approve_action = 3;
+					else if (legacy === 2) enroll_approve_action = 2;
+					else enroll_approve_action = 3;
+				}
 				const approveJson = this.getNodeParameter('approveJson', i, '{}') as string;
 				const body: IDataObject = {
 					meetingid,
-					status: enroll_approve_status,
+					action: enroll_approve_action,
 				};
 				const ids = enroll_id_list.split(',').map((s) => s.trim()).filter(Boolean);
 				if (ids.length) body.enroll_id_list = ids;
 				try {
 					Object.assign(body, JSON.parse(approveJson || '{}') as IDataObject);
 					body.meetingid = meetingid;
+					if (!body.action) body.action = enroll_approve_action;
 				} catch {
 					// ignore
 				}
@@ -828,6 +867,34 @@ export async function executeMeeting(
 						i,
 						false,
 					) as boolean;
+					const webinarQCollection = this.getNodeParameter(
+						'webinarEnrollQuestionsCollection',
+						i,
+						{},
+					) as IDataObject;
+					const formQuestions = ((webinarQCollection?.questions as IDataObject[]) || []).map(
+						(q) => {
+							const item: IDataObject = {
+								is_required: q.is_required ?? 1,
+							};
+							if (q.special_type && Number(q.special_type) !== 1) {
+								item.special_type = q.special_type;
+							} else {
+								item.special_type = 1;
+								if (q.question_type) item.question_type = q.question_type;
+								if (q.question_title) item.question_title = q.question_title;
+								const opts = String(q.option_contents || '')
+									.split(',')
+									.map((s) => s.trim())
+									.filter(Boolean)
+									.slice(0, 8)
+									.map((content) => ({ content }));
+								if (opts.length) item.option_list = opts;
+							}
+							return item;
+						},
+					);
+					if (formQuestions.length) body.question_list = formQuestions;
 				}
 				if (operation === 'webinarEnrollApprove' || operation === 'webinarEnrollDelete') {
 					const enroll_ids = (

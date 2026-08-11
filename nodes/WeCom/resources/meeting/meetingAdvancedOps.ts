@@ -150,11 +150,11 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 			show: { resource: ['meeting'], operation: ['setEnrollConfig'] },
 		},
 		options: [
-			{ name: '不收集', value: 0 },
-			{ name: '收集', value: 1 },
+			{ name: '不收集', value: 1 },
+			{ name: '收集', value: 2 },
 		],
 		default: 1,
-		description: 'is_collect_question',
+		description: 'is_collect_question：1 不收集，2 收集',
 	},
 	{
 		displayName: '企业成员无需报名',
@@ -167,6 +167,80 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 		description: 'no_registration_needed_for_staff',
 	},
 	{
+		displayName: '报名问题列表',
+		name: 'enrollQuestionsCollection',
+		type: 'fixedCollection',
+		displayOptions: {
+			show: {
+				resource: ['meeting'],
+				operation: ['setEnrollConfig'],
+				enroll_is_collect_question: [2],
+			},
+		},
+		default: {},
+		placeholder: '添加问题',
+		typeOptions: { multipleValues: true },
+		description: 'question_list，仅收集问题时生效',
+		options: [
+			{
+				displayName: '问题',
+				name: 'questions',
+				values: [
+					{
+						displayName: '是否必填',
+						name: 'is_required',
+						type: 'options',
+						options: [
+							{ name: '否', value: 1 },
+							{ name: '是', value: 2 },
+						],
+						default: 1,
+					},
+					{
+						displayName: '问题类型',
+						name: 'question_type',
+						type: 'options',
+						options: [
+							{ name: '单选', value: 1 },
+							{ name: '多选', value: 2 },
+							{ name: '简答', value: 3 },
+						],
+						default: 3,
+						description: 'special_type 非「无」时无效',
+					},
+					{
+						displayName: '特殊问题类型',
+						name: 'special_type',
+						type: 'options',
+						options: [
+							{ name: '无', value: 1 },
+							{ name: '手机号', value: 2 },
+							{ name: '邮箱', value: 3 },
+							{ name: '姓名', value: 4 },
+							{ name: '公司名称', value: 5 },
+						],
+						default: 1,
+					},
+					{
+						displayName: '问题标题',
+						name: 'question_title',
+						type: 'string',
+						default: '',
+						description: '最多 40 字符；特殊问题时无效',
+					},
+					{
+						displayName: '选项(逗号分隔)',
+						name: 'option_contents',
+						type: 'string',
+						default: '',
+						placeholder: '选项A,选项B',
+						description: '单选/多选时有效，最多 8 个',
+					},
+				],
+			},
+		],
+	},
+	{
 		displayName: '报名配置扩展JSON',
 		name: 'enrollConfigJson',
 		type: 'json',
@@ -174,17 +248,23 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 			show: { resource: ['meeting'], operation: ['setEnrollConfig'] },
 		},
 		default: '{}',
-		description: '其余 set_config 字段，与上方合并',
+		description: '其余 set_config 字段（含完整 question_list）与上方合并，JSON 优先',
 	},
 	{
 		displayName: '报名状态',
 		name: 'enroll_status',
-		type: 'number',
+		type: 'options',
 		displayOptions: {
 			show: { resource: ['meeting'], operation: ['listEnroll'] },
 		},
+		options: [
+			{ name: '全部', value: 0 },
+			{ name: '待审批', value: 1 },
+			{ name: '已拒绝', value: 2 },
+			{ name: '已批准', value: 3 },
+		],
 		default: 0,
-		description: 'status 筛选，0 表示不传（以官方枚举为准）',
+		description: 'status：0 全部 / 1 待审批 / 2 已拒绝 / 3 已批准',
 	},
 	{
 		displayName: '游标',
@@ -222,18 +302,19 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 		description: 'enroll_id_list，逗号分隔',
 	},
 	{
-		displayName: '审批结果',
-		name: 'enroll_approve_status',
+		displayName: '审批动作',
+		name: 'enroll_approve_action',
 		type: 'options',
 		displayOptions: {
 			show: { resource: ['meeting'], operation: ['approveEnroll'] },
 		},
 		options: [
-			{ name: '通过', value: 1 },
-			{ name: '驳回', value: 2 },
+			{ name: '批准', value: 3 },
+			{ name: '拒绝', value: 2 },
+			{ name: '取消批准', value: 1 },
 		],
-		default: 1,
-		description: 'status',
+		default: 3,
+		description: 'action：1 取消批准(回待审批) / 2 拒绝 / 3 批准',
 	},
 	{
 		displayName: '审批扩展JSON',
@@ -243,7 +324,7 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 			show: { resource: ['meeting'], operation: ['approveEnroll'] },
 		},
 		default: '{}',
-		description: '其余审批字段，与上方合并',
+		description: '其余审批字段，与上方合并（JSON 优先）',
 	},
 	// --- Rooms ---
 	{

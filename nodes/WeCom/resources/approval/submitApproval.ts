@@ -46,14 +46,67 @@ export const submitApprovalDescription: INodeProperties[] = [
 		description: 'choose_department，不填默认为主部门',
 	},
 	{
+		displayName: '申请表单控件值',
+		name: 'applyContentsCollection',
+		type: 'fixedCollection',
+		displayOptions: { show: showOnlyForSubmitApproval },
+		default: {},
+		placeholder: '添加控件值',
+		typeOptions: { multipleValues: true },
+		description: '简易 Text/Textarea/Number 等；复杂结构用下方 JSON',
+		options: [
+			{
+				displayName: '控件',
+				name: 'contents',
+				values: [
+					{
+						displayName: '控件类型',
+						name: 'control',
+						type: 'options',
+						options: [
+							{ name: '文本 Text', value: 'Text' },
+							{ name: '多行文本 Textarea', value: 'Textarea' },
+							{ name: '数字 Number', value: 'Number' },
+							{ name: '金额 Money', value: 'Money' },
+							{ name: '电话 PhoneNumber', value: 'PhoneNumber' },
+							{ name: '说明 Tips', value: 'Tips' },
+						],
+						default: 'Text',
+					},
+					{
+						displayName: '控件ID',
+						name: 'id',
+						type: 'string',
+						default: '',
+						placeholder: 'Text-1',
+						description: '与模板详情中的 id 一致',
+					},
+					{
+						displayName: '文本/数值',
+						name: 'text',
+						type: 'string',
+						default: '',
+						description: 'Text/Textarea 用 text；Number/Money 也写在此',
+					},
+					{
+						displayName: '新金钱额(分)',
+						name: 'new_money',
+						type: 'string',
+						default: '',
+						description: 'Money 控件可用 new_money（字符串分）',
+					},
+				],
+			},
+		],
+	},
+	{
 		displayName: '申请表单数据JSON',
 		name: 'apply_data_json',
 		type: 'json',
-		required: true,
 		displayOptions: { show: showOnlyForSubmitApproval },
-		default:
-			'{\n  "contents": [\n    {\n      "control": "Text",\n      "id": "Text-1",\n      "value": {\n        "text": "填写内容"\n      }\n    }\n  ]\n}',
-		description: 'apply_data，控件 id/value 与模板详情一致',
+		default: '{}',
+		description:
+			'完整 apply_data。非空对象时优先；空对象则使用上方控件值表单',
 	},
 	{
 		displayName: '摘要行',

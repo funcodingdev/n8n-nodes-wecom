@@ -477,6 +477,77 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		default: false,
 	},
 	{
+		displayName: '研讨会报名问题',
+		name: 'webinarEnrollQuestionsCollection',
+		type: 'fixedCollection',
+		displayOptions: {
+			show: {
+				resource: ['meeting'],
+				operation: ['webinarEnrollSetConfig'],
+				webinar_is_collect_question: [2],
+			},
+		},
+		default: {},
+		placeholder: '添加问题',
+		typeOptions: { multipleValues: true },
+		description: 'question_list',
+		options: [
+			{
+				displayName: '问题',
+				name: 'questions',
+				values: [
+					{
+						displayName: '是否必填',
+						name: 'is_required',
+						type: 'options',
+						options: [
+							{ name: '否', value: 1 },
+							{ name: '是', value: 2 },
+						],
+						default: 1,
+					},
+					{
+						displayName: '问题类型',
+						name: 'question_type',
+						type: 'options',
+						options: [
+							{ name: '单选', value: 1 },
+							{ name: '多选', value: 2 },
+							{ name: '简答', value: 3 },
+						],
+						default: 3,
+					},
+					{
+						displayName: '特殊问题类型',
+						name: 'special_type',
+						type: 'options',
+						options: [
+							{ name: '无', value: 1 },
+							{ name: '手机号', value: 2 },
+							{ name: '邮箱', value: 3 },
+							{ name: '姓名', value: 4 },
+							{ name: '公司名称', value: 5 },
+						],
+						default: 1,
+					},
+					{
+						displayName: '问题标题',
+						name: 'question_title',
+						type: 'string',
+						default: '',
+					},
+					{
+						displayName: '选项(逗号分隔)',
+						name: 'option_contents',
+						type: 'string',
+						default: '',
+						placeholder: '选项A,选项B',
+					},
+				],
+			},
+		],
+	},
+	{
 		displayName: '报名ID列表',
 		name: 'webinar_enroll_id_list',
 		type: 'string',
@@ -522,7 +593,7 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: '{}',
-		description: '其余字段（如 question_list、导入数据）与上方合并',
+		description: '其余字段（完整 question_list、导入数据等）与上方合并，JSON 优先',
 	},
 	{
 		displayName: '会议录制ID',
