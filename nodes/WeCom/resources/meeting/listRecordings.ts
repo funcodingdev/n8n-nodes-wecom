@@ -10,7 +10,15 @@ export const listRecordingsDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly },
 		default: '',
 		description:
-			'会议 ID（优先）。与 userid 三选一查询条件之一。<a href="https://developer.work.weixin.qq.com/document/path/98192" target="_blank">官方文档</a>',
+			'meetingid 优先。与 meeting_code / userid 三选一。<a href="https://developer.work.weixin.qq.com/document/path/98192" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '入会码',
+		name: 'meeting_code',
+		type: 'string',
+		displayOptions: { show: showOnly },
+		default: '',
+		description: 'meeting_code，meetingid 为空时可用',
 	},
 	{
 		displayName: '成员UserID',
@@ -18,7 +26,7 @@ export const listRecordingsDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: { show: showOnly },
 		default: '',
-		description: '待查询成员 userid（查询该用户作为创建者的录制）',
+		description: 'userid，查询该用户作为创建者的录制',
 	},
 	{
 		displayName: '开始时间',

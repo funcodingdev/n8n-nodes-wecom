@@ -554,6 +554,7 @@ export async function executeMeeting(
 			else if (operation === 'listRecordings') {
 				// https://developer.work.weixin.qq.com/document/path/98192
 				const meetingid = this.getNodeParameter('meetingid', i, '') as string;
+				const meeting_code = this.getNodeParameter('meeting_code', i, '') as string;
 				const userid = this.getNodeParameter('userid', i, '') as string;
 				const start_time_raw = this.getNodeParameter('start_time', i, '') as string | number;
 				const end_time_raw = this.getNodeParameter('end_time', i, '') as string | number;
@@ -566,6 +567,7 @@ export async function executeMeeting(
 					limit: Math.min(size || 10, 20),
 				};
 				if (meetingid) body.meetingid = meetingid;
+				else if (meeting_code) body.meeting_code = meeting_code;
 				if (userid) body.userid = userid;
 				if (cursor) body.cursor = cursor;
 
