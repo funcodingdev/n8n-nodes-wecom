@@ -1178,6 +1178,25 @@ export async function executeMeeting(
 						};
 					}
 				}
+				if (
+					['roomsListDevices', 'roomsListControllers', 'roomsListMeetings'].includes(operation)
+				) {
+					const rooms_meeting_room_name = this.getNodeParameter(
+						'rooms_meeting_room_name',
+						i,
+						'',
+					) as string;
+					if (rooms_meeting_room_name) body.meeting_room_name = rooms_meeting_room_name;
+				}
+				// roomsGetConfig 只需 meeting_room_id，不需要 meetingid
+				if (operation === 'roomsGetConfig') {
+					delete body.meetingid;
+				}
+				// get_inventory 无请求体字段
+				if (operation === 'roomsGetInventory') {
+					delete body.meetingid;
+					delete body.meeting_room_id;
+				}
 				if (operation === 'mraSetDefaultLayout') {
 					body.default_layout = this.getNodeParameter('mra_default_layout', i, 2) as number;
 					body.default_novideo_user = this.getNodeParameter(

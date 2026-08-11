@@ -344,6 +344,19 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		description: '若为非空数组则覆盖上方表单；报名导入等复杂结构也写在这里',
 	},
 	{
+		displayName: 'Rooms会议室名称',
+		name: 'rooms_meeting_room_name',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['meeting'],
+				operation: ['roomsListDevices', 'roomsListControllers', 'roomsListMeetings'],
+			},
+		},
+		default: '',
+		description: 'meeting_room_name，支持模糊匹配',
+	},
+	{
 		displayName: '呼叫ID',
 		name: 'rooms_invite_id',
 		type: 'string',
