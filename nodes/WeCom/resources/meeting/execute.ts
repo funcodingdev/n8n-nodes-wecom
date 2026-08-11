@@ -27,45 +27,251 @@ export async function executeMeeting(
 			let response: IDataObject;
 
 			// 预约会议基础管理
-			if (operation === 'createMeeting') {
-				const subject = this.getNodeParameter('subject', i) as string;
-				const start_time = dateTimeToUnixTimestamp(this.getNodeParameter('start_time', i) as string | number);
-				const end_time = dateTimeToUnixTimestamp(this.getNodeParameter('end_time', i) as string | number);
-				const type = this.getNodeParameter('type', i) as number;
-				const attendeesCollection = this.getNodeParameter('attendeesCollection', i, {}) as IDataObject;
+			if (operation === 'createMeeting' || operation === 'createAdvancedMeeting') {
+				// https://developer.work.weixin.qq.com/document/path/98148
+				const admin_userid = this.getNodeParameter('admin_userid', i, '') as string;
+				// 新字段 title；兼容旧 subject
+				const title =
+					(this.getNodeParameter('title', i, '') as string) ||
+					(this.getNodeParameter('subject', i, '') as string);
+				// 新字段 meeting_start；兼容旧 start_time
+				let meeting_start = dateTimeToUnixTimestamp(
+					this.getNodeParameter('meeting_start', i, '') as string | number,
+				);
+				if (!meeting_start) {
+					meeting_start = dateTimeToUnixTimestamp(
+						this.getNodeParameter('start_time', i, '') as string | number,
+					);
+				}
+				// 新字段 meeting_duration；兼容旧 end_time 差值
+				let meeting_duration = this.getNodeParameter('meeting_duration', i, 0) as number;
+				if (!meeting_duration) {
+					const end_time = dateTimeToUnixTimestamp(
+						this.getNodeParameter('end_time', i, '') as string | number,
+					);
+					if (end_time && meeting_start && end_time > meeting_start) {
+						meeting_duration = end_time - meeting_start;
+					} else {
+						meeting_duration = 3600;
+					}
+				}
+				const description = this.getNodeParameter('description', i, '') as string;
+				const location = this.getNodeParameter('location', i, '') as string;
+				const invitee_userids = this.getNodeParameter('invitee_userids', i, '') as string;
+				const cal_id = this.getNodeParameter('cal_id', i, '') as string;
+				const createMeetingExtraJson = this.getNodeParameter(
+					'createMeetingExtraJson',
+					i,
+					'{}',
+				) as string;
 
 				const body: IDataObject = {
-					subject,
-					start_time,
-					end_time,
-					type,
+					admin_userid,
+					title,
+					meeting_start,
+					meeting_duration,
 				};
+				if (description) body.description = description;
+				if (location) body.location = location;
+				if (cal_id) body.cal_id = cal_id;
 
-				// 处理参会人员
-				if (attendeesCollection.attendees) {
-					const attendeesList = attendeesCollection.attendees as IDataObject[];
-					if (attendeesList.length > 0) {
-						body.attendees = attendeesList.map((a) => ({ userid: a.userid }));
+				// invitees
+				let inviteeIds = invitee_userids
+					.split(',')
+					.map((s) => s.trim())
+					.filter(Boolean);
+				// 兼容旧 attendeesCollection / inviteesCollection
+				if (!inviteeIds.length) {
+					const attendeesCollection = this.getNodeParameter(
+						'attendeesCollection',
+						i,
+						{},
+					) as IDataObject;
+					const inviteesCollection = this.getNodeParameter(
+						'inviteesCollection',
+						i,
+						{},
+					) as IDataObject;
+					const fromAttendees = ((attendeesCollection?.attendees as IDataObject[]) || [])
+						.map((a) => String(a.userid || '').trim())
+						.filter(Boolean);
+					const fromInvitees = ((inviteesCollection?.invitees as IDataObject[]) || [])
+						.map((a) => String(a.userid || '').trim())
+						.filter(Boolean);
+					inviteeIds = [...fromAttendees, ...fromInvitees];
+				}
+				if (inviteeIds.length) body.invitees = { userid: inviteeIds };
+
+				// guests (advanced)
+				if (operation === 'createAdvancedMeeting') {
+					const guestsCollection = this.getNodeParameter(
+						'guestsCollection',
+						i,
+						{},
+					) as IDataObject;
+					const guests = ((guestsCollection?.guests as IDataObject[]) || [])
+						.filter((g) => g.phone_number)
+						.map((g) => {
+							const item: IDataObject = {
+								area: g.area || '86',
+								phone_number: g.phone_number,
+							};
+							if (g.guest_name) item.guest_name = g.guest_name;
+							return item;
+						});
+					if (guests.length) body.guests = guests;
+				}
+
+				// settings
+				const settings: IDataObject = {};
+				const settings_password = this.getNodeParameter('settings_password', i, '') as string;
+				const settings_enable_waiting_room = this.getNodeParameter(
+					'settings_enable_waiting_room',
+					i,
+					false,
+				) as boolean;
+				const settings_allow_enter_before_host = this.getNodeParameter(
+					'settings_allow_enter_before_host',
+					i,
+					true,
+				) as boolean;
+				const settings_enable_enter_mute = this.getNodeParameter(
+					'settings_enable_enter_mute',
+					i,
+					2,
+				) as number;
+				const settings_remind_scope = this.getNodeParameter(
+					'settings_remind_scope',
+					i,
+					2,
+				) as number;
+				const settings_host_userids = this.getNodeParameter(
+					'settings_host_userids',
+					i,
+					'',
+				) as string;
+				if (settings_password) settings.password = settings_password;
+				settings.enable_waiting_room = settings_enable_waiting_room;
+				settings.allow_enter_before_host = settings_allow_enter_before_host;
+				settings.enable_enter_mute = settings_enable_enter_mute;
+				settings.remind_scope = settings_remind_scope;
+				const hostIds = settings_host_userids
+					.split(',')
+					.map((s) => s.trim())
+					.filter(Boolean);
+				if (hostIds.length) settings.hosts = { userid: hostIds };
+
+				if (operation === 'createAdvancedMeeting') {
+					settings.allow_unmute_self = this.getNodeParameter(
+						'settings_allow_unmute_self',
+						i,
+						true,
+					) as boolean;
+					settings.allow_external_user = this.getNodeParameter(
+						'settings_allow_external_user',
+						i,
+						true,
+					) as boolean;
+					settings.enable_enroll = this.getNodeParameter(
+						'settings_enable_enroll',
+						i,
+						false,
+					) as boolean;
+					settings.auto_record_type = this.getNodeParameter(
+						'settings_auto_record_type',
+						i,
+						'none',
+					) as string;
+					const reminders_is_repeat = this.getNodeParameter(
+						'reminders_is_repeat',
+						i,
+						false,
+					) as boolean;
+					if (reminders_is_repeat) {
+						const reminders_repeat_type = this.getNodeParameter(
+							'reminders_repeat_type',
+							i,
+							0,
+						) as number;
+						body.reminders = {
+							is_repeat: 1,
+							repeat_type: reminders_repeat_type,
+						};
 					}
+				}
+
+				// 兼容旧 advancedSettings collection
+				const advancedSettings = this.getNodeParameter(
+					'advancedSettings',
+					i,
+					{},
+				) as IDataObject;
+				if (advancedSettings?.description && !body.description) {
+					body.description = advancedSettings.description;
+				}
+				if (advancedSettings?.password) settings.password = advancedSettings.password;
+				if (advancedSettings?.enable_mute_on_entry !== undefined) {
+					settings.enable_enter_mute = advancedSettings.enable_mute_on_entry ? 1 : 0;
+				}
+				if (advancedSettings?.allow_enter_before_host !== undefined) {
+					settings.allow_enter_before_host = advancedSettings.allow_enter_before_host;
+				}
+
+				if (Object.keys(settings).length) body.settings = settings;
+
+				try {
+					const extra = JSON.parse(createMeetingExtraJson || '{}') as IDataObject;
+					if (extra.settings && typeof extra.settings === 'object') {
+						body.settings = {
+							...((body.settings as IDataObject) || {}),
+							...(extra.settings as IDataObject),
+						};
+						delete extra.settings;
+					}
+					if (extra.reminders && typeof extra.reminders === 'object') {
+						body.reminders = {
+							...((body.reminders as IDataObject) || {}),
+							...(extra.reminders as IDataObject),
+						};
+						delete extra.reminders;
+					}
+					Object.assign(body, extra);
+					if (admin_userid) body.admin_userid = admin_userid;
+					if (title) body.title = title;
+				} catch {
+					// ignore
 				}
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/create', body);
 			} else if (operation === 'updateMeeting') {
+				// https://developer.work.weixin.qq.com/document/path/98154
 				const meetingid = this.getNodeParameter('meetingid', i) as string;
-				const subject = this.getNodeParameter('subject', i, '') as string;
-				const start_time_raw = this.getNodeParameter('start_time', i, '') as string | number;
+				const title =
+					(this.getNodeParameter('title', i, '') as string) ||
+					(this.getNodeParameter('subject', i, '') as string);
+				const start_raw =
+					(this.getNodeParameter('meeting_start', i, '') as string | number) ||
+					(this.getNodeParameter('start_time', i, '') as string | number);
+				const meeting_duration = this.getNodeParameter('meeting_duration', i, 0) as number;
 				const end_time_raw = this.getNodeParameter('end_time', i, '') as string | number;
+				const description = this.getNodeParameter('description', i, '') as string;
+				const location = this.getNodeParameter('location', i, '') as string;
 
 				const body: IDataObject = { meetingid };
-				if (subject) body.subject = subject;
-				if (start_time_raw) {
-					const start_time = dateTimeToUnixTimestamp(start_time_raw);
-					if (start_time > 0) body.start_time = start_time;
+				if (title) body.title = title;
+				const meeting_start = dateTimeToUnixTimestamp(start_raw);
+				if (meeting_start > 0) {
+					body.meeting_start = meeting_start;
+					if (meeting_duration > 0) body.meeting_duration = meeting_duration;
+					else {
+						const end_time = dateTimeToUnixTimestamp(end_time_raw);
+						if (end_time > meeting_start) body.meeting_duration = end_time - meeting_start;
+					}
+				} else if (meeting_duration > 0) {
+					body.meeting_duration = meeting_duration;
 				}
-				if (end_time_raw) {
-					const end_time = dateTimeToUnixTimestamp(end_time_raw);
-					if (end_time > 0) body.end_time = end_time;
-				}
+				if (description) body.description = description;
+				if (location) body.location = location;
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/update', body);
 			} else if (operation === 'cancelMeeting') {
@@ -124,61 +330,41 @@ export async function executeMeeting(
 				);
 			}
 			// 预约会议高级管理
-			else if (operation === 'createAdvancedMeeting') {
-				const subject = this.getNodeParameter('subject', i) as string;
-				const start_time = dateTimeToUnixTimestamp(this.getNodeParameter('start_time', i) as string | number);
-				const end_time = dateTimeToUnixTimestamp(this.getNodeParameter('end_time', i) as string | number);
-				const admin_userid = this.getNodeParameter('admin_userid', i) as string;
-				const inviteesCollection = this.getNodeParameter('inviteesCollection', i, {}) as IDataObject;
-				const advancedSettings = this.getNodeParameter('advancedSettings', i, {}) as IDataObject;
-
-				const body: IDataObject = {
-					subject,
-					start_time,
-					end_time,
-					admin_userid,
-				};
-
-				// 处理受邀成员
-				if (inviteesCollection.invitees) {
-					const inviteesList = inviteesCollection.invitees as IDataObject[];
-					if (inviteesList.length > 0) {
-						body.invitees = inviteesList.map((inv) => ({ userid: inv.userid }));
-					}
-				}
-
-				// 处理高级设置
-				if (advancedSettings.description) body.description = advancedSettings.description;
-				if (advancedSettings.password) body.password = advancedSettings.password;
-				if (advancedSettings.enable_mute_on_entry !== undefined) {
-					body.enable_mute_on_entry = advancedSettings.enable_mute_on_entry;
-				}
-				if (advancedSettings.allow_enter_before_host !== undefined) {
-					body.allow_enter_before_host = advancedSettings.allow_enter_before_host;
-				}
-
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/create', body);
-			} else if (operation === 'updateAdvancedMeeting') {
+			else if (operation === 'updateAdvancedMeeting') {
+				// https://developer.work.weixin.qq.com/document/path/98154
 				const meetingid = this.getNodeParameter('meetingid', i) as string;
-				const subject = this.getNodeParameter('subject', i, '') as string;
-				const start_time_raw = this.getNodeParameter('start_time', i, '') as string | number;
+				const title =
+					(this.getNodeParameter('title', i, '') as string) ||
+					(this.getNodeParameter('subject', i, '') as string);
+				const start_raw =
+					(this.getNodeParameter('meeting_start', i, '') as string | number) ||
+					(this.getNodeParameter('start_time', i, '') as string | number);
+				const meeting_duration = this.getNodeParameter('meeting_duration', i, 0) as number;
 				const end_time_raw = this.getNodeParameter('end_time', i, '') as string | number;
 				const advancedSettings = this.getNodeParameter('advancedSettings', i, {}) as IDataObject;
 
 				const body: IDataObject = { meetingid };
-				if (subject) body.subject = subject;
-				if (start_time_raw) {
-					const start_time = dateTimeToUnixTimestamp(start_time_raw);
-					if (start_time > 0) body.start_time = start_time;
+				if (title) body.title = title;
+				const meeting_start = dateTimeToUnixTimestamp(start_raw);
+				if (meeting_start > 0) {
+					body.meeting_start = meeting_start;
+					if (meeting_duration > 0) body.meeting_duration = meeting_duration;
+					else {
+						const end_time = dateTimeToUnixTimestamp(end_time_raw);
+						if (end_time > meeting_start) body.meeting_duration = end_time - meeting_start;
+					}
 				}
-				if (end_time_raw) {
-					const end_time = dateTimeToUnixTimestamp(end_time_raw);
-					if (end_time > 0) body.end_time = end_time;
-				}
-
-				// 处理高级设置
+				// 兼容旧 advancedSettings 扁平字段 → settings
+				const settings: IDataObject = {};
 				if (advancedSettings.description) body.description = advancedSettings.description;
-				if (advancedSettings.password) body.password = advancedSettings.password;
+				if (advancedSettings.password) settings.password = advancedSettings.password;
+				if (advancedSettings.enable_mute_on_entry !== undefined) {
+					settings.enable_enter_mute = advancedSettings.enable_mute_on_entry ? 1 : 0;
+				}
+				if (advancedSettings.allow_enter_before_host !== undefined) {
+					settings.allow_enter_before_host = advancedSettings.allow_enter_before_host;
+				}
+				if (Object.keys(settings).length) body.settings = settings;
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/update', body);
 			} else if (operation === 'getMeetingInvitees') {
