@@ -1580,15 +1580,49 @@ export async function executeMeeting(
 						};
 					}
 				}
-				if (
-					['roomsListDevices', 'roomsListControllers', 'roomsListMeetings'].includes(operation)
-				) {
+				if (operation === 'roomsListDevices') {
 					const rooms_meeting_room_name = this.getNodeParameter(
 						'rooms_meeting_room_name',
 						i,
 						'',
 					) as string;
 					if (rooms_meeting_room_name) body.meeting_room_name = rooms_meeting_room_name;
+					delete body.meetingid;
+					delete body.meeting_room_id;
+				}
+				if (operation === 'roomsListControllers') {
+					// https://developer.work.weixin.qq.com/document/path/98799
+					const rooms_controller_name = this.getNodeParameter(
+						'rooms_controller_name',
+						i,
+						'',
+					) as string;
+					if (rooms_controller_name) body.controller_name = rooms_controller_name;
+					delete body.meetingid;
+					delete body.meeting_room_id;
+					delete body.meeting_room_name;
+				}
+				if (operation === 'roomsListMeetings') {
+					// https://developer.work.weixin.qq.com/document/path/98796
+					// meeting_room_id 与 rooms_id 二选一；无 meetingid
+					delete body.meetingid;
+					const rooms_id = this.getNodeParameter('rooms_id', i, '') as string;
+					const rooms_list_start_time = this.getNodeParameter(
+						'rooms_list_start_time',
+						i,
+						0,
+					) as number;
+					const rooms_list_end_time = this.getNodeParameter(
+						'rooms_list_end_time',
+						i,
+						0,
+					) as number;
+					if (rooms_id) {
+						body.rooms_id = rooms_id;
+						// 与 meeting_room_id 二选一优先 rooms_id 时仍可保留 meeting_room_id
+					}
+					if (rooms_list_start_time) body.start_time = rooms_list_start_time;
+					if (rooms_list_end_time) body.end_time = rooms_list_end_time;
 				}
 				// roomsGetConfig 只需 meeting_room_id，不需要 meetingid
 				if (operation === 'roomsGetConfig') {
@@ -1653,11 +1687,11 @@ export async function executeMeeting(
 						// ignore
 					}
 					// set_nicknames / manage_waiting_room_users：operated_users 数组
-					// close_screen_share / switch_user_video：operated_user 单个对象
+					// close_screen_share / switch_user_video：operated_user 单对象
 					if (operation === 'rcSetNicknames' || operation === 'rcManageWaitingRoom') {
 						body.operated_users = users;
-					} else {
-						body.operated_user = users.length === 1 ? users[0] : users;
+					} else if (users.length) {
+						body.operated_user = users[0];
 					}
 				}
 				if (operation === 'rcSwitchUserVideo') {
@@ -1819,10 +1853,13 @@ export async function executeMeeting(
 						'roomsListControllers',
 						'roomsListMeetings',
 						'waitingroomUserList',
+						'waitingroomCurrentUsers',
 						'getQuality',
 					].includes(operation)
 				) {
-					body.limit = limit;
+					// list_meetings 最大 20；其余最大 50
+					const maxLimit = operation === 'roomsListMeetings' ? 20 : 50;
+					body.limit = Math.min(limit || 20, maxLimit);
 				}
 				try {
 					Object.assign(body, JSON.parse(cr_extra_json || '{}') as IDataObject);

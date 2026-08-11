@@ -458,7 +458,7 @@ export async function executeSchool(
 						throw new Error('家长列表不能为空');
 					}
 
-					const formattedParents = parents.map((p) => {
+					const parseChildren = (p: IDataObject): IDataObject[] => {
 						let childrenRaw = p.children as IDataObject[] | string | undefined;
 						if (typeof childrenRaw === 'string') {
 							try {
@@ -467,14 +467,29 @@ export async function executeSchool(
 								childrenRaw = [];
 							}
 						}
-						const childrenList = (childrenRaw || []) as IDataObject[];
+						let childrenList = (childrenRaw || []) as IDataObject[];
+						if (!childrenList.length && p.children_pairs) {
+							childrenList = String(p.children_pairs)
+								.split(',')
+								.map((s) => s.trim())
+								.filter(Boolean)
+								.map((pair) => {
+									const [student_userid, relation] = pair.split(':').map((x) => x.trim());
+									return { student_userid, relation: relation || '家长' };
+								})
+								.filter((c) => c.student_userid);
+						}
+						return childrenList.map((c) => ({
+							student_userid: c.student_userid,
+							relation: c.relation,
+						}));
+					};
+
+					const formattedParents = parents.map((p) => {
 						const parent: IDataObject = {
 							parent_userid: p.parent_userid,
 							mobile: p.mobile,
-							children: childrenList.map((c) => ({
-								student_userid: c.student_userid,
-								relation: c.relation,
-							})),
+							children: parseChildren(p),
 						};
 						if (p.to_invite !== undefined) parent.to_invite = p.to_invite;
 						return parent;
@@ -512,6 +527,7 @@ export async function executeSchool(
 						};
 						if (p.mobile) parent.mobile = p.mobile;
 						if (p.new_parent_userid) parent.new_parent_userid = p.new_parent_userid;
+						let childrenList: IDataObject[] = [];
 						if (p.children) {
 							let childrenRaw = p.children as IDataObject[] | string;
 							if (typeof childrenRaw === 'string') {
@@ -521,7 +537,21 @@ export async function executeSchool(
 									childrenRaw = [];
 								}
 							}
-							parent.children = (childrenRaw as IDataObject[]).map((c) => ({
+							childrenList = childrenRaw as IDataObject[];
+						}
+						if (!childrenList.length && p.children_pairs) {
+							childrenList = String(p.children_pairs)
+								.split(',')
+								.map((s) => s.trim())
+								.filter(Boolean)
+								.map((pair) => {
+									const [student_userid, relation] = pair.split(':').map((x) => x.trim());
+									return { student_userid, relation: relation || '家长' };
+								})
+								.filter((c) => c.student_userid);
+						}
+						if (childrenList.length) {
+							parent.children = childrenList.map((c) => ({
 								student_userid: c.student_userid,
 								relation: c.relation,
 							}));

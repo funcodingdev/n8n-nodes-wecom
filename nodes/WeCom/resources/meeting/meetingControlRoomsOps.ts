@@ -396,11 +396,63 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['meeting'],
-				operation: ['roomsListDevices', 'roomsListControllers', 'roomsListMeetings'],
+				operation: ['roomsListDevices'],
 			},
 		},
 		default: '',
 		description: 'meeting_room_name，支持模糊匹配',
+	},
+	{
+		displayName: '控制器名称',
+		name: 'rooms_controller_name',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['meeting'],
+				operation: ['roomsListControllers'],
+			},
+		},
+		default: '',
+		description: 'controller_name，支持模糊匹配',
+	},
+	{
+		displayName: 'Rooms设备ID',
+		name: 'rooms_id',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['meeting'],
+				operation: ['roomsListMeetings'],
+			},
+		},
+		default: '',
+		description: 'rooms_id，与会议室 ID 二选一',
+	},
+	{
+		displayName: '查询开始时间',
+		name: 'rooms_list_start_time',
+		type: 'number',
+		displayOptions: {
+			show: {
+				resource: ['meeting'],
+				operation: ['roomsListMeetings'],
+			},
+		},
+		default: 0,
+		description: 'start_time 秒级时间戳，区间不超过 90 天；0 不传',
+	},
+	{
+		displayName: '查询结束时间',
+		name: 'rooms_list_end_time',
+		type: 'number',
+		displayOptions: {
+			show: {
+				resource: ['meeting'],
+				operation: ['roomsListMeetings'],
+			},
+		},
+		default: 0,
+		description: 'end_time 秒级时间戳；0 不传',
 	},
 	{
 		displayName: '呼叫ID',
@@ -633,6 +685,7 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 					'roomsListControllers',
 					'roomsListMeetings',
 					'waitingroomUserList',
+					'waitingroomCurrentUsers',
 					'getQuality',
 				],
 			},
@@ -652,13 +705,14 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 					'roomsListControllers',
 					'roomsListMeetings',
 					'waitingroomUserList',
+					'waitingroomCurrentUsers',
 					'getQuality',
 				],
 			},
 		},
 		default: 20,
 		typeOptions: { minValue: 1, maxValue: 50 },
-		description: '分页大小；getQuality 最大 50',
+		description: '分页大小；等候室/健康度最大 50',
 	},
 	{
 		displayName: '扩展请求JSON',

@@ -178,6 +178,17 @@ export const licenseDescription: INodeProperties[] = [
 		default: 'createNewOrder',
 	},
 	{
+		displayName: '说明',
+		name: 'licenseBalanceNotice',
+		type: 'notice',
+		displayOptions: {
+			show: { resource: ['license'], operation: ['getAccountBalance'] },
+		},
+		default: '',
+		description:
+			'查询服务商充值账户余额（单位：分）。仅需 Provider Access Token，无其他业务参数。',
+	},
+	{
 		displayName: 'Provider Access Token',
 		name: 'providerAccessToken',
 		type: 'string',

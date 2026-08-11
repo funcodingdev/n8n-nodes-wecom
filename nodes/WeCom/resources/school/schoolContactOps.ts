@@ -282,12 +282,21 @@ export const schoolContactOpsDescription: INodeProperties[] = [
 						description: '仅批量创建',
 					},
 					{
+						displayName: '孩子列表',
+						name: 'children_pairs',
+						type: 'string',
+						default: '',
+						placeholder: 'stu1:爸爸,stu2:妈妈',
+						description:
+							'学生UserID:关系，逗号分隔；也可用下方 JSON 字段',
+					},
+					{
 						displayName: '孩子列表JSON',
 						name: 'children',
 						type: 'json',
 						default: '[]',
 						description:
-							'[{ "student_userid": "s1", "relation": "父亲" }]',
+							'非空数组优先：[{ "student_userid": "s1", "relation": "爸爸" }]',
 					},
 				],
 			},
