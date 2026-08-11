@@ -428,6 +428,101 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		description: 'true 举手，false 放下',
 	},
 	{
+		displayName: '客户专属字段userData',
+		name: 'customer_user_data',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['createCustomerShortUrl'] },
+		},
+		default: '',
+		description: '将自动封装为 ver=1.0 并 Base64 编码为 customer_data',
+	},
+	{
+		displayName: '客户专属字段Base64',
+		name: 'customer_data_raw',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['createCustomerShortUrl'] },
+		},
+		default: '',
+		description: '若已有 Base64 的 customer_data 可直接填写（优先）',
+	},
+	{
+		displayName: '质量查询开始时间',
+		name: 'quality_start_time',
+		type: 'number',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['getQuality'] },
+		},
+		default: 0,
+		description: 'start_time，秒；查过去 7 天内',
+	},
+	{
+		displayName: '周期性子会议ID',
+		name: 'sub_meetingid',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['getQuality'] },
+		},
+		default: '',
+		description: 'sub_meetingid，周期会议必填',
+	},
+	{
+		displayName: '检查成员UserID',
+		name: 'device_check_userid',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['checkDeviceInMeeting'] },
+		},
+		default: '',
+		description: 'userid',
+	},
+	{
+		displayName: '会议ID列表',
+		name: 'device_meetingid_list',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['checkDeviceInMeeting'] },
+		},
+		default: '',
+		placeholder: 'meeting1,meeting2',
+		description: 'meetingid_list，逗号分隔',
+	},
+	{
+		displayName: '设备类型列表',
+		name: 'device_instance_id_list',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['checkDeviceInMeeting'] },
+		},
+		default: '',
+		placeholder: '1,2,3',
+		description: 'instance_id_list，逗号分隔数字；空表示全部设备',
+	},
+	{
+		displayName: '查询电话号码',
+		name: 'phoneGetTmpOpenidCollection',
+		type: 'fixedCollection',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['phoneGetTmpOpenid'] },
+		},
+		default: {},
+		placeholder: '添加号码',
+		typeOptions: { multipleValues: true },
+		description: 'phone_numbers，最多 20 个',
+		options: [
+			{
+				displayName: '号码',
+				name: 'numbers',
+				values: [
+					{ displayName: '国家/地区代码', name: 'area', type: 'number', default: 86 },
+					{ displayName: '电话号码', name: 'phone', type: 'string', default: '' },
+					{ displayName: '分机号', name: 'extension_number', type: 'string', default: '' },
+				],
+			},
+		],
+	},
+	{
 		displayName: '开启视频',
 		name: 'rc_video_on',
 		type: 'boolean',
@@ -479,6 +574,7 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 					'roomsListMeetings',
 					'waitingroomUserList',
 					'getGuests',
+					'getQuality',
 				],
 			},
 		},
@@ -498,10 +594,12 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 					'roomsListMeetings',
 					'waitingroomUserList',
 					'getGuests',
+					'getQuality',
 				],
 			},
 		},
 		default: 20,
+		description: 'getQuality 最大 50',
 	},
 	{
 		displayName: '扩展请求JSON',

@@ -1242,6 +1242,69 @@ export async function executeMeeting(
 				if (operation === 'rcSwitchUserVideo') {
 					body.video = this.getNodeParameter('rc_video_on', i, false) as boolean;
 				}
+				if (operation === 'createCustomerShortUrl') {
+					const customer_data_raw = this.getNodeParameter('customer_data_raw', i, '') as string;
+					const customer_user_data = this.getNodeParameter('customer_user_data', i, '') as string;
+					if (customer_data_raw) {
+						body.customer_data = customer_data_raw;
+					} else if (customer_user_data) {
+						const payload = JSON.stringify({ ver: '1.0', userData: customer_user_data });
+						body.customer_data = Buffer.from(payload, 'utf8').toString('base64');
+					}
+				}
+				if (operation === 'getQuality') {
+					const quality_start_time = this.getNodeParameter('quality_start_time', i, 0) as number;
+					const sub_meetingid = this.getNodeParameter('sub_meetingid', i, '') as string;
+					if (quality_start_time) body.start_time = quality_start_time;
+					if (sub_meetingid) body.sub_meetingid = sub_meetingid;
+				}
+				if (operation === 'checkDeviceInMeeting') {
+					delete body.meetingid;
+					const device_check_userid = this.getNodeParameter(
+						'device_check_userid',
+						i,
+						'',
+					) as string;
+					const device_meetingid_list = this.getNodeParameter(
+						'device_meetingid_list',
+						i,
+						'',
+					) as string;
+					const device_instance_id_list = this.getNodeParameter(
+						'device_instance_id_list',
+						i,
+						'',
+					) as string;
+					if (device_check_userid) body.userid = device_check_userid;
+					const midList = device_meetingid_list
+						.split(',')
+						.map((s) => s.trim())
+						.filter(Boolean);
+					if (midList.length) body.meetingid_list = midList;
+					const instList = device_instance_id_list
+						.split(',')
+						.map((s) => Number(s.trim()))
+						.filter((n) => !Number.isNaN(n));
+					if (instList.length) body.instance_id_list = instList;
+				}
+				if (operation === 'phoneGetTmpOpenid') {
+					const phoneCollection = this.getNodeParameter(
+						'phoneGetTmpOpenidCollection',
+						i,
+						{},
+					) as IDataObject;
+					const phone_numbers = ((phoneCollection?.numbers as IDataObject[]) || [])
+						.filter((n) => n.phone)
+						.map((n) => {
+							const item: IDataObject = {
+								area: n.area ?? 86,
+								phone: n.phone,
+							};
+							if (n.extension_number) item.extension_number = n.extension_number;
+							return item;
+						});
+					if (phone_numbers.length) body.phone_numbers = phone_numbers;
+				}
 				if (operation === 'setGuests') {
 					const guestsCollection = this.getNodeParameter(
 						'meetingGuestsCollection',
@@ -1313,6 +1376,7 @@ export async function executeMeeting(
 						'roomsListMeetings',
 						'waitingroomUserList',
 						'getGuests',
+						'getQuality',
 					].includes(operation)
 				) {
 					body.limit = limit;
