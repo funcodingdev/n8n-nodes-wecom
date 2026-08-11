@@ -579,6 +579,13 @@ export async function executeMeeting(
 					.map((s) => s.trim())
 					.filter(Boolean);
 				if (hostIds.length) settings.hosts = { userid: hostIds };
+				if (settings_remind_scope === 4) {
+					const ringIds = (this.getNodeParameter('settings_ring_userids', i, '') as string)
+						.split(',')
+						.map((s) => s.trim())
+						.filter(Boolean);
+					if (ringIds.length) settings.ring_users = { userid: ringIds };
+				}
 				if (settings_auto_record_type) {
 					settings.auto_record_type = settings_auto_record_type;
 				}

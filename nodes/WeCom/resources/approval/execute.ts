@@ -80,6 +80,51 @@ export async function executeApproval(
 								type: c.date_type || 'day',
 								s_timestamp: String(ts || 0),
 							};
+						} else if (control === 'DateRange') {
+							const begin = dateTimeToUnixTimestamp(
+								(c.date_range_begin as string | number) || '',
+							);
+							const end = dateTimeToUnixTimestamp(
+								(c.date_range_end as string | number) || '',
+							);
+							value.date_range = {
+								type: c.date_range_type || 'halfday',
+								new_begin: begin || 0,
+								new_end: end || 0,
+							};
+						} else if (control === 'Selector') {
+							const keys = String(c.selector_keys || '')
+								.split(',')
+								.map((s) => s.trim())
+								.filter(Boolean)
+								.map((key) => ({ key }));
+							value.selector = {
+								type: c.selector_type || 'single',
+								options: keys,
+							};
+						} else if (control === 'Contact') {
+							const kind = String(c.contact_kind || 'members');
+							if (kind === 'departments') {
+								value.departments = String(c.contact_partyids || '')
+									.split(',')
+									.map((s) => s.trim())
+									.filter(Boolean)
+									.map((openapi_id) => ({ openapi_id }));
+							} else {
+								value.members = String(c.contact_userids || '')
+									.split(',')
+									.map((s) => s.trim())
+									.filter(Boolean)
+									.map((userid) => ({ userid }));
+							}
+						} else if (control === 'File') {
+							value.files = String(c.file_mediaids || '')
+								.split(',')
+								.map((s) => s.trim())
+								.filter(Boolean)
+								.map((file_id) => ({ file_id }));
+						} else if (control === 'Tips') {
+							// 后台自动填充，无需赋值
 						} else {
 							value.text = String(c.text ?? '');
 						}

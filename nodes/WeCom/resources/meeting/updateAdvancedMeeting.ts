@@ -168,6 +168,17 @@ export const updateAdvancedMeetingDescription: INodeProperties[] = [
 		description: 'settings.hosts.userid，覆盖式；空表示不修改',
 	},
 	{
+		displayName: '指定响铃UserID列表',
+		name: 'settings_ring_userids',
+		type: 'string',
+		displayOptions: {
+			show: { ...showOnly, settings_remind_scope: [4] },
+		},
+		default: '',
+		placeholder: 'zhangsan,lisi',
+		description: 'settings.ring_users.userid，remind_scope=4 时生效',
+	},
+	{
 		displayName: '允许自行取消静音',
 		name: 'settings_allow_unmute_self',
 		type: 'boolean',
