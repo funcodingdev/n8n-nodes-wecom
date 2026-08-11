@@ -2175,14 +2175,24 @@ export async function executeWedoc(
 					}
 
 					// 处理定时重复设置
+					const timedRepeatInfo: IDataObject = {};
+					if (formSetting.timed_repeat_enable) {
+						timedRepeatInfo.enable = true;
+						if (formSetting.timed_repeat_type !== undefined) {
+							timedRepeatInfo.repeat_type = formSetting.timed_repeat_type;
+						}
+						if (formSetting.timed_repeat_remind_time) {
+							timedRepeatInfo.remind_time = formSetting.timed_repeat_remind_time;
+						}
+					}
 					if (formSetting.timed_repeat_info) {
 						try {
-							const timedRepeatInfo =
+							const extra =
 								typeof formSetting.timed_repeat_info === 'string'
 									? JSON.parse(formSetting.timed_repeat_info as string)
 									: formSetting.timed_repeat_info;
-							if (Object.keys(timedRepeatInfo).length > 0 && timedRepeatInfo.enable) {
-								processedSetting.timed_repeat_info = timedRepeatInfo;
+							if (extra && typeof extra === 'object') {
+								Object.assign(timedRepeatInfo, extra as IDataObject);
 							}
 						} catch (error) {
 							throw new NodeOperationError(
@@ -2191,6 +2201,9 @@ export async function executeWedoc(
 								{ itemIndex: i },
 							);
 						}
+					}
+					if (Object.keys(timedRepeatInfo).length > 0 && timedRepeatInfo.enable) {
+						processedSetting.timed_repeat_info = timedRepeatInfo;
 					}
 
 					// 处理 allow_multi_fill
