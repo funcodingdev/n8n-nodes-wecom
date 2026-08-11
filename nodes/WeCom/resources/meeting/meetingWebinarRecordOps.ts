@@ -525,6 +525,39 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		description: '其余字段（如 question_list、导入数据）与上方合并',
 	},
 	{
+		displayName: '会议录制ID',
+		name: 'meeting_record_id',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['meeting'],
+				operation: ['recordGetStatistics', 'recordUpdateSharingConfig', 'recordDelete'],
+			},
+		},
+		default: '',
+		description: 'meeting_record_id；分享设置也可使用上方录制文件 ID 字段',
+	},
+	{
+		displayName: '统计开始时间',
+		name: 'record_stat_start_time',
+		type: 'number',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['recordGetStatistics'] },
+		},
+		default: 0,
+		description: 'start_time，秒；默认最近 31 天',
+	},
+	{
+		displayName: '统计结束时间',
+		name: 'record_stat_end_time',
+		type: 'number',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['recordGetStatistics'] },
+		},
+		default: 0,
+		description: 'end_time，秒；区间不超过 31 天',
+	},
+	{
 		displayName: '暖场图片URL',
 		name: 'warm_up_picture',
 		type: 'string',

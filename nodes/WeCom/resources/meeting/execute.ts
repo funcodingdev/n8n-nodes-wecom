@@ -926,8 +926,22 @@ export async function executeMeeting(
 				);
 			} else if (operation === 'recordGetStatistics') {
 				const meetingid = this.getNodeParameter('webinar_meetingid', i) as string;
+				const meeting_record_id = this.getNodeParameter('meeting_record_id', i, '') as string;
+				const record_stat_start_time = this.getNodeParameter(
+					'record_stat_start_time',
+					i,
+					0,
+				) as number;
+				const record_stat_end_time = this.getNodeParameter(
+					'record_stat_end_time',
+					i,
+					0,
+				) as number;
 				const webinarExtraJson = this.getNodeParameter('webinarExtraJson', i, '{}') as string;
 				const body: IDataObject = { meetingid };
+				if (meeting_record_id) body.meeting_record_id = meeting_record_id;
+				if (record_stat_start_time) body.start_time = record_stat_start_time;
+				if (record_stat_end_time) body.end_time = record_stat_end_time;
 				try {
 					Object.assign(body, JSON.parse(webinarExtraJson || '{}') as IDataObject);
 					body.meetingid = meetingid;
@@ -943,6 +957,7 @@ export async function executeMeeting(
 			} else if (operation === 'recordUpdateSharingConfig') {
 				const meetingid = this.getNodeParameter('webinar_meetingid', i) as string;
 				const record_file_id = this.getNodeParameter('webinar_record_file_id', i, '') as string;
+				const meeting_record_id = this.getNodeParameter('meeting_record_id', i, '') as string;
 				const sharing_enable_sharing = this.getNodeParameter(
 					'sharing_enable_sharing',
 					i,
@@ -975,9 +990,9 @@ export async function executeMeeting(
 					sharing_config,
 				};
 				// 官方字段 meeting_record_id；兼容历史 record_file_id 入参
-				if (record_file_id) {
-					body.meeting_record_id = record_file_id;
-					body.record_file_id = record_file_id;
+				const recordId = meeting_record_id || record_file_id;
+				if (recordId) {
+					body.meeting_record_id = recordId;
 				}
 				try {
 					const extra = JSON.parse(webinarExtraJson || '{}') as IDataObject;
