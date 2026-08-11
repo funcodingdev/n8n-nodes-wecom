@@ -628,10 +628,11 @@ export async function executeMeeting(
 					{ userid_list },
 				);
 			} else if (operation === 'getMeetingAdvancedAccountList') {
+				// https://developer.work.weixin.qq.com/document/path/99510
 				const limit = this.getNodeParameter('limit', i, 100) as number;
 				const cursor = this.getNodeParameter('cursor', i, '') as string;
 
-				const body: IDataObject = { limit };
+				const body: IDataObject = { limit: Math.min(limit || 100, 200) };
 				if (cursor) body.cursor = cursor;
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/vip/list', body);

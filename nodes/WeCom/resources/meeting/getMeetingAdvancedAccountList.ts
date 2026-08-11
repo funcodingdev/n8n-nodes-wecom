@@ -16,8 +16,8 @@ export const getMeetingAdvancedAccountListDescription: INodeProperties[] = [
 		name: 'limit',
 		type: 'number',
 		displayOptions: { show: showOnly },
-		default: 50,
-		description: '每页返回的数量',
-		typeOptions: { minValue: 1, maxValue: 1000 },
+		default: 100,
+		description: 'limit，默认 100，最大 200',
+		typeOptions: { minValue: 1, maxValue: 200 },
 	},
 ];
