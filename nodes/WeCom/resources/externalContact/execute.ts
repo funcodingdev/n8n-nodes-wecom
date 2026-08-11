@@ -2025,7 +2025,17 @@ export async function executeExternalContact(
 				});
 
 				if (strategy_id) bodyDefaults.strategy_id = strategy_id;
-				if (ec_external_userid) bodyDefaults.external_userid = ec_external_userid;
+				if (ec_external_userid) {
+					if (
+						operation === 'externalcontactTransfer' ||
+						operation === 'crmTransferExternalContact'
+					) {
+						const ids = ec_external_userid.split(',').map((s) => s.trim()).filter(Boolean);
+						bodyDefaults.external_userid = ids.length > 1 ? ids : ids[0] || ec_external_userid;
+					} else {
+						bodyDefaults.external_userid = ec_external_userid;
+					}
+				}
 				if (ec_userid) {
 					if (operation === 'crmGetUserBehaviorData') {
 						bodyDefaults.userid = ec_userid.split(',').map((s) => s.trim()).filter(Boolean);
