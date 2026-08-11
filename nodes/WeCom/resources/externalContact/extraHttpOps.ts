@@ -556,6 +556,84 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		description: 'sender，发送企业群发消息的成员',
 	},
 	{
+		displayName: '群发附件',
+		name: 'crmAttachmentsCollection',
+		type: 'fixedCollection',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['crmAddMsgTemplate'],
+			},
+		},
+		default: {},
+		placeholder: '添加附件',
+		typeOptions: { multipleValues: true },
+		description: 'attachments 简易表单（图片/链接/小程序）',
+		options: [
+			{
+				displayName: '附件',
+				name: 'items',
+				values: [
+					{
+						displayName: '类型',
+						name: 'msgtype',
+						type: 'options',
+						options: [
+							{ name: '图片 image', value: 'image' },
+							{ name: '链接 link', value: 'link' },
+							{ name: '小程序 miniprogram', value: 'miniprogram' },
+						],
+						default: 'image',
+					},
+					{
+						displayName: '图片MediaID',
+						name: 'media_id',
+						type: 'string',
+						default: '',
+						description: 'image.media_id',
+					},
+					{
+						displayName: '图片URL',
+						name: 'pic_url',
+						type: 'string',
+						default: '',
+						description: 'image.pic_url 或 link.picurl',
+					},
+					{
+						displayName: '链接标题',
+						name: 'title',
+						type: 'string',
+						default: '',
+					},
+					{
+						displayName: '链接描述',
+						name: 'desc',
+						type: 'string',
+						default: '',
+					},
+					{
+						displayName: '链接URL',
+						name: 'url',
+						type: 'string',
+						default: '',
+					},
+					{
+						displayName: '小程序AppID',
+						name: 'appid',
+						type: 'string',
+						default: '',
+					},
+					{
+						displayName: '小程序页面',
+						name: 'page',
+						type: 'string',
+						default: '',
+					},
+				],
+			},
+		],
+	},
+	{
 		displayName: '群发附件JSON',
 		name: 'crm_attachments_json',
 		type: 'json',
@@ -566,7 +644,7 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: '[]',
-		description: 'attachments 数组，图片/链接/小程序等',
+		description: '非空数组时覆盖上方附件表单',
 	},
 	{
 		displayName: '统计开始时间',

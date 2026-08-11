@@ -336,12 +336,58 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		description: 'enroll_id_list，逗号分隔',
 	},
 	{
+		displayName: '导入报名列表',
+		name: 'enrollImportCollection',
+		type: 'fixedCollection',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['enrollImport'] },
+		},
+		default: {},
+		placeholder: '添加报名成员',
+		typeOptions: { multipleValues: true },
+		description: 'enroll_list：userid 与手机号二选一',
+		options: [
+			{
+				displayName: '成员',
+				name: 'members',
+				values: [
+					{
+						displayName: '成员UserID',
+						name: 'userid',
+						type: 'string',
+						default: '',
+					},
+					{
+						displayName: '国家/地区代码',
+						name: 'area',
+						type: 'string',
+						default: '86',
+						description: '使用手机号导入时必填，如 86',
+					},
+					{
+						displayName: '手机号',
+						name: 'phone_number',
+						type: 'string',
+						default: '',
+					},
+					{
+						displayName: '昵称',
+						name: 'nick_name',
+						type: 'string',
+						default: '',
+						description: '仅用于导出报名信息展示',
+					},
+				],
+			},
+		],
+	},
+	{
 		displayName: '列表数据扩展JSON',
 		name: 'list_data_json',
 		type: 'json',
 		displayOptions: { show: { resource: ['meeting'], operation: needListJson } },
 		default: '[]',
-		description: '若为非空数组则覆盖上方表单；报名导入等复杂结构也写在这里',
+		description: '非空数组覆盖上方表单（报名导入 enroll_list、嘉宾列表等）',
 	},
 	{
 		displayName: 'Rooms会议室名称',

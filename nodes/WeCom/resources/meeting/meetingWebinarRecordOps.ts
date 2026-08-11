@@ -548,6 +548,50 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: '导入报名列表',
+		name: 'webinarEnrollImportCollection',
+		type: 'fixedCollection',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarEnrollImport'] },
+		},
+		default: {},
+		placeholder: '添加报名成员',
+		typeOptions: { multipleValues: true },
+		description: 'enroll_list：userid 与手机号二选一',
+		options: [
+			{
+				displayName: '成员',
+				name: 'members',
+				values: [
+					{
+						displayName: '成员UserID',
+						name: 'userid',
+						type: 'string',
+						default: '',
+					},
+					{
+						displayName: '国家/地区代码',
+						name: 'area',
+						type: 'string',
+						default: '86',
+					},
+					{
+						displayName: '手机号',
+						name: 'phone_number',
+						type: 'string',
+						default: '',
+					},
+					{
+						displayName: '昵称',
+						name: 'nick_name',
+						type: 'string',
+						default: '',
+					},
+				],
+			},
+		],
+	},
+	{
 		displayName: '报名ID列表',
 		name: 'webinar_enroll_id_list',
 		type: 'string',

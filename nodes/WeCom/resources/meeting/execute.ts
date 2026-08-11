@@ -908,6 +908,26 @@ export async function executeMeeting(
 				if (operation === 'webinarEnrollApprove') {
 					body.action = this.getNodeParameter('webinar_enroll_action', i, 3) as number;
 				}
+				if (operation === 'webinarEnrollImport') {
+					const importCollection = this.getNodeParameter(
+						'webinarEnrollImportCollection',
+						i,
+						{},
+					) as IDataObject;
+					const formList = ((importCollection?.members as IDataObject[]) || [])
+						.filter((m) => m.userid || m.phone_number)
+						.map((m) => {
+							const item: IDataObject = {};
+							if (m.userid) item.userid = m.userid;
+							if (m.phone_number) {
+								item.phone_number = m.phone_number;
+								item.area = m.area || '86';
+							}
+							if (m.nick_name) item.nick_name = m.nick_name;
+							return item;
+						});
+					if (formList.length) body.enroll_list = formList;
+				}
 				try {
 					Object.assign(body, JSON.parse(webinarEnrollJson || '{}') as IDataObject);
 					body.meetingid = meetingid;
@@ -1439,6 +1459,26 @@ export async function executeMeeting(
 					if (operation === 'enrollQueryByTmpOpenid') {
 						const enroll_tmp_openid = this.getNodeParameter('enroll_tmp_openid', i, '') as string;
 						if (enroll_tmp_openid) body.tmp_openid = enroll_tmp_openid;
+					}
+					if (operation === 'enrollImport') {
+						const enrollImportCollection = this.getNodeParameter(
+							'enrollImportCollection',
+							i,
+							{},
+						) as IDataObject;
+						const formList = ((enrollImportCollection?.members as IDataObject[]) || [])
+							.filter((m) => m.userid || m.phone_number)
+							.map((m) => {
+								const item: IDataObject = {};
+								if (m.userid) item.userid = m.userid;
+								if (m.phone_number) {
+									item.phone_number = m.phone_number;
+									item.area = m.area || '86';
+								}
+								if (m.nick_name) item.nick_name = m.nick_name;
+								return item;
+							});
+						if (formList.length) body.enroll_list = formList;
 					}
 					try {
 						const parsed = JSON.parse(list_data_json || '[]');

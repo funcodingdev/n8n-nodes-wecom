@@ -2122,6 +2122,11 @@ export async function executeExternalContact(
 					) as string;
 					const crm_sender = this.getNodeParameter('crm_sender', i, '') as string;
 					const crm_attachments_json = this.getNodeParameter('crm_attachments_json', i, '[]') as string;
+					const crmAttachmentsCollection = this.getNodeParameter(
+						'crmAttachmentsCollection',
+						i,
+						{},
+					) as IDataObject;
 					if (crm_msg_text) bodyDefaults.text = { content: crm_msg_text };
 					const externalUserids = crm_external_userid_list
 						.split(',')
@@ -2129,6 +2134,35 @@ export async function executeExternalContact(
 						.filter(Boolean);
 					if (externalUserids.length) bodyDefaults.external_userid = externalUserids;
 					if (crm_sender) bodyDefaults.sender = crm_sender;
+					const formAttachments = ((crmAttachmentsCollection?.items as IDataObject[]) || [])
+						.map((a) => {
+							const msgtype = String(a.msgtype || 'image');
+							const item: IDataObject = { msgtype };
+							if (msgtype === 'image') {
+								const image: IDataObject = {};
+								if (a.media_id) image.media_id = a.media_id;
+								if (a.pic_url) image.pic_url = a.pic_url;
+								if (Object.keys(image).length) item.image = image;
+							} else if (msgtype === 'link') {
+								const link: IDataObject = {};
+								if (a.title) link.title = a.title;
+								if (a.desc) link.desc = a.desc;
+								if (a.url) link.url = a.url;
+								if (a.pic_url) link.picurl = a.pic_url;
+								if (Object.keys(link).length) item.link = link;
+							} else if (msgtype === 'miniprogram') {
+								const mp: IDataObject = {};
+								if (a.title) mp.title = a.title;
+								if (a.pic_url) mp.pic_media_id = a.pic_url;
+								if (a.media_id) mp.pic_media_id = a.media_id;
+								if (a.appid) mp.appid = a.appid;
+								if (a.page) mp.page = a.page;
+								if (Object.keys(mp).length) item.miniprogram = mp;
+							}
+							return item;
+						})
+						.filter((a) => Object.keys(a).length > 1);
+					if (formAttachments.length) bodyDefaults.attachments = formAttachments;
 					try {
 						const attachments = JSON.parse(crm_attachments_json || '[]');
 						if (Array.isArray(attachments) && attachments.length) {
