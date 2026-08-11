@@ -70,7 +70,8 @@ export class WeComWechat implements INodeType {
 					{
 						name: '政民沟通',
 						value: 'living',
-						description: '网格配置、事件类别、巡查上报、居民上报',
+						description:
+							'政民沟通（居民联系）：网格/事件类别/巡查上报/居民上报。对应官方 report/*，资源 value 历史为 living（非直播 live）',
 					},
 				],
 				default: 'externalContact',

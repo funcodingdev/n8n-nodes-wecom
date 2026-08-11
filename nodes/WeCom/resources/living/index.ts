@@ -1,4 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
+// 资源 value=living 为历史命名；业务为政民沟通（/cgi-bin/report/*），不是直播 live
 import { addGridDescription } from './addGrid';
 import { updateGridDescription } from './updateGrid';
 import { deleteGridDescription } from './deleteGrid';
@@ -21,6 +22,7 @@ import { getResidentCategoryStatDescription } from './getResidentCategoryStat';
 import { getResidentEventListDescription } from './getResidentEventList';
 import { getResidentEventDetailDescription } from './getResidentEventDetail';
 
+// 资源 value=living 为历史命名；业务为政民沟通（report/*），不是直播 live
 const showOnlyForLiving = {
 	resource: ['living'],
 };

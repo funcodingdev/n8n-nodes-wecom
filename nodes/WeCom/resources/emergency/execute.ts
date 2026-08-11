@@ -25,9 +25,12 @@ export async function executeEmergency(
 			} else if (operation === 'getCallStatus') {
 				// 获取接听状态
 				// https://developer.work.weixin.qq.com/document/path/91628
+				// 官方路径：/cgi-bin/pstncc/getstates
 				const callid = this.getNodeParameter('callid', i) as string;
+				const callee_userid = this.getNodeParameter('callee_userid', i) as string;
 
-				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/pstncc/getstatus', {
+				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/pstncc/getstates', {
+					callee_userid,
 					callid,
 				});
 			}

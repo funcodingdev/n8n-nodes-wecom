@@ -26,6 +26,7 @@ import { revokeVipAccountsDescription } from './revokeVipAccounts';
 import { getVipAccountsListDescription } from './getVipAccountsList';
 import { getProInfoDescription } from './getProInfo';
 
+// 资源 value=wefile；官方微盘 API 前缀 /cgi-bin/wedrive/*
 const showOnlyForWefile = {
 	resource: ['wefile'],
 };

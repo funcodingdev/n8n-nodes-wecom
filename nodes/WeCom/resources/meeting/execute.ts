@@ -375,6 +375,110 @@ export async function executeMeeting(
 				if (cursor) body.cursor = cursor;
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/vip/list', body);
+			}
+			// 报名管理
+			// https://developer.work.weixin.qq.com/document/path/98800
+			else if (operation === 'getEnrollConfig') {
+				const meetingid = this.getNodeParameter('meetingid', i) as string;
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/enroll/get_config', {
+					meetingid,
+				});
+			} else if (operation === 'setEnrollConfig') {
+				const meetingid = this.getNodeParameter('meetingid', i) as string;
+				const enrollConfigJson = this.getNodeParameter('enrollConfigJson', i, '{}') as string;
+				const body: IDataObject = { meetingid };
+				try {
+					Object.assign(body, JSON.parse(enrollConfigJson || '{}') as IDataObject);
+					body.meetingid = meetingid;
+				} catch {
+					// ignore invalid json
+				}
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/enroll/set_config', body);
+			} else if (operation === 'listEnroll') {
+				// https://developer.work.weixin.qq.com/document/path/98810
+				const meetingid = this.getNodeParameter('meetingid', i) as string;
+				const enroll_status = this.getNodeParameter('enroll_status', i, 0) as number;
+				const cursor = this.getNodeParameter('cursor', i, '') as string;
+				const limit = this.getNodeParameter('limit', i, 20) as number;
+				const body: IDataObject = { meetingid, limit };
+				if (enroll_status) body.status = enroll_status;
+				if (cursor) body.cursor = cursor;
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/enroll/list', body);
+			} else if (operation === 'approveEnroll') {
+				const meetingid = this.getNodeParameter('meetingid', i) as string;
+				const approveJson = this.getNodeParameter('approveJson', i, '{}') as string;
+				const body: IDataObject = { meetingid };
+				try {
+					Object.assign(body, JSON.parse(approveJson || '{}') as IDataObject);
+					body.meetingid = meetingid;
+				} catch {
+					// ignore
+				}
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/enroll/approve', body);
+			}
+			// Rooms 会议室
+			// https://developer.work.weixin.qq.com/document/path/98795
+			else if (operation === 'listRooms') {
+				const meeting_room_name = this.getNodeParameter('meeting_room_name', i, '') as string;
+				const cursor = this.getNodeParameter('cursor', i, '') as string;
+				const limit = this.getNodeParameter('limit', i, 20) as number;
+				const body: IDataObject = { limit };
+				if (meeting_room_name) body.meeting_room_name = meeting_room_name;
+				if (cursor) body.cursor = cursor;
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/rooms/list', body);
+			} else if (operation === 'getRoomInfo') {
+				const meeting_room_id = this.getNodeParameter('meeting_room_id', i) as string;
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/rooms/get_info', {
+					meeting_room_id,
+				});
+			} else if (operation === 'bookRooms') {
+				// https://developer.work.weixin.qq.com/document/path/98791
+				const meetingid = this.getNodeParameter('meetingid', i) as string;
+				const meeting_room_id_list_raw = this.getNodeParameter('meeting_room_id_list', i) as string;
+				const meeting_room_id_list = meeting_room_id_list_raw
+					.split(',')
+					.map((id) => id.trim())
+					.filter(Boolean);
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/rooms/book', {
+					meetingid,
+					meeting_room_id_list,
+				});
+			} else if (operation === 'releaseRooms') {
+				// https://developer.work.weixin.qq.com/document/path/98792
+				const meetingid = this.getNodeParameter('meetingid', i) as string;
+				const meeting_room_id_list_raw =
+					(this.getNodeParameter('meeting_room_id_list', i, '') as string) ||
+					(this.getNodeParameter('meeting_room_id', i, '') as string);
+				const meeting_room_id_list = meeting_room_id_list_raw
+					.split(',')
+					.map((id) => id.trim())
+					.filter(Boolean);
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/rooms/release', {
+					meetingid,
+					meeting_room_id_list,
+				});
+			} else if (operation === 'setCohost') {
+				const meetingid = this.getNodeParameter('meetingid', i) as string;
+				const cohost_userids = this.getNodeParameter('cohost_userids', i, '') as string;
+				const userid_list = cohost_userids
+					.split(',')
+					.map((id) => id.trim())
+					.filter(Boolean);
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/realcontrol/set_cohost', {
+					meetingid,
+					userid_list,
+				});
+			} else if (operation === 'realcontrolSet') {
+				const meetingid = this.getNodeParameter('meetingid', i) as string;
+				const realcontrolJson = this.getNodeParameter('realcontrolJson', i, '{}') as string;
+				const body: IDataObject = { meetingid };
+				try {
+					Object.assign(body, JSON.parse(realcontrolJson || '{}') as IDataObject);
+					body.meetingid = meetingid;
+				} catch {
+					// ignore
+				}
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/realcontrol/set', body);
 			} else {
 				response = {};
 			}

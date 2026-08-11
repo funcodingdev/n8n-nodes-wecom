@@ -7,6 +7,19 @@ const showOnlyForGetCallStatus = {
 
 export const getCallStatusDescription: INodeProperties[] = [
 	{
+		displayName: '被叫UserID',
+		name: 'callee_userid',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: showOnlyForGetCallStatus,
+		},
+		default: '',
+		placeholder: 'zhangsan',
+		description:
+			'被叫成员 userid。<a href="https://developer.work.weixin.qq.com/document/path/91628" target="_blank">官方文档</a>',
+	},
+	{
 		displayName: '通话ID',
 		name: 'callid',
 		type: 'string',
@@ -16,7 +29,7 @@ export const getCallStatusDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'CALL_ID_STRING',
-		description: '语音通话的唯一标识ID，由发起语音电话接口返回。<a href="https://developer.work.weixin.qq.com/document/path/91623" target="_blank">更多信息</a>',
+		description: '发起语音电话接口返回的 callid',
 	},
 ];
 

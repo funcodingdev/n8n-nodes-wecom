@@ -79,7 +79,8 @@ export class WeComOffice implements INodeType {
 					{
 						name: '微盘',
 						value: 'wefile',
-						description: '管理微盘空间和文件',
+						description:
+							'企业微信微盘（官方 API 前缀 /cgi-bin/wedrive/*）。资源 value 为 wefile，与直播 live 区分',
 					},
 					{
 						name: '邮件',

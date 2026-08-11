@@ -223,7 +223,8 @@ export class WeComBase implements INodeType {
 					{
 						name: '企业互联',
 						value: 'linkedcorp',
-						description: '企业互联和上下游管理',
+						description:
+							'企业互联与上下游（官方 API 主要为 /cgi-bin/corpgroup/*）。资源 value 历史为 linkedcorp',
 					},
 					{
 						name: '素材管理',

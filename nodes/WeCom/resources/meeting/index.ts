@@ -31,6 +31,7 @@ import { getRecordingAddressDescription } from './getRecordingAddress';
 import { allocateMeetingAdvancedAccountDescription } from './allocateMeetingAdvancedAccount';
 import { deallocateMeetingAdvancedAccountDescription } from './deallocateMeetingAdvancedAccount';
 import { getMeetingAdvancedAccountListDescription } from './getMeetingAdvancedAccountList';
+import { meetingAdvancedOpsDescription } from './meetingAdvancedOps';
 
 const showOnlyForMeeting = {
 	resource: ['meeting'],
@@ -173,6 +174,69 @@ export const meetingDescription: INodeProperties[] = [
 				action: '获取高级账号列表',
 				description: '获取企业的会议高级功能账号列表',
 			},
+			// 报名管理
+			{
+				name: '[报名管理] 获取会议报名配置',
+				value: 'getEnrollConfig',
+				action: '获取报名配置',
+				description: 'enroll/get_config',
+			},
+			{
+				name: '[报名管理] 修改会议报名配置',
+				value: 'setEnrollConfig',
+				action: '修改报名配置',
+				description: 'enroll/set_config',
+			},
+			{
+				name: '[报名管理] 获取会议报名信息',
+				value: 'listEnroll',
+				action: '获取报名信息',
+				description: 'enroll/list',
+			},
+			{
+				name: '[报名管理] 审批会议报名',
+				value: 'approveEnroll',
+				action: '审批报名',
+				description: 'enroll/approve',
+			},
+			// Rooms
+			{
+				name: '[Rooms] 获取Rooms会议室列表',
+				value: 'listRooms',
+				action: 'Rooms列表',
+				description: 'rooms/list',
+			},
+			{
+				name: '[Rooms] 获取Rooms会议室详情',
+				value: 'getRoomInfo',
+				action: 'Rooms详情',
+				description: 'rooms/get_info',
+			},
+			{
+				name: '[Rooms] 预定Rooms会议室',
+				value: 'bookRooms',
+				action: '预定Rooms',
+				description: 'rooms/book',
+			},
+			{
+				name: '[Rooms] 释放Rooms会议室',
+				value: 'releaseRooms',
+				action: '释放Rooms',
+				description: 'rooms/release',
+			},
+			// 会中扩展
+			{
+				name: '[会中控制] 设置联席主持人',
+				value: 'setCohost',
+				action: '设置联席主持人',
+				description: 'realcontrol/set_cohost',
+			},
+			{
+				name: '[会中控制] 会中设置(扩展)',
+				value: 'realcontrolSet',
+				action: '会中设置',
+				description: 'realcontrol/set，JSON 扩展体',
+			},
 		],
 		default: 'createMeeting',
 	},
@@ -196,5 +260,6 @@ export const meetingDescription: INodeProperties[] = [
 	...allocateMeetingAdvancedAccountDescription,
 	...deallocateMeetingAdvancedAccountDescription,
 	...getMeetingAdvancedAccountListDescription,
+	...meetingAdvancedOpsDescription,
 ];
 
