@@ -1,4 +1,8 @@
 import type { INodeProperties } from 'n8n-workflow';
+import {
+	getSchoolExtraHttpOpOptions,
+	schoolExtraHttpOpsDescription,
+} from './extraHttpOps';
 import { getHealthReportStatDescription } from './getHealthReportStat';
 import { getHealthReportJobIdsDescription } from './getHealthReportJobIds';
 import { getHealthReportJobInfoDescription } from './getHealthReportJobInfo';
@@ -199,6 +203,7 @@ export const schoolDescription: INodeProperties[] = [
 				description: '读取学生或家长信息',
 				action: '读取学生或家长',
 			},
+					...getSchoolExtraHttpOpOptions(),
 		],
 		default: 'getHealthReportStat',
 	},
@@ -219,4 +224,5 @@ export const schoolDescription: INodeProperties[] = [
 	...getUserInfo3rdDescription,
 	...createStudentDescription,
 	...getSchoolUserDescription,
+	...schoolExtraHttpOpsDescription,
 ];

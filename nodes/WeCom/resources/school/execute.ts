@@ -1,5 +1,7 @@
 import type { IExecuteFunctions, IDataObject, INodeExecutionData, IHttpRequestOptions } from 'n8n-workflow';
 import { weComApiRequest, getWeComBaseUrl } from '../../shared/transport';
+import { executeExtraHttpOp } from '../../shared/extraHttpOp';
+import { schoolExtraHttpOpsById } from './extraHttpOps';
 
 export async function executeSchool(
 	this: IExecuteFunctions,
@@ -529,8 +531,17 @@ export async function executeSchool(
 					);
 					break;
 				}
-				default:
+				default: {
+					if (schoolExtraHttpOpsById[operation]) {
+						responseData = await executeExtraHttpOp.call(
+							this,
+							schoolExtraHttpOpsById[operation],
+							i,
+						);
+						break;
+					}
 					throw new Error(`未知操作: ${operation}`);
+				}
 			}
 
 			returnData.push({

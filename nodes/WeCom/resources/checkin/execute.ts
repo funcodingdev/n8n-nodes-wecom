@@ -1,5 +1,7 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
+import { executeExtraHttpOp } from '../../shared/extraHttpOp';
+import { checkinExtraHttpOpsById } from './extraHttpOps';
 
 // 辅助函数：将dateTime转换为Unix时间戳（秒级）
 function dateTimeToUnixTimestamp(dateTime: string | number): number {
@@ -258,6 +260,12 @@ export async function executeCheckin(
 				}
 
 				responseData = await weComApiRequest.call(this, 'POST', endpoint, body);
+			} else if (checkinExtraHttpOpsById[operation]) {
+				responseData = await executeExtraHttpOp.call(
+					this,
+					checkinExtraHttpOpsById[operation],
+					i,
+				);
 			}
 
 			returnData.push({

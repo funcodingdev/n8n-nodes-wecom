@@ -1,4 +1,8 @@
 import type { INodeProperties } from 'n8n-workflow';
+import {
+	getApprovalExtraHttpOpOptions,
+	approvalExtraHttpOpsDescription,
+} from './extraHttpOps';
 
 import { getTemplateDetailDescription } from './getTemplateDetail';
 import { submitApprovalDescription } from './submitApproval';
@@ -87,6 +91,7 @@ export const approvalDescription: INodeProperties[] = [
 				action: '修改假期余额',
 				description: '修改指定成员的假期余额配额',
 			},
+					...getApprovalExtraHttpOpOptions(),
 		],
 		default: 'getApprovalDetail',
 	},
@@ -110,5 +115,5 @@ export const approvalDescription: INodeProperties[] = [
 	...setVacationQuotaDescription,
 	...createApprovalTemplateDescription,
 	...updateApprovalTemplateDescription,
+	...approvalExtraHttpOpsDescription,
 ];
-

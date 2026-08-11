@@ -1,4 +1,8 @@
 import type { INodeProperties } from 'n8n-workflow';
+import {
+	getSystemExtraHttpOpOptions,
+	systemExtraHttpOpsDescription,
+} from './extraHttpOps';
 
 export const systemDescription: INodeProperties[] = [
 	{
@@ -30,8 +34,9 @@ export const systemDescription: INodeProperties[] = [
 				description: '获取企业微信 Access Token',
 				action: '获取AccessToken',
 			},
+					...getSystemExtraHttpOpOptions(),
 		],
 		default: 'getApiDomainIp',
 	},
+	...systemExtraHttpOpsDescription,
 ];
-

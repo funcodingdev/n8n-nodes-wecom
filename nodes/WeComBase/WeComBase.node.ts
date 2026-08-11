@@ -25,7 +25,6 @@ import { externalpayDescription } from '../WeCom/resources/externalpay';
 import { miniapppayDescription } from '../WeCom/resources/miniapppay';
 import { chatdataDescription } from '../WeCom/resources/chatdata';
 import { msgauditDescription } from '../WeCom/resources/msgaudit';
-import { openApiDescription } from '../WeCom/resources/openApi';
 import { promotionQrcodeDescription } from '../WeCom/resources/promotionQrcode';
 import { accountIdDescription } from '../WeCom/resources/accountId';
 import { fileDescription } from '../WeCom/resources/file';
@@ -48,7 +47,6 @@ import { executeExternalpay } from '../WeCom/resources/externalpay/execute';
 import { executeMiniapppay } from '../WeCom/resources/miniapppay/execute';
 import { executeChatdata } from '../WeCom/resources/chatdata/execute';
 import { executeMsgaudit } from '../WeCom/resources/msgaudit/execute';
-import { executeOpenApi } from '../WeCom/resources/openApi/execute';
 import { executePromotionQrcode } from '../WeCom/resources/promotionQrcode/execute';
 import { executeAccountId } from '../WeCom/resources/accountId/execute';
 import { executeFile } from '../WeCom/resources/file/execute';
@@ -66,7 +64,7 @@ export class WeComBase implements INodeType {
 		subtitle:
 			'={{$parameter["resource"] === "passiveReply" ? "reply: " + $parameter["resource"] : ($parameter["resource"] === "system" ? $parameter["resource"] : $parameter["operation"] + ": " + $parameter["resource"])}}',
 		description:
-			'企业微信基础功能 - 通讯录、应用消息、群聊、消息推送、企业互联、素材、系统、电子发票、第三方应用授权、接口调用许可、收银台、对外收款、小程序对外收款、数据与智能专区、会话内容存档、开放接口(全量 cgi-bin)、推广二维码、账号ID、安全管理',
+			'企业微信基础功能 - 通讯录、应用消息、群聊、消息推送、企业互联、素材、系统、电子发票、第三方应用授权、接口调用许可、收银台、对外收款、小程序对外收款、数据与智能专区、会话内容存档、推广二维码、账号ID、安全管理',
 		defaults: {
 			name: '企业微信-基础',
 		},
@@ -93,7 +91,6 @@ export class WeComBase implements INodeType {
 							'miniapppay',
 							'chatdata',
 							'msgaudit',
-							'openApi',
 						],
 					},
 				},
@@ -285,12 +282,6 @@ export class WeComBase implements INodeType {
 						description: '会话内容存档（开启成员、同意情况、内部群、机器人）',
 					},
 					{
-						name: '开放接口(全量)',
-						value: 'openApi',
-						description:
-							'文档中全部 cgi-bin HTTP 接口：自定义调用 + 未单独封装的接口目录（自动差分生成）',
-					},
-					{
 						name: '第三方应用推广二维码',
 						value: 'promotionQrcode',
 						description: '第三方应用推广二维码（获取注册码）',
@@ -331,7 +322,6 @@ export class WeComBase implements INodeType {
 			...miniapppayDescription,
 			...chatdataDescription,
 			...msgauditDescription,
-			...openApiDescription,
 			...promotionQrcodeDescription,
 			...accountIdDescription,
 			...fileDescription,
@@ -534,8 +524,6 @@ export class WeComBase implements INodeType {
 				returnData = await executeChatdata.call(this, operation, items);
 			} else if (resource === 'msgaudit') {
 				returnData = await executeMsgaudit.call(this, operation, items);
-			} else if (resource === 'openApi') {
-				returnData = await executeOpenApi.call(this, operation, items);
 			} else if (resource === 'promotionQrcode') {
 				returnData = await executePromotionQrcode.call(this, operation, items);
 			} else if (resource === 'accountId') {

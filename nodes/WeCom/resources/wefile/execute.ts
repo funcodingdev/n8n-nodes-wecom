@@ -1,5 +1,7 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
+import { executeExtraHttpOp } from '../../shared/extraHttpOp';
+import { wefileExtraHttpOpsById } from './extraHttpOps';
 
 // 辅助函数：构建成员信息
 function buildAuthInfo(members: IDataObject[]): IDataObject[] {
@@ -544,6 +546,12 @@ export async function executeWefile(
 					'POST',
 					'/cgi-bin/wedrive/file_upload_finish',
 					{ upload_key },
+				);
+			} else if (wefileExtraHttpOpsById[operation]) {
+				responseData = await executeExtraHttpOp.call(
+					this,
+					wefileExtraHttpOpsById[operation],
+					i,
 				);
 			}
 

@@ -1,4 +1,8 @@
 import type { INodeProperties } from 'n8n-workflow';
+import {
+	getExternalContactExtraHttpOpOptions,
+	externalContactExtraHttpOpsDescription,
+} from './extraHttpOps';
 import { getFollowUserListDescription } from './getFollowUserList';
 import { getExternalContactListDescription } from './getExternalContactList';
 import { getExternalContactDescription } from './getExternalContact';
@@ -592,6 +596,7 @@ export const externalContactDescription: INodeProperties[] = [
 				action: '生成代支付key',
 				description: '生成用于对应链接代支付的key，key使用一次之后失效',
 			},
+					...getExternalContactExtraHttpOpOptions(),
 		],
 		default: 'getFollowUserList',
 	},
@@ -683,5 +688,6 @@ export const externalContactDescription: INodeProperties[] = [
 	...sendSchoolMessageNewsDescription,
 	...sendSchoolMessageMpNewsDescription,
 	...sendSchoolMessageMiniprogramDescription,
+	...externalContactExtraHttpOpsDescription,
 ];
 

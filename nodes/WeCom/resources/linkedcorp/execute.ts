@@ -1,5 +1,7 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
+import { executeExtraHttpOp } from '../../shared/extraHttpOp';
+import { linkedcorpExtraHttpOpsById } from './extraHttpOps';
 
 export async function executeLinkedcorp(
 	this: IExecuteFunctions,
@@ -292,6 +294,12 @@ export async function executeLinkedcorp(
 				}
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/corpgroup/rule/modify_rule', body);
+			} else if (linkedcorpExtraHttpOpsById[operation]) {
+				response = await executeExtraHttpOp.call(
+					this,
+					linkedcorpExtraHttpOpsById[operation],
+					i,
+				);
 			} else {
 				response = {};
 			}

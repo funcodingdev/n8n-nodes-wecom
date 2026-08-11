@@ -32,6 +32,10 @@ import { allocateMeetingAdvancedAccountDescription } from './allocateMeetingAdva
 import { deallocateMeetingAdvancedAccountDescription } from './deallocateMeetingAdvancedAccount';
 import { getMeetingAdvancedAccountListDescription } from './getMeetingAdvancedAccountList';
 import { meetingAdvancedOpsDescription } from './meetingAdvancedOps';
+import {
+	getMeetingExtraHttpOpOptions,
+	meetingExtraHttpOpsDescription,
+} from './extraHttpOps';
 
 const showOnlyForMeeting = {
 	resource: ['meeting'],
@@ -276,6 +280,8 @@ export const meetingDescription: INodeProperties[] = [
 				action: '投票详情',
 				description: 'poll/get_poll_detail',
 			},
+			// 文档遗漏接口补全（一等操作）
+			...getMeetingExtraHttpOpOptions(),
 		],
 		default: 'createMeeting',
 	},
@@ -300,5 +306,6 @@ export const meetingDescription: INodeProperties[] = [
 	...deallocateMeetingAdvancedAccountDescription,
 	...getMeetingAdvancedAccountListDescription,
 	...meetingAdvancedOpsDescription,
+	...meetingExtraHttpOpsDescription,
 ];
 

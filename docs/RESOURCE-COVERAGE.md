@@ -61,7 +61,7 @@
 
 - 节点已实现路径（去重）: **527**（一等业务操作）
 - 文档抽取路径（各章合计，含跨章重复）: **628**
-- **开放接口(全量) `openApi`**: 差分 catalog **~130** 条 + `callCgiBin` 自定义任意 `/cgi-bin/*`（覆盖会议/家校/客户策略等剩余 HTTP；不含商户 XML 与 SDK-only）
+- **遗漏 HTTP 补全**: 已按业务 Resource 一等操作补入（meeting/extraHttpOps 等），请求体/Query 用 JSON；不含商户 XML 与 SDK-only/multipart
 
 ## 覆盖结构关系（简图）
 
@@ -70,7 +70,7 @@ docs/001-企业内部开发/002-服务端API
 ├── 基础/平台 ──► WeComBase
 │   contact, agent, material, message*, security,
 │   accountId, system, linkedcorp, chatdata, msgaudit,
-│   externalpay, miniapppay, invoice, openApi(全量差分), ...
+│   externalpay, miniapppay, invoice, ...
 ├── 办公 OA ────► WeComOffice
 │   wedoc, wefile, mail, calendar, meeting, live,
 │   checkin, approval, journal, hr, meetingroom, ...

@@ -1,4 +1,8 @@
 import type { INodeProperties } from 'n8n-workflow';
+import {
+	getWefileExtraHttpOpOptions,
+	wefileExtraHttpOpsDescription,
+} from './extraHttpOps';
 import { createSpaceDescription } from './createSpace';
 import { renameSpaceDescription } from './renameSpace';
 import { deleteSpaceDescription } from './deleteSpace';
@@ -226,6 +230,7 @@ export const wefileDescription: INodeProperties[] = [
 				description: 'wedrive/file_upload_finish',
 				action: '完成分片上传',
 			},
+					...getWefileExtraHttpOpOptions(),
 		],
 		default: 'getFileList',
 	},
@@ -256,4 +261,5 @@ export const wefileDescription: INodeProperties[] = [
 	...getVipAccountsListDescription,
 	...getProInfoDescription,
 	...chunkUploadOpsDescription,
+	...wefileExtraHttpOpsDescription,
 ];

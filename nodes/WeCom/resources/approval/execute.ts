@@ -1,5 +1,7 @@
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
+import { executeExtraHttpOp } from '../../shared/extraHttpOp';
+import { approvalExtraHttpOpsById } from './extraHttpOps';
 
 export async function executeApproval(
 	this: IExecuteFunctions,
@@ -114,6 +116,12 @@ export async function executeApproval(
 					template_id,
 					...JSON.parse(templateData),
 				});
+			} else if (approvalExtraHttpOpsById[operation]) {
+				responseData = await executeExtraHttpOp.call(
+					this,
+					approvalExtraHttpOpsById[operation],
+					i,
+				);
 			}
 
 			returnData.push({

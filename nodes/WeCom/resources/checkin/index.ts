@@ -1,4 +1,8 @@
 import type { INodeProperties } from 'n8n-workflow';
+import {
+	getCheckinExtraHttpOpOptions,
+	checkinExtraHttpOpsDescription,
+} from './extraHttpOps';
 
 import { getCorporationRulesDescription } from './getCorporationRules';
 import { getUserRulesDescription } from './getUserRules';
@@ -105,6 +109,7 @@ export const checkinDescription: INodeProperties[] = [
 				action: '录入人脸信息',
 				description: '录入员工的人脸识别信息',
 			},
+					...getCheckinExtraHttpOpOptions(),
 		],
 		default: 'getCheckinData',
 	},
@@ -120,5 +125,6 @@ export const checkinDescription: INodeProperties[] = [
 	...addFaceInfoDescription,
 	...getDeviceCheckinDataDescription,
 	...manageRulesDescription,
+	...checkinExtraHttpOpsDescription,
 ];
 

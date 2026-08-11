@@ -1,3 +1,5 @@
+import { executeExtraHttpOp } from '../../shared/extraHttpOp';
+import { systemExtraHttpOpsById } from './extraHttpOps';
 import type { IExecuteFunctions, IDataObject } from 'n8n-workflow';
 import { getApiDomainIp } from './getApiDomainIp';
 import { getCallbackIp } from './getCallbackIp';
@@ -24,8 +26,17 @@ export async function executeSystem(
 		case 'getAccessToken':
 			responseData = await getAccessToken.call(this);
 			break;
-		default:
+		default: {
+			if (systemExtraHttpOpsById[operation]) {
+				responseData = await executeExtraHttpOp.call(
+					this,
+					systemExtraHttpOpsById[operation],
+					index,
+				);
+				break;
+			}
 			throw new Error(`未知操作: ${operation}`);
+		}
 	}
 
 	return [responseData];

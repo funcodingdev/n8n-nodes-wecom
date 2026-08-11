@@ -1,5 +1,7 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
+import { executeExtraHttpOp } from '../../shared/extraHttpOp';
+import { externalContactExtraHttpOpsById } from './extraHttpOps';
 
 export async function executeExternalContact(
 	this: IExecuteFunctions,
@@ -1967,6 +1969,12 @@ export async function executeExternalContact(
 					'POST',
 					'/cgi-bin/externalcontact/message/send',
 					body,
+				);
+			} else if (externalContactExtraHttpOpsById[operation]) {
+				response = await executeExtraHttpOp.call(
+					this,
+					externalContactExtraHttpOpsById[operation],
+					i,
 				);
 			} else {
 				response = {};

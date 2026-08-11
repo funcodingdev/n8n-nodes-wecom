@@ -1,4 +1,8 @@
 import type { INodeProperties } from 'n8n-workflow';
+import {
+	getLinkedcorpExtraHttpOpOptions,
+	linkedcorpExtraHttpOpsDescription,
+} from './extraHttpOps';
 import { getAppShareInfoDescription } from './getAppShareInfo';
 import { getLinkedCorpTokenDescription } from './getLinkedCorpToken';
 import { getMiniProgramSessionDescription } from './getMiniProgramSession';
@@ -50,6 +54,7 @@ export const linkedcorpDescription: INodeProperties[] = [
 			// 其他操作
 			{ name: '[其他操作] 查询成员自定义ID', value: 'getCustomUserId', action: '查询成员自定义 ID', description: '查询成员在上下游企业中的自定义ID' },
 			{ name: '[其他操作] 移除企业', value: 'removeChainCorp', action: '移除企业', description: '从上下游关系中移除企业' },
+					...getLinkedcorpExtraHttpOpOptions(),
 		],
 		default: 'getAppShareInfo',
 	},
@@ -68,4 +73,5 @@ export const linkedcorpDescription: INodeProperties[] = [
 	...getChainRuleDetailDescription,
 	...addChainRuleDescription,
 	...updateChainRuleDescription,
+	...linkedcorpExtraHttpOpsDescription,
 ];
