@@ -53,6 +53,12 @@ export const miniapppayDescription: INodeProperties[] = [
 				description: '申请交易账单',
 			},
 			{
+				name: '[账单] 下载账单文件',
+				value: 'downloadBillFile',
+				action: '下载账单文件',
+				description: '使用账单申请返回的下载地址获取账单文件',
+			},
+			{
 				name: '[进件] 提交创建对外收款账户申请',
 				value: 'applyMch',
 				action: '提交进件申请',
@@ -311,6 +317,34 @@ export const miniapppayDescription: INodeProperties[] = [
 		],
 		default: '',
 	},
+	// downloadBillFile
+	{
+		displayName: '账单下载地址',
+		name: 'download_url',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { ...showOnly, operation: ['downloadBillFile'] } },
+		default: '',
+		description:
+			'交易账单申请返回的 download_url（约 30 秒有效，形如 https://api.mch.weixin.qq.com/v3/billdownload/file?token=...）',
+	},
+	{
+		displayName: 'Authorization 头',
+		name: 'auth_header',
+		type: 'string',
+		displayOptions: { show: { ...showOnly, operation: ['downloadBillFile'] } },
+		default: '',
+		description:
+			'账单申请返回的 auth（如有）。可填完整 “Authorization: xxx”，或仅填 token 值',
+	},
+	{
+		displayName: '输出二进制字段名',
+		name: 'binaryPropertyOut',
+		type: 'string',
+		displayOptions: { show: { ...showOnly, operation: ['downloadBillFile'] } },
+		default: 'data',
+		description: '账单文件写入的二进制字段名',
+	},
 	{
 		displayName: '二进制字段名',
 		name: 'binaryProperty',
@@ -321,3 +355,4 @@ export const miniapppayDescription: INodeProperties[] = [
 		description: '输入数据中的图片二进制字段名，支持 JPG/PNG/BMP',
 	},
 ];
+

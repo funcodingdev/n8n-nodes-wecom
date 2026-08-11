@@ -4,7 +4,7 @@ import { extraHttpOpOptions } from '../../shared/extraHttpOp';
 
 /** 文档有、此前节点未封装的 wefile 相关 HTTP 接口（一等操作） */
 export const wefileExtraHttpOps: ExtraHttpOp[] = [
-	{ id: 'wedriveGetFilePermission', name: '[微盘补全] wedrive/get_file_permission', action: 'wedrive/get_file_permission', description: 'POST /cgi-bin/wedrive/get_file_permission', path: '/cgi-bin/wedrive/get_file_permission', method: 'POST' },
+	{ id: 'wedriveGetFilePermission', name: '[微盘补全] wedrive/get_file_permission', action: 'wedrive/get_file_permission', description: 'wedrive/get_file_permission', path: '/cgi-bin/wedrive/get_file_permission', method: 'POST' },
 ];
 
 export const wefileExtraHttpOpsById: Record<string, ExtraHttpOp> = Object.fromEntries(

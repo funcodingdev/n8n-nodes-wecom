@@ -1,0 +1,498 @@
+{
+  "generatedAt": "2026-08-11T12:47:24.483Z",
+  "summary": {
+    "docPaths": 611,
+    "covered": 611,
+    "missing": 0,
+    "coveragePct": "100.00%",
+    "uiOpsMissingInExec": 0,
+    "paramPathLike": 0,
+    "resourceMenuBad": 0
+  },
+  "missing": [],
+  "uiMissingInExec": [],
+  "paramPathLike": [],
+  "menuBad": [],
+  "chapterTable": [
+    {
+      "ch": "001-开发指南",
+      "total": 1,
+      "covered": 1,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "003-账号ID",
+      "total": 4,
+      "covered": 4,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "004-通讯录管理",
+      "total": 37,
+      "covered": 37,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "005-身份验证",
+      "total": 5,
+      "covered": 5,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "006-企业互联",
+      "total": 3,
+      "covered": 3,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "007-上下游",
+      "total": 20,
+      "covered": 20,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "008-安全管理",
+      "total": 16,
+      "covered": 16,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "009-消息接收与发送",
+      "total": 14,
+      "covered": 14,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "010-应用管理",
+      "total": 11,
+      "covered": 11,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "011-素材管理",
+      "total": 6,
+      "covered": 6,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "012-电子发票",
+      "total": 4,
+      "covered": 4,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "013-数据与智能专区",
+      "total": 14,
+      "covered": 14,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "015-客户联系",
+      "total": 99,
+      "covered": 99,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "016-微信客服",
+      "total": 27,
+      "covered": 27,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "017-企业支付",
+      "total": 12,
+      "covered": 12,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "018-小程序接入对外收款",
+      "total": 8,
+      "covered": 8,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "019-会话内容存档",
+      "total": 5,
+      "covered": 5,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "020-家校沟通",
+      "total": 31,
+      "covered": 31,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "021-家校应用",
+      "total": 13,
+      "covered": 13,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "022-政民沟通",
+      "total": 21,
+      "covered": 21,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "024-邮件",
+      "total": 24,
+      "covered": 24,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "025-文档",
+      "total": 50,
+      "covered": 50,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "026-日程",
+      "total": 11,
+      "covered": 11,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "027-会议",
+      "total": 104,
+      "covered": 104,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "028-微盘",
+      "total": 31,
+      "covered": 31,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "029-直播",
+      "total": 9,
+      "covered": 9,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "030-公费电话",
+      "total": 1,
+      "covered": 1,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "031-打卡",
+      "total": 15,
+      "covered": 15,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "032-审批",
+      "total": 11,
+      "covered": 11,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "033-汇报",
+      "total": 4,
+      "covered": 4,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "034-人事助手",
+      "total": 3,
+      "covered": 3,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "035-会议室",
+      "total": 10,
+      "covered": 10,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "036-高级功能",
+      "total": 2,
+      "covered": 2,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "037-紧急通知应用",
+      "total": 2,
+      "covered": 2,
+      "missing": 0,
+      "pct": "100.0%"
+    }
+  ],
+  "resources": [
+    {
+      "r": "meeting",
+      "ui": 107,
+      "ex": 107,
+      "gap": 0
+    },
+    {
+      "r": "externalContact",
+      "ui": 104,
+      "ex": 104,
+      "gap": 0
+    },
+    {
+      "r": "wedoc",
+      "ui": 52,
+      "ex": 52,
+      "gap": 0
+    },
+    {
+      "r": "school",
+      "ui": 42,
+      "ex": 42,
+      "gap": 0
+    },
+    {
+      "r": "contact",
+      "ui": 38,
+      "ex": 38,
+      "gap": 0
+    },
+    {
+      "r": "wefile",
+      "ui": 31,
+      "ex": 31,
+      "gap": 0
+    },
+    {
+      "r": "license",
+      "ui": 27,
+      "ex": 27,
+      "gap": 0
+    },
+    {
+      "r": "mail",
+      "ui": 26,
+      "ex": 26,
+      "gap": 0
+    },
+    {
+      "r": "kf",
+      "ui": 21,
+      "ex": 21,
+      "gap": 0
+    },
+    {
+      "r": "living",
+      "ui": 21,
+      "ex": 21,
+      "gap": 0
+    },
+    {
+      "r": "linkedcorp",
+      "ui": 18,
+      "ex": 18,
+      "gap": 0
+    },
+    {
+      "r": "security",
+      "ui": 16,
+      "ex": 16,
+      "gap": 0
+    },
+    {
+      "r": "message",
+      "ui": 15,
+      "ex": 15,
+      "gap": 0
+    },
+    {
+      "r": "chatdata",
+      "ui": 14,
+      "ex": 14,
+      "gap": 0
+    },
+    {
+      "r": "accountId",
+      "ui": 13,
+      "ex": 13,
+      "gap": 0
+    },
+    {
+      "r": "appAuth",
+      "ui": 13,
+      "ex": 13,
+      "gap": 0
+    },
+    {
+      "r": "approval",
+      "ui": 13,
+      "ex": 13,
+      "gap": 0
+    },
+    {
+      "r": "checkin",
+      "ui": 13,
+      "ex": 13,
+      "gap": 0
+    },
+    {
+      "r": "agent",
+      "ui": 12,
+      "ex": 12,
+      "gap": 0
+    },
+    {
+      "r": "appChat",
+      "ui": 12,
+      "ex": 12,
+      "gap": 0
+    },
+    {
+      "r": "calendar",
+      "ui": 12,
+      "ex": 12,
+      "gap": 0
+    },
+    {
+      "r": "system",
+      "ui": 12,
+      "ex": 12,
+      "gap": 0
+    },
+    {
+      "r": "miniapppay",
+      "ui": 11,
+      "ex": 11,
+      "gap": 0
+    },
+    {
+      "r": "live",
+      "ui": 9,
+      "ex": 9,
+      "gap": 0
+    },
+    {
+      "r": "pushMessage",
+      "ui": 9,
+      "ex": 9,
+      "gap": 0
+    },
+    {
+      "r": "paytool",
+      "ui": 7,
+      "ex": 7,
+      "gap": 0
+    },
+    {
+      "r": "material",
+      "ui": 6,
+      "ex": 6,
+      "gap": 0
+    },
+    {
+      "r": "externalpay",
+      "ui": 5,
+      "ex": 5,
+      "gap": 0
+    },
+    {
+      "r": "meetingroom",
+      "ui": 5,
+      "ex": 5,
+      "gap": 0
+    },
+    {
+      "r": "msgaudit",
+      "ui": 5,
+      "ex": 5,
+      "gap": 0
+    },
+    {
+      "r": "aibotPassiveReply",
+      "ui": 4,
+      "ex": 4,
+      "gap": 0
+    },
+    {
+      "r": "invoice",
+      "ui": 4,
+      "ex": 4,
+      "gap": 0
+    },
+    {
+      "r": "journal",
+      "ui": 4,
+      "ex": 4,
+      "gap": 0
+    },
+    {
+      "r": "mchpay",
+      "ui": 4,
+      "ex": 4,
+      "gap": 0
+    },
+    {
+      "r": "promotionQrcode",
+      "ui": 4,
+      "ex": 4,
+      "gap": 0
+    },
+    {
+      "r": "hr",
+      "ui": 3,
+      "ex": 3,
+      "gap": 0
+    },
+    {
+      "r": "emergency",
+      "ui": 2,
+      "ex": 2,
+      "gap": 0
+    },
+    {
+      "r": "file",
+      "ui": 1,
+      "ex": 1,
+      "gap": 0
+    },
+    {
+      "r": "passiveReply",
+      "ui": 1,
+      "ex": 5,
+      "gap": 0
+    },
+    {
+      "r": "phone",
+      "ui": 1,
+      "ex": 1,
+      "gap": 0
+    }
+  ]
+}

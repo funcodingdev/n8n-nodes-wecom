@@ -161,6 +161,60 @@ export async function executeMiniapppay(
 					formFieldName: 'media',
 					minBytes: 1,
 				});
+			} else if (operation === 'downloadBillFile') {
+				// 账单申请返回的 download_url，例如:
+				// https://api.mch.weixin.qq.com/v3/billdownload/file?token=xxx
+				const download_url = this.getNodeParameter('download_url', i) as string;
+				const auth_header = this.getNodeParameter('auth_header', i, '') as string;
+				const binaryPropertyOut = this.getNodeParameter(
+					'binaryPropertyOut',
+					i,
+					'data',
+				) as string;
+
+				const headers: IDataObject = {};
+				if (auth_header) {
+					const raw = auth_header.trim();
+					if (/^authorization\s*:/i.test(raw)) {
+						const v = raw.replace(/^authorization\s*:\s*/i, '');
+						headers.Authorization = v;
+					} else {
+						headers.Authorization = raw;
+					}
+				}
+
+				const fileBuffer = (await this.helpers.httpRequest({
+					method: 'GET',
+					url: download_url,
+					headers,
+					encoding: 'arraybuffer',
+					json: false,
+					returnFullResponse: false,
+				})) as ArrayBuffer | Buffer | string;
+
+				const buffer = Buffer.isBuffer(fileBuffer)
+					? fileBuffer
+					: Buffer.from(fileBuffer as ArrayBuffer);
+				const binaryData = await this.helpers.prepareBinaryData(
+					buffer,
+					`bill-${Date.now()}.csv`,
+					'text/csv',
+				);
+
+				returnData.push({
+					json: {
+						success: true,
+						download_url,
+						// 便于路径覆盖校验与文档对照
+						api: 'https://api.mch.weixin.qq.com/v3/billdownload/file',
+						size: buffer.length,
+					},
+					binary: {
+						[binaryPropertyOut]: binaryData,
+					},
+					pairedItem: { item: i },
+				});
+				continue;
 			}
 
 			returnData.push({

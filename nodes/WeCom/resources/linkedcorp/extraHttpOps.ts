@@ -4,9 +4,9 @@ import { extraHttpOpOptions } from '../../shared/extraHttpOp';
 
 /** 文档有、此前节点未封装的 linkedcorp 相关 HTTP 接口（一等操作） */
 export const linkedcorpExtraHttpOps: ExtraHttpOp[] = [
-	{ id: 'corpGetChainCorpinfo', name: '[上下游补全] corp/get_chain_corpinfo', action: 'corp/get_chain_corpinfo', description: 'POST /cgi-bin/corpgroup/corp/get_chain_corpinfo', path: '/cgi-bin/corpgroup/corp/get_chain_corpinfo', method: 'POST' },
-	{ id: 'corpGetChainGroup', name: '[上下游补全] corp/get_chain_group', action: 'corp/get_chain_group', description: 'POST /cgi-bin/corpgroup/corp/get_chain_group', path: '/cgi-bin/corpgroup/corp/get_chain_group', method: 'POST' },
-	{ id: 'unionidToPendingId', name: '[上下游补全] corpgroup/unionid_to_pending_id', action: 'corpgroup/unionid_to_pending_id', description: 'POST /cgi-bin/corpgroup/unionid_to_pending_id', path: '/cgi-bin/corpgroup/unionid_to_pending_id', method: 'POST' },
+	{ id: 'corpGetChainCorpinfo', name: '[上下游补全] corp/get_chain_corpinfo', action: 'corp/get_chain_corpinfo', description: 'corp/get_chain_corpinfo', path: '/cgi-bin/corpgroup/corp/get_chain_corpinfo', method: 'POST' },
+	{ id: 'corpGetChainGroup', name: '[上下游补全] corp/get_chain_group', action: 'corp/get_chain_group', description: 'corp/get_chain_group', path: '/cgi-bin/corpgroup/corp/get_chain_group', method: 'POST' },
+	{ id: 'unionidToPendingId', name: '[上下游补全] corpgroup/unionid_to_pending_id', action: 'corpgroup/unionid_to_pending_id', description: 'corpgroup/unionid_to_pending_id', path: '/cgi-bin/corpgroup/unionid_to_pending_id', method: 'POST' },
 ];
 
 export const linkedcorpExtraHttpOpsById: Record<string, ExtraHttpOp> = Object.fromEntries(
