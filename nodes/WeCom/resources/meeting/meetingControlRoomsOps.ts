@@ -148,15 +148,56 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		default: 0,
 	},
 	{
-		displayName: '投票问题JSON',
+		displayName: '投票问题',
+		name: 'pollQuestionsCollection',
+		type: 'fixedCollection',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['pollCreateTheme', 'pollUpdateTheme'] },
+		},
+		default: {},
+		placeholder: '添加问题',
+		typeOptions: { multipleValues: true },
+		options: [
+			{
+				displayName: '问题',
+				name: 'questions',
+				values: [
+					{
+						displayName: '问题类型',
+						name: 'question_type',
+						type: 'options',
+						options: [
+							{ name: '单选', value: 0 },
+							{ name: '多选', value: 1 },
+						],
+						default: 0,
+					},
+					{
+						displayName: '问题描述',
+						name: 'question_desc',
+						type: 'string',
+						default: '',
+					},
+					{
+						displayName: '选项(逗号分隔)',
+						name: 'poll_option',
+						type: 'string',
+						default: '',
+						placeholder: '选项1,选项2,选项3',
+					},
+				],
+			},
+		],
+	},
+	{
+		displayName: '投票问题扩展JSON',
 		name: 'poll_questions_json',
 		type: 'json',
 		displayOptions: {
 			show: { resource: ['meeting'], operation: ['pollCreateTheme', 'pollUpdateTheme'] },
 		},
-		default:
-			'[\n  {\n    "question_type": 0,\n    "question_desc": "问题描述",\n    "poll_option": ["选项1", "选项2"]\n  }\n]',
-		description: '投票问题数组，见官方 Question 结构',
+		default: '[]',
+		description: '非空数组时覆盖上方表单',
 	},
 	{
 		displayName: 'Rooms会议室ID',

@@ -1048,11 +1048,30 @@ export async function executeMeeting(
 				if (poll_desc) body.poll_desc = poll_desc;
 				if (['pollCreateTheme', 'pollUpdateTheme'].includes(operation)) {
 					body.is_anony = is_anony;
+					const questionsCollection = this.getNodeParameter(
+						'pollQuestionsCollection',
+						i,
+						{},
+					) as IDataObject;
+					let questions: IDataObject[] = ((questionsCollection?.questions as IDataObject[]) || [])
+						.filter((q) => q.question_desc)
+						.map((q) => ({
+							question_type: q.question_type ?? 0,
+							question_desc: q.question_desc,
+							poll_option: String(q.poll_option || '')
+								.split(',')
+								.map((s) => s.trim())
+								.filter(Boolean),
+						}));
 					try {
-						body.poll_questions = JSON.parse(poll_questions_json || '[]');
+						const fromJson = JSON.parse(poll_questions_json || '[]');
+						if (Array.isArray(fromJson) && fromJson.length) {
+							questions = fromJson as IDataObject[];
+						}
 					} catch {
-						body.poll_questions = [];
+						// ignore
 					}
+					body.poll_questions = questions;
 				}
 				if (meeting_room_id) body.meeting_room_id = meeting_room_id;
 				if (mra_tmp_openid) {
