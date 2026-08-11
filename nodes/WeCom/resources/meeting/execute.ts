@@ -2,6 +2,7 @@ import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-wor
 import { weComApiRequest } from '../../shared/transport';
 import { executeExtraHttpOp } from '../../shared/extraHttpOp';
 import { meetingExtraHttpOpsById } from './extraHttpOps';
+import type { MeetingExtraHttpOp } from './extraHttpOps';
 
 // 辅助函数：将dateTime转换为Unix时间戳（秒级）
 function dateTimeToUnixTimestamp(dateTime: string | number): number {
@@ -571,11 +572,17 @@ export async function executeMeeting(
 					body,
 				);
 			} else if (meetingExtraHttpOpsById[operation]) {
-				response = await executeExtraHttpOp.call(
-					this,
-					meetingExtraHttpOpsById[operation],
-					i,
-				);
+				const op = meetingExtraHttpOpsById[operation] as MeetingExtraHttpOp;
+				const bodyDefaults: IDataObject = {};
+				if (op.needsMeetingId) {
+					const meetingid = this.getNodeParameter('meetingid', i, '') as string;
+					if (meetingid) bodyDefaults.meetingid = meetingid;
+				}
+				if (op.needsRecordFileId) {
+					const record_file_id = this.getNodeParameter('record_file_id', i, '') as string;
+					if (record_file_id) bodyDefaults.record_file_id = record_file_id;
+				}
+				response = await executeExtraHttpOp.call(this, op, i, bodyDefaults);
 			} else {
 				response = {};
 			}

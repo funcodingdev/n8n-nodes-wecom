@@ -67,14 +67,20 @@ export function extraHttpOpById(ops: ExtraHttpOp[]): Record<string, ExtraHttpOp>
 	return Object.fromEntries(ops.map((o) => [o.id, o]));
 }
 
-/** 执行登记表中的遗漏 HTTP 接口：请求体/Query 用 JSON 参数 */
+/**
+ * 执行登记表中的遗漏 HTTP 接口：请求体/Query 用 JSON 参数
+ * @param bodyDefaults 由表单字段预填的默认体（requestBody 同名字段优先）
+ */
 export async function executeExtraHttpOp(
 	this: IExecuteFunctions,
 	op: ExtraHttpOp,
 	itemIndex: number,
+	bodyDefaults: IDataObject = {},
 ): Promise<IDataObject> {
-	const body = parseRequestJson.call(this, itemIndex);
+	const bodyFromJson = parseRequestJson.call(this, itemIndex);
 	const qs = parseQueryJson.call(this, itemIndex);
+	// 默认字段在前，JSON 可覆盖
+	const body: IDataObject = { ...bodyDefaults, ...bodyFromJson };
 	return weComApiRequest.call(
 		this,
 		op.method as IHttpRequestMethods,

@@ -4,7 +4,7 @@ import { extraHttpOpOptions } from '../../shared/extraHttpOp';
 
 /** 文档有、此前节点未封装的 checkin 相关 HTTP 接口（一等操作） */
 export const checkinExtraHttpOps: ExtraHttpOp[] = [
-	{ id: 'clearCheckinOptionArrayField', name: '[打卡补全] checkin/clear_checkin_option_array_field', action: 'checkin/clear_checkin_option_array_field', description: 'checkin/clear_checkin_option_array_field', path: '/cgi-bin/checkin/clear_checkin_option_array_field', method: 'POST' },
+	{ id: 'clearCheckinOptionArrayField', name: '[打卡] 清空规则数组字段', action: '清空打卡规则数组字段', description: '清空打卡规则数组字段', path: '/cgi-bin/checkin/clear_checkin_option_array_field', method: 'POST' },
 ];
 
 export const checkinExtraHttpOpsById: Record<string, ExtraHttpOp> = Object.fromEntries(
