@@ -43,6 +43,16 @@ export const linkedcorpExtraHttpOpsDescription: INodeProperties[] = [
 		description: '下级/下游企业 corpid',
 	},
 	{
+		displayName: 'OpenID',
+		name: 'lc_openid',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['linkedcorp'], operation: ['unionidToPendingId'] },
+		},
+		default: '',
+		description: '可选 openid，与 unionid 配合',
+	},
+	{
 		displayName: 'UnionID',
 		name: 'lc_unionid',
 		type: 'string',

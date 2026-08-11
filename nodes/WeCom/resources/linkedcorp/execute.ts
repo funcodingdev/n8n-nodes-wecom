@@ -299,9 +299,11 @@ export async function executeLinkedcorp(
 				const lc_chain_id = this.getNodeParameter('lc_chain_id', i, '') as string;
 				const lc_corpid = this.getNodeParameter('lc_corpid', i, '') as string;
 				const lc_unionid = this.getNodeParameter('lc_unionid', i, '') as string;
+				const lc_openid = this.getNodeParameter('lc_openid', i, '') as string;
 				if (lc_chain_id) bodyDefaults.chain_id = lc_chain_id;
 				if (lc_corpid) bodyDefaults.corpid = lc_corpid;
 				if (lc_unionid) bodyDefaults.unionid = lc_unionid;
+				if (lc_openid) bodyDefaults.openid = lc_openid;
 				response = await executeExtraHttpOp.call(
 					this,
 					linkedcorpExtraHttpOpsById[operation],

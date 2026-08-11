@@ -538,6 +538,7 @@ export async function executeSchool(
 						const school_department_id = this.getNodeParameter('school_department_id', i, 0) as number;
 						const school_department_name = this.getNodeParameter('school_department_name', i, '') as string;
 						const school_parentid = this.getNodeParameter('school_parentid', i, 0) as number;
+						const school_department_type = this.getNodeParameter('school_department_type', i, 0) as number;
 						const school_code = this.getNodeParameter('school_code', i, '') as string;
 						const school_livingid = this.getNodeParameter('school_livingid', i, '') as string;
 						const school_mode = this.getNodeParameter('school_mode', i, 0) as number;
@@ -547,6 +548,7 @@ export async function executeSchool(
 						}
 						if (school_department_name) bodyDefaults.name = school_department_name;
 						if (school_parentid) bodyDefaults.parentid = school_parentid;
+						if (school_department_type) bodyDefaults.type = school_department_type;
 						if (school_livingid) bodyDefaults.livingid = school_livingid;
 						if (school_next_key) bodyDefaults.next_key = school_next_key;
 						if (['setArchSyncMode', 'setChatCreateMode'].includes(operation)) {

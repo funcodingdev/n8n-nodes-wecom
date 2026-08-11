@@ -266,6 +266,32 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
+		displayName: '统计开始时间',
+		name: 'behavior_start_time',
+		type: 'number',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['crmGetUserBehaviorData'],
+			},
+		},
+		default: 0,
+		description: '开始时间戳（秒）',
+	},
+	{
+		displayName: '统计结束时间',
+		name: 'behavior_end_time',
+		type: 'number',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['crmGetUserBehaviorData'],
+			},
+		},
+		default: 0,
+		description: '结束时间戳（秒）',
+	},
+	{
 		displayName: '接替成员UserID',
 		name: 'takeover_userid',
 		type: 'string',

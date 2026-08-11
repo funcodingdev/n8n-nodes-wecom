@@ -1988,6 +1988,8 @@ export async function executeExternalContact(
 				const msgid = this.getNodeParameter('msgid', i, '') as string;
 				const takeover_userid = this.getNodeParameter('takeover_userid', i, '') as string;
 				const subscribe_config_json = this.getNodeParameter('subscribe_config_json', i, '{}') as string;
+				const behavior_start_time = this.getNodeParameter('behavior_start_time', i, 0) as number;
+				const behavior_end_time = this.getNodeParameter('behavior_end_time', i, 0) as number;
 				if (strategy_id) bodyDefaults.strategy_id = strategy_id;
 				if (ec_external_userid) bodyDefaults.external_userid = ec_external_userid;
 				if (ec_userid) bodyDefaults.userid = ec_userid;
@@ -2023,6 +2025,8 @@ export async function executeExternalContact(
 					const sub = JSON.parse(subscribe_config_json || '{}');
 					if (sub && typeof sub === 'object') Object.assign(bodyDefaults, sub);
 				} catch { /* ignore */ }
+				if (behavior_start_time) bodyDefaults.start_time = behavior_start_time;
+				if (behavior_end_time) bodyDefaults.end_time = behavior_end_time;
 				response = await executeExtraHttpOp.call(
 					this,
 					externalContactExtraHttpOpsById[operation],

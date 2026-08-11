@@ -60,6 +60,16 @@ export const schoolExtraHttpOpsDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
+		displayName: '部门类型',
+		name: 'school_department_type',
+		type: 'number',
+		displayOptions: {
+			show: { resource: ['school'], operation: ['departmentCreate', 'departmentUpdate'] },
+		},
+		default: 1,
+		description: '部门类型，见家校部门文档（如标准年级/自定义等）',
+	},
+	{
 		displayName: '父部门ID',
 		name: 'school_parentid',
 		type: 'number',
