@@ -72,6 +72,14 @@ export async function executeApproval(
 							value.new_money = String(c.new_money);
 						} else if (control === 'Number') {
 							value.new_number = String(c.text ?? '');
+						} else if (control === 'Date') {
+							const ts = dateTimeToUnixTimestamp(
+								(c.date_s as string | number) || '',
+							);
+							value.date = {
+								type: c.date_type || 'day',
+								s_timestamp: String(ts || 0),
+							};
 						} else {
 							value.text = String(c.text ?? '');
 						}
