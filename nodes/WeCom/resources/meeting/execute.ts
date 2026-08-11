@@ -1249,6 +1249,26 @@ export async function executeMeeting(
 				const layoutExtraJson = this.getNodeParameter('layoutExtraJson', i, '{}') as string;
 
 				const body: IDataObject = { meetingid };
+				if (operation === 'layoutAddBackground') {
+					const imgCollection = this.getNodeParameter(
+						'layoutBackgroundImages',
+						i,
+						{},
+					) as IDataObject;
+					const image_list = ((imgCollection?.images as IDataObject[]) || [])
+						.filter((im) => im.image_md5 && im.image_url)
+						.map((im) => ({
+							image_md5: im.image_md5,
+							image_url: im.image_url,
+						}));
+					if (image_list.length) body.image_list = image_list;
+					const default_image_order = this.getNodeParameter(
+						'default_image_order',
+						i,
+						1,
+					) as number;
+					if (default_image_order) body.default_image_order = default_image_order;
+				}
 				if (layout_id !== undefined && layout_id !== null && [
 					'advLayoutApply',
 					'advLayoutUpdate',

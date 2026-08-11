@@ -155,13 +155,55 @@ export const meetingLayoutOpsDescription: INodeProperties[] = [
 		description: '查询目标用户的 userid（按官方文档需要时填写）',
 	},
 	{
+		displayName: '背景图片列表',
+		name: 'layoutBackgroundImages',
+		type: 'fixedCollection',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['layoutAddBackground'] },
+		},
+		default: {},
+		placeholder: '添加图片',
+		typeOptions: { multipleValues: true },
+		description: 'image_list',
+		options: [
+			{
+				displayName: '图片',
+				name: 'images',
+				values: [
+					{
+						displayName: '图片MD5',
+						name: 'image_md5',
+						type: 'string',
+						default: '',
+					},
+					{
+						displayName: '图片URL',
+						name: 'image_url',
+						type: 'string',
+						default: '',
+					},
+				],
+			},
+		],
+	},
+	{
+		displayName: '默认图片序号',
+		name: 'default_image_order',
+		type: 'number',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['layoutAddBackground'] },
+		},
+		default: 1,
+		description: 'default_image_order，从 1 开始',
+	},
+	{
 		displayName: '布局/背景配置JSON',
 		name: 'layoutConfigJson',
 		type: 'json',
 		displayOptions: { show: { resource: ['meeting'], operation: needLayoutBody } },
 		default: '{}',
 		description:
-			'布局或背景的详细配置（如 page_list、background_list 等），与会议 ID 合并，字段见官方布局文档',
+			'布局或背景的详细配置（如 page_list）；添加背景时也可覆盖 image_list',
 	},
 	{
 		displayName: '扩展请求JSON',
