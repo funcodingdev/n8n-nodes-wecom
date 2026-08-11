@@ -11,12 +11,18 @@ export const cancelMeetingDescription: INodeProperties[] = [
 		name: 'meetingid',
 		type: 'string',
 		required: true,
-		displayOptions: {
-			show: showOnlyForCancel,
-		},
+		displayOptions: { show: showOnlyForCancel },
 		default: '',
-		description: '要取消的会议ID。<a href="https://developer.work.weixin.qq.com/document/path/99106" target="_blank">官方文档</a>',
-		placeholder: '12345678901234567890',
+		description:
+			'meetingid，仅允许取消预约中的会议。<a href="https://developer.work.weixin.qq.com/document/path/98153" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '周期性子会议ID',
+		name: 'sub_meetingid',
+		type: 'string',
+		displayOptions: { show: showOnlyForCancel },
+		default: '',
+		description: 'sub_meetingid，取消周期会议中的某一场时填写',
 	},
 ];
 

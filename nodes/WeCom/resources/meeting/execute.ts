@@ -275,11 +275,13 @@ export async function executeMeeting(
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/update', body);
 			} else if (operation === 'cancelMeeting') {
+				// https://developer.work.weixin.qq.com/document/path/98153
 				const meetingid = this.getNodeParameter('meetingid', i) as string;
+				const sub_meetingid = this.getNodeParameter('sub_meetingid', i, '') as string;
+				const body: IDataObject = { meetingid };
+				if (sub_meetingid) body.sub_meetingid = sub_meetingid;
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/cancel', {
-					meetingid,
-				});
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/cancel', body);
 			} else if (operation === 'getMeetingInfo') {
 				// https://developer.work.weixin.qq.com/document/path/98149
 				const meetingid = this.getNodeParameter('meetingid', i, '') as string;
