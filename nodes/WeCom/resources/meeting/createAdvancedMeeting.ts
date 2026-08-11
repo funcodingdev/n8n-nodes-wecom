@@ -185,6 +185,13 @@ export const createAdvancedMeetingDescription: INodeProperties[] = [
 		default: 'none',
 	},
 	{
+		displayName: '开启屏幕水印',
+		name: 'settings_enable_screen_watermark',
+		type: 'boolean',
+		displayOptions: { show: showOnly },
+		default: false,
+	},
+	{
 		displayName: '主持人UserID列表',
 		name: 'settings_host_userids',
 		type: 'string',
