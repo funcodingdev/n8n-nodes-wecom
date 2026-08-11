@@ -13,6 +13,7 @@ export const getResidentGridInfoDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForGetResidentGridInfo,
 		},
-		default: '无需额外参数，直接获取居民网格与负责人信息。',
+		default:
+			'无需额外参数。调用 GET /cgi-bin/report/resident/get_grid_info。详见：https://developer.work.weixin.qq.com/document/path/93514',
 	},
 ];

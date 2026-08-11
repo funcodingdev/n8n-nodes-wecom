@@ -7,15 +7,16 @@ const showOnlyForGetInspectEventDetail = {
 
 export const getInspectEventDetailDescription: INodeProperties[] = [
 	{
-		displayName: '事件ID',
-		name: 'event_id',
+		displayName: '工单ID',
+		name: 'order_id',
 		type: 'string',
 		required: true,
 		displayOptions: {
 			show: showOnlyForGetInspectEventDetail,
 		},
 		default: '',
-		placeholder: 'evt_001',
-		description: '巡查上报事件 ID',
+		placeholder: 'order_id',
+		description:
+			'工单 id（order_id）。<a href="https://developer.work.weixin.qq.com/document/path/93535" target="_blank">官方文档</a>',
 	},
 ];

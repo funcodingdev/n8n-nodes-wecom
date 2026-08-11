@@ -7,36 +7,15 @@ const showOnlyForGetInspectCategoryStat = {
 
 export const getInspectCategoryStatDescription: INodeProperties[] = [
 	{
-		displayName: '开始时间戳',
-		name: 'start_time',
-		type: 'number',
-		required: true,
-		displayOptions: {
-			show: showOnlyForGetInspectCategoryStat,
-		},
-		default: 0,
-		description: '开始时间戳（秒）',
-	},
-	{
-		displayName: '结束时间戳',
-		name: 'end_time',
-		type: 'number',
-		required: true,
-		displayOptions: {
-			show: showOnlyForGetInspectCategoryStat,
-		},
-		default: 0,
-		description: '结束时间戳（秒）',
-	},
-	{
-		displayName: '网格ID',
-		name: 'grid_id',
+		displayName: '分类ID',
+		name: 'category_id',
 		type: 'string',
 		displayOptions: {
 			show: showOnlyForGetInspectCategoryStat,
 		},
 		default: '',
-		placeholder: 'grid_001',
-		description: '网格 ID，不填统计全部网格',
+		placeholder: 'category_id',
+		description:
+			'可选。分类 ID；不传拉取所有一级分类数据，传一级分类 id 可拉取其下二级分类数据。<a href="https://developer.work.weixin.qq.com/document/path/93534" target="_blank">官方文档</a>',
 	},
 ];

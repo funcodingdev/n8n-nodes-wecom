@@ -16,28 +16,7 @@ export const getUserResidentStatDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'zhangsan',
-		description: '成员 UserID',
-	},
-	{
-		displayName: '开始时间戳',
-		name: 'start_time',
-		type: 'number',
-		required: true,
-		displayOptions: {
-			show: showOnlyForGetUserResidentStat,
-		},
-		default: 0,
-		description: '开始时间戳（秒）',
-	},
-	{
-		displayName: '结束时间戳',
-		name: 'end_time',
-		type: 'number',
-		required: true,
-		displayOptions: {
-			show: showOnlyForGetUserResidentStat,
-		},
-		default: 0,
-		description: '结束时间戳（秒）',
+		description:
+			'成员的 userid。<a href="https://developer.work.weixin.qq.com/document/path/93516" target="_blank">官方文档</a>',
 	},
 ];

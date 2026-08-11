@@ -7,15 +7,16 @@ const showOnlyForGetResidentEventDetail = {
 
 export const getResidentEventDetailDescription: INodeProperties[] = [
 	{
-		displayName: '事件ID',
-		name: 'event_id',
+		displayName: '工单ID',
+		name: 'order_id',
 		type: 'string',
 		required: true,
 		displayOptions: {
 			show: showOnlyForGetResidentEventDetail,
 		},
 		default: '',
-		placeholder: 'evt_res_001',
-		description: '居民上报事件 ID',
+		placeholder: 'order_id',
+		description:
+			'工单 id（order_id）。<a href="https://developer.work.weixin.qq.com/document/path/93519" target="_blank">官方文档</a>',
 	},
 ];

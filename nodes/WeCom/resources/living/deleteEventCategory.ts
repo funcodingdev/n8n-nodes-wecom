@@ -16,6 +16,7 @@ export const deleteEventCategoryDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'cat_001',
-		description: '要删除的事件类别 ID',
+		description:
+			'分类 id。<a href="https://developer.work.weixin.qq.com/document/path/94538" target="_blank">官方文档</a>',
 	},
 ];

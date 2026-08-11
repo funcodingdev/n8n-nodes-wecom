@@ -7,7 +7,7 @@ const showOnlyForAddEventCategory = {
 
 export const addEventCategoryDescription: INodeProperties[] = [
 	{
-		displayName: '类别名称',
+		displayName: '分类名称',
 		name: 'category_name',
 		type: 'string',
 		required: true,
@@ -16,28 +16,38 @@ export const addEventCategoryDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: '环境卫生',
-		description: '事件类别名称，最长 32 个字符',
+		description:
+			'分类名称，不能超过30个字；同一一级分类下二级分类名称不能重复。<a href="https://developer.work.weixin.qq.com/document/path/94536" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '父类别ID',
+		displayName: '分类层级',
+		name: 'level',
+		type: 'options',
+		required: true,
+		displayOptions: {
+			show: showOnlyForAddEventCategory,
+		},
+		options: [
+			{ name: '一级分类', value: 1 },
+			{ name: '二级分类', value: 2 },
+		],
+		default: 1,
+		description:
+			'分类层级，只能为 1 或 2。<a href="https://developer.work.weixin.qq.com/document/path/94536" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '所属一级分类ID',
 		name: 'parent_category_id',
 		type: 'string',
 		displayOptions: {
-			show: showOnlyForAddEventCategory,
+			show: {
+				...showOnlyForAddEventCategory,
+				level: [2],
+			},
 		},
 		default: '',
-		placeholder: 'cat_001',
-		description: '父类别 ID，支持二级分类，不填表示一级分类',
-	},
-	{
-		displayName: '类别描述',
-		name: 'description',
-		type: 'string',
-		displayOptions: {
-			show: showOnlyForAddEventCategory,
-		},
-		default: '',
-		placeholder: '环境卫生相关事件',
-		description: '类别描述，最长 128 个字符',
+		placeholder: 'parent_category_id',
+		description:
+			'level 为 2 时必填，所属一级分类 id。<a href="https://developer.work.weixin.qq.com/document/path/94536" target="_blank">官方文档</a>',
 	},
 ];

@@ -7,14 +7,15 @@ const showOnlyForGetGridList = {
 
 export const getGridListDescription: INodeProperties[] = [
 	{
-		displayName: '父网格ID',
-		name: 'parent_grid_id',
+		displayName: '网格ID',
+		name: 'grid_id',
 		type: 'string',
 		displayOptions: {
 			show: showOnlyForGetGridList,
 		},
 		default: '',
-		placeholder: 'parent_001',
-		description: '父网格 ID，不填返回顶级网格列表',
+		placeholder: 'grid_id',
+		description:
+			'可选。网格 id，不填则拉取根节点及其子节点。<a href="https://developer.work.weixin.qq.com/document/path/94481" target="_blank">官方文档</a>',
 	},
 ];

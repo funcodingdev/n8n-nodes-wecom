@@ -16,6 +16,7 @@ export const deleteGridDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'grid_001',
-		description: '要删除的网格 ID（删除会同时删除子网格）',
+		description:
+			'要删除的网格 id。<a href="https://developer.work.weixin.qq.com/document/path/94480" target="_blank">官方文档</a>',
 	},
 ];

@@ -13,6 +13,7 @@ export const getInspectGridInfoDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForGetInspectGridInfo,
 		},
-		default: '无需额外参数，直接获取巡查网格与负责人信息。',
+		default:
+			'无需额外参数。调用 GET /cgi-bin/report/patrol/get_grid_info。详见：https://developer.work.weixin.qq.com/document/path/93531',
 	},
 ];

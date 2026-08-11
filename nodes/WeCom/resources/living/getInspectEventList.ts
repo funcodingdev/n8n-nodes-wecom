@@ -7,81 +7,51 @@ const showOnlyForGetInspectEventList = {
 
 export const getInspectEventListDescription: INodeProperties[] = [
 	{
-		displayName: '开始时间戳',
-		name: 'start_time',
+		displayName: '创建时间起点',
+		name: 'begin_create_time',
 		type: 'number',
-		required: true,
 		displayOptions: {
 			show: showOnlyForGetInspectEventList,
 		},
 		default: 0,
-		description: '开始时间戳（秒）',
+		description:
+			'可选。时间戳，筛选 begin_create_time 之后新创建的上报。<a href="https://developer.work.weixin.qq.com/document/path/93536" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '结束时间戳',
-		name: 'end_time',
+		displayName: '修改时间起点',
+		name: 'begin_modify_time',
 		type: 'number',
-		required: true,
 		displayOptions: {
 			show: showOnlyForGetInspectEventList,
 		},
 		default: 0,
-		description: '结束时间戳（秒）',
+		description:
+			'可选。时间戳，筛选 begin_modify_time 之后新修改的上报。<a href="https://developer.work.weixin.qq.com/document/path/93536" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '网格ID',
-		name: 'grid_id',
+		displayName: '翻页游标',
+		name: 'cursor',
 		type: 'string',
 		displayOptions: {
 			show: showOnlyForGetInspectEventList,
 		},
 		default: '',
-		placeholder: 'grid_001',
-		description: '网格 ID',
+		description:
+			'可选。翻页参数，首次查询为空；查询条件变更时需置空。<a href="https://developer.work.weixin.qq.com/document/path/93536" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '类别ID',
-		name: 'category_id',
-		type: 'string',
-		displayOptions: {
-			show: showOnlyForGetInspectEventList,
-		},
-		default: '',
-		placeholder: 'cat_001',
-		description: '事件类别 ID',
-	},
-	{
-		displayName: '状态',
-		name: 'status',
-		type: 'number',
-		displayOptions: {
-			show: showOnlyForGetInspectEventList,
-		},
-		default: 0,
-		description: '事件状态：1-待处理 2-处理中 3-已完成',
-	},
-	{
-		displayName: '分页偏移',
-		name: 'offset',
-		type: 'number',
-		displayOptions: {
-			show: showOnlyForGetInspectEventList,
-		},
-		default: 0,
-		description: '分页偏移，默认 0',
-	},
-	{
-		displayName: '返回数量',
+		displayName: '每页条数',
 		name: 'limit',
 		type: 'number',
 		typeOptions: {
 			minValue: 1,
-			maxValue: 100,
+			maxValue: 50,
 		},
 		displayOptions: {
 			show: showOnlyForGetInspectEventList,
 		},
-		default: 50,
-		description: '返回数量，默认 50，最大 100',
+		default: 20,
+		description:
+			'可选。单页条数，默认20，最大50。<a href="https://developer.work.weixin.qq.com/document/path/93536" target="_blank">官方文档</a>',
 	},
 ];

@@ -16,6 +16,7 @@ export const getUserGridListDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'zhangsan',
-		description: '成员 UserID',
+		description:
+			'需要查询的成员 userid。<a href="https://developer.work.weixin.qq.com/document/path/94482" target="_blank">官方文档</a>',
 	},
 ];

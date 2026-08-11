@@ -7,28 +7,6 @@ const showOnlyForGetCorpInspectStat = {
 
 export const getCorpInspectStatDescription: INodeProperties[] = [
 	{
-		displayName: '开始时间戳',
-		name: 'start_time',
-		type: 'number',
-		required: true,
-		displayOptions: {
-			show: showOnlyForGetCorpInspectStat,
-		},
-		default: 0,
-		description: '开始时间戳（秒）',
-	},
-	{
-		displayName: '结束时间戳',
-		name: 'end_time',
-		type: 'number',
-		required: true,
-		displayOptions: {
-			show: showOnlyForGetCorpInspectStat,
-		},
-		default: 0,
-		description: '结束时间戳（秒）',
-	},
-	{
 		displayName: '网格ID',
 		name: 'grid_id',
 		type: 'string',
@@ -36,7 +14,8 @@ export const getCorpInspectStatDescription: INodeProperties[] = [
 			show: showOnlyForGetCorpInspectStat,
 		},
 		default: '',
-		placeholder: 'grid_001',
-		description: '网格 ID，不填统计全部网格',
+		placeholder: 'grid_id',
+		description:
+			'可选。网格 id，不传则获取整个企业的概况。<a href="https://developer.work.weixin.qq.com/document/path/93532" target="_blank">官方文档</a>',
 	},
 ];

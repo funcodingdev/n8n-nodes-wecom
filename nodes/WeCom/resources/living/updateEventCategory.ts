@@ -7,7 +7,7 @@ const showOnlyForUpdateEventCategory = {
 
 export const updateEventCategoryDescription: INodeProperties[] = [
 	{
-		displayName: '类别ID',
+		displayName: '分类ID',
 		name: 'category_id',
 		type: 'string',
 		required: true,
@@ -15,29 +15,52 @@ export const updateEventCategoryDescription: INodeProperties[] = [
 			show: showOnlyForUpdateEventCategory,
 		},
 		default: '',
-		placeholder: 'cat_001',
-		description: '要更新的类别 ID',
+		placeholder: 'category_id',
+		description:
+			'分类 id。<a href="https://developer.work.weixin.qq.com/document/path/94537" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '类别名称',
+		displayName: '分类名称',
 		name: 'category_name',
 		type: 'string',
+		required: true,
 		displayOptions: {
 			show: showOnlyForUpdateEventCategory,
 		},
 		default: '',
 		placeholder: '环境卫生管理',
-		description: '新的类别名称，不填表示不更新',
+		description:
+			'分类名称，不能超过30个字。<a href="https://developer.work.weixin.qq.com/document/path/94537" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '类别描述',
-		name: 'description',
-		type: 'string',
+		displayName: '分类层级',
+		name: 'level',
+		type: 'options',
+		required: true,
 		displayOptions: {
 			show: showOnlyForUpdateEventCategory,
 		},
+		options: [
+			{ name: '一级分类', value: 1 },
+			{ name: '二级分类', value: 2 },
+		],
+		default: 1,
+		description:
+			'分类层级，只能为 1 或 2。<a href="https://developer.work.weixin.qq.com/document/path/94537" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '所属一级分类ID',
+		name: 'parent_category_id',
+		type: 'string',
+		displayOptions: {
+			show: {
+				...showOnlyForUpdateEventCategory,
+				level: [2],
+			},
+		},
 		default: '',
-		placeholder: '更新后的描述',
-		description: '新的类别描述，不填表示不更新',
+		placeholder: 'parent_category_id',
+		description:
+			'level 为 2 时必填。<a href="https://developer.work.weixin.qq.com/document/path/94537" target="_blank">官方文档</a>',
 	},
 ];
