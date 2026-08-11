@@ -463,7 +463,36 @@ export async function executeMeeting(
 					(this.getNodeParameter('start_time', i, '') as string | number);
 				const meeting_duration = this.getNodeParameter('meeting_duration', i, 0) as number;
 				const end_time_raw = this.getNodeParameter('end_time', i, '') as string | number;
+				const description = this.getNodeParameter('description', i, '') as string;
+				const location = this.getNodeParameter('location', i, '') as string;
+				const invitee_userids = this.getNodeParameter('invitee_userids', i, '') as string;
 				const advancedSettings = this.getNodeParameter('advancedSettings', i, {}) as IDataObject;
+				const settings_password = this.getNodeParameter('settings_password', i, '') as string;
+				const settings_enable_enter_mute = this.getNodeParameter(
+					'settings_enable_enter_mute',
+					i,
+					-1,
+				) as number;
+				const settings_remind_scope = this.getNodeParameter(
+					'settings_remind_scope',
+					i,
+					0,
+				) as number;
+				const settings_host_userids = this.getNodeParameter(
+					'settings_host_userids',
+					i,
+					'',
+				) as string;
+				const settings_auto_record_type = this.getNodeParameter(
+					'settings_auto_record_type',
+					i,
+					'',
+				) as string;
+				const update_write_settings = this.getNodeParameter(
+					'update_write_settings',
+					i,
+					false,
+				) as boolean;
 
 				const body: IDataObject = { meetingid };
 				if (title) body.title = title;
@@ -475,10 +504,84 @@ export async function executeMeeting(
 						const end_time = dateTimeToUnixTimestamp(end_time_raw);
 						if (end_time > meeting_start) body.meeting_duration = end_time - meeting_start;
 					}
+				} else if (meeting_duration > 0) {
+					body.meeting_duration = meeting_duration;
+				}
+				if (description) body.description = description;
+				if (location) body.location = location;
+				const inviteeIds = invitee_userids
+					.split(',')
+					.map((s) => s.trim())
+					.filter(Boolean);
+				if (inviteeIds.length) body.invitees = { userid: inviteeIds };
+
+				const guestsCollection = this.getNodeParameter(
+					'guestsCollection',
+					i,
+					{},
+				) as IDataObject;
+				const guests = ((guestsCollection?.guests as IDataObject[]) || [])
+					.filter((g) => g.phone_number)
+					.map((g) => {
+						const item: IDataObject = {
+							area: g.area || '86',
+							phone_number: g.phone_number,
+						};
+						if (g.guest_name) item.guest_name = g.guest_name;
+						return item;
+					});
+				if (guests.length) body.guests = guests;
+
+				const settings: IDataObject = {};
+				if (settings_password) settings.password = settings_password;
+				if (settings_enable_enter_mute !== -1) {
+					settings.enable_enter_mute = settings_enable_enter_mute;
+				}
+				if (settings_remind_scope > 0) settings.remind_scope = settings_remind_scope;
+				const hostIds = settings_host_userids
+					.split(',')
+					.map((s) => s.trim())
+					.filter(Boolean);
+				if (hostIds.length) settings.hosts = { userid: hostIds };
+				if (settings_auto_record_type) {
+					settings.auto_record_type = settings_auto_record_type;
+				}
+				if (update_write_settings) {
+					settings.enable_waiting_room = this.getNodeParameter(
+						'settings_enable_waiting_room',
+						i,
+						false,
+					) as boolean;
+					settings.allow_enter_before_host = this.getNodeParameter(
+						'settings_allow_enter_before_host',
+						i,
+						true,
+					) as boolean;
+					settings.enable_screen_watermark = this.getNodeParameter(
+						'settings_enable_screen_watermark',
+						i,
+						false,
+					) as boolean;
+					settings.allow_unmute_self = this.getNodeParameter(
+						'settings_allow_unmute_self',
+						i,
+						true,
+					) as boolean;
+					settings.allow_external_user = this.getNodeParameter(
+						'settings_allow_external_user',
+						i,
+						true,
+					) as boolean;
+					settings.enable_enroll = this.getNodeParameter(
+						'settings_enable_enroll',
+						i,
+						false,
+					) as boolean;
 				}
 				// 兼容旧 advancedSettings 扁平字段 → settings
-				const settings: IDataObject = {};
-				if (advancedSettings.description) body.description = advancedSettings.description;
+				if (advancedSettings.description && !body.description) {
+					body.description = advancedSettings.description;
+				}
 				if (advancedSettings.password) settings.password = advancedSettings.password;
 				if (advancedSettings.enable_mute_on_entry !== undefined) {
 					settings.enable_enter_mute = advancedSettings.enable_mute_on_entry ? 1 : 0;
