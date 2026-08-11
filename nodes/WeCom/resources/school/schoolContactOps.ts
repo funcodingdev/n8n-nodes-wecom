@@ -13,8 +13,8 @@ const childValues: INodeProperties[] = [
 		displayName: '关系',
 		name: 'relation',
 		type: 'string',
-		default: '父亲',
-		description: '如：父亲、母亲、家长',
+		default: '爸爸',
+		description: '家长与学生的关系，最长 32 字节（如：爸爸、妈妈、伯父）',
 	},
 ];
 
