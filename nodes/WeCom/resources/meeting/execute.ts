@@ -571,6 +571,303 @@ export async function executeMeeting(
 					'/cgi-bin/meeting/poll/get_poll_detail',
 					body,
 				);
+			}
+			// --- 网络研讨会（结构化） ---
+			else if (operation === 'webinarCreate') {
+				const admin_userid = this.getNodeParameter('admin_userid', i) as string;
+				const title = this.getNodeParameter('title', i) as string;
+				const start_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('start_time', i) as string | number,
+				);
+				const end_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('end_time', i) as string | number,
+				);
+				const admission_type = this.getNodeParameter('admission_type', i, 0) as number;
+				const playback_for_audience = this.getNodeParameter(
+					'playback_for_audience',
+					i,
+					false,
+				) as boolean;
+				const sponsor = this.getNodeParameter('sponsor', i, '') as string;
+				const password = this.getNodeParameter('password', i, '') as string;
+				const host_userids = this.getNodeParameter('host_userids', i, '') as string;
+				const webinarExtraJson = this.getNodeParameter('webinarExtraJson', i, '{}') as string;
+
+				const body: IDataObject = {
+					admin_userid,
+					title,
+					start_time: String(start_time),
+					end_time: String(end_time),
+					admission_type,
+					playback_for_audience,
+				};
+				if (sponsor) body.sponsor = sponsor;
+				if (password) body.password = password;
+				if (host_userids) {
+					body.hosts = host_userids
+						.split(',')
+						.map((id) => id.trim())
+						.filter(Boolean)
+						.map((userid) => ({ userid }));
+				}
+				try {
+					Object.assign(body, JSON.parse(webinarExtraJson || '{}') as IDataObject);
+				} catch {
+					// ignore
+				}
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/webinar/create', body);
+			} else if (operation === 'webinarGet') {
+				const meetingid = this.getNodeParameter('webinar_meetingid', i, '') as string;
+				const meeting_code = this.getNodeParameter('meeting_code', i, '') as string;
+				const body: IDataObject = {};
+				if (meetingid) body.meetingid = meetingid;
+				if (meeting_code) body.meeting_code = meeting_code;
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/webinar/get', body);
+			} else if (operation === 'webinarCancel') {
+				const meetingid = this.getNodeParameter('webinar_meetingid', i) as string;
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/webinar/cancel', {
+					meetingid,
+				});
+			} else if (operation === 'webinarUpdate') {
+				const meetingid = this.getNodeParameter('webinar_meetingid', i) as string;
+				const title = this.getNodeParameter('title', i, '') as string;
+				const sponsor = this.getNodeParameter('sponsor', i, '') as string;
+				const host_userids = this.getNodeParameter('host_userids', i, '') as string;
+				const webinarExtraJson = this.getNodeParameter('webinarExtraJson', i, '{}') as string;
+				const body: IDataObject = { meetingid };
+				if (title) body.title = title;
+				if (sponsor) body.sponsor = sponsor;
+				if (host_userids) {
+					body.hosts = host_userids
+						.split(',')
+						.map((id) => id.trim())
+						.filter(Boolean)
+						.map((userid) => ({ userid }));
+				}
+				try {
+					Object.assign(body, JSON.parse(webinarExtraJson || '{}') as IDataObject);
+					body.meetingid = meetingid;
+				} catch {
+					// ignore
+				}
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/webinar/update', body);
+			} else if (operation === 'webinarListGuest') {
+				const meetingid = this.getNodeParameter('webinar_meetingid', i) as string;
+				const cursor = this.getNodeParameter('webinar_cursor', i, '') as string;
+				const limit = this.getNodeParameter('webinar_limit', i, 10) as number;
+				const body: IDataObject = { meetingid, limit };
+				if (cursor) body.cursor = cursor;
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/meeting/webinar/list_guest',
+					body,
+				);
+			} else if (operation === 'webinarUpdateGuestList') {
+				const meetingid = this.getNodeParameter('webinar_meetingid', i) as string;
+				const guestsJson = this.getNodeParameter('guestsJson', i, '[]') as string;
+				const body: IDataObject = { meetingid };
+				try {
+					const guests = JSON.parse(guestsJson || '[]');
+					body.guests = guests;
+				} catch {
+					body.guests = [];
+				}
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/meeting/webinar/update_guest_list',
+					body,
+				);
+			} else if (operation === 'webinarUpdateWarmUp') {
+				const meetingid = this.getNodeParameter('webinar_meetingid', i) as string;
+				const webinarExtraJson = this.getNodeParameter('webinarExtraJson', i, '{}') as string;
+				const body: IDataObject = { meetingid };
+				try {
+					Object.assign(body, JSON.parse(webinarExtraJson || '{}') as IDataObject);
+					body.meetingid = meetingid;
+				} catch {
+					// ignore
+				}
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/meeting/webinar/update_warm_up',
+					body,
+				);
+			} else if (operation === 'webinarEnrollGetConfig') {
+				const meetingid = this.getNodeParameter('webinar_meetingid', i) as string;
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/meeting/webinar/enroll/get_config',
+					{ meetingid },
+				);
+			} else if (
+				operation === 'webinarEnrollSetConfig' ||
+				operation === 'webinarEnrollApprove' ||
+				operation === 'webinarEnrollImport' ||
+				operation === 'webinarEnrollDelete' ||
+				operation === 'webinarEnrollQueryByTmpOpenid'
+			) {
+				const meetingid = this.getNodeParameter('webinar_meetingid', i) as string;
+				const webinarEnrollJson = this.getNodeParameter('webinarEnrollJson', i, '{}') as string;
+				const body: IDataObject = { meetingid };
+				try {
+					Object.assign(body, JSON.parse(webinarEnrollJson || '{}') as IDataObject);
+					body.meetingid = meetingid;
+				} catch {
+					// ignore
+				}
+				const pathMap: Record<string, string> = {
+					webinarEnrollSetConfig: '/cgi-bin/meeting/webinar/enroll/set_config',
+					webinarEnrollApprove: '/cgi-bin/meeting/webinar/enroll/approve',
+					webinarEnrollImport: '/cgi-bin/meeting/webinar/enroll/import',
+					webinarEnrollDelete: '/cgi-bin/meeting/webinar/enroll/delete',
+					webinarEnrollQueryByTmpOpenid: '/cgi-bin/meeting/webinar/enroll/query_by_tmp_openid',
+				};
+				response = await weComApiRequest.call(this, 'POST', pathMap[operation], body);
+			} else if (operation === 'webinarEnrollList') {
+				const meetingid = this.getNodeParameter('webinar_meetingid', i) as string;
+				const cursor = this.getNodeParameter('webinar_cursor', i, '') as string;
+				const limit = this.getNodeParameter('webinar_limit', i, 10) as number;
+				const webinarEnrollJson = this.getNodeParameter('webinarEnrollJson', i, '{}') as string;
+				const body: IDataObject = { meetingid, limit };
+				if (cursor) body.cursor = cursor;
+				try {
+					Object.assign(body, JSON.parse(webinarEnrollJson || '{}') as IDataObject);
+					body.meetingid = meetingid;
+					if (limit) body.limit = limit;
+				} catch {
+					// ignore
+				}
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/meeting/webinar/enroll/list',
+					body,
+				);
+			}
+			// --- 录制扩展 / 转写 ---
+			else if (operation === 'recordDelete') {
+				const meetingid = this.getNodeParameter('webinar_meetingid', i) as string;
+				const webinarExtraJson = this.getNodeParameter('webinarExtraJson', i, '{}') as string;
+				const body: IDataObject = { meetingid };
+				try {
+					Object.assign(body, JSON.parse(webinarExtraJson || '{}') as IDataObject);
+					body.meetingid = meetingid;
+				} catch {
+					// ignore
+				}
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/record/delete', body);
+			} else if (operation === 'recordDeleteFile') {
+				const meetingid = this.getNodeParameter('webinar_meetingid', i) as string;
+				const record_file_id = this.getNodeParameter('webinar_record_file_id', i) as string;
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/meeting/record/delete_file',
+					{ meetingid, record_file_id },
+				);
+			} else if (operation === 'recordGetFileList') {
+				const meetingid = this.getNodeParameter('webinar_meetingid', i, '') as string;
+				const meeting_code = this.getNodeParameter('meeting_code', i, '') as string;
+				const userid = this.getNodeParameter('record_userid', i, '') as string;
+				const start_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('record_start_time', i, '') as string | number,
+				);
+				const end_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('record_end_time', i, '') as string | number,
+				);
+				const cursor = this.getNodeParameter('webinar_cursor', i, '') as string;
+				const limit = this.getNodeParameter('webinar_limit', i, 10) as number;
+				const body: IDataObject = {
+					start_time,
+					end_time,
+					limit: Math.min(limit || 10, 20),
+				};
+				if (meetingid) body.meetingid = meetingid;
+				if (meeting_code) body.meeting_code = meeting_code;
+				if (userid) body.userid = userid;
+				if (cursor) body.cursor = cursor;
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/meeting/record/get_file_list',
+					body,
+				);
+			} else if (operation === 'recordGetStatistics') {
+				const meetingid = this.getNodeParameter('webinar_meetingid', i) as string;
+				const webinarExtraJson = this.getNodeParameter('webinarExtraJson', i, '{}') as string;
+				const body: IDataObject = { meetingid };
+				try {
+					Object.assign(body, JSON.parse(webinarExtraJson || '{}') as IDataObject);
+					body.meetingid = meetingid;
+				} catch {
+					// ignore
+				}
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/meeting/record/get_statistics',
+					body,
+				);
+			} else if (operation === 'recordUpdateSharingConfig') {
+				const meetingid = this.getNodeParameter('webinar_meetingid', i) as string;
+				const record_file_id = this.getNodeParameter('webinar_record_file_id', i) as string;
+				const webinarExtraJson = this.getNodeParameter('webinarExtraJson', i, '{}') as string;
+				const body: IDataObject = { meetingid, record_file_id };
+				try {
+					Object.assign(body, JSON.parse(webinarExtraJson || '{}') as IDataObject);
+					body.meetingid = meetingid;
+					body.record_file_id = record_file_id;
+				} catch {
+					// ignore
+				}
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/meeting/record/update_sharing_config',
+					body,
+				);
+			} else if (operation === 'recordTranscriptGetDetail') {
+				const meetingid = this.getNodeParameter('webinar_meetingid', i) as string;
+				const record_file_id = this.getNodeParameter('webinar_record_file_id', i) as string;
+				const pid = this.getNodeParameter('transcript_pid', i, '') as string;
+				const limit = this.getNodeParameter('webinar_limit', i, 10) as number;
+				const body: IDataObject = { meetingid, record_file_id };
+				if (pid) body.pid = pid;
+				if (limit) body.limit = limit;
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/meeting/record/transcript/get_detail',
+					body,
+				);
+			} else if (operation === 'recordTranscriptGetParagraphList') {
+				const meetingid = this.getNodeParameter('webinar_meetingid', i) as string;
+				const record_file_id = this.getNodeParameter('webinar_record_file_id', i) as string;
+				const pid = this.getNodeParameter('transcript_pid', i, '') as string;
+				const limit = this.getNodeParameter('webinar_limit', i, 10) as number;
+				const body: IDataObject = { meetingid, record_file_id };
+				if (pid) body.pid = pid;
+				if (limit) body.limit = limit;
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/meeting/record/transcript/get_paragraph_list',
+					body,
+				);
+			} else if (operation === 'recordTranscriptSearch') {
+				const meetingid = this.getNodeParameter('webinar_meetingid', i) as string;
+				const record_file_id = this.getNodeParameter('webinar_record_file_id', i) as string;
+				const text = this.getNodeParameter('transcript_text', i) as string;
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/meeting/record/transcript/search',
+					{ meetingid, record_file_id, text },
+				);
 			} else if (meetingExtraHttpOpsById[operation]) {
 				const op = meetingExtraHttpOpsById[operation] as MeetingExtraHttpOp;
 				const bodyDefaults: IDataObject = {};

@@ -36,6 +36,10 @@ import {
 	getMeetingExtraHttpOpOptions,
 	meetingExtraHttpOpsDescription,
 } from './extraHttpOps';
+import {
+	webinarRecordOperationOptions,
+	meetingWebinarRecordOpsDescription,
+} from './meetingWebinarRecordOps';
 
 const showOnlyForMeeting = {
 	resource: ['meeting'],
@@ -280,7 +284,9 @@ export const meetingDescription: INodeProperties[] = [
 				action: '投票详情',
 				description: '获取投票详情',
 			},
-			// 文档遗漏接口补全（一等操作）
+			// 网络研讨会 / 录制转写（结构化表单）
+			...webinarRecordOperationOptions,
+			// 其余会议补全（关键字段 + JSON）
 			...getMeetingExtraHttpOpOptions(),
 		],
 		default: 'createMeeting',
@@ -306,6 +312,7 @@ export const meetingDescription: INodeProperties[] = [
 	...deallocateMeetingAdvancedAccountDescription,
 	...getMeetingAdvancedAccountListDescription,
 	...meetingAdvancedOpsDescription,
+	...meetingWebinarRecordOpsDescription,
 	...meetingExtraHttpOpsDescription,
 ];
 
