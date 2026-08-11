@@ -80,23 +80,41 @@ export const miniapppayDescription: INodeProperties[] = [
 		default: 'createOrder',
 	},
 	{
-		displayName: '进件申请JSON',
+		displayName: '商户申请单号',
+		name: 'out_request_no',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: { ...showOnly, operation: ['applyMch', 'getApplymentStatus'] },
+		},
+		default: '',
+		description: 'out_request_no，业务申请编号，须唯一',
+	},
+	{
+		displayName: '主体类型',
+		name: 'organization_type',
+		type: 'number',
+		displayOptions: { show: { ...showOnly, operation: ['applyMch'] } },
+		default: 0,
+		description: 'organization_type，见进件文档主体类型枚举',
+	},
+	{
+		displayName: '商户简称',
+		name: 'merchant_short_name',
+		type: 'string',
+		displayOptions: { show: { ...showOnly, operation: ['applyMch'] } },
+		default: '',
+		description: 'merchant_short_name',
+	},
+	{
+		displayName: '进件申请其余字段JSON',
 		name: 'applyMchJson',
 		type: 'json',
 		required: true,
 		displayOptions: { show: { ...showOnly, operation: ['applyMch'] } },
 		default: '{}',
 		description:
-			'apply_mch 完整请求体，字段见官方「提交创建对外收款账户的申请单」。<a href="https://developer.work.weixin.qq.com/document/path/98973" target="_blank">官方文档</a>',
-	},
-	{
-		displayName: '商户申请单号',
-		name: 'out_request_no',
-		type: 'string',
-		required: true,
-		displayOptions: { show: { ...showOnly, operation: ['getApplymentStatus'] } },
-		default: '',
-		description: 'out_request_no，进件时填写的业务申请编号',
+			'营业执照、法人证件、联系人、结算账户等嵌套结构，与上方字段合并（JSON 优先）。见官方「提交创建对外收款账户的申请单」',
 	},
 	// 公共商户字段
 	{

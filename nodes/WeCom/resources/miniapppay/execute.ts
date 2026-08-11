@@ -149,10 +149,20 @@ export async function executeMiniapppay(
 				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/miniapppay/get_bill', body);
 			} else if (operation === 'applyMch') {
 				// https://developer.work.weixin.qq.com/document/path/98973
+				const out_request_no = this.getNodeParameter('out_request_no', i) as string;
+				const organization_type = this.getNodeParameter('organization_type', i, 0) as number;
+				const merchant_short_name = this.getNodeParameter('merchant_short_name', i, '') as string;
 				const applyMchJson = this.getNodeParameter('applyMchJson', i, '{}') as string;
-				let body: IDataObject = {};
+				const body: IDataObject = {
+					out_request_no,
+					organization_type,
+				};
+				if (merchant_short_name) body.merchant_short_name = merchant_short_name;
 				try {
-					body = JSON.parse(applyMchJson || '{}') as IDataObject;
+					const extra = JSON.parse(applyMchJson || '{}') as IDataObject;
+					Object.assign(body, extra);
+					// 保证申请单号不被空 JSON 覆盖
+					if (!body.out_request_no) body.out_request_no = out_request_no;
 				} catch {
 					throw new Error('进件申请JSON 解析失败');
 				}
