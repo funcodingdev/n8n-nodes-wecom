@@ -287,5 +287,13 @@
     "会议域已全部结构化，extraHttpOps 为空",
     "客户/家校/系统等补全接口已增加关键表单字段+JSON 扩展",
     "auth/getuserdetail 已对齐为 POST + user_ticket"
-  ]
+  ],
+  "generated_at": "2026-08-11T14:22:20.749341+00:00",
+  "extra_http_ops_count": 55,
+  "coverage": {
+    "docs": 611,
+    "covered": 611,
+    "missing": 0,
+    "rate": 1.0
+  }
 }

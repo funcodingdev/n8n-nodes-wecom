@@ -389,7 +389,23 @@ export async function executeMeeting(
 			} else if (operation === 'setEnrollConfig') {
 				const meetingid = this.getNodeParameter('meetingid', i) as string;
 				const enrollConfigJson = this.getNodeParameter('enrollConfigJson', i, '{}') as string;
-				const body: IDataObject = { meetingid };
+				const enroll_approve_type = this.getNodeParameter('enroll_approve_type', i, 1) as number;
+				const enroll_is_collect_question = this.getNodeParameter(
+					'enroll_is_collect_question',
+					i,
+					1,
+				) as number;
+				const enroll_no_registration_needed_for_staff = this.getNodeParameter(
+					'enroll_no_registration_needed_for_staff',
+					i,
+					true,
+				) as boolean;
+				const body: IDataObject = {
+					meetingid,
+					approve_type: enroll_approve_type,
+					is_collect_question: enroll_is_collect_question,
+					no_registration_needed_for_staff: enroll_no_registration_needed_for_staff,
+				};
 				try {
 					Object.assign(body, JSON.parse(enrollConfigJson || '{}') as IDataObject);
 					body.meetingid = meetingid;
@@ -409,8 +425,15 @@ export async function executeMeeting(
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/enroll/list', body);
 			} else if (operation === 'approveEnroll') {
 				const meetingid = this.getNodeParameter('meetingid', i) as string;
+				const enroll_id_list = this.getNodeParameter('enroll_id_list', i, '') as string;
+				const enroll_approve_status = this.getNodeParameter('enroll_approve_status', i, 1) as number;
 				const approveJson = this.getNodeParameter('approveJson', i, '{}') as string;
-				const body: IDataObject = { meetingid };
+				const body: IDataObject = {
+					meetingid,
+					status: enroll_approve_status,
+				};
+				const ids = enroll_id_list.split(',').map((s) => s.trim()).filter(Boolean);
+				if (ids.length) body.enroll_id_list = ids;
 				try {
 					Object.assign(body, JSON.parse(approveJson || '{}') as IDataObject);
 					body.meetingid = meetingid;

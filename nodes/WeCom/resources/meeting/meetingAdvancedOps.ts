@@ -51,16 +51,52 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 		description: '额外请求字段，按会议接口文档填写（如布局 ID、电话号码、投票 ID 等）',
 	},
 	{
-		displayName: '报名配置JSON',
+		displayName: '审批方式',
+		name: 'enroll_approve_type',
+		type: 'options',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['setEnrollConfig'] },
+		},
+		options: [
+			{ name: '自动审批', value: 1 },
+			{ name: '手动审批', value: 2 },
+		],
+		default: 1,
+		description: 'approve_type',
+	},
+	{
+		displayName: '收集问题',
+		name: 'enroll_is_collect_question',
+		type: 'options',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['setEnrollConfig'] },
+		},
+		options: [
+			{ name: '不收集', value: 0 },
+			{ name: '收集', value: 1 },
+		],
+		default: 1,
+		description: 'is_collect_question',
+	},
+	{
+		displayName: '企业成员无需报名',
+		name: 'enroll_no_registration_needed_for_staff',
+		type: 'boolean',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['setEnrollConfig'] },
+		},
+		default: true,
+		description: 'no_registration_needed_for_staff',
+	},
+	{
+		displayName: '报名配置扩展JSON',
 		name: 'enrollConfigJson',
 		type: 'json',
 		displayOptions: {
 			show: { resource: ['meeting'], operation: ['setEnrollConfig'] },
 		},
-		default:
-			'{\n  "approve_type": 1,\n  "is_collect_question": 1,\n  "no_registration_needed_for_staff": true\n}',
-		description:
-			'合并进 set_config 请求体（除 meetingid）。<a href="https://developer.work.weixin.qq.com/document/path/98797" target="_blank">官方文档</a>',
+		default: '{}',
+		description: '其余 set_config 字段，与上方合并',
 	},
 	{
 		displayName: '报名状态',
@@ -97,15 +133,39 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 		default: 20,
 	},
 	{
-		displayName: '审批操作JSON',
+		displayName: '报名ID列表',
+		name: 'enroll_id_list',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['approveEnroll'] },
+		},
+		default: '',
+		placeholder: 'id1,id2',
+		description: 'enroll_id_list，逗号分隔',
+	},
+	{
+		displayName: '审批结果',
+		name: 'enroll_approve_status',
+		type: 'options',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['approveEnroll'] },
+		},
+		options: [
+			{ name: '通过', value: 1 },
+			{ name: '驳回', value: 2 },
+		],
+		default: 1,
+		description: 'status',
+	},
+	{
+		displayName: '审批扩展JSON',
 		name: 'approveJson',
 		type: 'json',
 		displayOptions: {
 			show: { resource: ['meeting'], operation: ['approveEnroll'] },
 		},
-		default: '{\n  "enroll_id_list": [],\n  "status": 1\n}',
-		description:
-			'approve 请求体字段（与 meetingid 合并）。<a href="https://developer.work.weixin.qq.com/document/path/98810" target="_blank">报名相关文档</a>',
+		default: '{}',
+		description: '其余审批字段，与上方合并',
 	},
 	// --- Rooms ---
 	{
