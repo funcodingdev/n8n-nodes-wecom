@@ -59,6 +59,7 @@ export async function executeMeeting(
 				const location = this.getNodeParameter('location', i, '') as string;
 				const invitee_userids = this.getNodeParameter('invitee_userids', i, '') as string;
 				const cal_id = this.getNodeParameter('cal_id', i, '') as string;
+				const agentid = this.getNodeParameter('agentid', i, 0) as number;
 				const createMeetingExtraJson = this.getNodeParameter(
 					'createMeetingExtraJson',
 					i,
@@ -74,6 +75,7 @@ export async function executeMeeting(
 				if (description) body.description = description;
 				if (location) body.location = location;
 				if (cal_id) body.cal_id = cal_id;
+				if (agentid) body.agentid = agentid;
 
 				// invitees
 				let inviteeIds = invitee_userids
