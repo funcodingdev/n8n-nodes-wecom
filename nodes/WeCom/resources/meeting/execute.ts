@@ -497,7 +497,23 @@ export async function executeMeeting(
 			} else if (operation === 'realcontrolSet') {
 				const meetingid = this.getNodeParameter('meetingid', i) as string;
 				const realcontrolJson = this.getNodeParameter('realcontrolJson', i, '{}') as string;
-				const body: IDataObject = { meetingid };
+				const body: IDataObject = {
+					meetingid,
+					mute_all: this.getNodeParameter('rc_mute_all', i, false) as boolean,
+					allow_unmute_self: this.getNodeParameter('rc_allow_unmute_self', i, true) as boolean,
+					enable_enter_mute: this.getNodeParameter('rc_enable_enter_mute', i, 0) as number,
+					meeting_locked: this.getNodeParameter('rc_meeting_locked', i, false) as boolean,
+					hide_meeting_code_password: this.getNodeParameter(
+						'rc_hide_meeting_code_password',
+						i,
+						false,
+					) as boolean,
+					allow_chat: this.getNodeParameter('rc_allow_chat', i, 0) as number,
+					allow_share_screen: this.getNodeParameter('rc_allow_share_screen', i, true) as boolean,
+					allow_external_user: this.getNodeParameter('rc_allow_external_user', i, false) as boolean,
+					play_ivr_on_join: this.getNodeParameter('rc_play_ivr_on_join', i, false) as boolean,
+					enable_waiting_room: this.getNodeParameter('rc_enable_waiting_room', i, false) as boolean,
+				};
 				try {
 					Object.assign(body, JSON.parse(realcontrolJson || '{}') as IDataObject);
 					body.meetingid = meetingid;
@@ -538,7 +554,19 @@ export async function executeMeeting(
 			} else if (operation === 'phoneCallout') {
 				const meetingid = this.getNodeParameter('meetingid', i) as string;
 				const extraJson = this.getNodeParameter('extraJson', i, '{}') as string;
+				const phoneCollection = this.getNodeParameter('phoneCalloutCollection', i, {}) as IDataObject;
+				const phone_numbers = ((phoneCollection?.numbers as IDataObject[]) || [])
+					.filter((n) => n.phone)
+					.map((n) => {
+						const item: IDataObject = {
+							area: n.area ?? 86,
+							phone: n.phone,
+						};
+						if (n.extension_number) item.extension_number = n.extension_number;
+						return item;
+					});
 				const body: IDataObject = { meetingid };
+				if (phone_numbers.length) body.phone_numbers = phone_numbers;
 				try {
 					Object.assign(body, JSON.parse(extraJson || '{}') as IDataObject);
 					body.meetingid = meetingid;
