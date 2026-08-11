@@ -918,9 +918,24 @@ export async function executeMeeting(
 				}
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/phone/callout', body);
 			} else if (operation === 'phoneGetCalloutStatus') {
+				// https://developer.work.weixin.qq.com/document/path/98824
 				const meetingid = this.getNodeParameter('meetingid', i) as string;
+				const phone_status_cursor = this.getNodeParameter(
+					'phone_status_cursor',
+					i,
+					'',
+				) as string;
+				const phone_status_limit = this.getNodeParameter(
+					'phone_status_limit',
+					i,
+					50,
+				) as number;
 				const extraJson = this.getNodeParameter('extraJson', i, '{}') as string;
-				const body: IDataObject = { meetingid };
+				const body: IDataObject = {
+					meetingid,
+					limit: Math.min(phone_status_limit || 50, 100),
+				};
+				if (phone_status_cursor) body.cursor = phone_status_cursor;
 				try {
 					Object.assign(body, JSON.parse(extraJson || '{}') as IDataObject);
 					body.meetingid = meetingid;

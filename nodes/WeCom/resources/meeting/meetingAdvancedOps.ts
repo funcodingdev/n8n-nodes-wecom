@@ -109,6 +109,27 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 		description: 'instance_id，操作者入会设备',
 	},
 	{
+		displayName: '外呼状态游标',
+		name: 'phone_status_cursor',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['phoneGetCalloutStatus'] },
+		},
+		default: '',
+		description: 'cursor，分页',
+	},
+	{
+		displayName: '外呼状态条数',
+		name: 'phone_status_limit',
+		type: 'number',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['phoneGetCalloutStatus'] },
+		},
+		default: 50,
+		typeOptions: { minValue: 1, maxValue: 100 },
+		description: 'limit，最大 100',
+	},
+	{
 		displayName: '扩展请求JSON',
 		name: 'extraJson',
 		type: 'json',
