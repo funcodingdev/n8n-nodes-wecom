@@ -365,14 +365,44 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 	},
 	// --- 会中扩展 ---
 	{
-		displayName: '联席主持人UserID列表',
+		displayName: '联席主持人动作',
+		name: 'cohost_action',
+		type: 'boolean',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['setCohost'] },
+		},
+		default: true,
+		description: 'action：true 设置联席主持人，false 撤销',
+	},
+	{
+		displayName: '被操作成员临时OpenID',
+		name: 'cohost_tmp_openid',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['setCohost'] },
+		},
+		default: '',
+		description: 'operated_user.tmp_openid',
+	},
+	{
+		displayName: '被操作成员设备ID',
+		name: 'cohost_instance_id',
+		type: 'number',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['setCohost'] },
+		},
+		default: 1,
+		description: 'operated_user.instance_id',
+	},
+	{
+		displayName: '联席主持人UserID列表(兼容旧版)',
 		name: 'cohost_userids',
 		type: 'string',
 		displayOptions: {
 			show: { resource: ['meeting'], operation: ['setCohost'] },
 		},
 		default: '',
-		description: '联席主持人成员账号，多个用逗号分隔',
+		description: '已废弃：官方为 tmp_openid；仅兼容旧工作流，无法单独生效',
 	},
 	{
 		displayName: '全体静音',

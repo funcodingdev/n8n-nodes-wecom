@@ -532,15 +532,25 @@ export async function executeMeeting(
 					meeting_room_id_list,
 				});
 			} else if (operation === 'setCohost') {
+				// https://developer.work.weixin.qq.com/document/path/98180
 				const meetingid = this.getNodeParameter('meetingid', i) as string;
+				const cohost_action = this.getNodeParameter('cohost_action', i, true) as boolean;
+				const cohost_tmp_openid = this.getNodeParameter('cohost_tmp_openid', i, '') as string;
+				const cohost_instance_id = this.getNodeParameter('cohost_instance_id', i, 1) as number;
+				// 兼容：若仅有旧 cohost_userids，取其首个作为 tmp_openid（语义可能不正确）
 				const cohost_userids = this.getNodeParameter('cohost_userids', i, '') as string;
-				const userid_list = cohost_userids
+				const legacyFirst = cohost_userids
 					.split(',')
 					.map((id) => id.trim())
-					.filter(Boolean);
+					.filter(Boolean)[0];
+				const tmp_openid = cohost_tmp_openid || legacyFirst || '';
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/realcontrol/set_cohost', {
 					meetingid,
-					userid_list,
+					action: cohost_action,
+					operated_user: {
+						tmp_openid,
+						instance_id: cohost_instance_id,
+					},
 				});
 			} else if (operation === 'realcontrolSet') {
 				const meetingid = this.getNodeParameter('meetingid', i) as string;
