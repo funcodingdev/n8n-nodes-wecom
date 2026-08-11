@@ -1372,16 +1372,38 @@ export async function executeWedoc(
 				);
 			} else if (operation === 'sendSmartsheetWebhook') {
 				const itemJson = items[i].json as IDataObject;
+				const formWebhook = this.getNodeParameter('webhook_url', i, '') as string;
+				const webhook_mode = this.getNodeParameter('webhook_mode', i, 'json') as string;
 				const webhookUrl =
+					formWebhook ||
 					(itemJson.webhook_url as string | undefined) ||
 					(itemJson.webhookUrl as string | undefined) ||
 					(itemJson.url as string | undefined) ||
 					'';
-				const payload = parseRequiredJsonObject(
-					this.getNodeParameter('payload_json', i, '{}'),
-					'payload_json',
-					i,
-				);
+
+				let payload: IDataObject = {};
+				if (webhook_mode === 'add' || webhook_mode === 'update') {
+					const records_json = this.getNodeParameter('records_json', i, '[]') as string;
+					let records: IDataObject[] = [];
+					try {
+						const parsed = JSON.parse(records_json || '[]');
+						if (Array.isArray(parsed)) records = parsed as IDataObject[];
+					} catch (e) {
+						throw new NodeOperationError(
+							this.getNode(),
+							`记录列表JSON 解析失败: ${(e as Error).message}`,
+							{ itemIndex: i },
+						);
+					}
+					if (webhook_mode === 'add') payload = { add_records: records };
+					else payload = { update_records: records };
+				} else {
+					payload = parseRequiredJsonObject(
+						this.getNodeParameter('payload_json', i, '{}'),
+						'payload_json',
+						i,
+					);
+				}
 
 				delete payload.webhook_url;
 				delete payload.webhookUrl;
@@ -1390,7 +1412,7 @@ export async function executeWedoc(
 				if (!webhookUrl) {
 					throw new NodeOperationError(
 						this.getNode(),
-						'输入数据中缺少 Webhook 地址，请提供 webhook_url、webhookUrl 或 url 字段',
+						'缺少 Webhook 地址：请在表单填写或在输入数据提供 webhook_url / webhookUrl / url',
 						{ itemIndex: i },
 					);
 				}
@@ -1406,7 +1428,7 @@ export async function executeWedoc(
 				if (!Array.isArray(payload.add_records) && !Array.isArray(payload.update_records)) {
 					throw new NodeOperationError(
 						this.getNode(),
-						'payload_json 至少需要包含 add_records 或 update_records 数组',
+						'请求体至少需要包含 add_records 或 update_records 数组',
 						{ itemIndex: i },
 					);
 				}

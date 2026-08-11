@@ -4,14 +4,44 @@ const showOnly = { resource: ['wedoc'], operation: ['sendSmartsheetWebhook'] };
 
 export const sendSmartsheetWebhookDescription: INodeProperties[] = [
 	{
+		displayName: 'Webhook地址',
+		name: 'webhook_url',
+		type: 'string',
+		displayOptions: { show: showOnly },
+		default: '',
+		placeholder: 'https://qyapi.weixin.qq.com/cgi-bin/wedoc/smartsheet/webhook?...',
+		description:
+			'智能表格「接收外部数据」生成的地址；为空则从输入项的 webhook_url / webhookUrl / url 读取',
+	},
+	{
+		displayName: '写入模式',
+		name: 'webhook_mode',
+		type: 'options',
+		displayOptions: { show: showOnly },
+		options: [
+			{ name: '新增记录 add_records', value: 'add' },
+			{ name: '更新记录 update_records', value: 'update' },
+			{ name: '完整 JSON', value: 'json' },
+		],
+		default: 'json',
+	},
+	{
+		displayName: '记录列表JSON',
+		name: 'records_json',
+		type: 'json',
+		displayOptions: {
+			show: { ...showOnly, webhook_mode: ['add', 'update'] },
+		},
+		default: '[]',
+		description:
+			'记录数组。新增示例：[{"values":{"FIELD_ID":[{"type":"text","text":"内容"}]}}]；更新需含 record_id',
+	},
+	{
 		displayName: 'JSON 请求体',
 		name: 'payload_json',
 		type: 'json',
-		typeOptions: {
-			rows: 10,
-		},
-		required: true,
-		displayOptions: { show: showOnly },
+		typeOptions: { rows: 10 },
+		displayOptions: { show: { ...showOnly, webhook_mode: ['json'] } },
 		default: `{
   "add_records": [
     {
@@ -26,8 +56,7 @@ export const sendSmartsheetWebhookDescription: INodeProperties[] = [
     }
   ]
 }`,
-		description:
-			'按智能表格“接收外部数据”中的“示例数据”格式填写。支持 add_records 新增记录和 update_records 更新记录，内容必须为 UTF-8 编码。',
+		description: '完整请求体，须含 add_records 或 update_records',
 	},
 	{
 		displayName: '说明',
@@ -36,6 +65,6 @@ export const sendSmartsheetWebhookDescription: INodeProperties[] = [
 		default: '',
 		displayOptions: { show: showOnly },
 		description:
-			'Webhook 地址不在当前节点内配置，节点会从输入数据中读取目标地址。',
+			'也可在输入数据中提供 webhook_url。内容必须为 UTF-8，字段值结构见智能表格「接收外部数据」示例。',
 	},
 ];
