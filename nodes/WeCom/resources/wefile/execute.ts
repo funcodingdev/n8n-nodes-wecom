@@ -550,7 +550,9 @@ export async function executeWefile(
 			} else if (wefileExtraHttpOpsById[operation]) {
 				const bodyDefaults: IDataObject = {};
 				const wefile_fileid = this.getNodeParameter('wefile_fileid', i, '') as string;
+				const wefile_spaceid = this.getNodeParameter('wefile_spaceid', i, '') as string;
 				if (wefile_fileid) bodyDefaults.fileid = wefile_fileid;
+				if (wefile_spaceid) bodyDefaults.spaceid = wefile_spaceid;
 				responseData = await executeExtraHttpOp.call(
 					this,
 					wefileExtraHttpOpsById[operation],

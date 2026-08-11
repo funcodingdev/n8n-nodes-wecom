@@ -292,6 +292,19 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		description: '结束时间戳（秒）',
 	},
 	{
+		displayName: '原添加成员UserID',
+		name: 'handover_userid',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactTransfer', 'crmTransferExternalContact'],
+			},
+		},
+		default: '',
+		description: '原跟进成员 userid',
+	},
+	{
 		displayName: '接替成员UserID',
 		name: 'takeover_userid',
 		type: 'string',

@@ -1,6 +1,6 @@
 # 001 服务端 API 全量校验报告
 
-生成时间：2026-08-11T12:52:19.243304Z
+生成时间：2026-08-11T14:09:22.544Z
 
 ## 总览
 
@@ -8,11 +8,9 @@
 |------|----|
 | 文档 HTTP 路径 | 611 |
 | 已覆盖 | 611 |
-| 缺失 | **0** |
+| 缺失 | 0 |
 | 覆盖率 | **100.00%** |
-| UI 操作未接入 execute | 0 |
-| 参数路径式 description | 0 |
-| 资源菜单句式未对齐 | 0 |
+| 剩余 extraHttpOps 登记数 | 55 |
 
 ## 分章覆盖
 
@@ -53,64 +51,21 @@
 | 036-高级功能 | 2 | 2 | 0 | 100.0% |
 | 037-紧急通知应用 | 2 | 2 | 0 | 100.0% |
 
-## 缺失路径
+## 各域补全登记与表单字段数
 
-无
+| 资源 | ops | displayName 字段数 |
+|------|-----|-------------------|
+| approval | 3 | 5 |
+| checkin | 1 | 4 |
+| externalContact | 24 | 21 |
+| linkedcorp | 3 | 6 |
+| meeting | 0 | 0 |
+| school | 14 | 10 |
+| system | 9 | 6 |
+| wefile | 1 | 4 |
 
-## UI 有但 execute 未处理
+## 说明
 
-无
-
-## 参数路径式 description
-
-无
-
-## 资源操作规模
-
-| 资源 | UI 操作数 | execute 识别数 |
-|------|-----------|----------------|
-| meeting | 107 | 107 |
-| externalContact | 104 | 104 |
-| wedoc | 52 | 52 |
-| school | 42 | 42 |
-| contact | 38 | 38 |
-| wefile | 31 | 31 |
-| license | 27 | 27 |
-| mail | 26 | 26 |
-| kf | 21 | 21 |
-| living | 21 | 21 |
-| linkedcorp | 18 | 18 |
-| security | 16 | 16 |
-| message | 15 | 15 |
-| chatdata | 14 | 14 |
-| accountId | 13 | 13 |
-| appAuth | 13 | 13 |
-| approval | 13 | 13 |
-| checkin | 13 | 13 |
-| agent | 12 | 12 |
-| appChat | 12 | 12 |
-| calendar | 12 | 12 |
-| system | 12 | 12 |
-| miniapppay | 11 | 11 |
-| live | 9 | 9 |
-| pushMessage | 9 | 9 |
-| paytool | 7 | 7 |
-| material | 6 | 6 |
-| externalpay | 5 | 5 |
-| meetingroom | 5 | 5 |
-| msgaudit | 5 | 5 |
-| aibotPassiveReply | 4 | 4 |
-| invoice | 4 | 4 |
-| journal | 4 | 4 |
-| mchpay | 4 | 4 |
-| promotionQrcode | 4 | 4 |
-| hr | 3 | 3 |
-| emergency | 2 | 2 |
-| file | 1 | 1 |
-| passiveReply | 1 | 5 |
-| phone | 1 | 1 |
-
-## 后续增强
-
-- 会议补全 71 操作已中文化，支持会议ID/录制文件ID表单预填
-- 商户支付完整 URL 常量已对齐文档路径
+- 会议域已全部结构化，extraHttpOps 为空
+- 客户/家校/系统等补全接口已增加关键表单字段+JSON 扩展
+- auth/getuserdetail 已对齐为 POST + user_ticket

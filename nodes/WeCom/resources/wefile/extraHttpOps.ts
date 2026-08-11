@@ -18,6 +18,16 @@ export function getWefileExtraHttpOpOptions() {
 
 export const wefileExtraHttpOpsDescription: INodeProperties[] = [
 	{
+		displayName: '空间ID',
+		name: 'wefile_spaceid',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['wefile'], operation: wefileExtraHttpOpsOptionValues },
+		},
+		default: '',
+		description: '微盘 spaceid（若接口需要）',
+	},
+	{
 		displayName: '文件ID',
 		name: 'wefile_fileid',
 		type: 'string',

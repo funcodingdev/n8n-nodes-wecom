@@ -28,6 +28,17 @@ export const checkinExtraHttpOpsDescription: INodeProperties[] = [
 		description: '打卡规则 groupid',
 	},
 	{
+		displayName: '要清空的字段名',
+		name: 'clear_field_names',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['checkin'], operation: checkinExtraHttpOpsOptionValues },
+		},
+		default: '',
+		placeholder: 'field1,field2',
+		description: '规则中需清空的数组字段名，逗号分隔',
+	},
+	{
 		displayName: '请求体JSON',
 		name: 'requestBody',
 		type: 'json',
@@ -35,7 +46,7 @@ export const checkinExtraHttpOpsDescription: INodeProperties[] = [
 			show: { resource: ['checkin'], operation: checkinExtraHttpOpsOptionValues },
 		},
 		default: '{}',
-		description: '需清空的字段名等，与 groupid 合并',
+		description: '其余字段与 groupid 合并',
 	},
 	{
 		displayName: 'Query参数JSON',

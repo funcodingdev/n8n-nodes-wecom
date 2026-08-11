@@ -1,18 +1,14 @@
 {
-  "generatedAt": "2026-08-11T12:52:19.242572Z",
+  "generatedAt": "2026-08-11T14:09:22.544Z",
   "summary": {
     "docPaths": 611,
     "covered": 611,
     "missing": 0,
     "coveragePct": "100.00%",
-    "uiOpsMissingInExec": 0,
-    "paramPathLike": 0,
+    "remainingExtraHttpOps": 55,
     "resourceMenuBad": 0
   },
   "missing": [],
-  "uiMissingInExec": [],
-  "paramPathLike": [],
-  "menuBad": [],
   "chapterTable": [
     {
       "ch": "001-开发指南",
@@ -253,247 +249,43 @@
       "pct": "100.0%"
     }
   ],
-  "resources": [
-    {
-      "r": "meeting",
-      "ui": 107,
-      "ex": 107,
-      "gap": 0
+  "fieldStats": {
+    "approval": {
+      "ops": 3,
+      "fields": 5
     },
-    {
-      "r": "externalContact",
-      "ui": 104,
-      "ex": 104,
-      "gap": 0
+    "checkin": {
+      "ops": 1,
+      "fields": 4
     },
-    {
-      "r": "wedoc",
-      "ui": 52,
-      "ex": 52,
-      "gap": 0
+    "externalContact": {
+      "ops": 24,
+      "fields": 21
     },
-    {
-      "r": "school",
-      "ui": 42,
-      "ex": 42,
-      "gap": 0
+    "linkedcorp": {
+      "ops": 3,
+      "fields": 6
     },
-    {
-      "r": "contact",
-      "ui": 38,
-      "ex": 38,
-      "gap": 0
+    "meeting": {
+      "ops": 0,
+      "fields": 0
     },
-    {
-      "r": "wefile",
-      "ui": 31,
-      "ex": 31,
-      "gap": 0
+    "school": {
+      "ops": 14,
+      "fields": 10
     },
-    {
-      "r": "license",
-      "ui": 27,
-      "ex": 27,
-      "gap": 0
+    "system": {
+      "ops": 9,
+      "fields": 6
     },
-    {
-      "r": "mail",
-      "ui": 26,
-      "ex": 26,
-      "gap": 0
-    },
-    {
-      "r": "kf",
-      "ui": 21,
-      "ex": 21,
-      "gap": 0
-    },
-    {
-      "r": "living",
-      "ui": 21,
-      "ex": 21,
-      "gap": 0
-    },
-    {
-      "r": "linkedcorp",
-      "ui": 18,
-      "ex": 18,
-      "gap": 0
-    },
-    {
-      "r": "security",
-      "ui": 16,
-      "ex": 16,
-      "gap": 0
-    },
-    {
-      "r": "message",
-      "ui": 15,
-      "ex": 15,
-      "gap": 0
-    },
-    {
-      "r": "chatdata",
-      "ui": 14,
-      "ex": 14,
-      "gap": 0
-    },
-    {
-      "r": "accountId",
-      "ui": 13,
-      "ex": 13,
-      "gap": 0
-    },
-    {
-      "r": "appAuth",
-      "ui": 13,
-      "ex": 13,
-      "gap": 0
-    },
-    {
-      "r": "approval",
-      "ui": 13,
-      "ex": 13,
-      "gap": 0
-    },
-    {
-      "r": "checkin",
-      "ui": 13,
-      "ex": 13,
-      "gap": 0
-    },
-    {
-      "r": "agent",
-      "ui": 12,
-      "ex": 12,
-      "gap": 0
-    },
-    {
-      "r": "appChat",
-      "ui": 12,
-      "ex": 12,
-      "gap": 0
-    },
-    {
-      "r": "calendar",
-      "ui": 12,
-      "ex": 12,
-      "gap": 0
-    },
-    {
-      "r": "system",
-      "ui": 12,
-      "ex": 12,
-      "gap": 0
-    },
-    {
-      "r": "miniapppay",
-      "ui": 11,
-      "ex": 11,
-      "gap": 0
-    },
-    {
-      "r": "live",
-      "ui": 9,
-      "ex": 9,
-      "gap": 0
-    },
-    {
-      "r": "pushMessage",
-      "ui": 9,
-      "ex": 9,
-      "gap": 0
-    },
-    {
-      "r": "paytool",
-      "ui": 7,
-      "ex": 7,
-      "gap": 0
-    },
-    {
-      "r": "material",
-      "ui": 6,
-      "ex": 6,
-      "gap": 0
-    },
-    {
-      "r": "externalpay",
-      "ui": 5,
-      "ex": 5,
-      "gap": 0
-    },
-    {
-      "r": "meetingroom",
-      "ui": 5,
-      "ex": 5,
-      "gap": 0
-    },
-    {
-      "r": "msgaudit",
-      "ui": 5,
-      "ex": 5,
-      "gap": 0
-    },
-    {
-      "r": "aibotPassiveReply",
-      "ui": 4,
-      "ex": 4,
-      "gap": 0
-    },
-    {
-      "r": "invoice",
-      "ui": 4,
-      "ex": 4,
-      "gap": 0
-    },
-    {
-      "r": "journal",
-      "ui": 4,
-      "ex": 4,
-      "gap": 0
-    },
-    {
-      "r": "mchpay",
-      "ui": 4,
-      "ex": 4,
-      "gap": 0
-    },
-    {
-      "r": "promotionQrcode",
-      "ui": 4,
-      "ex": 4,
-      "gap": 0
-    },
-    {
-      "r": "hr",
-      "ui": 3,
-      "ex": 3,
-      "gap": 0
-    },
-    {
-      "r": "emergency",
-      "ui": 2,
-      "ex": 2,
-      "gap": 0
-    },
-    {
-      "r": "file",
-      "ui": 1,
-      "ex": 1,
-      "gap": 0
-    },
-    {
-      "r": "passiveReply",
-      "ui": 1,
-      "ex": 5,
-      "gap": 0
-    },
-    {
-      "r": "phone",
-      "ui": 1,
-      "ex": 1,
-      "gap": 0
+    "wefile": {
+      "ops": 1,
+      "fields": 4
     }
-  ],
-  "notes": "meeting extraHttpOps 已中文化并支持 meetingid/record_file_id 预填；mch 完整 URL 已写入常量"
+  },
+  "notes": [
+    "会议域已全部结构化，extraHttpOps 为空",
+    "客户/家校/系统等补全接口已增加关键表单字段+JSON 扩展",
+    "auth/getuserdetail 已对齐为 POST + user_ticket"
+  ]
 }

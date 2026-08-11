@@ -263,7 +263,11 @@ export async function executeCheckin(
 			} else if (checkinExtraHttpOpsById[operation]) {
 				const bodyDefaults: IDataObject = {};
 				const checkin_groupid = this.getNodeParameter('checkin_groupid', i, 0) as number;
+				const clear_field_names = this.getNodeParameter('clear_field_names', i, '') as string;
 				if (checkin_groupid) bodyDefaults.groupid = checkin_groupid;
+				if (clear_field_names) {
+					bodyDefaults.clear_field = clear_field_names.split(',').map((s) => s.trim()).filter(Boolean);
+				}
 				responseData = await executeExtraHttpOp.call(
 					this,
 					checkinExtraHttpOpsById[operation],
