@@ -1,55 +1,52 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-const showOnlyForUpdatePublicMailbox = {
+const showOnly = {
 	resource: ['mail'],
 	operation: ['updatePublicMailbox'],
 };
 
 export const updatePublicMailboxDescription: INodeProperties[] = [
 	{
-		displayName: '邮箱地址',
-		name: 'mailbox',
-		type: 'string',
+		displayName: '公共邮箱ID',
+		name: 'id',
+		type: 'number',
 		required: true,
-		displayOptions: {
-			show: showOnlyForUpdatePublicMailbox,
-		},
-		default: '',
-		placeholder: 'public@example.com',
-		description: '要更新的公共邮箱地址。<a href="https://developer.work.weixin.qq.com/document/path/95486" target="_blank">更多信息</a>',
+		displayOptions: { show: showOnly },
+		default: 0,
+		description:
+			'公共邮箱 ID。<a href="https://developer.work.weixin.qq.com/document/path/98000" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '邮箱名称',
+		displayName: '公共邮箱名称',
 		name: 'name',
 		type: 'string',
-		displayOptions: {
-			show: showOnlyForUpdatePublicMailbox,
-		},
+		displayOptions: { show: showOnly },
 		default: '',
-		placeholder: '客户服务',
-		description: '可选。公共邮箱的新名称。<a href="https://developer.work.weixin.qq.com/document/path/95486" target="_blank">更多信息</a>',
+		description: '新名称，不传则不变',
 	},
 	{
-		displayName: '管理员列表',
-		name: 'admin_list',
+		displayName: '成员UserID列表',
+		name: 'userid_list',
 		type: 'string',
-		displayOptions: {
-			show: showOnlyForUpdatePublicMailbox,
-		},
+		displayOptions: { show: showOnly },
 		default: '',
-		placeholder: 'admin1@example.com,admin2@example.com',
-		description: '可选。公共邮箱管理员的邮箱列表，多个邮箱用英文逗号分隔。填写后将覆盖原有管理员列表。<a href="https://developer.work.weixin.qq.com/document/path/95486" target="_blank">更多信息</a>',
+		placeholder: 'zhangsan,lisi',
+		description: '成员 userid 列表，逗号分隔；不传不变，传空串请用接口语义注意清空规则',
 	},
 	{
-		displayName: '成员列表',
-		name: 'member_list',
+		displayName: '部门ID列表',
+		name: 'department_list',
 		type: 'string',
-		displayOptions: {
-			show: showOnlyForUpdatePublicMailbox,
-		},
+		displayOptions: { show: showOnly },
 		default: '',
-		placeholder: 'user1@example.com,user2@example.com',
-		description: '可选。公共邮箱成员的邮箱列表，多个邮箱用英文逗号分隔。填写后将覆盖原有成员列表。<a href="https://developer.work.weixin.qq.com/document/path/95486" target="_blank">更多信息</a>',
+		placeholder: '1,2',
+	},
+	{
+		displayName: '标签ID列表',
+		name: 'tag_list',
+		type: 'string',
+		displayOptions: { show: showOnly },
+		default: '',
+		placeholder: '1,2',
 	},
 ];
-

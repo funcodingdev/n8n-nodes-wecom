@@ -1,22 +1,20 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-const showOnlyForDeallocateMailAdvancedAccount = {
+const showOnly = {
 	resource: ['mail'],
 	operation: ['deallocateMailAdvancedAccount'],
 };
 
 export const deallocateMailAdvancedAccountDescription: INodeProperties[] = [
 	{
-		displayName: '邮箱列表',
-		name: 'mailbox_list',
+		displayName: '成员UserID列表',
+		name: 'userid_list',
 		type: 'string',
 		required: true,
-		displayOptions: {
-			show: showOnlyForDeallocateMailAdvancedAccount,
-		},
+		displayOptions: { show: showOnly },
 		default: '',
-		placeholder: 'user1@example.com,user2@example.com',
-		description: '要取消高级功能账号的邮箱地址列表，多个邮箱用英文逗号分隔。<a href="https://developer.work.weixin.qq.com/document/path/95486" target="_blank">更多信息</a>',
+		placeholder: 'zhangsan,lisi,wangwu',
+		description:
+			'要取消高级功能的企业成员 userid 列表，逗号分隔。<a href="https://developer.work.weixin.qq.com/document/path/99317" target="_blank">官方文档</a>',
 	},
 ];
-

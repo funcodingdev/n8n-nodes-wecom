@@ -1,46 +1,32 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-const showOnlyForSearchMailGroup = {
+const showOnly = {
 	resource: ['mail'],
 	operation: ['searchMailGroup'],
 };
 
 export const searchMailGroupDescription: INodeProperties[] = [
 	{
-		displayName: '搜索关键词',
+		displayName: '模糊搜索',
+		name: 'fuzzy',
+		type: 'options',
+		required: true,
+		displayOptions: { show: showOnly },
+		options: [
+			{ name: '开启模糊搜索', value: 1 },
+			{ name: '获取全部邮件群组', value: 0 },
+		],
+		default: 1,
+		description:
+			'fuzzy=1 模糊搜索，0 获取全部。<a href="https://developer.work.weixin.qq.com/document/path/97998" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '邮件群组ID',
 		name: 'fuzzy_groupid',
 		type: 'string',
-		required: true,
-		displayOptions: {
-			show: showOnlyForSearchMailGroup,
-		},
+		displayOptions: { show: showOnly },
 		default: '',
-		placeholder: 'sales',
-		description: '用于模糊搜索邮件群组的关键词，支持群组地址和名称匹配。<a href="https://developer.work.weixin.qq.com/document/path/95486" target="_blank">更多信息</a>',
-	},
-	{
-		displayName: '返回数量',
-		name: 'limit',
-		type: 'number',
-		typeOptions: {
-			minValue: 1,
-		},
-		displayOptions: {
-			show: showOnlyForSearchMailGroup,
-		},
-		default: 50,
-		description: '返回的邮件群组数量，最大值为100。<a href="https://developer.work.weixin.qq.com/document/path/95486" target="_blank">更多信息</a>',
-	},
-	{
-		displayName: '游标',
-		name: 'cursor',
-		type: 'string',
-		displayOptions: {
-			show: showOnlyForSearchMailGroup,
-		},
-		default: '',
-		placeholder: 'CURSOR_STRING',
-		description: '可选。用于分页查询的游标，从上次响应中获取。<a href="https://developer.work.weixin.qq.com/document/path/95486" target="_blank">更多信息</a>',
+		placeholder: 'zhangsangroup@gzdev.com',
+		description: '邮件群组 ID（邮箱格式），可选',
 	},
 ];
-

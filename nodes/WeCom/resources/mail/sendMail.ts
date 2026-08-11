@@ -4,14 +4,13 @@ const showOnly = { resource: ['mail'], operation: ['sendMail'] };
 
 export const sendMailDescription: INodeProperties[] = [
 	{
-		displayName: '发件人邮箱',
-		name: 'sender',
-		type: 'string',
-		required: true,
+		displayName: '说明',
+		name: 'notice',
+		type: 'notice',
 		displayOptions: { show: showOnly },
 		default: '',
-		placeholder: 'user@example.com',
-		description: '发件人的企业邮箱地址',
+		description:
+			'发件人为当前应用绑定的邮箱账号（由 access_token 决定），无需传 sender。<a href="https://developer.work.weixin.qq.com/document/path/97445" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '邮件主题',
@@ -21,8 +20,9 @@ export const sendMailDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly },
 		default: '',
 		placeholder: '邮件主题',
-		description: '邮件的主题',
+		description: '邮件的主题 subject',
 	},
+
 	{
 		displayName: '收件人',
 		name: 'toListCollection',
@@ -104,17 +104,26 @@ export const sendMailDescription: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: '收件人UserID列表',
+		name: 'to_userids',
+		type: 'string',
+		displayOptions: { show: showOnly },
+		default: '',
+		placeholder: 'zhangsan,lisi',
+		description: 'to.userids，企业内成员 userid，逗号分隔；与收件人邮箱至少填一类',
+	},
+	{
 		displayName: '正文格式',
 		name: 'contentType',
 		type: 'options',
 		required: true,
 		displayOptions: { show: showOnly },
 		options: [
-			{ name: '纯文本', value: 1, description: '纯文本格式' },
-			{ name: 'HTML', value: 2, description: 'HTML富文本格式' },
+			{ name: 'HTML', value: 'html', description: 'content_type=html（默认）' },
+			{ name: '纯文本', value: 'text', description: 'content_type=text' },
 		],
-		default: 1,
-		description: '邮件正文的格式类型',
+		default: 'html',
+		description: 'content_type：html 或 text',
 	},
 	{
 		displayName: '邮件正文',
@@ -124,8 +133,16 @@ export const sendMailDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly },
 		default: '',
 		typeOptions: { rows: 6 },
-		description: '邮件正文内容',
+		description: '邮件正文 content',
 		placeholder: '请输入邮件正文...',
+	},
+	{
+		displayName: '开启ID转译',
+		name: 'enable_id_trans',
+		type: 'boolean',
+		displayOptions: { show: showOnly },
+		default: false,
+		description: 'enable_id_trans，仅第三方应用需要',
 	},
 	{
 		displayName: '附件',
@@ -135,30 +152,27 @@ export const sendMailDescription: INodeProperties[] = [
 		default: {},
 		placeholder: '添加附件',
 		typeOptions: { multipleValues: true },
-		description: '附件列表，附件需要先通过上传接口获取media_id（可选）',
+		description: '附件 attachment_list：file_name + content(base64)',
 		options: [
 			{
 				displayName: '附件',
 				name: 'attachments',
 				values: [
 					{
-						displayName: '附件类型',
-						name: 'type',
-						type: 'options',
-						default: 1,
-						options: [
-							{ name: '普通附件', value: 1 },
-							{ name: '云附件', value: 2 },
-						],
-
-					},
-					{
-						displayName: 'Media ID',
-						name: 'media_id',
+						displayName: '文件名',
+						name: 'file_name',
 						type: 'string',
 						default: '',
 						required: true,
-						description: '通过上传接口获取的media_id',
+						description: 'attachment_list[].file_name',
+					},
+					{
+						displayName: '文件内容(Base64)',
+						name: 'content',
+						type: 'string',
+						default: '',
+						required: true,
+						description: 'attachment_list[].content，Base64 编码',
 					},
 				],
 			},

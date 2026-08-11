@@ -1,6 +1,52 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
 
+function collectEmails(collection: IDataObject): string[] {
+	const list: string[] = [];
+	if (collection.recipients) {
+		for (const r of collection.recipients as IDataObject[]) {
+			if (r.email) list.push(String(r.email).trim());
+		}
+	}
+	return list;
+}
+
+function buildRecipientObj(collection: IDataObject): IDataObject | undefined {
+	const emails = collectEmails(collection);
+	if (emails.length === 0) return undefined;
+	return { emails };
+}
+
+function buildAttachmentList(attachmentCollection: IDataObject): IDataObject[] | undefined {
+	if (!attachmentCollection.attachments) return undefined;
+	const attachments = attachmentCollection.attachments as IDataObject[];
+	if (attachments.length === 0) return undefined;
+	return attachments
+		.filter((a) => a.file_name && a.content)
+		.map((a) => ({
+			file_name: a.file_name,
+			content: a.content,
+		}));
+}
+
+function mapContentType(contentType: number | string): string {
+	if (contentType === 1 || contentType === '1' || contentType === 'text') return 'text';
+	return 'html';
+}
+
+function splitCsv(value: string): string[] {
+	return value
+		.split(',')
+		.map((s) => s.trim())
+		.filter(Boolean);
+}
+
+function splitCsvNumbers(value: string): number[] {
+	return splitCsv(value)
+		.map((s) => Number(s))
+		.filter((n) => !Number.isNaN(n));
+}
+
 export async function executeMail(
 	this: IExecuteFunctions,
 	operation: string,
@@ -12,242 +58,170 @@ export async function executeMail(
 		try {
 			let response: IDataObject;
 
-			// 发送邮件
+			// 发送邮件（应用邮箱作为发件人，由 access_token 决定）
+			// https://developer.work.weixin.qq.com/document/path/97445
 			if (operation === 'sendMail') {
-				const sender = this.getNodeParameter('sender', i) as string;
 				const subject = this.getNodeParameter('subject', i) as string;
 				const toListCollection = this.getNodeParameter('toListCollection', i, {}) as IDataObject;
 				const ccListCollection = this.getNodeParameter('ccListCollection', i, {}) as IDataObject;
 				const bccListCollection = this.getNodeParameter('bccListCollection', i, {}) as IDataObject;
-				const contentType = this.getNodeParameter('contentType', i) as number;
+				const contentType = this.getNodeParameter('contentType', i) as number | string;
 				const content = this.getNodeParameter('content', i) as string;
 				const attachmentCollection = this.getNodeParameter('attachmentCollection', i, {}) as IDataObject;
-
-				// 构建收件人
-				const to_list: string[] = [];
-				const cc_list: string[] = [];
-				const bcc_list: string[] = [];
-
-				if (toListCollection.recipients) {
-					const toRecipients = toListCollection.recipients as IDataObject[];
-					toRecipients.forEach((r) => {
-						if (r.email) to_list.push(r.email as string);
-					});
-				}
-
-				if (ccListCollection.recipients) {
-					const ccRecipients = ccListCollection.recipients as IDataObject[];
-					ccRecipients.forEach((r) => {
-						if (r.email) cc_list.push(r.email as string);
-					});
-				}
-
-				if (bccListCollection.recipients) {
-					const bccRecipients = bccListCollection.recipients as IDataObject[];
-					bccRecipients.forEach((r) => {
-						if (r.email) bcc_list.push(r.email as string);
-					});
-				}
+				const toUserids = this.getNodeParameter('to_userids', i, '') as string;
+				const enable_id_trans = this.getNodeParameter('enable_id_trans', i, false) as boolean;
 
 				const body: IDataObject = {
-					sender,
-					receiver: { to_list, cc_list, bcc_list },
 					subject,
-					doc_content: {
-						content_type: contentType,
-						content,
-					},
+					content,
+					content_type: mapContentType(contentType),
 				};
 
-				// 处理附件
-				if (attachmentCollection.attachments) {
-					const attachments = attachmentCollection.attachments as IDataObject[];
-					if (attachments.length > 0) {
-						body.attachment_list = attachments.map((a) => ({
-							type: a.type,
-							media_id: a.media_id,
-						}));
-					}
-				}
+				const to: IDataObject = {};
+				const emails = collectEmails(toListCollection);
+				if (emails.length) to.emails = emails;
+				if (toUserids) to.userids = splitCsv(toUserids);
+				body.to = to;
+
+				const cc = buildRecipientObj(ccListCollection);
+				if (cc) body.cc = cc;
+				const bcc = buildRecipientObj(bccListCollection);
+				if (bcc) body.bcc = bcc;
+
+				const attachment_list = buildAttachmentList(attachmentCollection);
+				if (attachment_list) body.attachment_list = attachment_list;
+				if (enable_id_trans) body.enable_id_trans = 1;
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/app/compose_send', body);
 			} else if (operation === 'sendScheduleMail') {
-				const sender = this.getNodeParameter('sender', i) as string;
+				// https://developer.work.weixin.qq.com/document/path/97854
 				const subject = this.getNodeParameter('subject', i) as string;
+				const content = this.getNodeParameter('content', i, '') as string;
 				const toListCollection = this.getNodeParameter('toListCollection', i, {}) as IDataObject;
 				const ccListCollection = this.getNodeParameter('ccListCollection', i, {}) as IDataObject;
 				const bccListCollection = this.getNodeParameter('bccListCollection', i, {}) as IDataObject;
-				const calTitle = this.getNodeParameter('calTitle', i) as string;
+				const calTitle = this.getNodeParameter('calTitle', i, '') as string;
 				const calStartTime = this.getNodeParameter('calStartTime', i) as number;
 				const calEndTime = this.getNodeParameter('calEndTime', i) as number;
 				const calLocation = this.getNodeParameter('calLocation', i, '') as string;
 				const calDescription = this.getNodeParameter('calDescription', i, '') as string;
 				const attachmentCollection = this.getNodeParameter('attachmentCollection', i, {}) as IDataObject;
+				const toUserids = this.getNodeParameter('to_userids', i, '') as string;
 
-				// 构建收件人
-				const to_list: string[] = [];
-				const cc_list: string[] = [];
-				const bcc_list: string[] = [];
+				const body: IDataObject = {
+					subject: subject || calTitle,
+					content: content || calDescription || subject || calTitle,
+				};
 
-				if (toListCollection.recipients) {
-					const toRecipients = toListCollection.recipients as IDataObject[];
-					toRecipients.forEach((r) => {
-						if (r.email) to_list.push(r.email as string);
-					});
-				}
+				const to: IDataObject = {};
+				const emails = collectEmails(toListCollection);
+				if (emails.length) to.emails = emails;
+				if (toUserids) to.userids = splitCsv(toUserids);
+				body.to = to;
 
-				if (ccListCollection.recipients) {
-					const ccRecipients = ccListCollection.recipients as IDataObject[];
-					ccRecipients.forEach((r) => {
-						if (r.email) cc_list.push(r.email as string);
-					});
-				}
+				const cc = buildRecipientObj(ccListCollection);
+				if (cc) body.cc = cc;
+				const bcc = buildRecipientObj(bccListCollection);
+				if (bcc) body.bcc = bcc;
 
-				if (bccListCollection.recipients) {
-					const bccRecipients = bccListCollection.recipients as IDataObject[];
-					bccRecipients.forEach((r) => {
-						if (r.email) bcc_list.push(r.email as string);
-					});
-				}
-
-				// 构建日程内容
-				const cal_content: IDataObject = {
-					title: calTitle,
+				const schedule: IDataObject = {
+					method: 'request',
 					start_time: calStartTime,
 					end_time: calEndTime,
 				};
-				if (calLocation) cal_content.location = calLocation;
-				if (calDescription) cal_content.description = calDescription;
+				if (calLocation) schedule.location = calLocation;
+				body.schedule = schedule;
 
-				const body: IDataObject = {
-					sender,
-					receiver: { to_list, cc_list, bcc_list },
-					subject,
-					cal_content,
-				};
-
-				// 处理附件
-				if (attachmentCollection.attachments) {
-					const attachments = attachmentCollection.attachments as IDataObject[];
-					if (attachments.length > 0) {
-						body.attachment_list = attachments.map((a) => ({
-							type: a.type,
-							media_id: a.media_id,
-						}));
-					}
-				}
+				const attachment_list = buildAttachmentList(attachmentCollection);
+				if (attachment_list) body.attachment_list = attachment_list;
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/app/compose_send', body);
 			} else if (operation === 'sendMeetingMail') {
-				const sender = this.getNodeParameter('sender', i) as string;
+				// https://developer.work.weixin.qq.com/document/path/97855
 				const subject = this.getNodeParameter('subject', i) as string;
+				const content = this.getNodeParameter('content', i, '') as string;
 				const toListCollection = this.getNodeParameter('toListCollection', i, {}) as IDataObject;
 				const ccListCollection = this.getNodeParameter('ccListCollection', i, {}) as IDataObject;
 				const bccListCollection = this.getNodeParameter('bccListCollection', i, {}) as IDataObject;
-				const meetingTitle = this.getNodeParameter('meetingTitle', i) as string;
+				const meetingTitle = this.getNodeParameter('meetingTitle', i, '') as string;
 				const meetingStartTime = this.getNodeParameter('meetingStartTime', i) as number;
 				const meetingEndTime = this.getNodeParameter('meetingEndTime', i) as number;
 				const meetingLocation = this.getNodeParameter('meetingLocation', i, '') as string;
 				const meetingDescription = this.getNodeParameter('meetingDescription', i, '') as string;
 				const attachmentCollection = this.getNodeParameter('attachmentCollection', i, {}) as IDataObject;
+				const toUserids = this.getNodeParameter('to_userids', i, '') as string;
 
-				// 构建收件人
-				const to_list: string[] = [];
-				const cc_list: string[] = [];
-				const bcc_list: string[] = [];
+				const body: IDataObject = {
+					subject: subject || meetingTitle,
+					content: content || meetingDescription || subject || meetingTitle,
+				};
 
-				if (toListCollection.recipients) {
-					const toRecipients = toListCollection.recipients as IDataObject[];
-					toRecipients.forEach((r) => {
-						if (r.email) to_list.push(r.email as string);
-					});
-				}
+				const to: IDataObject = {};
+				const emails = collectEmails(toListCollection);
+				if (emails.length) to.emails = emails;
+				if (toUserids) to.userids = splitCsv(toUserids);
+				body.to = to;
 
-				if (ccListCollection.recipients) {
-					const ccRecipients = ccListCollection.recipients as IDataObject[];
-					ccRecipients.forEach((r) => {
-						if (r.email) cc_list.push(r.email as string);
-					});
-				}
+				const cc = buildRecipientObj(ccListCollection);
+				if (cc) body.cc = cc;
+				const bcc = buildRecipientObj(bccListCollection);
+				if (bcc) body.bcc = bcc;
 
-				if (bccListCollection.recipients) {
-					const bccRecipients = bccListCollection.recipients as IDataObject[];
-					bccRecipients.forEach((r) => {
-						if (r.email) bcc_list.push(r.email as string);
-					});
-				}
-
-				// 构建会议内容
-				const meeting_content: IDataObject = {
-					title: meetingTitle,
+				const schedule: IDataObject = {
+					method: 'request',
 					start_time: meetingStartTime,
 					end_time: meetingEndTime,
 				};
-				if (meetingLocation) meeting_content.location = meetingLocation;
-				if (meetingDescription) meeting_content.description = meetingDescription;
+				if (meetingLocation) schedule.location = meetingLocation;
+				body.schedule = schedule;
+				// meeting 可选扩展，基础场景仅带 schedule 即可创建会议邮件
+				body.meeting = {};
 
-				const body: IDataObject = {
-					sender,
-					receiver: { to_list, cc_list, bcc_list },
-					subject,
-					meeting_content,
-				};
-
-				// 处理附件
-				if (attachmentCollection.attachments) {
-					const attachments = attachmentCollection.attachments as IDataObject[];
-					if (attachments.length > 0) {
-						body.attachment_list = attachments.map((a) => ({
-							type: a.type,
-							media_id: a.media_id,
-						}));
-					}
-				}
+				const attachment_list = buildAttachmentList(attachmentCollection);
+				if (attachment_list) body.attachment_list = attachment_list;
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/app/compose_send', body);
 			}
-			// 获取接收的邮件
+			// 获取接收的邮件（应用收件箱）
+			// https://developer.work.weixin.qq.com/document/path/97369
 			else if (operation === 'getMailList') {
-				const mailbox = this.getNodeParameter('mailbox', i) as string;
 				const begin_time = this.getNodeParameter('begin_time', i) as number;
 				const end_time = this.getNodeParameter('end_time', i) as number;
 				const limit = this.getNodeParameter('limit', i, 100) as number;
 				const cursor = this.getNodeParameter('cursor', i, '') as string;
 
 				const body: IDataObject = {
-					mailbox,
 					begin_time,
 					end_time,
 					limit,
 				};
-
 				if (cursor) body.cursor = cursor;
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/mail/getlist', body);
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/app/get_mail_list', body);
 			} else if (operation === 'getMailContent') {
-				const mailbox = this.getNodeParameter('mailbox', i) as string;
-				const mailid = this.getNodeParameter('mailid', i) as string;
+				// https://developer.work.weixin.qq.com/document/path/97979
+				const mail_id =
+					(this.getNodeParameter('mail_id', i, '') as string) ||
+					(this.getNodeParameter('mailid', i, '') as string);
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/mail/get', {
-					mailbox,
-					mailid,
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/app/read_mail', {
+					mail_id,
 				});
 			}
 			// 管理应用邮箱账号
+			// https://developer.work.weixin.qq.com/document/path/97373
 			else if (operation === 'updateAppMailbox') {
-				const mailbox = this.getNodeParameter('mailbox', i) as string;
-				const name = this.getNodeParameter('name', i, '') as string;
-				const remark = this.getNodeParameter('remark', i, '') as string;
+				const new_email =
+					(this.getNodeParameter('new_email', i, '') as string) ||
+					(this.getNodeParameter('mailbox', i, '') as string);
 
-				const body: IDataObject = { mailbox };
-				if (name) body.name = name;
-				if (remark) body.remark = remark;
-
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/app/update', body);
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/app/update_email_alias', {
+					new_email,
+				});
 			} else if (operation === 'getAppMailbox') {
-				const mailbox = this.getNodeParameter('mailbox', i) as string;
-
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/app/get', { mailbox });
+				// https://developer.work.weixin.qq.com/document/path/97991
+				// 无请求包体
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/app/get_email_alias', {});
 			}
 			// 管理邮件群组
 			else if (operation === 'createMailGroup') {
@@ -263,7 +237,7 @@ export async function executeMail(
 				};
 
 				if (userlist) {
-					body.userlist = userlist.split(',').map((email) => email.trim());
+					body.userlist = splitCsv(userlist);
 				}
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/group/create', body);
@@ -280,7 +254,7 @@ export async function executeMail(
 
 				if (groupname) body.groupname = groupname;
 				if (userlist) {
-					body.userlist = userlist.split(',').map((email) => email.trim());
+					body.userlist = splitCsv(userlist);
 				}
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/group/update', body);
@@ -289,108 +263,160 @@ export async function executeMail(
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/group/delete', { groupid });
 			} else if (operation === 'getMailGroup') {
+				// GET
 				const groupid = this.getNodeParameter('groupid', i) as string;
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/group/get', { groupid });
+				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/exmail/group/get', {}, { groupid });
 			} else if (operation === 'searchMailGroup') {
-				const fuzzy_groupid = this.getNodeParameter('fuzzy_groupid', i) as string;
-				const limit = this.getNodeParameter('limit', i, 100) as number;
-				const cursor = this.getNodeParameter('cursor', i, '') as string;
+				// GET fuzzy + optional groupid
+				const fuzzy_groupid = this.getNodeParameter('fuzzy_groupid', i, '') as string;
+				const fuzzy = this.getNodeParameter('fuzzy', i, 1) as number;
 
-				const body: IDataObject = {
-					fuzzy_groupid,
-					limit,
-				};
+				const qs: IDataObject = { fuzzy: fuzzy ? 1 : 0 };
+				if (fuzzy_groupid) qs.groupid = fuzzy_groupid;
 
-				if (cursor) body.cursor = cursor;
-
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/group/search', body);
+				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/exmail/group/search', {}, qs);
 			}
-			// 管理公共邮箱
+			// 管理公共邮箱 publicmail（非 publicmailbox）
+			// https://developer.work.weixin.qq.com/document/path/95511
 			else if (operation === 'createPublicMailbox') {
-				const mailbox = this.getNodeParameter('mailbox', i) as string;
+				const email =
+					(this.getNodeParameter('email', i, '') as string) ||
+					(this.getNodeParameter('mailbox', i, '') as string);
 				const name = this.getNodeParameter('name', i) as string;
-				const admin_list = this.getNodeParameter('admin_list', i, '') as string;
-				const member_list = this.getNodeParameter('member_list', i, '') as string;
+				const userid_list_raw =
+					(this.getNodeParameter('userid_list', i, '') as string) ||
+					(this.getNodeParameter('member_list', i, '') as string) ||
+					(this.getNodeParameter('admin_list', i, '') as string);
+				const department_list_raw = this.getNodeParameter('department_list', i, '') as string;
+				const tag_list_raw = this.getNodeParameter('tag_list', i, '') as string;
+				const create_auth_code = this.getNodeParameter('create_auth_code', i, 0) as number;
+				const auth_code_remark = this.getNodeParameter('auth_code_remark', i, '') as string;
 
 				const body: IDataObject = {
-					mailbox,
+					email,
 					name,
 				};
 
-				if (admin_list) {
-					body.admin_list = admin_list.split(',').map((email) => email.trim());
+				if (userid_list_raw) {
+					body.userid_list = { list: splitCsv(userid_list_raw) };
 				}
-				if (member_list) {
-					body.member_list = member_list.split(',').map((email) => email.trim());
+				if (department_list_raw) {
+					body.department_list = { list: splitCsvNumbers(department_list_raw) };
+				}
+				if (tag_list_raw) {
+					body.tag_list = { list: splitCsvNumbers(tag_list_raw) };
+				}
+				if (create_auth_code) {
+					body.create_auth_code = 1;
+					if (auth_code_remark) {
+						body.auth_code_info = { remark: auth_code_remark };
+					}
 				}
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/publicmailbox/create', body);
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/publicmail/create', body);
 			} else if (operation === 'updatePublicMailbox') {
-				const mailbox = this.getNodeParameter('mailbox', i) as string;
+				const id = Number(
+					(this.getNodeParameter('id', i, 0) as number) ||
+						(this.getNodeParameter('mailbox', i, 0) as string | number),
+				);
 				const name = this.getNodeParameter('name', i, '') as string;
-				const admin_list = this.getNodeParameter('admin_list', i, '') as string;
-				const member_list = this.getNodeParameter('member_list', i, '') as string;
+				const userid_list_raw =
+					(this.getNodeParameter('userid_list', i, '') as string) ||
+					(this.getNodeParameter('member_list', i, '') as string) ||
+					(this.getNodeParameter('admin_list', i, '') as string);
+				const department_list_raw = this.getNodeParameter('department_list', i, '') as string;
+				const tag_list_raw = this.getNodeParameter('tag_list', i, '') as string;
 
-				const body: IDataObject = { mailbox };
-
+				const body: IDataObject = { id };
 				if (name) body.name = name;
-				if (admin_list) {
-					body.admin_list = admin_list.split(',').map((email) => email.trim());
+				if (userid_list_raw) {
+					body.userid_list = { list: splitCsv(userid_list_raw) };
 				}
-				if (member_list) {
-					body.member_list = member_list.split(',').map((email) => email.trim());
+				if (department_list_raw) {
+					body.department_list = { list: splitCsvNumbers(department_list_raw) };
+				}
+				if (tag_list_raw) {
+					body.tag_list = { list: splitCsvNumbers(tag_list_raw) };
 				}
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/publicmailbox/update', body);
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/publicmail/update', body);
 			} else if (operation === 'deletePublicMailbox') {
-				const mailbox = this.getNodeParameter('mailbox', i) as string;
+				const id = Number(
+					(this.getNodeParameter('id', i, 0) as number) ||
+						(this.getNodeParameter('mailbox', i, 0) as string | number),
+				);
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/publicmailbox/delete', { mailbox });
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/publicmail/delete', { id });
 			} else if (operation === 'getPublicMailbox') {
-				const mailbox = this.getNodeParameter('mailbox', i) as string;
+				const id_list_raw =
+					(this.getNodeParameter('id_list', i, '') as string) ||
+					(this.getNodeParameter('mailbox', i, '') as string);
+				const id_list = splitCsvNumbers(id_list_raw);
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/publicmailbox/get', { mailbox });
-			} else if (operation === 'searchPublicMailbox') {
-				const fuzzy_mailbox = this.getNodeParameter('fuzzy_mailbox', i) as string;
-				const limit = this.getNodeParameter('limit', i, 100) as number;
-				const cursor = this.getNodeParameter('cursor', i, '') as string;
-
-				const body: IDataObject = {
-					fuzzy_mailbox,
-					limit,
-				};
-
-				if (cursor) body.cursor = cursor;
-
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/publicmailbox/search', body);
-			}
-			// 客户端专用密码
-			else if (operation === 'getClientPasswordList') {
-				const mailbox = this.getNodeParameter('mailbox', i) as string;
-
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/useroption/list', { mailbox });
-			} else if (operation === 'deleteClientPassword') {
-				const mailbox = this.getNodeParameter('mailbox', i) as string;
-				const password_id = this.getNodeParameter('password_id', i) as string;
-
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/useroption/delete', {
-					mailbox,
-					password_id,
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/publicmail/get', {
+					id_list,
 				});
+			} else if (operation === 'searchPublicMailbox') {
+				// GET fuzzy + optional email
+				const email =
+					(this.getNodeParameter('email', i, '') as string) ||
+					(this.getNodeParameter('fuzzy_mailbox', i, '') as string);
+				const fuzzy = this.getNodeParameter('fuzzy', i, 1) as number;
+
+				const qs: IDataObject = { fuzzy: fuzzy ? 1 : 0 };
+				if (email) qs.email = email;
+
+				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/exmail/publicmail/search', {}, qs);
+			}
+			// 客户端专用密码（公共邮箱）
+			// https://developer.work.weixin.qq.com/document/path/100183
+			else if (operation === 'getClientPasswordList') {
+				const id = Number(
+					(this.getNodeParameter('id', i, 0) as number) ||
+						(this.getNodeParameter('mailbox', i, 0) as string | number),
+				);
+
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/exmail/publicmail/get_auth_code_list',
+					{ id },
+				);
+			} else if (operation === 'deleteClientPassword') {
+				const id = Number(
+					(this.getNodeParameter('id', i, 0) as number) ||
+						(this.getNodeParameter('mailbox', i, 0) as string | number),
+				);
+				const auth_code_id = Number(
+					(this.getNodeParameter('auth_code_id', i, 0) as number) ||
+						(this.getNodeParameter('password_id', i, 0) as string | number),
+				);
+
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/exmail/publicmail/delete_auth_code',
+					{ id, auth_code_id },
+				);
 			}
 			// 高级功能账号管理
+			// https://developer.work.weixin.qq.com/document/path/99316
 			else if (operation === 'allocateMailAdvancedAccount') {
-				const mailbox_list = this.getNodeParameter('mailbox_list', i) as string;
+				const userid_list_raw =
+					(this.getNodeParameter('userid_list', i, '') as string) ||
+					(this.getNodeParameter('mailbox_list', i, '') as string);
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/vip/batchadd', {
-					mailbox: mailbox_list.split(',').map((email) => email.trim()),
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/vip/batch_add', {
+					userid_list: splitCsv(userid_list_raw),
 				});
 			} else if (operation === 'deallocateMailAdvancedAccount') {
-				const mailbox_list = this.getNodeParameter('mailbox_list', i) as string;
+				const userid_list_raw =
+					(this.getNodeParameter('userid_list', i, '') as string) ||
+					(this.getNodeParameter('mailbox_list', i, '') as string);
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/vip/batchdel', {
-					mailbox: mailbox_list.split(',').map((email) => email.trim()),
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/vip/batch_del', {
+					userid_list: splitCsv(userid_list_raw),
 				});
 			} else if (operation === 'getMailAdvancedAccountList') {
 				const limit = this.getNodeParameter('limit', i, 100) as number;
@@ -401,70 +427,84 @@ export async function executeMail(
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/vip/list', body);
 			} else if (operation === 'toggleMailboxStatus') {
-				const mailbox = this.getNodeParameter('mailbox', i) as string;
-				const operation_type = this.getNodeParameter('operation_type', i) as number;
+				// https://developer.work.weixin.qq.com/document/path/95512
+				const type = this.getNodeParameter('operation_type', i) as number;
+				const userid =
+					(this.getNodeParameter('userid', i, '') as string) ||
+					(this.getNodeParameter('mailbox', i, '') as string);
+				const publicemail_id = this.getNodeParameter('publicemail_id', i, 0) as number;
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/user/option', {
-					mailbox,
-					operation: operation_type,
-				});
+				const body: IDataObject = { type };
+				// 若 publicemail_id 有值则优先业务邮箱；否则按 userid
+				if (publicemail_id) {
+					body.publicemail_id = publicemail_id;
+				} else if (userid) {
+					body.userid = userid;
+				}
+
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/account/act_email', body);
 			}
-			// 其他邮件客户端登录设置
+			// 其他邮件客户端登录设置 useroption
+			// https://developer.work.weixin.qq.com/document/path/95513
 			else if (operation === 'getUserMailAttribute') {
-				const mailbox = this.getNodeParameter('mailbox', i) as string;
+				const userid =
+					(this.getNodeParameter('userid', i, '') as string) ||
+					(this.getNodeParameter('mailbox', i, '') as string);
+				const type_raw = this.getNodeParameter('type', i, '1,2,3,4') as string;
+				const type = splitCsvNumbers(type_raw).length
+					? splitCsvNumbers(type_raw)
+					: [1, 2, 3, 4];
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/user/get', { mailbox });
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/useroption/get', {
+					userid,
+					type,
+				});
 			} else if (operation === 'updateUserMailAttribute') {
-				const mailbox = this.getNodeParameter('mailbox', i) as string;
-				const autoReplySettings = this.getNodeParameter('autoReplySettings', i, {}) as IDataObject;
-				const autoForwardSettings = this.getNodeParameter('autoForwardSettings', i, {}) as IDataObject;
+				// https://developer.work.weixin.qq.com/document/path/98008
+				const userid =
+					(this.getNodeParameter('userid', i, '') as string) ||
+					(this.getNodeParameter('mailbox', i, '') as string);
+				const optionListRaw = this.getNodeParameter('optionList', i, {}) as IDataObject;
 				const imapSmtpSettings = this.getNodeParameter('imapSmtpSettings', i, {}) as IDataObject;
 
-				const body: IDataObject = { mailbox };
+				const list: IDataObject[] = [];
 
-				// 处理自动回复设置
-				if (autoReplySettings.enabled !== undefined) {
-					body.auto_reply = {
-						enabled: autoReplySettings.enabled,
-					};
-					if (autoReplySettings.enabled) {
-						if (autoReplySettings.text) {
-							(body.auto_reply as IDataObject).text = autoReplySettings.text;
-						}
-						if (autoReplySettings.only_to_contact !== undefined) {
-							(body.auto_reply as IDataObject).only_to_contact = autoReplySettings.only_to_contact;
+				if (optionListRaw.options) {
+					for (const item of optionListRaw.options as IDataObject[]) {
+						if (item.type !== undefined && item.value !== undefined) {
+							list.push({ type: item.type, value: String(item.value) });
 						}
 					}
 				}
 
-				// 处理自动转发设置
-				if (autoForwardSettings.enabled !== undefined) {
-					body.auto_forward = {
-						enabled: autoForwardSettings.enabled,
-					};
-					if (autoForwardSettings.enabled) {
-						if (autoForwardSettings.to_addr) {
-							(body.auto_forward as IDataObject).to_addr = autoForwardSettings.to_addr;
-						}
-						if (autoForwardSettings.keep_copy !== undefined) {
-							(body.auto_forward as IDataObject).keep_copy = autoForwardSettings.keep_copy;
-						}
-					}
-				}
-
-				// 处理IMAP/SMTP设置
+				// 兼容旧 UI：imapSmtpSettings -> type 2/3
 				if (imapSmtpSettings.enable_imap !== undefined) {
-					body.enable_imap = imapSmtpSettings.enable_imap;
+					list.push({
+						type: 2,
+						value: imapSmtpSettings.enable_imap ? '1' : '0',
+					});
 				}
 				if (imapSmtpSettings.enable_smtp !== undefined) {
-					body.enable_smtp = imapSmtpSettings.enable_smtp;
+					// POP/SMTP 映射为 type 3
+					list.push({
+						type: 3,
+						value: imapSmtpSettings.enable_smtp ? '1' : '0',
+					});
 				}
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/user/update', body);
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/useroption/update', {
+					userid,
+					option: { list },
+				});
 			} else if (operation === 'getMailUnreadCount') {
-				const mailbox = this.getNodeParameter('mailbox', i) as string;
+				// https://developer.work.weixin.qq.com/document/path/95514
+				const userid =
+					(this.getNodeParameter('userid', i, '') as string) ||
+					(this.getNodeParameter('mailbox', i, '') as string);
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/mail/unread', { mailbox });
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/mail/get_newcount', {
+					userid,
+				});
 			} else {
 				response = {};
 			}

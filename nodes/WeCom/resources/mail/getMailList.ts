@@ -7,18 +7,6 @@ const showOnlyForGetMailList = {
 
 export const getMailListDescription: INodeProperties[] = [
 	{
-		displayName: '邮箱地址',
-		name: 'mailbox',
-		type: 'string',
-		required: true,
-		displayOptions: {
-			show: showOnlyForGetMailList,
-		},
-		default: '',
-		placeholder: 'user@example.com',
-		description: '要查询的企业邮箱地址。<a href="https://developer.work.weixin.qq.com/document/path/97369" target="_blank">更多信息</a>',
-	},
-	{
 		displayName: '开始时间',
 		name: 'begin_time',
 		type: 'number',
@@ -28,7 +16,8 @@ export const getMailListDescription: INodeProperties[] = [
 		},
 		default: 0,
 		placeholder: '1609459200',
-		description: '查询的开始时间，Unix时间戳（秒）。<a href="https://developer.work.weixin.qq.com/document/path/97369" target="_blank">更多信息</a>',
+		description:
+			'查询开始时间 Unix 时间戳（秒）。应用收件箱接口，无需传邮箱地址。<a href="https://developer.work.weixin.qq.com/document/path/97369" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '结束时间',
@@ -40,7 +29,7 @@ export const getMailListDescription: INodeProperties[] = [
 		},
 		default: 0,
 		placeholder: '1609545600',
-		description: '查询的结束时间，Unix时间戳（秒）。<a href="https://developer.work.weixin.qq.com/document/path/97369" target="_blank">更多信息</a>',
+		description: '查询结束时间 Unix 时间戳（秒）',
 	},
 	{
 		displayName: '邮件数量',
@@ -48,12 +37,13 @@ export const getMailListDescription: INodeProperties[] = [
 		type: 'number',
 		typeOptions: {
 			minValue: 1,
+			maxValue: 1000,
 		},
 		displayOptions: {
 			show: showOnlyForGetMailList,
 		},
-		default: 50,
-		description: '返回的邮件数量，最大值为100。<a href="https://developer.work.weixin.qq.com/document/path/97369" target="_blank">更多信息</a>',
+		default: 100,
+		description: '期望请求的数据量，默认 100，最大 1000',
 	},
 	{
 		displayName: '游标',
@@ -64,7 +54,6 @@ export const getMailListDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'CURSOR_STRING',
-		description: '可选。用于分页查询的游标，从上次响应中获取。<a href="https://developer.work.weixin.qq.com/document/path/97369" target="_blank">更多信息</a>',
+		description: '分页游标，取上次响应 next_cursor',
 	},
 ];
-

@@ -4,15 +4,15 @@ const showOnly = { resource: ['mail'], operation: ['sendMeetingMail'] };
 
 export const sendMeetingMailDescription: INodeProperties[] = [
 	{
-		displayName: '发件人邮箱',
-		name: 'sender',
-		type: 'string',
-		required: true,
+		displayName: '说明',
+		name: 'notice',
+		type: 'notice',
 		displayOptions: { show: showOnly },
 		default: '',
-		placeholder: 'user@example.com',
-		description: '发件人的企业邮箱地址',
+		description:
+			'发件人为应用绑定邮箱；会议时间映射为 schedule，并附带 meeting 对象。<a href="https://developer.work.weixin.qq.com/document/path/97855" target="_blank">官方文档</a>',
 	},
+
 	{
 		displayName: '邮件主题',
 		name: 'subject',

@@ -7,16 +7,14 @@ const showOnlyForGetAppMailbox = {
 
 export const getAppMailboxDescription: INodeProperties[] = [
 	{
-		displayName: '邮箱地址',
-		name: 'mailbox',
-		type: 'string',
-		required: true,
+		displayName: '说明',
+		name: 'notice',
+		type: 'notice',
 		displayOptions: {
 			show: showOnlyForGetAppMailbox,
 		},
 		default: '',
-		placeholder: 'app@example.com',
-		description: '要查询的应用邮箱地址。<a href="https://developer.work.weixin.qq.com/document/path/95486" target="_blank">更多信息</a>',
+		description:
+			'查询当前应用的邮箱账号及别名邮箱，调用 get_email_alias，无需额外参数。<a href="https://developer.work.weixin.qq.com/document/path/97991" target="_blank">官方文档</a>',
 	},
 ];
-

@@ -7,38 +7,16 @@ const showOnlyForUpdateAppMailbox = {
 
 export const updateAppMailboxDescription: INodeProperties[] = [
 	{
-		displayName: '邮箱地址',
-		name: 'mailbox',
+		displayName: '新应用邮箱账号',
+		name: 'new_email',
 		type: 'string',
 		required: true,
 		displayOptions: {
 			show: showOnlyForUpdateAppMailbox,
 		},
 		default: '',
-		placeholder: 'app@example.com',
-		description: '要更新的应用邮箱地址。<a href="https://developer.work.weixin.qq.com/document/path/95486" target="_blank">更多信息</a>',
-	},
-	{
-		displayName: '邮箱名称',
-		name: 'name',
-		type: 'string',
-		displayOptions: {
-			show: showOnlyForUpdateAppMailbox,
-		},
-		default: '',
-		placeholder: '应用邮箱',
-		description: '可选。应用邮箱的新名称。<a href="https://developer.work.weixin.qq.com/document/path/95486" target="_blank">更多信息</a>',
-	},
-	{
-		displayName: '邮箱描述',
-		name: 'remark',
-		type: 'string',
-		displayOptions: {
-			show: showOnlyForUpdateAppMailbox,
-		},
-		default: '',
-		placeholder: '用于系统通知',
-		description: '可选。应用邮箱的备注信息。<a href="https://developer.work.weixin.qq.com/document/path/95486" target="_blank">更多信息</a>',
+		placeholder: 'youxiangceshi@ceshi.wecom.work',
+		description:
+			'修改后的应用邮箱账号 new_email；原账号将作为别名邮箱。<a href="https://developer.work.weixin.qq.com/document/path/97373" target="_blank">官方文档</a>',
 	},
 ];
-

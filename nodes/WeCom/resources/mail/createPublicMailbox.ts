@@ -1,56 +1,77 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-const showOnlyForCreatePublicMailbox = {
+const showOnly = {
 	resource: ['mail'],
 	operation: ['createPublicMailbox'],
 };
 
 export const createPublicMailboxDescription: INodeProperties[] = [
 	{
-		displayName: '邮箱地址',
-		name: 'mailbox',
+		displayName: '公共邮箱地址',
+		name: 'email',
 		type: 'string',
 		required: true,
-		displayOptions: {
-			show: showOnlyForCreatePublicMailbox,
-		},
+		displayOptions: { show: showOnly },
 		default: '',
-		placeholder: 'public@example.com',
-		description: '公共邮箱的邮箱地址，作为公共邮箱的唯一标识。<a href="https://developer.work.weixin.qq.com/document/path/95486" target="_blank">更多信息</a>',
+		placeholder: 'apitest@gzdev.com',
+		description:
+			'公共邮箱地址 email。<a href="https://developer.work.weixin.qq.com/document/path/95511" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '邮箱名称',
+		displayName: '公共邮箱名称',
 		name: 'name',
 		type: 'string',
 		required: true,
-		displayOptions: {
-			show: showOnlyForCreatePublicMailbox,
-		},
+		displayOptions: { show: showOnly },
 		default: '',
 		placeholder: '客户服务',
-		description: '公共邮箱的显示名称。<a href="https://developer.work.weixin.qq.com/document/path/95486" target="_blank">更多信息</a>',
+		description: '公共邮箱名称 name',
 	},
 	{
-		displayName: '管理员列表',
-		name: 'admin_list',
+		displayName: '成员UserID列表',
+		name: 'userid_list',
 		type: 'string',
-		displayOptions: {
-			show: showOnlyForCreatePublicMailbox,
-		},
+		displayOptions: { show: showOnly },
 		default: '',
-		placeholder: 'admin1@example.com,admin2@example.com',
-		description: '可选。公共邮箱管理员的邮箱列表，多个邮箱用英文逗号分隔。<a href="https://developer.work.weixin.qq.com/document/path/95486" target="_blank">更多信息</a>',
+		placeholder: 'zhangsan,lisi',
+		description: '有权限使用的成员 userid，逗号分隔。userid_list / department_list / tag_list 不能同时为空',
 	},
 	{
-		displayName: '成员列表',
-		name: 'member_list',
+		displayName: '部门ID列表',
+		name: 'department_list',
 		type: 'string',
-		displayOptions: {
-			show: showOnlyForCreatePublicMailbox,
-		},
+		displayOptions: { show: showOnly },
 		default: '',
-		placeholder: 'user1@example.com,user2@example.com',
-		description: '可选。公共邮箱成员的邮箱列表，多个邮箱用英文逗号分隔。<a href="https://developer.work.weixin.qq.com/document/path/95486" target="_blank">更多信息</a>',
+		placeholder: '1,2',
+		description: '有权限使用的部门 ID，逗号分隔',
+	},
+	{
+		displayName: '标签ID列表',
+		name: 'tag_list',
+		type: 'string',
+		displayOptions: { show: showOnly },
+		default: '',
+		placeholder: '1,2',
+		description: '有权限使用的标签 ID，逗号分隔',
+	},
+	{
+		displayName: '创建客户端专用密码',
+		name: 'create_auth_code',
+		type: 'options',
+		displayOptions: { show: showOnly },
+		options: [
+			{ name: '否', value: 0 },
+			{ name: '是', value: 1 },
+		],
+		default: 0,
+		description: '是否同时创建客户端专用密码 create_auth_code',
+	},
+	{
+		displayName: '专用密码备注',
+		name: 'auth_code_remark',
+		type: 'string',
+		displayOptions: { show: { ...showOnly, create_auth_code: [1] } },
+		default: '',
+		description: 'auth_code_info.remark',
 	},
 ];
-
