@@ -39,8 +39,12 @@ export async function executeSystem(
 				if (sys_code) qsDefaults.code = sys_code;
 				if (sys_code && operation === 'miniprogramJscode2session') {
 					qsDefaults.js_code = sys_code;
-					// 小程序登录凭证校验常用 grant_type
-					if (!qsDefaults.grant_type) qsDefaults.grant_type = 'authorization_code';
+					const mp_grant_type = this.getNodeParameter(
+						'mp_grant_type',
+						index,
+						'authorization_code',
+					) as string;
+					qsDefaults.grant_type = mp_grant_type || 'authorization_code';
 				}
 				if (sys_userid) bodyDefaults.userid = sys_userid;
 				if (sys_user_ticket) {

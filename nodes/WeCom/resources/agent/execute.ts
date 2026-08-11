@@ -94,12 +94,29 @@ export async function executeAgent(
 							.map((b) => {
 								const item: IDataObject = { name: b.name };
 								if (b.type === 'sub') {
+									const subCol = (b.subButtonsCollection as IDataObject) || {};
+									let subs: IDataObject[] = ((subCol.items as IDataObject[]) || [])
+										.filter((s) => s.name)
+										.map((s) => {
+											const sub: IDataObject = {
+												name: s.name,
+												type: s.type || 'click',
+											};
+											if (s.key) sub.key = s.key;
+											if (s.url) sub.url = s.url;
+											if (s.appid) sub.appid = s.appid;
+											if (s.pagepath) sub.pagepath = s.pagepath;
+											return sub;
+										});
 									try {
-										const subs = JSON.parse(String(b.sub_button_json || '[]'));
-										if (Array.isArray(subs) && subs.length) item.sub_button = subs;
+										const fromJson = JSON.parse(String(b.sub_button_json || '[]'));
+										if (Array.isArray(fromJson) && fromJson.length) {
+											subs = fromJson as IDataObject[];
+										}
 									} catch {
 										/* ignore */
 									}
+									if (subs.length) item.sub_button = subs.slice(0, 5);
 								} else {
 									item.type = b.type;
 									if (b.key) item.key = b.key;

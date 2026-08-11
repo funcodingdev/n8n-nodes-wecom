@@ -100,6 +100,19 @@ export const systemExtraHttpOpsDescription: INodeProperties[] = [
 		description: '需要发起单聊的企业内部成员 userid',
 	},
 	{
+		displayName: '小程序 grant_type',
+		name: 'mp_grant_type',
+		type: 'options',
+		displayOptions: {
+			show: { resource: ['system'], operation: ['miniprogramJscode2session'] },
+		},
+		options: [
+			{ name: 'authorization_code', value: 'authorization_code' },
+		],
+		default: 'authorization_code',
+		description: '登录凭证校验 grant_type',
+	},
+	{
 		displayName: '请求体JSON',
 		name: 'requestBody',
 		type: 'json',
