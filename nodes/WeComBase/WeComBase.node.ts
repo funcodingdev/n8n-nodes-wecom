@@ -21,6 +21,8 @@ import { agentDescription } from '../WeCom/resources/agent';
 import { appAuthDescription } from '../WeCom/resources/appAuth';
 import { licenseDescription } from '../WeCom/resources/license';
 import { paytoolDescription } from '../WeCom/resources/paytool';
+import { externalpayDescription } from '../WeCom/resources/externalpay';
+import { miniapppayDescription } from '../WeCom/resources/miniapppay';
 import { promotionQrcodeDescription } from '../WeCom/resources/promotionQrcode';
 import { accountIdDescription } from '../WeCom/resources/accountId';
 import { fileDescription } from '../WeCom/resources/file';
@@ -39,6 +41,8 @@ import { executeAgent } from '../WeCom/resources/agent/execute';
 import { executeAppAuth } from '../WeCom/resources/appAuth/execute';
 import { executeLicense } from '../WeCom/resources/license/execute';
 import { executePaytool } from '../WeCom/resources/paytool/execute';
+import { executeExternalpay } from '../WeCom/resources/externalpay/execute';
+import { executeMiniapppay } from '../WeCom/resources/miniapppay/execute';
 import { executePromotionQrcode } from '../WeCom/resources/promotionQrcode/execute';
 import { executeAccountId } from '../WeCom/resources/accountId/execute';
 import { executeFile } from '../WeCom/resources/file/execute';
@@ -79,6 +83,8 @@ export class WeComBase implements INodeType {
 							'agent',
 							'accountId',
 							'security',
+							'externalpay',
+							'miniapppay',
 						],
 					},
 				},
@@ -249,6 +255,16 @@ export class WeComBase implements INodeType {
 						description: '第三方应用收银台（创建收款订单）',
 					},
 					{
+						name: '对外收款',
+						value: 'externalpay',
+						description: '企业对外收款（商户号、收款记录、资金流水）',
+					},
+					{
+						name: '小程序对外收款',
+						value: 'miniapppay',
+						description: '小程序接入对外收款（下单、退款、账单）',
+					},
+					{
 						name: '第三方应用推广二维码',
 						value: 'promotionQrcode',
 						description: '第三方应用推广二维码（获取注册码）',
@@ -285,6 +301,8 @@ export class WeComBase implements INodeType {
 			...appAuthDescription,
 			...licenseDescription,
 			...paytoolDescription,
+			...externalpayDescription,
+			...miniapppayDescription,
 			...promotionQrcodeDescription,
 			...accountIdDescription,
 			...fileDescription,
@@ -479,6 +497,10 @@ export class WeComBase implements INodeType {
 				returnData = await executeLicense.call(this, operation, items);
 			} else if (resource === 'paytool') {
 				returnData = await executePaytool.call(this, operation, items);
+			} else if (resource === 'externalpay') {
+				returnData = await executeExternalpay.call(this, operation, items);
+			} else if (resource === 'miniapppay') {
+				returnData = await executeMiniapppay.call(this, operation, items);
 			} else if (resource === 'promotionQrcode') {
 				returnData = await executePromotionQrcode.call(this, operation, items);
 			} else if (resource === 'accountId') {
