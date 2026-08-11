@@ -352,6 +352,16 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		description: 'default_novideo_user',
 	},
 	{
+		displayName: '举手状态',
+		name: 'mra_raise_hand',
+		type: 'boolean',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['mraSetRaiseHand'] },
+		},
+		default: true,
+		description: 'true 举手，false 放下',
+	},
+	{
 		displayName: '游标',
 		name: 'cr_cursor',
 		type: 'string',

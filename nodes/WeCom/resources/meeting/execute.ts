@@ -1159,6 +1159,11 @@ export async function executeMeeting(
 						1,
 					) as number;
 				}
+				if (operation === 'mraSetRaiseHand') {
+					// 官方字段以文档为准；常见 raise_hand / status 布尔
+					const mra_raise_hand = this.getNodeParameter('mra_raise_hand', i, true) as boolean;
+					body.raise_hand = mra_raise_hand;
+				}
 				if (vip_jobid) body.jobid = vip_jobid;
 				if (
 					[
