@@ -134,10 +134,48 @@ export async function executeContact(
 				body.enable = enable;
 				const avatar_mediaid = this.getNodeParameter('avatar_mediaid', i, '') as string;
 				if (avatar_mediaid) body.avatar_mediaid = avatar_mediaid;
+				const external_corp_name = this.getNodeParameter('external_corp_name', i, '') as string;
+				const wechat_channels_nickname = this.getNodeParameter(
+					'wechat_channels_nickname',
+					i,
+					'',
+				) as string;
+				const externalAttrCollection = this.getNodeParameter(
+					'externalAttrCollection',
+					i,
+					{},
+				) as IDataObject;
 				const external_profile = this.getNodeParameter('external_profile', i, '{}') as string;
-				if (external_profile && external_profile !== '{}') {
-					body.external_profile = JSON.parse(external_profile);
+				const profile: IDataObject = {};
+				if (external_corp_name) profile.external_corp_name = external_corp_name;
+				if (wechat_channels_nickname) {
+					profile.wechat_channels = { nickname: wechat_channels_nickname };
 				}
+				const externalAttrs = ((externalAttrCollection?.attrs as IDataObject[]) || [])
+					.filter((a) => a.name)
+					.map((a) => {
+						const type = Number(a.type) || 0;
+						const item: IDataObject = { type, name: a.name };
+						if (type === 0) item.text = { value: a.text_value || '' };
+						if (type === 1) item.web = { title: a.web_title || '', url: a.web_url || '' };
+						if (type === 2) {
+							item.miniprogram = {
+								appid: a.miniprogram_appid || '',
+								pagepath: a.miniprogram_pagepath || '',
+								title: a.miniprogram_title || '',
+							};
+						}
+						return item;
+					});
+				if (externalAttrs.length) profile.external_attr = externalAttrs;
+				if (external_profile && external_profile !== '{}') {
+					try {
+						Object.assign(profile, JSON.parse(external_profile));
+					} catch {
+						/* ignore */
+					}
+				}
+				if (Object.keys(profile).length) body.external_profile = profile;
 				const to_invite = this.getNodeParameter('to_invite', i, true) as boolean;
 				body.to_invite = to_invite;
 				const order = this.getNodeParameter('order', i, '') as string;
@@ -156,10 +194,27 @@ export async function executeContact(
 				if (main_department) {
 					body.main_department = main_department;
 				}
+				const extattrCollection = this.getNodeParameter('extattrCollection', i, {}) as IDataObject;
+				const extAttrs = ((extattrCollection?.attrs as IDataObject[]) || [])
+					.filter((a) => a.name)
+					.map((a) => {
+						const type = Number(a.type) || 0;
+						const item: IDataObject = { type, name: a.name };
+						if (type === 0) item.text = { value: a.text_value || '' };
+						if (type === 1) item.web = { title: a.web_title || '', url: a.web_url || '' };
+						return item;
+					});
+				const extattrBody: IDataObject = {};
+				if (extAttrs.length) extattrBody.attrs = extAttrs;
 				const extattr = this.getNodeParameter('extattr', i, '{}') as string;
 				if (extattr && extattr !== '{}') {
-					body.extattr = JSON.parse(extattr);
+					try {
+						Object.assign(extattrBody, JSON.parse(extattr));
+					} catch {
+						/* ignore */
+					}
 				}
+				if (Object.keys(extattrBody).length) body.extattr = extattrBody;
 				const external_position = this.getNodeParameter('external_position', i, '') as string;
 				if (external_position) {
 					body.external_position = external_position;
@@ -196,10 +251,48 @@ export async function executeContact(
 				if (enable !== undefined) body.enable = enable;
 				const avatar_mediaid = this.getNodeParameter('avatar_mediaid', i, '') as string;
 				if (avatar_mediaid) body.avatar_mediaid = avatar_mediaid;
-				const external_profile = this.getNodeParameter('external_profile', i, '') as string;
-				if (external_profile && external_profile !== '{}') {
-					body.external_profile = JSON.parse(external_profile);
+				const external_corp_name = this.getNodeParameter('external_corp_name', i, '') as string;
+				const wechat_channels_nickname = this.getNodeParameter(
+					'wechat_channels_nickname',
+					i,
+					'',
+				) as string;
+				const externalAttrCollection = this.getNodeParameter(
+					'externalAttrCollection',
+					i,
+					{},
+				) as IDataObject;
+				const external_profile = this.getNodeParameter('external_profile', i, '{}') as string;
+				const profile: IDataObject = {};
+				if (external_corp_name) profile.external_corp_name = external_corp_name;
+				if (wechat_channels_nickname) {
+					profile.wechat_channels = { nickname: wechat_channels_nickname };
 				}
+				const externalAttrs = ((externalAttrCollection?.attrs as IDataObject[]) || [])
+					.filter((a) => a.name)
+					.map((a) => {
+						const type = Number(a.type) || 0;
+						const item: IDataObject = { type, name: a.name };
+						if (type === 0) item.text = { value: a.text_value || '' };
+						if (type === 1) item.web = { title: a.web_title || '', url: a.web_url || '' };
+						if (type === 2) {
+							item.miniprogram = {
+								appid: a.miniprogram_appid || '',
+								pagepath: a.miniprogram_pagepath || '',
+								title: a.miniprogram_title || '',
+							};
+						}
+						return item;
+					});
+				if (externalAttrs.length) profile.external_attr = externalAttrs;
+				if (external_profile && external_profile !== '{}') {
+					try {
+						Object.assign(profile, JSON.parse(external_profile));
+					} catch {
+						/* ignore */
+					}
+				}
+				if (Object.keys(profile).length) body.external_profile = profile;
 				const order = this.getNodeParameter('order', i, '') as string;
 				if (order) {
 					body.order = order.split(',').map((val) => parseInt(val.trim(), 10));
@@ -216,17 +309,44 @@ export async function executeContact(
 				if (main_department) {
 					body.main_department = main_department;
 				}
+				const extattrCollection = this.getNodeParameter('extattrCollection', i, {}) as IDataObject;
+				const extAttrs = ((extattrCollection?.attrs as IDataObject[]) || [])
+					.filter((a) => a.name)
+					.map((a) => {
+						const type = Number(a.type) || 0;
+						const item: IDataObject = { type, name: a.name };
+						if (type === 0) item.text = { value: a.text_value || '' };
+						if (type === 1) item.web = { title: a.web_title || '', url: a.web_url || '' };
+						return item;
+					});
+				const extattrBody: IDataObject = {};
+				if (extAttrs.length) extattrBody.attrs = extAttrs;
 				const extattr = this.getNodeParameter('extattr', i, '{}') as string;
 				if (extattr && extattr !== '{}') {
-					body.extattr = JSON.parse(extattr);
+					try {
+						Object.assign(extattrBody, JSON.parse(extattr));
+					} catch {
+						/* ignore */
+					}
 				}
+				if (Object.keys(extattrBody).length) body.extattr = extattrBody;
 				const external_position = this.getNodeParameter('external_position', i, '') as string;
 				if (external_position) {
 					body.external_position = external_position;
 				}
+				const biz_mail_alias_list = this.getNodeParameter('biz_mail_alias_list', i, '') as string;
 				const biz_mail_alias = this.getNodeParameter('biz_mail_alias', i, '{}') as string;
+				const aliases = biz_mail_alias_list
+					.split(',')
+					.map((s) => s.trim())
+					.filter(Boolean);
+				if (aliases.length) body.biz_mail_alias = { item: aliases };
 				if (biz_mail_alias && biz_mail_alias !== '{}') {
-					body.biz_mail_alias = JSON.parse(biz_mail_alias);
+					try {
+						body.biz_mail_alias = JSON.parse(biz_mail_alias);
+					} catch {
+						/* ignore */
+					}
 				}
 				const new_userid = this.getNodeParameter('new_userid', i, '') as string;
 				if (new_userid) {

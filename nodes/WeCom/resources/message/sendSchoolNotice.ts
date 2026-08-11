@@ -103,18 +103,43 @@ export const sendSchoolNoticeDescription: INodeProperties[] = [
 	},
 	{
 		displayName: '内容区域',
+		name: 'content_items',
+		type: 'fixedCollection',
+		typeOptions: { multipleValues: true },
+		displayOptions: { show: showOnlyForSchoolNotice },
+		default: {},
+		placeholder: '添加内容项',
+		description: 'content_item 键值对列表',
+		options: [
+			{
+				displayName: '内容项',
+				name: 'item',
+				values: [
+					{
+						displayName: '键名',
+						name: 'key',
+						type: 'string',
+						default: '',
+						placeholder: '课程',
+					},
+					{
+						displayName: '键值',
+						name: 'value',
+						type: 'string',
+						default: '',
+						placeholder: '数学',
+					},
+				],
+			},
+		],
+	},
+	{
+		displayName: '内容区域扩展JSON',
 		name: 'content_item',
 		type: 'json',
-		typeOptions: {
-			rows: 4,
-		},
-		displayOptions: {
-			show: showOnlyForSchoolNotice,
-		},
+		typeOptions: { rows: 3 },
+		displayOptions: { show: showOnlyForSchoolNotice },
 		default: '[]',
-		placeholder: '[{"key": "课程", "value": "数学"}, {"key": "时间", "value": "9:00-10:00"}]',
-		description:
-			'可选。内容区，card_action和content_item至少要有一个，JSON数组格式。<a href="https://developer.work.weixin.qq.com/document/path/91609" target="_blank">官方文档</a>',
-
+		description: '非空数组时覆盖上方表单',
 	},
 ];

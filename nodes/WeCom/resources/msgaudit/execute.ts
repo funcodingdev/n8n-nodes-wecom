@@ -25,12 +25,23 @@ export async function executeMsgaudit(
 				);
 			} else if (operation === 'checkSingleAgree') {
 				// https://developer.work.weixin.qq.com/document/path/91782
-				const infoJson = this.getNodeParameter('infoJson', i) as string;
-				let info: IDataObject[] = [];
+				const singleAgreeCollection = this.getNodeParameter(
+					'singleAgreeCollection',
+					i,
+					{},
+				) as IDataObject;
+				const infoJson = this.getNodeParameter('infoJson', i, '[]') as string;
+				let info: IDataObject[] = ((singleAgreeCollection?.pairs as IDataObject[]) || [])
+					.filter((p) => p.userid && p.exteranalopenid)
+					.map((p) => ({
+						userid: p.userid,
+						exteranalopenid: p.exteranalopenid,
+					}));
 				try {
-					info = JSON.parse(infoJson || '[]') as IDataObject[];
+					const parsed = JSON.parse(infoJson || '[]') as IDataObject[];
+					if (Array.isArray(parsed) && parsed.length) info = parsed;
 				} catch {
-					info = [];
+					// ignore
 				}
 				responseData = await weComApiRequest.call(
 					this,
@@ -39,13 +50,21 @@ export async function executeMsgaudit(
 					{ info },
 				);
 			} else if (operation === 'checkRoomAgree') {
-				const infoJson = this.getNodeParameter('infoJson', i) as string;
-				let body: IDataObject = {};
+				const roomid = this.getNodeParameter('roomid', i, '') as string;
+				const infoJson = this.getNodeParameter('infoJson', i, '{}') as string;
+				const body: IDataObject = {};
+				if (roomid) body.roomid = roomid;
 				try {
 					const parsed = JSON.parse(infoJson || '{}');
-					body = Array.isArray(parsed) ? { info: parsed } : (parsed as IDataObject);
+					if (Array.isArray(parsed)) {
+						// 兼容旧用法
+						if (parsed.length) body.info = parsed;
+					} else if (parsed && typeof parsed === 'object') {
+						Object.assign(body, parsed as IDataObject);
+					}
+					if (roomid) body.roomid = roomid;
 				} catch {
-					body = {};
+					// ignore
 				}
 				responseData = await weComApiRequest.call(
 					this,

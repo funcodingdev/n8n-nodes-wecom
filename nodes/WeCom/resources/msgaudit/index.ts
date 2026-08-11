@@ -59,25 +59,56 @@ export const msgauditDescription: INodeProperties[] = [
 			'type，不传返回全量。<a href="https://developer.work.weixin.qq.com/document/path/91614" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '同意情况JSON',
-		name: 'infoJson',
-		type: 'json',
-		required: true,
-		displayOptions: {
-			show: { ...showOnly, operation: ['checkSingleAgree', 'checkRoomAgree'] },
-		},
-		default: '[]',
-		description:
-			'单聊为 info 数组（userid/exteranalopenid）；群聊为 roomid 等字段，见官方文档',
+		displayName: '单聊会话对',
+		name: 'singleAgreeCollection',
+		type: 'fixedCollection',
+		displayOptions: { show: { ...showOnly, operation: ['checkSingleAgree'] } },
+		default: {},
+		placeholder: '添加会话对',
+		typeOptions: { multipleValues: true },
+		description: 'info 数组：企业成员与外部联系人',
+		options: [
+			{
+				displayName: '会话对',
+				name: 'pairs',
+				values: [
+					{
+						displayName: '成员UserID',
+						name: 'userid',
+						type: 'string',
+						default: '',
+					},
+					{
+						displayName: '外部联系人OpenID',
+						name: 'exteranalopenid',
+						type: 'string',
+						default: '',
+						description: '官方字段拼写为 exteranalopenid',
+					},
+				],
+			},
+		],
 	},
 	{
 		displayName: '群ID',
 		name: 'roomid',
 		type: 'string',
 		required: true,
-		displayOptions: { show: { ...showOnly, operation: ['getGroupChat'] } },
+		displayOptions: {
+			show: { ...showOnly, operation: ['getGroupChat', 'checkRoomAgree'] },
+		},
 		default: '',
-		description: '内部群 ID',
+		description: '内部群 roomid',
+	},
+	{
+		displayName: '同意情况扩展JSON',
+		name: 'infoJson',
+		type: 'json',
+		displayOptions: {
+			show: { ...showOnly, operation: ['checkSingleAgree', 'checkRoomAgree'] },
+		},
+		default: '[]',
+		description: '单聊非空数组覆盖表单；群聊可写额外字段',
 	},
 	{
 		displayName: '机器人ID',

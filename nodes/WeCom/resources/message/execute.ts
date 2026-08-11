@@ -1200,16 +1200,26 @@ export async function executeMessage(
 
 				(schoolBody.school_notice as IDataObject).emphasis_first_item = emphasis_first_item;
 
+				const content_items = this.getNodeParameter('content_items', i, {}) as IDataObject;
+				let contentItemList: IDataObject[] = ((content_items.item as IDataObject[]) || [])
+					.filter((it) => it.key)
+					.map((it) => ({ key: it.key as string, value: String(it.value || '') }));
 				if (content_item && content_item !== '[]') {
 					try {
-						(schoolBody.school_notice as IDataObject).content_item = JSON.parse(content_item);
+						const parsed = JSON.parse(content_item);
+						if (Array.isArray(parsed) && parsed.length) {
+							contentItemList = parsed as IDataObject[];
+						}
 					} catch (error) {
 						throw new NodeOperationError(
 							this.getNode(),
-							`content_item 必须是有效的 JSON 数组: ${error.message}`,
+							`content_item 必须是有效的 JSON 数组: ${(error as Error).message}`,
 							{ itemIndex: i },
 						);
 					}
+				}
+				if (contentItemList.length) {
+					(schoolBody.school_notice as IDataObject).content_item = contentItemList;
 				}
 
 				// 使用发送学校通知接口
