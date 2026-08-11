@@ -29,16 +29,24 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		typeOptions: {
 			rows: 6,
 		},
-		default: '{}',
-		placeholder: '{"card_type":"text_notice","main_title":{"title":"标题","desc":"说明"},"card_action":{"type":1,"url":"https://example.com"}}',
+		default: `{
+  "card_type": "text_notice",
+  "main_title": {
+    "title": "标题",
+    "desc": "说明"
+  },
+  "card_action": {
+    "type": 1,
+    "url": "https://work.weixin.qq.com"
+  }
+}`,
 		displayOptions: {
 			show: {
 				...showOnlySendTemplateCard,
 				template_card_input_mode: ['json'],
 			},
 		},
-		description:
-			'使用JSON直接输入template_card对象。JSON输入模式下仅展示此字段。<a href="https://developer.work.weixin.qq.com/document/path/90236#模板卡片消息" target="_blank">官方文档</a>',
+		description: '完整 template_card 对象',
 	},
 	{
 		displayName: '模板卡片类型（可选）',

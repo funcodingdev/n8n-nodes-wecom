@@ -82,7 +82,11 @@ export async function executeChatdata(
 				// https://developer.work.weixin.qq.com/document/path/99811
 				const program_id = this.getNodeParameter('program_id', i) as string;
 				const ability_id = this.getNodeParameter('ability_id', i) as string;
-				const request_data = this.getNodeParameter('request_data', i) as string;
+				const request_data_raw = this.getNodeParameter('request_data', i, '{}');
+				const request_data =
+					typeof request_data_raw === 'string'
+						? request_data_raw
+						: JSON.stringify(request_data_raw ?? {});
 				const notify_id = this.getNodeParameter('notify_id', i, '') as string;
 				const body: IDataObject = { program_id, ability_id, request_data };
 				if (notify_id) body.notify_id = notify_id;
@@ -96,7 +100,11 @@ export async function executeChatdata(
 				// https://developer.work.weixin.qq.com/document/path/99812
 				const program_id = this.getNodeParameter('program_id', i) as string;
 				const ability_id = this.getNodeParameter('ability_id', i) as string;
-				const request_data = this.getNodeParameter('request_data', i) as string;
+				const request_data_raw = this.getNodeParameter('request_data', i, '{}');
+				const request_data =
+					typeof request_data_raw === 'string'
+						? request_data_raw
+						: JSON.stringify(request_data_raw ?? {});
 				responseData = await weComApiRequest.call(
 					this,
 					'POST',

@@ -222,14 +222,14 @@ export const chatdataDescription: INodeProperties[] = [
 	{
 		displayName: '请求数据JSON',
 		name: 'request_data',
-		type: 'string',
+		type: 'json',
 		required: true,
-		typeOptions: { rows: 4 },
+		typeOptions: { rows: 6 },
 		displayOptions: {
 			show: { ...showOnly, operation: ['syncCallProgram', 'asyncProgramTask'] },
 		},
 		default: '{}',
-		description: 'request_data，与配置输入协议匹配的 JSON 字符串',
+		description: 'request_data，与专区能力输入协议匹配的 JSON',
 	},
 	{
 		displayName: '通知ID',
