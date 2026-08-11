@@ -459,10 +459,19 @@ export async function executeSchool(
 					}
 
 					const formattedParents = parents.map((p) => {
+						let childrenRaw = p.children as IDataObject[] | string | undefined;
+						if (typeof childrenRaw === 'string') {
+							try {
+								childrenRaw = JSON.parse(childrenRaw || '[]') as IDataObject[];
+							} catch {
+								childrenRaw = [];
+							}
+						}
+						const childrenList = (childrenRaw || []) as IDataObject[];
 						const parent: IDataObject = {
 							parent_userid: p.parent_userid,
 							mobile: p.mobile,
-							children: (p.children as IDataObject[]).map((c) => ({
+							children: childrenList.map((c) => ({
 								student_userid: c.student_userid,
 								relation: c.relation,
 							})),
@@ -504,7 +513,15 @@ export async function executeSchool(
 						if (p.mobile) parent.mobile = p.mobile;
 						if (p.new_parent_userid) parent.new_parent_userid = p.new_parent_userid;
 						if (p.children) {
-							parent.children = (p.children as IDataObject[]).map((c) => ({
+							let childrenRaw = p.children as IDataObject[] | string;
+							if (typeof childrenRaw === 'string') {
+								try {
+									childrenRaw = JSON.parse(childrenRaw || '[]') as IDataObject[];
+								} catch {
+									childrenRaw = [];
+								}
+							}
+							parent.children = (childrenRaw as IDataObject[]).map((c) => ({
 								student_userid: c.student_userid,
 								relation: c.relation,
 							}));

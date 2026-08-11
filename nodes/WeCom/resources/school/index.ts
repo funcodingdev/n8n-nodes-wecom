@@ -20,6 +20,7 @@ import { getAllowScopeDescription } from './getAllowScope';
 import { getUserInfo3rdDescription } from './getUserInfo3rd';
 import { createStudentDescription } from './createStudent';
 import { getSchoolUserDescription } from './getSchoolUser';
+import { schoolContactOpsDescription } from './schoolContactOps';
 
 const showOnlyForSchool = {
 	resource: ['school'],
@@ -224,5 +225,6 @@ export const schoolDescription: INodeProperties[] = [
 	...getUserInfo3rdDescription,
 	...createStudentDescription,
 	...getSchoolUserDescription,
+	...schoolContactOpsDescription,
 	...schoolExtraHttpOpsDescription,
 ];
