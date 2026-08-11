@@ -1989,30 +1989,74 @@ export async function executeWedoc(
 					body,
 				);
 			} else if (operation === 'manageSmartsheetAuth') {
+				// https://developer.work.weixin.qq.com/document/path/99935
+				// 简化：更新某一子表内容权限（默认全员规则）
 				const docid = this.getNodeParameter('docid', i) as string;
 				const sheet_id = this.getNodeParameter('sheet_id', i) as string;
-				const enable = this.getNodeParameter('enable', i, false) as boolean;
-
-				const body: IDataObject = { docid, sheet_id, enable };
-
-				if (enable) {
+				// 兼容旧参数 enable + defaultRule.edit
+				let sheet_priv_level = this.getNodeParameter('sheet_priv_level', i, 0) as number;
+				if (!sheet_priv_level) {
+					const enable = this.getNodeParameter('enable', i, true) as boolean;
 					const defaultRule = this.getNodeParameter('defaultRule', i, {}) as IDataObject;
-					if (Object.keys(defaultRule).length > 0) {
-						body.default_rule = defaultRule;
-					}
+					if (!enable) sheet_priv_level = 4;
+					else if (defaultRule?.edit) sheet_priv_level = 2;
+					else if (defaultRule?.read !== false) sheet_priv_level = 3;
+					else sheet_priv_level = 4;
+				}
+				const manage_priv_type = this.getNodeParameter('manage_priv_type', i, 1) as number;
+				const manage_rule_id = this.getNodeParameter('manage_rule_id', i, 0) as number;
+				const can_insert_record = this.getNodeParameter(
+					'can_insert_record',
+					i,
+					true,
+				) as boolean;
+				const can_delete_record = this.getNodeParameter(
+					'can_delete_record',
+					i,
+					true,
+				) as boolean;
+				const can_create_modify_delete_view = this.getNodeParameter(
+					'can_create_modify_delete_view',
+					i,
+					true,
+				) as boolean;
+				const record_range_type = this.getNodeParameter(
+					'record_range_type',
+					i,
+					1,
+				) as number;
+				const manageAuthExtraJson = this.getNodeParameter(
+					'manageAuthExtraJson',
+					i,
+					'{}',
+				) as string;
 
-					const userRulesCollection = this.getNodeParameter(
-						'userRulesCollection',
-						i,
-						{},
-					) as IDataObject;
-					if (userRulesCollection.rules && Array.isArray(userRulesCollection.rules)) {
-						body.user_rules = (userRulesCollection.rules as IDataObject[]).map((rule) => ({
-							userid: rule.userid,
-							read: rule.read,
-							edit: rule.edit,
-						}));
-					}
+				const privItem: IDataObject = {
+					sheet_id,
+					priv: sheet_priv_level,
+				};
+				if (sheet_priv_level === 2) {
+					privItem.can_insert_record = can_insert_record;
+					privItem.can_delete_record = can_delete_record;
+				}
+				if (sheet_priv_level === 1 || sheet_priv_level === 2 || sheet_priv_level === 3) {
+					privItem.can_create_modify_delete_view = can_create_modify_delete_view;
+				}
+				if (sheet_priv_level === 2 || sheet_priv_level === 3) {
+					privItem.record_priv = { record_range_type };
+				}
+
+				const body: IDataObject = {
+					docid,
+					type: manage_priv_type,
+					priv_list: [privItem],
+				};
+				if (manage_priv_type === 2 && manage_rule_id) body.rule_id = manage_rule_id;
+				try {
+					Object.assign(body, JSON.parse(manageAuthExtraJson || '{}') as IDataObject);
+					body.docid = docid;
+				} catch {
+					// ignore
 				}
 
 				response = await weComApiRequest.call(
