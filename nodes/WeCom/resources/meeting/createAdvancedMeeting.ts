@@ -107,6 +107,15 @@ export const createAdvancedMeetingDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: { show: showOnly },
 		default: '',
+		description: 'cal_id，第三方应用必填',
+	},
+	{
+		displayName: '应用AgentID',
+		name: 'agentid',
+		type: 'number',
+		displayOptions: { show: showOnly },
+		default: 0,
+		description: 'agentid，仅旧第三方多应用套件需要；0 不传',
 	},
 	{
 		displayName: '入会密码',
