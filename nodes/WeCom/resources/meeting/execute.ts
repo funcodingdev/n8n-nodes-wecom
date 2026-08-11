@@ -281,11 +281,19 @@ export async function executeMeeting(
 					meetingid,
 				});
 			} else if (operation === 'getMeetingInfo') {
-				const meetingid = this.getNodeParameter('meetingid', i) as string;
+				// https://developer.work.weixin.qq.com/document/path/98149
+				const meetingid = this.getNodeParameter('meetingid', i, '') as string;
+				const meeting_code = this.getNodeParameter('meeting_code', i, '') as string;
+				const sub_meetingid = this.getNodeParameter('sub_meetingid', i, '') as string;
+				const body: IDataObject = {};
+				if (meetingid) body.meetingid = meetingid;
+				if (meeting_code) body.meeting_code = meeting_code;
+				if (sub_meetingid) body.sub_meetingid = sub_meetingid;
+				if (!body.meetingid && !body.meeting_code) {
+					throw new Error('meetingid 与 meeting_code 至少填写一个');
+				}
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/get_info', {
-					meetingid,
-				});
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/get_info', body);
 			} else if (operation === 'getUserMeetings') {
 				const userid = this.getNodeParameter('userid', i) as string;
 				const cursor = this.getNodeParameter('cursor', i, '') as string;
