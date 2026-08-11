@@ -33,7 +33,8 @@ export const meetingroomDescription: INodeProperties[] = [
 				name: '[预定管理] 管理预定',
 				value: 'manageBooking',
 				action: '管理预定',
-				description: '管理会议室预定（预定、取消、获取、列表）',
+				description:
+					'管理会议室预定（查询、预定、通过日程/会议预定、按预定ID查详情、取消）',
 			},
 			// 审批管理
 			{

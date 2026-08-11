@@ -117,37 +117,68 @@ export async function executeCheckin(
 			} else if (operation === 'addCheckin') {
 				// 为打卡人员补卡
 				// https://developer.work.weixin.qq.com/document/path/95803
+				// 官方路径：/cgi-bin/checkin/punch_correction
 				const userid = this.getNodeParameter('userid', i) as string;
-				const checkintime = dateTimeToUnixTimestamp(this.getNodeParameter('checkintime', i) as string | number);
-				const checkintype = this.getNodeParameter('checkintype', i) as string;
+				const schedule_date_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('schedule_date_time', i) as string | number,
+				);
+				const checkin_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('checkin_time', i) as string | number,
+				);
+				const schedule_checkin_time = this.getNodeParameter('schedule_checkin_time', i, 0) as number;
+				const remark = this.getNodeParameter('remark', i, '') as string;
 
-				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/checkin/add_checkin_userface', {
+				const body: IDataObject = {
 					userid,
-					checkintime,
-					checkintype,
-				});
+					schedule_date_time,
+					checkin_time,
+				};
+				if (schedule_checkin_time) body.schedule_checkin_time = schedule_checkin_time;
+				if (remark) body.remark = remark;
+
+				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/checkin/punch_correction', body);
 			} else if (operation === 'addCheckinRecord') {
 				// 添加打卡记录
 				// https://developer.work.weixin.qq.com/document/path/99647
+				// 官方路径：/cgi-bin/checkin/add_checkin_record，请求体为 records 数组
 				const userid = this.getNodeParameter('userid', i) as string;
-				const checkin_time = this.getNodeParameter('checkin_time', i) as number;
-				const checkin_type = this.getNodeParameter('checkin_type', i) as number;
-				const location_title = this.getNodeParameter('location_title', i, '') as string;
+				const checkin_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('checkin_time', i) as string | number,
+				);
+				const location_title = this.getNodeParameter('location_title', i) as string;
+				const location_detail = this.getNodeParameter('location_detail', i) as string;
+				const notes = this.getNodeParameter('notes', i, '') as string;
 				const lng = this.getNodeParameter('lng', i, 0) as number;
 				const lat = this.getNodeParameter('lat', i, 0) as number;
-				const remark = this.getNodeParameter('remark', i, '') as string;
+				const device_type = this.getNodeParameter('device_type', i, 0) as number;
+				const device_detail = this.getNodeParameter('device_detail', i, '') as string;
+				const wifiname = this.getNodeParameter('wifiname', i, '') as string;
+				const wifimac = this.getNodeParameter('wifimac', i, '') as string;
+				const mediaidsRaw = this.getNodeParameter('mediaids', i, '') as string;
 
-				const body: { userid: string; checkin_time: number; checkin_type: number; location_title?: string; lng?: number; lat?: number; remark?: string } = {
+				const record: IDataObject = {
 					userid,
 					checkin_time,
-					checkin_type,
+					location_title,
+					location_detail,
 				};
-				if (location_title) body.location_title = location_title;
-				if (lng) body.lng = lng;
-				if (lat) body.lat = lat;
-				if (remark) body.remark = remark;
+				if (notes) record.notes = notes;
+				if (lng) record.lng = lng;
+				if (lat) record.lat = lat;
+				if (device_type) record.device_type = device_type;
+				if (device_detail) record.device_detail = device_detail;
+				if (wifiname) record.wifiname = wifiname;
+				if (wifimac) record.wifimac = wifimac;
+				if (mediaidsRaw) {
+					record.mediaids = mediaidsRaw
+						.split(',')
+						.map((id) => id.trim())
+						.filter(Boolean);
+				}
 
-				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/checkin/addcheckin', body);
+				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/checkin/add_checkin_record', {
+					records: [record],
+				});
 			} else if (operation === 'addFaceInfo') {
 				// 录入打卡人员人脸信息
 				// https://developer.work.weixin.qq.com/document/path/93378

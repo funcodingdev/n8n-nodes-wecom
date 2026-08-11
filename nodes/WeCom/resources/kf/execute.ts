@@ -204,7 +204,17 @@ export async function executeKf(
 				);
 			}
 			// 会话分配与消息收发
-			else if (operation === 'transServiceState') {
+			else if (operation === 'getServiceState') {
+				// 获取会话状态
+				// https://developer.work.weixin.qq.com/document/path/94669
+				const open_kfid = this.getNodeParameter('open_kfid', i) as string;
+				const external_userid = this.getNodeParameter('external_userid', i) as string;
+
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/kf/service_state/get', {
+					open_kfid,
+					external_userid,
+				});
+			} else if (operation === 'transServiceState') {
 				const open_kfid = this.getNodeParameter('open_kfid', i) as string;
 				const external_userid = this.getNodeParameter('external_userid', i) as string;
 				const service_state = this.getNodeParameter('service_state', i) as number;
@@ -313,41 +323,58 @@ export async function executeKf(
 					[msgtype]: messageContent,
 				});
 			} else if (operation === 'setUpgradeService') {
+				// 为客户升级为专员或客户群服务
+				// https://developer.work.weixin.qq.com/document/path/94674
+				// 官方路径：/cgi-bin/kf/customer/upgrade_service
 				const open_kfid = this.getNodeParameter('open_kfid', i) as string;
+				const external_userid = this.getNodeParameter('external_userid', i) as string;
 				const upgradeType = this.getNodeParameter('upgradeType', i) as string;
 
-				const upgrade_config: IDataObject = {};
+				const body: IDataObject = {
+					open_kfid,
+					external_userid,
+					type: upgradeType === 'groupchat' ? 2 : 1,
+				};
 
 				if (upgradeType === 'member') {
-					const memberCollection = this.getNodeParameter('memberCollection', i, {}) as IDataObject;
-					const userid_list: string[] = [];
-
-					if (memberCollection.members) {
-						const membersList = memberCollection.members as IDataObject[];
-						membersList.forEach((m) => {
-							if (m.userid) userid_list.push(m.userid as string);
-						});
-					}
-
-					upgrade_config.member_range = { userid_list };
-				} else if (upgradeType === 'groupchat') {
-					const groupchatCollection = this.getNodeParameter('groupchatCollection', i, {}) as IDataObject;
-					const chatid_list: string[] = [];
-
-					if (groupchatCollection.groups) {
-						const groupsList = groupchatCollection.groups as IDataObject[];
-						groupsList.forEach((g) => {
-							if (g.chat_id) chatid_list.push(g.chat_id as string);
-						});
-					}
-
-					upgrade_config.groupchat_range = { chatid_list };
+					const member_userid = this.getNodeParameter('member_userid', i) as string;
+					const member_wording = this.getNodeParameter('member_wording', i, '') as string;
+					const member: IDataObject = { userid: member_userid };
+					if (member_wording) member.wording = member_wording;
+					body.member = member;
+				} else {
+					const groupchat_chat_id = this.getNodeParameter('groupchat_chat_id', i) as string;
+					const groupchat_wording = this.getNodeParameter('groupchat_wording', i, '') as string;
+					const groupchat: IDataObject = { chat_id: groupchat_chat_id };
+					if (groupchat_wording) groupchat.wording = groupchat_wording;
+					body.groupchat = groupchat;
 				}
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/kf/customer/upgrade_service_config', {
-					open_kfid,
-					upgrade_config,
-				});
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/kf/customer/upgrade_service', body);
+			} else if (operation === 'cancelUpgradeService') {
+				// 为客户取消升级服务推荐
+				// https://developer.work.weixin.qq.com/document/path/94674
+				const open_kfid = this.getNodeParameter('open_kfid', i) as string;
+				const external_userid = this.getNodeParameter('external_userid', i) as string;
+
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/kf/customer/cancel_upgrade_service',
+					{
+						open_kfid,
+						external_userid,
+					},
+				);
+			} else if (operation === 'getUpgradeServiceConfig') {
+				// 获取配置的专员与客户群
+				// https://developer.work.weixin.qq.com/document/path/94674
+				response = await weComApiRequest.call(
+					this,
+					'GET',
+					'/cgi-bin/kf/customer/get_upgrade_service_config',
+					{},
+				);
 			} else if (operation === 'syncMsg') {
 				const open_kfid = this.getNodeParameter('open_kfid', i) as string;
 				const cursor = this.getNodeParameter('cursor', i, '') as string;
@@ -417,13 +444,27 @@ export async function executeKf(
 					});
 				}
 			} else if (operation === 'getCustomerInfo') {
-				const open_kfid = this.getNodeParameter('open_kfid', i) as string;
-				const external_userid = this.getNodeParameter('external_userid', i) as string;
+				// 获取客户基础信息
+				// https://developer.work.weixin.qq.com/document/path/95159
+				// 官方路径：/cgi-bin/kf/customer/batchget
+				const external_userid_list_raw = this.getNodeParameter('external_userid_list', i) as string;
+				const need_enter_session_context = this.getNodeParameter(
+					'need_enter_session_context',
+					i,
+					false,
+				) as boolean;
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/kf/customer/get_upgrade_service_config', {
-					open_kfid,
-					external_userid,
-				});
+				const external_userid_list = external_userid_list_raw
+					.split(',')
+					.map((id) => id.trim())
+					.filter(Boolean);
+
+				const body: IDataObject = { external_userid_list };
+				if (need_enter_session_context) {
+					body.need_enter_session_context = 1;
+				}
+
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/kf/customer/batchget', body);
 			}
 			// 统计管理
 			else if (operation === 'getCorpStatistic') {

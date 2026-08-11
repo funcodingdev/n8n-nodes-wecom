@@ -68,12 +68,20 @@ export async function executeJournal(
 
 				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/oa/journal/get_stat_list', body);
 			} else if (operation === 'downloadFile') {
-				// 下载微盘文件
+				// 下载汇报中的微盘文件
 				// https://developer.work.weixin.qq.com/document/path/98021
+				// 官方路径：/cgi-bin/oa/journal/download_wedrive_file
+				const journaluuid = this.getNodeParameter('journaluuid', i) as string;
 				const fileid = this.getNodeParameter('fileid', i) as string;
-				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/wedrive/file_download', {
-					fileid,
-				});
+				responseData = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/oa/journal/download_wedrive_file',
+					{
+						journaluuid,
+						fileid,
+					},
+				);
 			}
 
 			returnData.push({

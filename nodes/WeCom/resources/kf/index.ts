@@ -18,6 +18,9 @@ import { sendKfMsgDescription } from './sendKfMsg';
 import { sendKfEventMsgDescription } from './sendKfEventMsg';
 import { syncMsgDescription } from './syncMsg';
 import { setUpgradeServiceDescription } from './setUpgradeService';
+import { cancelUpgradeServiceDescription } from './cancelUpgradeService';
+import { getUpgradeServiceConfigDescription } from './getUpgradeServiceConfig';
+import { getServiceStateDescription } from './getServiceState';
 import { getCustomerInfoDescription } from './getCustomerInfo';
 
 // 统计管理
@@ -95,10 +98,16 @@ export const kfDescription: INodeProperties[] = [
 			},
 			// 会话与消息
 			{
+				name: '[会话与消息] 获取会话状态',
+				value: 'getServiceState',
+				action: '获取会话状态',
+				description: '获取客户当前会话状态 service_state/get',
+			},
+			{
 				name: '[会话与消息] 分配客服会话',
 				value: 'transServiceState',
 				action: '分配客服会话',
-				description: '转接客服会话给其他接待人员',
+				description: '变更客服会话状态（转入待接入池/指定接待/结束等）',
 			},
 			{
 				name: '[会话与消息] 发送消息',
@@ -119,17 +128,30 @@ export const kfDescription: INodeProperties[] = [
 				description: '同步读取客服会话消息',
 			},
 			{
-				name: '[会话与消息] 设置升级服务配置',
+				name: '[会话与消息] 为客户升级服务',
 				value: 'setUpgradeService',
-				action: '设置升级服务配置',
-				description: '设置客服会话的升级服务配置',
+				action: '为客户升级服务',
+				description: '为客户推荐专员或客户群服务 upgrade_service',
+			},
+			{
+				name: '[会话与消息] 取消客户升级服务',
+				value: 'cancelUpgradeService',
+				action: '取消客户升级服务',
+				description: '取消为客户指定的专员或客户群推荐 cancel_upgrade_service',
+			},
+			{
+				name: '[会话与消息] 获取升级服务配置',
+				value: 'getUpgradeServiceConfig',
+				action: '获取升级服务配置',
+				description: '获取企业配置的专员与客户群 get_upgrade_service_config',
 			},
 			{
 				name: '[会话与消息] 获取客户基础信息',
 				value: 'getCustomerInfo',
 				action: '获取客户基础信息',
-				description: '获取客服会话中客户的基础信息',
+				description: '批量获取客户基础信息 customer/batchget',
 			},
+
 			// 统计管理
 			{
 				name: '[统计管理] 获取企业客服数据统计',
@@ -170,11 +192,14 @@ export const kfDescription: INodeProperties[] = [
 	...delServicerDescription,
 	...listServicerDescription,
 	// 会话分配与消息收发
+	...getServiceStateDescription,
 	...transServiceStateDescription,
 	...sendKfMsgDescription,
 	...sendKfEventMsgDescription,
 	...syncMsgDescription,
 	...setUpgradeServiceDescription,
+	...cancelUpgradeServiceDescription,
+	...getUpgradeServiceConfigDescription,
 	...getCustomerInfoDescription,
 	// 统计管理
 	...getCorpStatisticDescription,
