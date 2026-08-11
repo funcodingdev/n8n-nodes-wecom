@@ -3,6 +3,16 @@ import { weComApiRequest } from '../../shared/transport';
 import { executeExtraHttpOp } from '../../shared/extraHttpOp';
 import { externalContactExtraHttpOpsById } from './extraHttpOps';
 
+function dateTimeToUnixTimestamp(dateTime: string | number): number {
+	if (typeof dateTime === 'number') {
+		return dateTime;
+	}
+	if (!dateTime || dateTime === '') {
+		return 0;
+	}
+	return Math.floor(new Date(dateTime).getTime() / 1000);
+}
+
 export async function executeExternalContact(
 	this: IExecuteFunctions,
 	operation: string,
@@ -1695,8 +1705,12 @@ export async function executeExternalContact(
 				);
 			} else if (operation === 'getCustomerAcquisitionStatistic') {
 				const link_id = this.getNodeParameter('link_id', i) as string;
-				const start_time = this.getNodeParameter('start_time', i) as number;
-				const end_time = this.getNodeParameter('end_time', i) as number;
+				const start_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('start_time', i) as string | number,
+				);
+				const end_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('end_time', i) as string | number,
+				);
 
 				response = await weComApiRequest.call(
 					this,

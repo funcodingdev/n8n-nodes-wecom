@@ -22,22 +22,22 @@ export const approvalExtraHttpOpsDescription: INodeProperties[] = [
 	{
 		displayName: '开始时间',
 		name: 'appr_starttime',
-		type: 'number',
+		type: 'dateTime',
 		displayOptions: {
 			show: { resource: ['approval'], operation: ['getapprovaldata'] },
 		},
-		default: 0,
-		description: '开始时间戳（秒），旧版审批数据接口',
+		default: '',
+		description: '开始时间 starttime（Unix 秒），旧版审批数据接口',
 	},
 	{
 		displayName: '结束时间',
 		name: 'appr_endtime',
-		type: 'number',
+		type: 'dateTime',
 		displayOptions: {
 			show: { resource: ['approval'], operation: ['getapprovaldata'] },
 		},
-		default: 0,
-		description: '结束时间戳（秒）',
+		default: '',
+		description: '结束时间 endtime（Unix 秒）',
 	},
 	{
 		displayName: '下一条审批单号',

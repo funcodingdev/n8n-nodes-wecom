@@ -359,8 +359,12 @@ export async function executeApproval(
 				);
 			} else if (approvalExtraHttpOpsById[operation]) {
 				const bodyDefaults: IDataObject = {};
-				const appr_starttime = this.getNodeParameter('appr_starttime', i, 0) as number;
-				const appr_endtime = this.getNodeParameter('appr_endtime', i, 0) as number;
+				const appr_starttime = dateTimeToUnixTimestamp(
+					this.getNodeParameter('appr_starttime', i, '') as string | number,
+				);
+				const appr_endtime = dateTimeToUnixTimestamp(
+					this.getNodeParameter('appr_endtime', i, '') as string | number,
+				);
 				const next_spnum = this.getNodeParameter('next_spnum', i, '') as string;
 				if (appr_starttime) bodyDefaults.starttime = appr_starttime;
 				if (appr_endtime) bodyDefaults.endtime = appr_endtime;

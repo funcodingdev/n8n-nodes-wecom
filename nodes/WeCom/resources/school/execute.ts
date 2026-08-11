@@ -3,6 +3,16 @@ import { weComApiRequest, getWeComBaseUrl } from '../../shared/transport';
 import { executeExtraHttpOp } from '../../shared/extraHttpOp';
 import { schoolExtraHttpOpsById } from './extraHttpOps';
 
+function dateTimeToUnixTimestamp(dateTime: string | number): number {
+	if (typeof dateTime === 'number') {
+		return dateTime;
+	}
+	if (!dateTime || dateTime === '') {
+		return 0;
+	}
+	return Math.floor(new Date(dateTime).getTime() / 1000);
+}
+
 export async function executeSchool(
 	this: IExecuteFunctions,
 	operation: string,
@@ -83,8 +93,12 @@ export async function executeSchool(
 				}
 				case 'getUserLivingId': {
 					const userid = this.getNodeParameter('userid', i) as string;
-					const begin_time = this.getNodeParameter('begin_time', i, 0) as number;
-					const end_time = this.getNodeParameter('end_time', i, 0) as number;
+					const begin_time = dateTimeToUnixTimestamp(
+						this.getNodeParameter('begin_time', i, '') as string | number,
+					);
+					const end_time = dateTimeToUnixTimestamp(
+						this.getNodeParameter('end_time', i, '') as string | number,
+					);
 					const next_key = this.getNodeParameter('next_key', i, '') as string;
 					const limit = this.getNodeParameter('limit', i, 100) as number;
 

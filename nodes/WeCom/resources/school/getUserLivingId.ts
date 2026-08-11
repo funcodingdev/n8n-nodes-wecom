@@ -19,24 +19,24 @@ export const getUserLivingIdDescription: INodeProperties[] = [
 		description: '老师的用户ID',
 	},
 	{
-		displayName: '开始时间戳',
+		displayName: '开始时间',
 		name: 'begin_time',
-		type: 'number',
+		type: 'dateTime',
 		displayOptions: {
 			show: showOnlyForGetUserLivingId,
 		},
-		default: 0,
-		description: '起始时间戳（秒）',
+		default: '',
+		description: '起始时间 begin_time（Unix 秒）',
 	},
 	{
-		displayName: '结束时间戳',
+		displayName: '结束时间',
 		name: 'end_time',
-		type: 'number',
+		type: 'dateTime',
 		displayOptions: {
 			show: showOnlyForGetUserLivingId,
 		},
-		default: 0,
-		description: '结束时间戳（秒）',
+		default: '',
+		description: '结束时间 end_time（Unix 秒）',
 	},
 	{
 		displayName: '分页游标',

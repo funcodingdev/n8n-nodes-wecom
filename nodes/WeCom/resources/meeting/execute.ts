@@ -1732,16 +1732,12 @@ export async function executeMeeting(
 			} else if (operation === 'recordGetStatistics') {
 				const meetingid = this.getNodeParameter('webinar_meetingid', i) as string;
 				const meeting_record_id = this.getNodeParameter('meeting_record_id', i, '') as string;
-				const record_stat_start_time = this.getNodeParameter(
-					'record_stat_start_time',
-					i,
-					0,
-				) as number;
-				const record_stat_end_time = this.getNodeParameter(
-					'record_stat_end_time',
-					i,
-					0,
-				) as number;
+				const record_stat_start_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('record_stat_start_time', i, '') as string | number,
+				);
+				const record_stat_end_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('record_stat_end_time', i, '') as string | number,
+				);
 				const webinarExtraJson = this.getNodeParameter('webinarExtraJson', i, '{}') as string;
 				const body: IDataObject = { meetingid };
 				if (meeting_record_id) body.meeting_record_id = meeting_record_id;
@@ -2012,16 +2008,12 @@ export async function executeMeeting(
 					// meeting_room_id 与 rooms_id 二选一；无 meetingid
 					delete body.meetingid;
 					const rooms_id = this.getNodeParameter('rooms_id', i, '') as string;
-					const rooms_list_start_time = this.getNodeParameter(
-						'rooms_list_start_time',
-						i,
-						0,
-					) as number;
-					const rooms_list_end_time = this.getNodeParameter(
-						'rooms_list_end_time',
-						i,
-						0,
-					) as number;
+					const rooms_list_start_time = dateTimeToUnixTimestamp(
+						this.getNodeParameter('rooms_list_start_time', i, '') as string | number,
+					);
+					const rooms_list_end_time = dateTimeToUnixTimestamp(
+						this.getNodeParameter('rooms_list_end_time', i, '') as string | number,
+					);
 					if (rooms_id) {
 						body.rooms_id = rooms_id;
 						// 与 meeting_room_id 二选一优先 rooms_id 时仍可保留 meeting_room_id
@@ -2117,7 +2109,9 @@ export async function executeMeeting(
 				}
 				if (operation === 'getQuality') {
 					// https://developer.work.weixin.qq.com/document/path/98821
-					const quality_start_time = this.getNodeParameter('quality_start_time', i, 0) as number;
+					const quality_start_time = dateTimeToUnixTimestamp(
+						this.getNodeParameter('quality_start_time', i, '') as string | number,
+					);
 					const sub_meetingid = this.getNodeParameter('sub_meetingid', i, '') as string;
 					// start_time 必填：默认取近 1 小时起点
 					body.start_time =

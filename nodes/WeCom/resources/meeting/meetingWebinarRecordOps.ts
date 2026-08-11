@@ -888,22 +888,22 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 	{
 		displayName: '统计开始时间',
 		name: 'record_stat_start_time',
-		type: 'number',
+		type: 'dateTime',
 		displayOptions: {
 			show: { resource: ['meeting'], operation: ['recordGetStatistics'] },
 		},
-		default: 0,
-		description: 'start_time，秒；默认最近 31 天',
+		default: '',
+		description: 'start_time；空表示默认最近 31 天',
 	},
 	{
 		displayName: '统计结束时间',
 		name: 'record_stat_end_time',
-		type: 'number',
+		type: 'dateTime',
 		displayOptions: {
 			show: { resource: ['meeting'], operation: ['recordGetStatistics'] },
 		},
-		default: 0,
-		description: 'end_time，秒；区间不超过 31 天',
+		default: '',
+		description: 'end_time；区间不超过 31 天',
 	},
 	{
 		displayName: '暖场图片URL',

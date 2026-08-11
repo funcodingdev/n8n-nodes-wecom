@@ -441,28 +441,28 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 	{
 		displayName: '查询开始时间',
 		name: 'rooms_list_start_time',
-		type: 'number',
+		type: 'dateTime',
 		displayOptions: {
 			show: {
 				resource: ['meeting'],
 				operation: ['roomsListMeetings'],
 			},
 		},
-		default: 0,
-		description: 'start_time 秒级时间戳，区间不超过 90 天；0 不传',
+		default: '',
+		description: 'start_time，区间不超过 90 天；空不传',
 	},
 	{
 		displayName: '查询结束时间',
 		name: 'rooms_list_end_time',
-		type: 'number',
+		type: 'dateTime',
 		displayOptions: {
 			show: {
 				resource: ['meeting'],
 				operation: ['roomsListMeetings'],
 			},
 		},
-		default: 0,
-		description: 'end_time 秒级时间戳；0 不传',
+		default: '',
+		description: 'end_time；空不传',
 	},
 	{
 		displayName: '呼叫ID',
@@ -585,13 +585,13 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 	{
 		displayName: '质量查询开始时间',
 		name: 'quality_start_time',
-		type: 'number',
+		type: 'dateTime',
 		required: true,
 		displayOptions: {
 			show: { resource: ['meeting'], operation: ['getQuality'] },
 		},
-		default: 0,
-		description: 'start_time（秒），必填；可查询过去 7 天内；0 时默认近 1 小时',
+		default: '',
+		description: 'start_time，可查询过去 7 天内；空时默认近 1 小时',
 	},
 	{
 		displayName: '周期性子会议ID',

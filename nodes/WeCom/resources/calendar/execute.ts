@@ -519,8 +519,12 @@ export async function executeCalendar(
 				const schedule_id = this.getNodeParameter('schedule_id', i) as string;
 				const schedule_summary = this.getNodeParameter('schedule_summary', i, '') as string;
 				const schedule_description = this.getNodeParameter('schedule_description', i, '') as string;
-				const schedule_start_time = this.getNodeParameter('schedule_start_time', i, 0) as number;
-				const schedule_end_time = this.getNodeParameter('schedule_end_time', i, 0) as number;
+				const schedule_start_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('schedule_start_time', i, '') as string | number,
+				);
+				const schedule_end_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('schedule_end_time', i, '') as string | number,
+				);
 				const schedule_location = this.getNodeParameter('schedule_location', i, '') as string;
 				const schedule = this.getNodeParameter('schedule', i, '{}') as string;
 				const skip_attendees = this.getNodeParameter('skip_attendees', i, false) as boolean;
