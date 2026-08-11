@@ -4,15 +4,24 @@ const showOnly = { resource: ['meeting'], operation: ['allocateMeetingAdvancedAc
 
 export const allocateMeetingAdvancedAccountDescription: INodeProperties[] = [
 	{
-		displayName: '用户列表',
+		displayName: '成员UserID列表',
+		name: 'vip_userids',
+		type: 'string',
+		displayOptions: { show: showOnly },
+		default: '',
+		placeholder: 'zhangsan,lisi',
+		description:
+			'userid_list，逗号分隔。<a href="https://developer.work.weixin.qq.com/document/path/99508" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '用户列表(兼容旧版)',
 		name: 'useridCollection',
 		type: 'fixedCollection',
-		required: true,
 		displayOptions: { show: showOnly },
 		default: {},
 		placeholder: '添加用户',
 		typeOptions: { multipleValues: true },
-		description: '要分配高级账号的用户列表。<a href="https://developer.work.weixin.qq.com/document/path/99508" target="_blank">官方文档</a>',
+		description: '与上方 UserID 列表合并；推荐直接用逗号分隔字段',
 		options: [
 			{
 				displayName: '用户',
@@ -23,8 +32,7 @@ export const allocateMeetingAdvancedAccountDescription: INodeProperties[] = [
 						name: 'userid',
 						type: 'string',
 						default: '',
-						required: true,
-						description: '企业微信UserID',
+						description: '企业微信 UserID',
 					},
 				],
 			},

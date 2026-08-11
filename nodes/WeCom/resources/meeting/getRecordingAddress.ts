@@ -17,18 +17,17 @@ export const getRecordingAddressDescription: INodeProperties[] = [
 		displayName: '录制文件ID',
 		name: 'record_file_id',
 		type: 'string',
-		required: true,
 		displayOptions: { show: showOnly },
 		default: '',
-		description: 'record_file_id，可获取播放/下载地址',
+		description: 'record_file_id；与会议录制 ID 二选一（优先会议录制 ID）',
 	},
 	{
-		displayName: '会议录制ID(可选)',
+		displayName: '会议录制ID',
 		name: 'meeting_record_id',
 		type: 'string',
 		displayOptions: { show: showOnly },
 		default: '',
 		description:
-			'若调用「获取会议录制地址」接口（get_file_list）可填 meeting_record_id；留空则按 record_file_id 查询单个文件详情',
+			'meeting_record_id；有值时走 get_file_list 获取录制地址，否则用 record_file_id 查单文件详情',
 	},
 ];

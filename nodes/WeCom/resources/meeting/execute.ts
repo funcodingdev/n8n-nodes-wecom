@@ -825,7 +825,7 @@ export async function executeMeeting(
 						'/cgi-bin/meeting/record/get_file_list',
 						body,
 					);
-				} else {
+				} else if (record_file_id) {
 					const body: IDataObject = { record_file_id };
 					if (meetingid) body.meetingid = meetingid;
 					response = await weComApiRequest.call(
@@ -834,13 +834,19 @@ export async function executeMeeting(
 						'/cgi-bin/meeting/record/get_file',
 						body,
 					);
+				} else {
+					throw new Error('请填写会议录制ID或录制文件ID');
 				}
 			}
 			// 高级功能账号管理
 			else if (operation === 'allocateMeetingAdvancedAccount') {
+				const vip_userids = this.getNodeParameter('vip_userids', i, '') as string;
 				const useridCollection = this.getNodeParameter('useridCollection', i, {}) as IDataObject;
 
-				const userid_list: string[] = [];
+				const userid_list: string[] = vip_userids
+					.split(',')
+					.map((s) => s.trim())
+					.filter(Boolean);
 				if (useridCollection.users) {
 					const usersList = useridCollection.users as IDataObject[];
 					usersList.forEach((u) => {
@@ -852,12 +858,16 @@ export async function executeMeeting(
 					this,
 					'POST',
 					'/cgi-bin/meeting/vip/submit_batch_add_job',
-					{ userid_list },
+					{ userid_list: [...new Set(userid_list)] },
 				);
 			} else if (operation === 'deallocateMeetingAdvancedAccount') {
+				const vip_userids = this.getNodeParameter('vip_userids', i, '') as string;
 				const useridCollection = this.getNodeParameter('useridCollection', i, {}) as IDataObject;
 
-				const userid_list: string[] = [];
+				const userid_list: string[] = vip_userids
+					.split(',')
+					.map((s) => s.trim())
+					.filter(Boolean);
 				if (useridCollection.users) {
 					const usersList = useridCollection.users as IDataObject[];
 					usersList.forEach((u) => {
@@ -869,7 +879,7 @@ export async function executeMeeting(
 					this,
 					'POST',
 					'/cgi-bin/meeting/vip/submit_batch_del_job',
-					{ userid_list },
+					{ userid_list: [...new Set(userid_list)] },
 				);
 			} else if (operation === 'getMeetingAdvancedAccountList') {
 				// https://developer.work.weixin.qq.com/document/path/99510
