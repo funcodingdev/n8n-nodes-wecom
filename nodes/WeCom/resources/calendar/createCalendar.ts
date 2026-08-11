@@ -30,10 +30,20 @@ export const createCalendarDescription: INodeProperties[] = [
 		placeholder: '用于管理部门日常会议和活动',
 	},
 	{
-		displayName: '管理员列表',
+		displayName: '管理员UserID列表',
+		name: 'admin_userids',
+		type: 'string',
+		displayOptions: {
+			show: showOnlyForCreate,
+		},
+		default: '',
+		placeholder: 'zhangsan,lisi',
+		description: 'admins，逗号分隔，最多 3 人；与下方选择列表合并',
+	},
+	{
+		displayName: '管理员列表(选择)',
 		name: 'admins',
 		type: 'multiOptions',
-		required: true,
 		displayOptions: {
 			show: showOnlyForCreate,
 		},
@@ -41,7 +51,7 @@ export const createCalendarDescription: INodeProperties[] = [
 			loadOptionsMethod: 'getAllUsers',
 		},
 		default: [],
-		description: '日历的管理员userid列表，管理员必须在通知范围成员的列表中。最多指定3人',
+		description: '日历管理员，最多 3 人；可与上方 UserID 列表合并',
 	},
 	{
 		displayName: '日历颜色',

@@ -27,15 +27,32 @@ export async function executeCalendar(
 			// 管理日历
 			if (operation === 'createCalendar') {
 				const summary = this.getNodeParameter('summary', i) as string;
-				const admins = this.getNodeParameter('admins', i) as string[];
+				const admin_userids = this.getNodeParameter('admin_userids', i, '') as string;
+				const selectedAdmins = this.getNodeParameter('admins', i, []) as string[];
+				const admins = [
+					...admin_userids
+						.split(',')
+						.map((s) => s.trim())
+						.filter(Boolean),
+					...selectedAdmins,
+				];
+				const uniqueAdmins = [...new Set(admins)].slice(0, 3);
 				const description = this.getNodeParameter('description', i, '') as string;
 				const isCorpCalendar = this.getNodeParameter('isCorpCalendar', i, false) as boolean;
 				const advancedSettings = this.getNodeParameter('advancedSettings', i, {}) as IDataObject;
 				const sharesCollection = this.getNodeParameter('sharesCollection', i, {}) as IDataObject;
 
+				if (!uniqueAdmins.length) {
+					throw new NodeOperationError(
+						this.getNode(),
+						'请至少填写或选择 1 个日历管理员',
+						{ itemIndex: i },
+					);
+				}
+
 				const calendar: IDataObject = {
 					summary,
-					admins,
+					admins: uniqueAdmins,
 				};
 
 				// 全员日历设置
@@ -100,7 +117,7 @@ export async function executeCalendar(
 				}
 
 				// 验证管理员必须在通知范围成员列表中（创建日历时管理员是必填的，必须提供通知范围）
-				if (admins && admins.length > 0) {
+				if (uniqueAdmins.length > 0) {
 					if (!sharesCollection.shares || shares.length === 0) {
 						throw new NodeOperationError(
 							this.getNode(),
@@ -109,7 +126,7 @@ export async function executeCalendar(
 						);
 					}
 					const shareUserids = shares.map((s) => s.userid as string);
-					const missingAdmins = admins.filter((admin) => !shareUserids.includes(admin));
+					const missingAdmins = uniqueAdmins.filter((admin) => !shareUserids.includes(admin));
 					if (missingAdmins.length > 0) {
 						throw new NodeOperationError(
 							this.getNode(),
@@ -204,11 +221,28 @@ export async function executeCalendar(
 			// 管理日程
 			else if (operation === 'createSchedule') {
 				const summary = this.getNodeParameter('summary', i, '') as string;
-				const admins = this.getNodeParameter('admins', i, []) as string[];
+				const admin_userids = this.getNodeParameter('admin_userids', i, '') as string;
+				const selectedAdmins = this.getNodeParameter('admins', i, []) as string[];
+				const admins = [
+					...admin_userids
+						.split(',')
+						.map((s) => s.trim())
+						.filter(Boolean),
+					...selectedAdmins,
+				];
+				const uniqueAdmins = [...new Set(admins)].slice(0, 3);
 				const start_time = dateTimeToUnixTimestamp(this.getNodeParameter('start_time', i) as string | number);
 				const end_time = dateTimeToUnixTimestamp(this.getNodeParameter('end_time', i) as string | number);
 				const is_whole_day = this.getNodeParameter('is_whole_day', i, false) as boolean;
-				const attendees = this.getNodeParameter('attendees', i, []) as string[];
+				const attendee_userids = this.getNodeParameter('attendee_userids', i, '') as string;
+				const selectedAttendees = this.getNodeParameter('attendees', i, []) as string[];
+				const attendees = [
+					...attendee_userids
+						.split(',')
+						.map((s) => s.trim())
+						.filter(Boolean),
+					...selectedAttendees,
+				];
 				const description = this.getNodeParameter('description', i, '') as string;
 				const location = this.getNodeParameter('location', i, '') as string;
 				const remindersCollection = this.getNodeParameter('remindersCollection', i, {}) as IDataObject;
@@ -246,21 +280,13 @@ export async function executeCalendar(
 
 				// 日程管理员（可选，最多3人）
 				// 注意：管理员必须在参与者列表中，所以需要先将管理员添加到参与者列表
-				if (admins && admins.length > 0) {
-					if (admins.length > 3) {
-						throw new NodeOperationError(
-							this.getNode(),
-							'日程管理员最多指定3人',
-							{ itemIndex: i },
-						);
-					}
-					// 将管理员添加到参与者列表中（如果还没有的话）
-					admins.forEach((admin) => {
+				if (uniqueAdmins.length > 0) {
+					uniqueAdmins.forEach((admin) => {
 						if (admin) {
 							attendeesSet.add(admin);
 						}
 					});
-					schedule.admins = admins;
+					schedule.admins = uniqueAdmins;
 				}
 
 				// 设置参与者列表
