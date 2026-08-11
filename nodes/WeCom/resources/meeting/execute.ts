@@ -868,6 +868,99 @@ export async function executeMeeting(
 					'/cgi-bin/meeting/record/transcript/search',
 					{ meetingid, record_file_id, text },
 				);
+			}
+			// --- 布局 / 高级布局 / 背景（结构化） ---
+			else if (
+				operation === 'advLayoutAdd' ||
+				operation === 'advLayoutUpdate' ||
+				operation === 'advLayoutApply' ||
+				operation === 'advLayoutList' ||
+				operation === 'advLayoutGetUserLayout' ||
+				operation === 'advLayoutBatchDelete' ||
+				operation === 'basicLayoutAdd' ||
+				operation === 'basicLayoutUpdate' ||
+				operation === 'layoutAddBackground' ||
+				operation === 'layoutSetDefaultBackground' ||
+				operation === 'layoutListBackground' ||
+				operation === 'layoutDeleteBackground' ||
+				operation === 'layoutBatchDeleteBackground'
+			) {
+				const meetingid = this.getNodeParameter('layout_meetingid', i) as string;
+				const layout_id = this.getNodeParameter('layout_id', i, '') as string;
+				const layout_id_list_raw = this.getNodeParameter('layout_id_list', i, '') as string;
+				const background_id = this.getNodeParameter('background_id', i, '') as string;
+				const background_id_list_raw = this.getNodeParameter(
+					'background_id_list',
+					i,
+					'',
+				) as string;
+				const layout_userid = this.getNodeParameter('layout_userid', i, '') as string;
+				const layoutConfigJson = this.getNodeParameter('layoutConfigJson', i, '{}') as string;
+				const layoutExtraJson = this.getNodeParameter('layoutExtraJson', i, '{}') as string;
+
+				const body: IDataObject = { meetingid };
+				if (layout_id !== undefined && layout_id !== null && [
+					'advLayoutApply',
+					'advLayoutUpdate',
+					'basicLayoutUpdate',
+				].includes(operation)) {
+					// apply 允许空字符串恢复默认
+					body.layout_id = layout_id;
+				}
+				if (operation === 'advLayoutBatchDelete' && layout_id_list_raw) {
+					body.layout_id_list = layout_id_list_raw
+						.split(',')
+						.map((id) => id.trim())
+						.filter(Boolean);
+				}
+				if (
+					(operation === 'layoutDeleteBackground' ||
+						operation === 'layoutSetDefaultBackground') &&
+					background_id !== undefined
+				) {
+					if (operation === 'layoutDeleteBackground') {
+						body.background_id = background_id;
+					} else {
+						body.selected_background_id = background_id;
+					}
+				}
+				if (operation === 'layoutBatchDeleteBackground' && background_id_list_raw) {
+					body.background_id_list = background_id_list_raw
+						.split(',')
+						.map((id) => id.trim())
+						.filter(Boolean);
+				}
+				if (operation === 'advLayoutGetUserLayout' && layout_userid) {
+					body.userid = layout_userid;
+				}
+				try {
+					Object.assign(body, JSON.parse(layoutConfigJson || '{}') as IDataObject);
+				} catch {
+					// ignore
+				}
+				try {
+					Object.assign(body, JSON.parse(layoutExtraJson || '{}') as IDataObject);
+				} catch {
+					// ignore
+				}
+				body.meetingid = meetingid;
+
+				const pathMap: Record<string, string> = {
+					advLayoutAdd: '/cgi-bin/meeting/advanced_layout/add',
+					advLayoutUpdate: '/cgi-bin/meeting/advanced_layout/update',
+					advLayoutApply: '/cgi-bin/meeting/advanced_layout/apply',
+					advLayoutList: '/cgi-bin/meeting/advanced_layout/list',
+					advLayoutGetUserLayout: '/cgi-bin/meeting/advanced_layout/get_user_layout',
+					advLayoutBatchDelete: '/cgi-bin/meeting/advanced_layout/batch_delete',
+					basicLayoutAdd: '/cgi-bin/meeting/layout/add',
+					basicLayoutUpdate: '/cgi-bin/meeting/layout/update',
+					layoutAddBackground: '/cgi-bin/meeting/layout/add_background',
+					layoutSetDefaultBackground: '/cgi-bin/meeting/layout/set_default_background',
+					layoutListBackground: '/cgi-bin/meeting/layout/list_background',
+					layoutDeleteBackground: '/cgi-bin/meeting/layout/delete_background',
+					layoutBatchDeleteBackground: '/cgi-bin/meeting/layout/batch_delete_background',
+				};
+				response = await weComApiRequest.call(this, 'POST', pathMap[operation], body);
 			} else if (meetingExtraHttpOpsById[operation]) {
 				const op = meetingExtraHttpOpsById[operation] as MeetingExtraHttpOp;
 				const bodyDefaults: IDataObject = {};

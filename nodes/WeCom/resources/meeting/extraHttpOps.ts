@@ -9,12 +9,6 @@ export type MeetingExtraHttpOp = ExtraHttpOp & {
 };
 
 export const meetingExtraHttpOps: MeetingExtraHttpOp[] = [
-	{ id: 'advancedLayoutAdd', name: '[高级布局] 添加高级布局', action: '添加高级布局', description: '添加高级布局', path: '/cgi-bin/meeting/advanced_layout/add', method: 'POST', needsMeetingId: true },
-	{ id: 'advancedLayoutApply', name: '[高级布局] 应用高级布局', action: '应用高级布局', description: '应用高级布局', path: '/cgi-bin/meeting/advanced_layout/apply', method: 'POST', needsMeetingId: true },
-	{ id: 'advancedLayoutBatchDelete', name: '[高级布局] 批量删除高级布局', action: '批量删除高级布局', description: '批量删除高级布局', path: '/cgi-bin/meeting/advanced_layout/batch_delete', method: 'POST', needsMeetingId: true },
-	{ id: 'advancedLayoutGetUserLayout', name: '[高级布局] 获取用户高级布局', action: '获取用户高级布局', description: '获取用户高级布局', path: '/cgi-bin/meeting/advanced_layout/get_user_layout', method: 'POST', needsMeetingId: true },
-	{ id: 'advancedLayoutList', name: '[高级布局] 获取高级布局列表', action: '获取高级布局列表', description: '获取高级布局列表', path: '/cgi-bin/meeting/advanced_layout/list', method: 'POST', needsMeetingId: true },
-	{ id: 'advancedLayoutUpdate', name: '[高级布局] 更新高级布局', action: '更新高级布局', description: '更新高级布局', path: '/cgi-bin/meeting/advanced_layout/update', method: 'POST', needsMeetingId: true },
 	{ id: 'checkDeviceInMeeting', name: '[会中] 检查设备是否在会中', action: '检查设备是否在会中', description: '检查设备是否在会中', path: '/cgi-bin/meeting/check_device_in_meeting', method: 'POST', needsMeetingId: true },
 	{ id: 'createCustomerShortUrl', name: '[会议] 创建客户专属短链', action: '创建客户专属短链', description: '创建客户专属短链', path: '/cgi-bin/meeting/create_customer_short_url', method: 'POST', needsMeetingId: true },
 	{ id: 'enrollDelete', name: '[报名] 删除报名信息', action: '删除报名信息', description: '删除报名信息', path: '/cgi-bin/meeting/enroll/delete', method: 'POST', needsMeetingId: true },
@@ -23,13 +17,6 @@ export const meetingExtraHttpOps: MeetingExtraHttpOp[] = [
 	{ id: 'getCustomerShortUrl', name: '[会议] 获取客户专属短链', action: '获取客户专属短链', description: '获取客户专属短链', path: '/cgi-bin/meeting/get_customer_short_url', method: 'POST', needsMeetingId: true },
 	{ id: 'getGuests', name: '[会议] 获取嘉宾列表', action: '获取嘉宾列表', description: '获取嘉宾列表', path: '/cgi-bin/meeting/get_guests', method: 'POST', needsMeetingId: true },
 	{ id: 'getQuality', name: '[会议] 获取会议质量数据', action: '获取会议质量数据', description: '获取会议质量数据', path: '/cgi-bin/meeting/get_quality', method: 'POST', needsMeetingId: true },
-	{ id: 'layoutAdd', name: '[布局] 添加布局', action: '添加布局', description: '添加布局', path: '/cgi-bin/meeting/layout/add', method: 'POST', needsMeetingId: true },
-	{ id: 'layoutAddBackground', name: '[布局] 添加背景', action: '添加背景', description: '添加背景', path: '/cgi-bin/meeting/layout/add_background', method: 'POST', needsMeetingId: true },
-	{ id: 'layoutBatchDeleteBackground', name: '[布局] 批量删除背景', action: '批量删除背景', description: '批量删除背景', path: '/cgi-bin/meeting/layout/batch_delete_background', method: 'POST', needsMeetingId: true },
-	{ id: 'layoutDeleteBackground', name: '[布局] 删除背景', action: '删除背景', description: '删除背景', path: '/cgi-bin/meeting/layout/delete_background', method: 'POST', needsMeetingId: true },
-	{ id: 'layoutListBackground', name: '[布局] 获取背景列表', action: '获取背景列表', description: '获取背景列表', path: '/cgi-bin/meeting/layout/list_background', method: 'POST', needsMeetingId: true },
-	{ id: 'layoutSetDefaultBackground', name: '[布局] 设置默认背景', action: '设置默认背景', description: '设置默认背景', path: '/cgi-bin/meeting/layout/set_default_background', method: 'POST', needsMeetingId: true },
-	{ id: 'layoutUpdate', name: '[布局] 更新布局', action: '更新布局', description: '更新布局', path: '/cgi-bin/meeting/layout/update', method: 'POST', needsMeetingId: true },
 	{ id: 'mraHangup', name: '[MRA] 挂断连接', action: '挂断 MRA 连接', description: '挂断 MRA 连接', path: '/cgi-bin/meeting/mra/hangup', method: 'POST', needsMeetingId: true },
 	{ id: 'mraQueryStatus', name: '[MRA] 查询连接状态', action: '查询 MRA 连接状态', description: '查询 MRA 连接状态', path: '/cgi-bin/meeting/mra/query_status', method: 'POST', needsMeetingId: true },
 	{ id: 'mraSetDefaultLayout', name: '[MRA] 设置默认布局', action: '设置 MRA 默认布局', description: '设置 MRA 默认布局', path: '/cgi-bin/meeting/mra/set_default_layout', method: 'POST', needsMeetingId: true },

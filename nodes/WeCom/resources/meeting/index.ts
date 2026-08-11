@@ -40,6 +40,10 @@ import {
 	webinarRecordOperationOptions,
 	meetingWebinarRecordOpsDescription,
 } from './meetingWebinarRecordOps';
+import {
+	layoutOperationOptions,
+	meetingLayoutOpsDescription,
+} from './meetingLayoutOps';
 
 const showOnlyForMeeting = {
 	resource: ['meeting'],
@@ -286,6 +290,8 @@ export const meetingDescription: INodeProperties[] = [
 			},
 			// 网络研讨会 / 录制转写（结构化表单）
 			...webinarRecordOperationOptions,
+			// 布局 / 高级布局 / 背景（结构化表单）
+			...layoutOperationOptions,
 			// 其余会议补全（关键字段 + JSON）
 			...getMeetingExtraHttpOpOptions(),
 		],
@@ -313,6 +319,7 @@ export const meetingDescription: INodeProperties[] = [
 	...getMeetingAdvancedAccountListDescription,
 	...meetingAdvancedOpsDescription,
 	...meetingWebinarRecordOpsDescription,
+	...meetingLayoutOpsDescription,
 	...meetingExtraHttpOpsDescription,
 ];
 
