@@ -1075,14 +1075,44 @@ export async function executeMeeting(
 						// ignore
 					}
 				}
-				if (['setGuests', 'setInvitees'].includes(operation)) {
+				if (operation === 'setGuests') {
+					const guestsCollection = this.getNodeParameter(
+						'meetingGuestsCollection',
+						i,
+						{},
+					) as IDataObject;
+					let guests: IDataObject[] = ((guestsCollection?.guests as IDataObject[]) || [])
+						.filter((g) => g.phone_number)
+						.map((g) => {
+							const item: IDataObject = {
+								area: g.area || '86',
+								phone_number: g.phone_number,
+							};
+							if (g.guest_name) item.guest_name = g.guest_name;
+							return item;
+						});
 					try {
 						const list = JSON.parse(list_data_json || '[]');
-						if (operation === 'setGuests') body.guests = list;
-						else body.invitees = list;
+						if (Array.isArray(list) && list.length) guests = list as IDataObject[];
 					} catch {
 						// ignore
 					}
+					body.guests = guests;
+				}
+				if (operation === 'setInvitees') {
+					const invitee_userids = this.getNodeParameter('invitee_userids', i, '') as string;
+					let invitees: IDataObject[] = invitee_userids
+						.split(',')
+						.map((s) => s.trim())
+						.filter(Boolean)
+						.map((userid) => ({ userid }));
+					try {
+						const list = JSON.parse(list_data_json || '[]');
+						if (Array.isArray(list) && list.length) invitees = list as IDataObject[];
+					} catch {
+						// ignore
+					}
+					body.invitees = invitees;
 				}
 				if (['enrollImport', 'enrollDelete', 'enrollQueryByTmpOpenid'].includes(operation)) {
 					try {
