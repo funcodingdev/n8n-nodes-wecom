@@ -2428,6 +2428,7 @@ export async function executeWedoc(
 					body,
 				);
 			} else if (operation === 'createPrivRule') {
+				// https://developer.work.weixin.qq.com/document/path/99935 新增额外权限
 				const docid = this.getNodeParameter('docid', i) as string;
 				const name = this.getNodeParameter('rule_name', i, '') as string;
 				const privRuleJson = this.getNodeParameter('privRuleJson', i, '{}') as string;
@@ -2444,6 +2445,60 @@ export async function executeWedoc(
 					this,
 					'POST',
 					'/cgi-bin/wedoc/smartsheet/content_priv/create_rule',
+					body,
+				);
+			} else if (operation === 'updateSheetPrivFull') {
+				// https://developer.work.weixin.qq.com/document/path/99935 更新子表权限
+				const docid = this.getNodeParameter('docid', i) as string;
+				const update_priv_type = this.getNodeParameter('update_priv_type', i, 2) as number;
+				const priv_rule_id = this.getNodeParameter('priv_rule_id', i, 0) as number;
+				const update_priv_name = this.getNodeParameter('update_priv_name', i, '') as string;
+				const privListCollection = this.getNodeParameter(
+					'privListCollection',
+					i,
+					{},
+				) as IDataObject;
+				const privRuleJson = this.getNodeParameter('privRuleJson', i, '{}') as string;
+				const body: IDataObject = { docid, type: update_priv_type };
+				if (update_priv_type === 2 && priv_rule_id) body.rule_id = priv_rule_id;
+				if (update_priv_name) body.name = update_priv_name;
+				const priv_list = ((privListCollection?.items as IDataObject[]) || [])
+					.filter((p) => p.sheet_id)
+					.map((p) => {
+						const item: IDataObject = {
+							sheet_id: p.sheet_id,
+							priv: p.priv ?? 2,
+						};
+						if (p.can_insert_record !== undefined) {
+							item.can_insert_record = p.can_insert_record;
+						}
+						if (p.can_delete_record !== undefined) {
+							item.can_delete_record = p.can_delete_record;
+						}
+						if (p.can_create_modify_delete_view !== undefined) {
+							item.can_create_modify_delete_view = p.can_create_modify_delete_view;
+						}
+						if (p.clear) item.clear = true;
+						const privNum = Number(p.priv ?? 2);
+						if (privNum === 2 || privNum === 3) {
+							item.record_priv = {
+								record_range_type: p.record_range_type ?? 1,
+							};
+						}
+						return item;
+					});
+				if (priv_list.length) body.priv_list = priv_list;
+				try {
+					Object.assign(body, JSON.parse(privRuleJson || '{}') as IDataObject);
+					body.docid = docid;
+					if (update_priv_type) body.type = update_priv_type;
+				} catch {
+					// ignore
+				}
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/wedoc/smartsheet/content_priv/update_sheet_priv',
 					body,
 				);
 			} else if (operation === 'modPrivRuleMember') {

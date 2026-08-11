@@ -305,6 +305,12 @@ export const wedocDescription: INodeProperties[] = [
 				description: '创建智能表格额外权限规则',
 			},
 			{
+				name: '[权限设置] 更新子表内容权限',
+				value: 'updateSheetPrivFull',
+				action: '更新子表内容权限',
+				description: '更新全员/额外权限的 priv_list 详情',
+			},
+			{
 				name: '[权限设置] 修改权限规则成员',
 				value: 'modPrivRuleMember',
 				action: '修改规则成员',

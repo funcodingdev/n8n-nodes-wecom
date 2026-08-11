@@ -175,17 +175,19 @@ export async function executeApproval(
 					userid,
 				});
 			} else if (operation === 'setVacationQuota') {
+				// https://developer.work.weixin.qq.com/document/path/94213
 				// 修改成员假期余额
-				// https://developer.work.weixin.qq.com/document/path/93377
 				const userid = this.getNodeParameter('userid', i) as string;
 				const vacation_id = this.getNodeParameter('vacation_id', i) as string;
 				const leftduration = this.getNodeParameter('leftduration', i) as number;
+				const time_attr = this.getNodeParameter('time_attr', i, 0) as number;
 				const remarks = this.getNodeParameter('remarks', i, '') as string;
 
 				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/oa/vacation/setoneuserquota', {
 					userid,
 					vacation_id,
 					leftduration,
+					time_attr,
 					...(remarks && { remarks }),
 				});
 			} else if (operation === 'createApprovalTemplate') {

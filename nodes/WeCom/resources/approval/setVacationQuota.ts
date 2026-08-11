@@ -37,7 +37,23 @@ export const setVacationQuotaDescription: INodeProperties[] = [
 			show: showOnlyForSetVacationQuota,
 		},
 		default: 0,
-		description: '剩余假期时长（秒），用于设置成员的假期余额',
+		description:
+			'leftduration，单位秒；按小时请假须为 360 的倍数，按天请假须为 8640 的倍数',
+	},
+	{
+		displayName: '假期时间刻度',
+		name: 'time_attr',
+		type: 'options',
+		required: true,
+		displayOptions: {
+			show: showOnlyForSetVacationQuota,
+		},
+		options: [
+			{ name: '按天请假', value: 0 },
+			{ name: '按小时请假', value: 1 },
+		],
+		default: 0,
+		description: 'time_attr，须与企业假期配置中的时间刻度一致',
 	},
 	{
 		displayName: '备注',
@@ -47,7 +63,7 @@ export const setVacationQuotaDescription: INodeProperties[] = [
 			show: showOnlyForSetVacationQuota,
 		},
 		default: '',
-		description: '修改假期余额的备注说明',
+		description: '修改记录备注，不超过 200 字符',
 	},
 ];
 
