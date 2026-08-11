@@ -53,7 +53,8 @@
 			"dist/credentials/WeComApi.credentials.js",
 			"dist/credentials/WeComWebhookApi.credentials.js",
 			"dist/credentials/WeComReceiveApi.credentials.js",
-			"dist/credentials/WeComSuiteReceiveApi.credentials.js"
+			"dist/credentials/WeComSuiteReceiveApi.credentials.js",
+			"dist/credentials/WeComMchPayApi.credentials.js"
 		],
 		"nodes": [
 			"dist/nodes/WeComBase/WeComBase.node.js",

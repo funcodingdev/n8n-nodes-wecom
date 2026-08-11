@@ -3,6 +3,11 @@ import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-wor
 import { NodeOperationError } from 'n8n-workflow';
 import { getWeComBaseUrl } from '../../shared/transport';
 
+/** 群机器人发送消息官方路径 */
+const WEBHOOK_SEND_PATH = '/cgi-bin/webhook/send';
+/** 群机器人上传媒体官方路径 */
+const WEBHOOK_UPLOAD_MEDIA_PATH = '/cgi-bin/webhook/upload_media';
+
 export async function executePushMessage(
 	this: IExecuteFunctions,
 	operation: string,
@@ -88,7 +93,7 @@ export async function executePushMessage(
 				const bodyBuffer = Buffer.concat([headerBuffer, dataBuffer, footerBuffer]);
 
 				const baseUrl = await getWeComBaseUrl.call(this, 'weComWebhookApi');
-				const uploadUrl = `${baseUrl}/cgi-bin/webhook/upload_media?key=${webhookKey}&type=${mediaType}`;
+				const uploadUrl = `${baseUrl}${WEBHOOK_UPLOAD_MEDIA_PATH}?key=${webhookKey}&type=${mediaType}`;
 
 				const response = (await this.helpers.httpRequest({
 					method: 'POST',
@@ -386,9 +391,23 @@ export async function executePushMessage(
 			}
 
 			if (!isUploadMedia) {
+				// 官方路径: /cgi-bin/webhook/send?key=KEY
+				let sendUrl = webhookUrl;
+				if (!sendUrl.includes(WEBHOOK_SEND_PATH)) {
+					// 若凭证只配了 key，拼官方 send 地址
+					try {
+						const u = new URL(webhookUrl);
+						const key = u.searchParams.get('key');
+						if (key) {
+							sendUrl = `${u.origin}${WEBHOOK_SEND_PATH}?key=${key}`;
+						}
+					} catch {
+						// keep original
+					}
+				}
 				const response = await this.helpers.httpRequest({
 					method: 'POST',
-					url: webhookUrl,
+					url: sendUrl,
 					body,
 					json: true,
 				});

@@ -1,5 +1,6 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
+import { weComMultipartUpload } from '../../shared/multipartUpload';
 
 export async function executeChatdata(
 	this: IExecuteFunctions,
@@ -137,6 +138,18 @@ export async function executeChatdata(
 					'/cgi-bin/chatdata/check_debug_mode',
 					{ program_id },
 				);
+			} else if (operation === 'uploadMedia') {
+				// https://developer.work.weixin.qq.com/document/path/100174
+				const binaryProperty = this.getNodeParameter('binaryProperty', i, 'data') as string;
+				const mediaType = this.getNodeParameter('mediaType', i, 'file') as string;
+				responseData = await weComMultipartUpload.call(this, {
+					itemIndex: i,
+					path: '/cgi-bin/chatdata/upload_media',
+					qs: { type: mediaType },
+					binaryPropertyName: binaryProperty,
+					minBytes: 6,
+					maxBytes: 60 * 1024 * 1024,
+				});
 			}
 
 			returnData.push({

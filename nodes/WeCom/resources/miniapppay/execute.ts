@@ -1,5 +1,6 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
+import { weComMultipartUpload } from '../../shared/multipartUpload';
 
 export async function executeMiniapppay(
 	this: IExecuteFunctions,
@@ -150,6 +151,16 @@ export async function executeMiniapppay(
 					'/cgi-bin/miniapppay/get_applyment_status',
 					{ out_request_no },
 				);
+			} else if (operation === 'uploadImage') {
+				// https://developer.work.weixin.qq.com/document/path/98972
+				const binaryProperty = this.getNodeParameter('binaryProperty', i, 'data') as string;
+				responseData = await weComMultipartUpload.call(this, {
+					itemIndex: i,
+					path: '/cgi-bin/miniapppay/upload_image',
+					binaryPropertyName: binaryProperty,
+					formFieldName: 'media',
+					minBytes: 1,
+				});
 			}
 
 			returnData.push({

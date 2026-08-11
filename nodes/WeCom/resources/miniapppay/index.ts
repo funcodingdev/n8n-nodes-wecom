@@ -64,6 +64,12 @@ export const miniapppayDescription: INodeProperties[] = [
 				action: '查询进件状态',
 				description: 'miniapppay/get_applyment_status',
 			},
+			{
+				name: '[进件] 提交图片',
+				value: 'uploadImage',
+				action: '提交进件图片',
+				description: 'miniapppay/upload_image multipart',
+			},
 		],
 		default: 'createOrder',
 	},
@@ -305,5 +311,14 @@ export const miniapppayDescription: INodeProperties[] = [
 			{ name: 'GZIP', value: 'GZIP' },
 		],
 		default: '',
+	},
+	{
+		displayName: '二进制字段名',
+		name: 'binaryProperty',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { ...showOnly, operation: ['uploadImage'] } },
+		default: 'data',
+		description: 'JPG/PNG/BMP 图片 binary，上传至 /cgi-bin/miniapppay/upload_image',
 	},
 ];

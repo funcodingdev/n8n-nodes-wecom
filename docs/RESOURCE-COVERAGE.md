@@ -32,8 +32,8 @@
 | 013 | 013-数据与智能专区 | Base | `chatdata` | **部分** | 13/14 (93%) | 11/50 | 应用侧 chatdata 较全；专区 SDK 内接口不在 n8n；upload_media 多为 multipart 未做 |
 | 015 | 015-客户联系 | Wechat | `externalContact` | **部分** | 79/101 (78%) | 42/48 |  |
 | 016 | 016-微信客服 | Wechat | `kf` | **齐** | 27/27 (100%) | 18/20 |  |
-| 017 | 017-企业支付 | Base | `externalpay` | **部分** | 5/8 (62%) | 11/15 | 对外收款 externalpay 已有；企业红包/向员工付款/向员工收款等缺失；进件在 miniapppay 章 |
-| 018 | 018-小程序接入对外收款 | Base | `miniapppay` | **部分** | 7/7 (100%) | 8/11 | 支付退款账单主路径齐；apply_mch 进件与 upload_image 未封装 |
+| 017 | 017-企业支付 | Base | `externalpay` | **部分** | 5/8 (62%) | 11/15 | 对外收款 externalpay 已有；企业红包/向员工付款见 mchpay（商户 XML+证书）；向员工收款为客户端能力；进件 miniapppay |
+| 018 | 018-小程序接入对外收款 | Base | `miniapppay` | **部分** | 7/7 (100%) | 8/11 | 支付退款账单+进件+upload_image 已封装 |
 | 019 | 019-会话内容存档 | Base | `msgaudit` | **部分** | 5/5 (100%) | 4/10 | HTTP 辅助接口齐；拉消息走专有 SDK，无法用普通 OpenAPI 资源覆盖 |
 | 020 | 020-家校沟通 | Wechat | `school`, `externalContact` | **部分** | 15/31 (48%) | 31/35 | 与 school/externalContact 交叉；订阅号/部分 oauth 路径未覆盖 |
 | 021 | 021-家校应用 | Wechat | `school` | **部分** | 8/13 (62%) | 13/13 | 学生家长等有；部分 school/living、支付结果路径命名可能不一致 |
@@ -85,7 +85,7 @@ docs/001-企业内部开发/002-服务端API
 |--------|------|------|
 | P0 | 027-会议 enroll/rooms/layout/phone/poll | **已补一批**（仍非全量高级能力） |
 | P0 | 命名债 living/wefile/linkedcorp | **已做** UI 说明 |
-| P1 | 017 红包/向员工付款 | **边界**：mch XML+证书，未进 weComApi |
+| P1 | 017 红包/向员工付款 | **已补** mchpay + WeComMchPayApi 凭证 |
 | P1 | 018 进件 apply_mch | **已补** miniapppay |
 | P1 | 025 content_priv / field_group | **已补** |
 | P1 | 028 分片上传 + capacity | **已补** |
@@ -155,7 +155,7 @@ docs/001-企业内部开发/002-服务端API
 
 - 资源: externalpay
 - 路径命中: 5/8 (62%)
-- 说明: 对外收款 externalpay 已有；企业红包/向员工付款/向员工收款等缺失；进件在 miniapppay 章
+- 说明: 对外收款 externalpay 已有；企业红包/向员工付款见 mchpay（商户 XML+证书）；向员工收款为客户端能力；进件 miniapppay
 - 文档有、节点未命中（最多 12 条）:
   - `/cgi-bin/miniapppay/apply_mch`
   - `/cgi-bin/miniapppay/get_applyment_status`

@@ -1,6 +1,9 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 
+/** 智能机器人主动回复官方路径（response_url 中包含此 path） */
+const AIBOT_RESPONSE_PATH = '/cgi-bin/aibot/response';
+
 export async function executeAIBotPassiveReply(
 	this: IExecuteFunctions,
 	operation: string,
@@ -28,6 +31,14 @@ export async function executeAIBotPassiveReply(
 			throw new NodeOperationError(
 				this.getNode(),
 				'缺少response_url。请确保：1) 输入数据来自「企业微信智能机器人消息接收触发器」；2) 中间节点没有删除response_url字段',
+				{ itemIndex: i },
+			);
+		}
+		// 官方主动回复: POST /cgi-bin/aibot/response?response_code=...
+		if (!String(responseUrl).includes(AIBOT_RESPONSE_PATH)) {
+			throw new NodeOperationError(
+				this.getNode(),
+				`response_url 应包含 ${AIBOT_RESPONSE_PATH}，当前: ${responseUrl}`,
 				{ itemIndex: i },
 			);
 		}

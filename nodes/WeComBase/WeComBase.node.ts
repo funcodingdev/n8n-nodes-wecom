@@ -23,6 +23,7 @@ import { licenseDescription } from '../WeCom/resources/license';
 import { paytoolDescription } from '../WeCom/resources/paytool';
 import { externalpayDescription } from '../WeCom/resources/externalpay';
 import { miniapppayDescription } from '../WeCom/resources/miniapppay';
+import { mchpayDescription } from '../WeCom/resources/mchpay';
 import { chatdataDescription } from '../WeCom/resources/chatdata';
 import { msgauditDescription } from '../WeCom/resources/msgaudit';
 import { promotionQrcodeDescription } from '../WeCom/resources/promotionQrcode';
@@ -45,6 +46,7 @@ import { executeLicense } from '../WeCom/resources/license/execute';
 import { executePaytool } from '../WeCom/resources/paytool/execute';
 import { executeExternalpay } from '../WeCom/resources/externalpay/execute';
 import { executeMiniapppay } from '../WeCom/resources/miniapppay/execute';
+import { executeMchpay } from '../WeCom/resources/mchpay/execute';
 import { executeChatdata } from '../WeCom/resources/chatdata/execute';
 import { executeMsgaudit } from '../WeCom/resources/msgaudit/execute';
 import { executePromotionQrcode } from '../WeCom/resources/promotionQrcode/execute';
@@ -64,7 +66,7 @@ export class WeComBase implements INodeType {
 		subtitle:
 			'={{$parameter["resource"] === "passiveReply" ? "reply: " + $parameter["resource"] : ($parameter["resource"] === "system" ? $parameter["resource"] : $parameter["operation"] + ": " + $parameter["resource"])}}',
 		description:
-			'企业微信基础功能 - 通讯录、应用消息、群聊、消息推送、企业互联、素材、系统、电子发票、第三方应用授权、接口调用许可、收银台、对外收款、小程序对外收款、数据与智能专区、会话内容存档、推广二维码、账号ID、安全管理',
+			'企业微信基础功能 - 通讯录、应用消息、群聊、消息推送、企业互联、素材、系统、电子发票、第三方应用授权、接口调用许可、收银台、对外收款、小程序对外收款、企业红包/向员工付款、数据与智能专区、会话内容存档、推广二维码、账号ID、安全管理',
 		defaults: {
 			name: '企业微信-基础',
 		},
@@ -151,6 +153,16 @@ export class WeComBase implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['paytool'],
+					},
+				},
+			},
+			{
+				// 企业红包 / 向员工付款：商户 XML + 双向证书
+				name: 'weComMchPayApi',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['mchpay'],
 					},
 				},
 			},
@@ -272,6 +284,12 @@ export class WeComBase implements INodeType {
 						description: '小程序接入对外收款（下单、退款、账单）',
 					},
 					{
+						name: '企业红包与向员工付款',
+						value: 'mchpay',
+						description:
+							'企业红包/向员工付款（api.mch.weixin.qq.com XML，需商户证书凭证）',
+					},
+					{
 						name: '数据与智能专区',
 						value: 'chatdata',
 						description: '数据与智能专区（公钥、回调、调用专区程序、调试模式）',
@@ -320,6 +338,7 @@ export class WeComBase implements INodeType {
 			...paytoolDescription,
 			...externalpayDescription,
 			...miniapppayDescription,
+			...mchpayDescription,
 			...chatdataDescription,
 			...msgauditDescription,
 			...promotionQrcodeDescription,
@@ -520,6 +539,8 @@ export class WeComBase implements INodeType {
 				returnData = await executeExternalpay.call(this, operation, items);
 			} else if (resource === 'miniapppay') {
 				returnData = await executeMiniapppay.call(this, operation, items);
+			} else if (resource === 'mchpay') {
+				returnData = await executeMchpay.call(this, operation, items);
 			} else if (resource === 'chatdata') {
 				returnData = await executeChatdata.call(this, operation, items);
 			} else if (resource === 'msgaudit') {
