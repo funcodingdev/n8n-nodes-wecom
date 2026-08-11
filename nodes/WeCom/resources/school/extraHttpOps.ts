@@ -39,6 +39,7 @@ export const schoolExtraHttpOpsDescription: INodeProperties[] = [
 			show: {
 				resource: ['school'],
 				operation: [
+					'departmentCreate',
 					'departmentDelete',
 					'departmentUpdate',
 					'departmentList',
@@ -48,7 +49,7 @@ export const schoolExtraHttpOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: 0,
-		description: '部门 ID；列表类接口可作筛选',
+		description: '创建时可指定 id（>1）；更新/删除必填；列表接口可作筛选',
 	},
 	{
 		displayName: '部门名称',
@@ -58,16 +59,23 @@ export const schoolExtraHttpOpsDescription: INodeProperties[] = [
 			show: { resource: ['school'], operation: ['departmentCreate', 'departmentUpdate'] },
 		},
 		default: '',
+		description: '1~32 字符；标准年级创建时名称会被忽略',
 	},
 	{
 		displayName: '部门类型',
 		name: 'school_department_type',
-		type: 'number',
+		type: 'options',
 		displayOptions: {
-			show: { resource: ['school'], operation: ['departmentCreate', 'departmentUpdate'] },
+			show: { resource: ['school'], operation: ['departmentCreate'] },
 		},
+		options: [
+			{ name: '班级', value: 1 },
+			{ name: '年级', value: 2 },
+			{ name: '学段', value: 3 },
+			{ name: '校区', value: 4 },
+		],
 		default: 1,
-		description: '部门类型，见家校部门文档（如标准年级/自定义等）',
+		description: '班级的父部门必须是年级',
 	},
 	{
 		displayName: '父部门ID',
@@ -77,6 +85,103 @@ export const schoolExtraHttpOpsDescription: INodeProperties[] = [
 			show: { resource: ['school'], operation: ['departmentCreate', 'departmentUpdate'] },
 		},
 		default: 0,
+		description: '创建时必填',
+	},
+	{
+		displayName: '新部门ID',
+		name: 'school_new_id',
+		type: 'number',
+		displayOptions: {
+			show: { resource: ['school'], operation: ['departmentUpdate'] },
+		},
+		default: 0,
+		description: '将部门 id 修改为新的 id（new_id）',
+	},
+	{
+		displayName: '入学年份',
+		name: 'register_year',
+		type: 'number',
+		displayOptions: {
+			show: { resource: ['school'], operation: ['departmentCreate', 'departmentUpdate'] },
+		},
+		default: 0,
+		description: 'YYYY，1970～2100；仅年级类型生效',
+	},
+	{
+		displayName: '标准年级',
+		name: 'standard_grade',
+		type: 'number',
+		displayOptions: {
+			show: { resource: ['school'], operation: ['departmentCreate', 'departmentUpdate'] },
+		},
+		default: 0,
+		description: '标准年级代码；更新时传 0 表示转为非标准年级',
+	},
+	{
+		displayName: '排序次序',
+		name: 'school_department_order',
+		type: 'number',
+		displayOptions: {
+			show: { resource: ['school'], operation: ['departmentCreate', 'departmentUpdate'] },
+		},
+		default: 0,
+		description: '在父部门中的次序，越大越靠前',
+	},
+	{
+		displayName: '部门管理员',
+		name: 'departmentAdminsCollection',
+		type: 'fixedCollection',
+		displayOptions: {
+			show: { resource: ['school'], operation: ['departmentCreate', 'departmentUpdate'] },
+		},
+		default: {},
+		placeholder: '添加管理员',
+		typeOptions: { multipleValues: true },
+		options: [
+			{
+				displayName: '管理员',
+				name: 'admins',
+				values: [
+					{
+						displayName: '操作',
+						name: 'op',
+						type: 'options',
+						options: [
+							{ name: '新增或更新', value: 0 },
+							{ name: '删除', value: 1 },
+						],
+						default: 0,
+						description: '更新部门时有效；创建时忽略',
+					},
+					{
+						displayName: '成员UserID',
+						name: 'userid',
+						type: 'string',
+						default: '',
+					},
+					{
+						displayName: '管理员类型',
+						name: 'type',
+						type: 'options',
+						options: [
+							{ name: '校区负责人', value: 1 },
+							{ name: '年级负责人', value: 2 },
+							{ name: '班主任', value: 3 },
+							{ name: '任课老师', value: 4 },
+							{ name: '学段负责人', value: 5 },
+						],
+						default: 3,
+					},
+					{
+						displayName: '科目',
+						name: 'subject',
+						type: 'string',
+						default: '',
+						description: '仅班主任/任课老师，最多 15 字符',
+					},
+				],
+			},
+		],
 	},
 	{
 		displayName: 'OAuth Code',

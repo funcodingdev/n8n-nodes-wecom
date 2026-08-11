@@ -194,6 +194,24 @@ export const miniapppayDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: { show: { ...showOnly, operation: ['createOrder'] } },
 		default: '',
+		description: 'attach，支付通知原样返回',
+	},
+	{
+		displayName: '订单优惠标记',
+		name: 'goods_tag',
+		type: 'string',
+		displayOptions: { show: { ...showOnly, operation: ['createOrder'] } },
+		default: '',
+		description: 'goods_tag，代金券或立减优惠标记',
+	},
+	{
+		displayName: '交易结束时间',
+		name: 'time_expire',
+		type: 'string',
+		displayOptions: { show: { ...showOnly, operation: ['createOrder'] } },
+		default: '',
+		placeholder: '2018-06-08T10:34:56+08:00',
+		description: 'time_expire，RFC3339 格式',
 	},
 	{
 		displayName: '用户终端IP',
@@ -213,12 +231,20 @@ export const miniapppayDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
+		displayName: '优惠详情JSON',
+		name: 'detail_json',
+		type: 'json',
+		displayOptions: { show: { ...showOnly, operation: ['createOrder'] } },
+		default: '{}',
+		description: 'detail 优惠功能字段，见微信支付优惠说明',
+	},
+	{
 		displayName: '高级下单JSON',
 		name: 'advancedJson',
 		type: 'json',
 		displayOptions: { show: { ...showOnly, operation: ['createOrder'] } },
 		default: '{}',
-		description: '可选，合并进请求体的扩展字段（detail/time_expire/goods_tag 等）',
+		description: '可选，合并进请求体的扩展字段',
 	},
 	// getSign
 	{

@@ -477,6 +477,60 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
+		displayName: '群发文本内容',
+		name: 'crm_msg_text',
+		type: 'string',
+		typeOptions: { rows: 3 },
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['crmAddMsgTemplate'],
+			},
+		},
+		default: '',
+		description: 'text.content 文本消息内容',
+	},
+	{
+		displayName: '群发接收客户ID列表',
+		name: 'crm_external_userid_list',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['crmAddMsgTemplate'],
+			},
+		},
+		default: '',
+		placeholder: 'wmXXX,wmYYY',
+		description: 'external_userid 列表，逗号分隔',
+	},
+	{
+		displayName: '群发发送成员UserID',
+		name: 'crm_sender',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['crmAddMsgTemplate'],
+			},
+		},
+		default: '',
+		description: 'sender，发送企业群发消息的成员',
+	},
+	{
+		displayName: '群发附件JSON',
+		name: 'crm_attachments_json',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['crmAddMsgTemplate'],
+			},
+		},
+		default: '[]',
+		description: 'attachments 数组，图片/链接/小程序等',
+	},
+	{
 		displayName: '统计开始时间',
 		name: 'behavior_start_time',
 		type: 'number',

@@ -2103,6 +2103,31 @@ export async function executeExternalContact(
 					const subscribe_mode = this.getNodeParameter('subscribe_mode', i, 1) as number;
 					bodyDefaults.subscribe_mode = subscribe_mode;
 				}
+				if (operation === 'crmAddMsgTemplate') {
+					const crm_msg_text = this.getNodeParameter('crm_msg_text', i, '') as string;
+					const crm_external_userid_list = this.getNodeParameter(
+						'crm_external_userid_list',
+						i,
+						'',
+					) as string;
+					const crm_sender = this.getNodeParameter('crm_sender', i, '') as string;
+					const crm_attachments_json = this.getNodeParameter('crm_attachments_json', i, '[]') as string;
+					if (crm_msg_text) bodyDefaults.text = { content: crm_msg_text };
+					const externalUserids = crm_external_userid_list
+						.split(',')
+						.map((s) => s.trim())
+						.filter(Boolean);
+					if (externalUserids.length) bodyDefaults.external_userid = externalUserids;
+					if (crm_sender) bodyDefaults.sender = crm_sender;
+					try {
+						const attachments = JSON.parse(crm_attachments_json || '[]');
+						if (Array.isArray(attachments) && attachments.length) {
+							bodyDefaults.attachments = attachments;
+						}
+					} catch {
+						/* ignore */
+					}
+				}
 				if (msgid) bodyDefaults.msgid = msgid;
 				if (handover_userid) bodyDefaults.handover_userid = handover_userid;
 				if (takeover_userid) bodyDefaults.takeover_userid = takeover_userid;

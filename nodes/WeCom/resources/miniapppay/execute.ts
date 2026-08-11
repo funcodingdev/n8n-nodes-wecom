@@ -25,6 +25,9 @@ export async function executeMiniapppay(
 				const scenekey = this.getNodeParameter('scenekey', i, '') as string;
 				const notify_url = this.getNodeParameter('notify_url', i, '') as string;
 				const attach = this.getNodeParameter('attach', i, '') as string;
+				const goods_tag = this.getNodeParameter('goods_tag', i, '') as string;
+				const time_expire = this.getNodeParameter('time_expire', i, '') as string;
+				const detail_json = this.getNodeParameter('detail_json', i, '{}') as string;
 				const payer_client_ip = this.getNodeParameter('payer_client_ip', i) as string;
 				const store_id = this.getNodeParameter('store_id', i) as string;
 				const advancedJson = this.getNodeParameter('advancedJson', i, '{}') as string;
@@ -44,6 +47,16 @@ export async function executeMiniapppay(
 				if (scenekey) body.scenekey = scenekey;
 				if (notify_url) body.notify_url = notify_url;
 				if (attach) body.attach = attach;
+				if (goods_tag) body.goods_tag = goods_tag;
+				if (time_expire) body.time_expire = time_expire;
+				try {
+					const detail = JSON.parse(detail_json || '{}') as IDataObject;
+					if (detail && typeof detail === 'object' && Object.keys(detail).length) {
+						body.detail = detail;
+					}
+				} catch {
+					// ignore
+				}
 
 				try {
 					const advanced = JSON.parse(advancedJson || '{}') as IDataObject;

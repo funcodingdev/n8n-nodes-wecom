@@ -538,19 +538,59 @@ export async function executeSchool(
 						const school_department_id = this.getNodeParameter('school_department_id', i, 0) as number;
 						const school_department_name = this.getNodeParameter('school_department_name', i, '') as string;
 						const school_parentid = this.getNodeParameter('school_parentid', i, 0) as number;
-						const school_department_type = this.getNodeParameter('school_department_type', i, 0) as number;
+						const school_department_type = this.getNodeParameter('school_department_type', i, 1) as number;
 						const school_code = this.getNodeParameter('school_code', i, '') as string;
 						const school_livingid = this.getNodeParameter('school_livingid', i, '') as string;
 						const school_mode = this.getNodeParameter('school_mode', i, 0) as number;
 						const school_next_key = this.getNodeParameter('school_next_key', i, '') as string;
 						const upgrade_time = this.getNodeParameter('upgrade_time', i, 0) as number;
 						const upgrade_switch = this.getNodeParameter('upgrade_switch', i, 0) as number;
+						const school_new_id = this.getNodeParameter('school_new_id', i, 0) as number;
+						const register_year = this.getNodeParameter('register_year', i, 0) as number;
+						const standard_grade = this.getNodeParameter('standard_grade', i, 0) as number;
+						const school_department_order = this.getNodeParameter('school_department_order', i, 0) as number;
 						if (['departmentDelete', 'departmentUpdate'].includes(operation) && school_department_id) {
 							bodyDefaults.id = school_department_id;
 						}
+						if (operation === 'departmentCreate') {
+							if (school_department_id) bodyDefaults.id = school_department_id;
+							bodyDefaults.type = school_department_type;
+							if (school_parentid) bodyDefaults.parentid = school_parentid;
+						}
 						if (school_department_name) bodyDefaults.name = school_department_name;
-						if (school_parentid) bodyDefaults.parentid = school_parentid;
-						if (school_department_type) bodyDefaults.type = school_department_type;
+						if (operation === 'departmentUpdate' && school_parentid) {
+							bodyDefaults.parentid = school_parentid;
+						}
+						if (operation === 'departmentUpdate' && school_new_id) {
+							bodyDefaults.new_id = school_new_id;
+						}
+						if (register_year) bodyDefaults.register_year = register_year;
+						// create：仅 >0 时写入；update：始终写入（0 表示转非标准年级）
+						if (operation === 'departmentUpdate') {
+							bodyDefaults.standard_grade = standard_grade;
+						} else if (standard_grade > 0) {
+							bodyDefaults.standard_grade = standard_grade;
+						}
+						if (school_department_order) bodyDefaults.order = school_department_order;
+						if (['departmentCreate', 'departmentUpdate'].includes(operation)) {
+							const adminsCollection = this.getNodeParameter(
+								'departmentAdminsCollection',
+								i,
+								{},
+							) as IDataObject;
+							const admins = ((adminsCollection?.admins as IDataObject[]) || [])
+								.filter((a) => a.userid)
+								.map((a) => {
+									const item: IDataObject = {
+										userid: a.userid,
+										type: a.type,
+									};
+									if (a.subject) item.subject = a.subject;
+									if (operation === 'departmentUpdate') item.op = a.op ?? 0;
+									return item;
+								});
+							if (admins.length) bodyDefaults.department_admins = admins;
+						}
 						if (school_livingid) bodyDefaults.livingid = school_livingid;
 						if (school_next_key) bodyDefaults.next_key = school_next_key;
 						if (['setArchSyncMode', 'setChatCreateMode'].includes(operation)) {
