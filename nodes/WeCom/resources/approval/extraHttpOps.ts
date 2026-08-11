@@ -183,7 +183,76 @@ export const approvalExtraHttpOpsDescription: INodeProperties[] = [
 		description: '须以 http:// 或 https:// 开头',
 	},
 	{
-		displayName: '审批节点列表JSON',
+		displayName: '审批节点',
+		name: 'afProcessNodesCollection',
+		type: 'fixedCollection',
+		displayOptions: {
+			show: {
+				resource: ['approval'],
+				operation: ['advancedFeatureSetApprovalDetail'],
+			},
+		},
+		default: {},
+		placeholder: '添加节点',
+		typeOptions: { multipleValues: true },
+		description: 'process_list.node_list',
+		options: [
+			{
+				displayName: '节点',
+				name: 'nodes',
+				values: [
+					{
+						displayName: '节点状态',
+						name: 'node_apv_status',
+						type: 'options',
+						options: [
+							{ name: '审批中', value: 1 },
+							{ name: '已驳回', value: 2 },
+							{ name: '已同意', value: 3 },
+							{ name: '已撤销', value: 101 },
+							{ name: '未到流程', value: 102 },
+						],
+						default: 1,
+					},
+					{
+						displayName: '多人审批方式',
+						name: 'node_apv_rel',
+						type: 'options',
+						options: [
+							{ name: '会签', value: 1 },
+							{ name: '或签', value: 2 },
+							{ name: '依次审批', value: 3 },
+						],
+						default: 1,
+					},
+					{
+						displayName: '当前审批人',
+						name: 'current_approvers',
+						type: 'string',
+						default: '',
+						placeholder: 'user1,user2',
+						description: '逗号分隔',
+					},
+					{
+						displayName: '已处理审批人',
+						name: 'completed_approvers',
+						type: 'string',
+						default: '',
+						placeholder: 'user0',
+					},
+					{
+						displayName: '节点更新时间',
+						name: 'apv_update_time',
+						type: 'number',
+						default: 0,
+						description: '秒级时间戳',
+					},
+				],
+			},
+		],
+	},
+	{
+		displayName: '审批节点扩展JSON',
 		name: 'af_process_node_list_json',
 		type: 'json',
 		displayOptions: {
@@ -193,8 +262,7 @@ export const approvalExtraHttpOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: '[]',
-		description:
-			'process_list.node_list 数组；含 node_apv_status / node_apv_rel / current_approvers / completed_approvers 等',
+		description: '非空数组时覆盖上方节点表单',
 	},
 	{
 		displayName: '请求体JSON',

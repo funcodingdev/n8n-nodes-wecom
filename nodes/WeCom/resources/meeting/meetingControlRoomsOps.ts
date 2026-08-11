@@ -344,6 +344,51 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		description: '若为非空数组则覆盖上方表单；报名导入等复杂结构也写在这里',
 	},
 	{
+		displayName: '呼叫ID',
+		name: 'rooms_invite_id',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['meeting'],
+				operation: ['roomsCancelCall', 'roomsGetResponseStatus'],
+			},
+		},
+		default: '',
+		description: 'invite_id，呼叫返回的 ID',
+	},
+	{
+		displayName: 'MRA信令协议',
+		name: 'mra_protocol',
+		type: 'options',
+		displayOptions: {
+			show: {
+				resource: ['meeting'],
+				operation: ['roomsCall', 'roomsCancelCall'],
+			},
+		},
+		options: [
+			{ name: '不使用 MRA 地址', value: 0 },
+			{ name: 'SIP', value: 1 },
+			{ name: 'H.323', value: 2 },
+		],
+		default: 0,
+		description: '与 meeting_room_id 二选一',
+	},
+	{
+		displayName: 'MRA信令地址',
+		name: 'mra_dial_string',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['meeting'],
+				operation: ['roomsCall', 'roomsCancelCall'],
+				mra_protocol: [1, 2],
+			},
+		},
+		default: '',
+		description: 'dial_string：IP / E.164 / URI',
+	},
+	{
 		displayName: 'MRA默认分屏',
 		name: 'mra_default_layout',
 		type: 'options',

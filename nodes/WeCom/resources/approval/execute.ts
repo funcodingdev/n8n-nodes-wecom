@@ -251,17 +251,45 @@ export async function executeApproval(
 						i,
 						'[]',
 					) as string;
+					const afProcessNodesCollection = this.getNodeParameter(
+						'afProcessNodesCollection',
+						i,
+						{},
+					) as IDataObject;
 					if (af_apply_id) bodyDefaults.apply_id = af_apply_id;
 					if (af_approval_id) bodyDefaults.approval_id = af_approval_id;
 					bodyDefaults.approval_status = af_approval_status;
 					if (af_approval_url) bodyDefaults.approval_url = af_approval_url;
+					let node_list: IDataObject[] = ((afProcessNodesCollection?.nodes as IDataObject[]) || [])
+						.map((n) => {
+							const node: IDataObject = {
+								node_apv_status: n.node_apv_status ?? 1,
+								node_apv_rel: n.node_apv_rel ?? 1,
+							};
+							const current = String(n.current_approvers || '')
+								.split(',')
+								.map((s) => s.trim())
+								.filter(Boolean);
+							const completed = String(n.completed_approvers || '')
+								.split(',')
+								.map((s) => s.trim())
+								.filter(Boolean);
+							if (current.length) node.current_approvers = current;
+							if (completed.length) node.completed_approvers = completed;
+							if (n.apv_update_time) node.apv_update_time = n.apv_update_time;
+							return node;
+						})
+						.filter((n) => n.current_approvers || n.completed_approvers);
 					try {
-						const node_list = JSON.parse(af_process_node_list_json || '[]');
-						if (Array.isArray(node_list) && node_list.length) {
-							bodyDefaults.process_list = { node_list };
+						const fromJson = JSON.parse(af_process_node_list_json || '[]');
+						if (Array.isArray(fromJson) && fromJson.length) {
+							node_list = fromJson as IDataObject[];
 						}
 					} catch {
 						/* ignore */
+					}
+					if (node_list.length) {
+						bodyDefaults.process_list = { node_list };
 					}
 				}
 				responseData = await executeExtraHttpOp.call(

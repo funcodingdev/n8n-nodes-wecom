@@ -154,16 +154,36 @@ export async function executeMiniapppay(
 				const out_request_no = this.getNodeParameter('out_request_no', i) as string;
 				const organization_type = this.getNodeParameter('organization_type', i, 0) as number;
 				const merchant_short_name = this.getNodeParameter('merchant_short_name', i, '') as string;
+				const merchant_name = this.getNodeParameter('merchant_name', i, '') as string;
+				const legal_person = this.getNodeParameter('legal_person', i, '') as string;
+				const business_license_number = this.getNodeParameter(
+					'business_license_number',
+					i,
+					'',
+				) as string;
 				const applyMchJson = this.getNodeParameter('applyMchJson', i, '{}') as string;
 				const body: IDataObject = {
 					out_request_no,
 					organization_type,
 				};
 				if (merchant_short_name) body.merchant_short_name = merchant_short_name;
+				const license: IDataObject = {};
+				if (merchant_name) license.merchant_name = merchant_name;
+				if (legal_person) license.legal_person = legal_person;
+				if (business_license_number) license.business_license_number = business_license_number;
+				if (Object.keys(license).length) body.business_license_info = license;
 				try {
 					const extra = JSON.parse(applyMchJson || '{}') as IDataObject;
+					// 先合并顶层，再合并营业执照子对象（表单作默认，JSON 可覆盖）
+					const extraLicense = (extra.business_license_info as IDataObject) || {};
+					delete extra.business_license_info;
 					Object.assign(body, extra);
-					// 保证申请单号不被空 JSON 覆盖
+					if (Object.keys(license).length || Object.keys(extraLicense).length) {
+						body.business_license_info = {
+							...license,
+							...extraLicense,
+						};
+					}
 					if (!body.out_request_no) body.out_request_no = out_request_no;
 				} catch {
 					throw new Error('进件申请JSON 解析失败');

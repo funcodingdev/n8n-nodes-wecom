@@ -197,13 +197,165 @@ export const meetingLayoutOpsDescription: INodeProperties[] = [
 		description: 'default_image_order，从 1 开始',
 	},
 	{
+		displayName: '布局名称',
+		name: 'layout_name',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['meeting'],
+				operation: ['advLayoutAdd', 'advLayoutUpdate', 'basicLayoutAdd', 'basicLayoutUpdate'],
+			},
+		},
+		default: '',
+		description: 'layout_name（高级布局常用）',
+	},
+	{
+		displayName: '默认布局序号',
+		name: 'default_layout_order',
+		type: 'number',
+		displayOptions: {
+			show: {
+				resource: ['meeting'],
+				operation: ['basicLayoutAdd', 'advLayoutAdd'],
+			},
+		},
+		default: 1,
+		description: 'default_layout_order，从 1 开始',
+	},
+	{
+		displayName: '布局页面',
+		name: 'layoutPagesCollection',
+		type: 'fixedCollection',
+		displayOptions: {
+			show: {
+				resource: ['meeting'],
+				operation: ['advLayoutAdd', 'advLayoutUpdate', 'basicLayoutAdd', 'basicLayoutUpdate'],
+			},
+		},
+		default: {},
+		placeholder: '添加页面',
+		typeOptions: { multipleValues: true },
+		description: 'page_list：模板与座次',
+		options: [
+			{
+				displayName: '页面',
+				name: 'pages',
+				values: [
+					{
+						displayName: '布局模板ID',
+						name: 'layout_template_id',
+						type: 'string',
+						default: '',
+						description: 'layout_template_id',
+					},
+					{
+						displayName: '开启轮询',
+						name: 'enable_polling',
+						type: 'boolean',
+						default: false,
+					},
+					{
+						displayName: '轮询间隔单位',
+						name: 'polling_interval_unit',
+						type: 'options',
+						options: [
+							{ name: '秒', value: 1 },
+							{ name: '分钟', value: 2 },
+						],
+						default: 1,
+						displayOptions: { show: { enable_polling: [true] } },
+					},
+					{
+						displayName: '轮询间隔',
+						name: 'polling_interval',
+						type: 'number',
+						default: 10,
+						displayOptions: { show: { enable_polling: [true] } },
+					},
+					{
+						displayName: '忽略未开视频成员',
+						name: 'ignore_user_novideo',
+						type: 'boolean',
+						default: false,
+						displayOptions: { show: { enable_polling: [true] } },
+					},
+					{
+						displayName: '忽略未入会成员',
+						name: 'ignore_user_absence',
+						type: 'boolean',
+						default: false,
+						displayOptions: { show: { enable_polling: [true] } },
+					},
+					{
+						displayName: '座次列表',
+						name: 'userSeats',
+						type: 'fixedCollection',
+						typeOptions: { multipleValues: true },
+						default: {},
+						placeholder: '添加座次',
+						options: [
+							{
+								displayName: '座次',
+								name: 'seats',
+								values: [
+									{
+										displayName: '宫格ID',
+										name: 'grid_id',
+										type: 'string',
+										default: '1',
+									},
+									{
+										displayName: '宫格类型',
+										name: 'grid_type',
+										type: 'options',
+										options: [
+											{ name: '视频画面', value: 1 },
+											{ name: '共享画面', value: 2 },
+											{ name: '拓展应用', value: 3 },
+										],
+										default: 1,
+									},
+									{
+										displayName: '成员UserID',
+										name: 'userid',
+										type: 'string',
+										default: '',
+									},
+									{
+										displayName: '临时OpenID',
+										name: 'tmp_openid',
+										type: 'string',
+										default: '',
+									},
+									{
+										displayName: '昵称',
+										name: 'nick_name',
+										type: 'string',
+										default: '',
+										description: '视频画面时建议填写',
+									},
+									{
+										displayName: '拓展应用ID',
+										name: 'tool_sdkid',
+										type: 'string',
+										default: '',
+									},
+								],
+							},
+						],
+					},
+				],
+			},
+		],
+	},
+	{
 		displayName: '布局/背景配置JSON',
 		name: 'layoutConfigJson',
 		type: 'json',
 		displayOptions: { show: { resource: ['meeting'], operation: needLayoutBody } },
 		default: '{}',
 		description:
-			'布局或背景的详细配置（如 page_list）；添加背景时也可覆盖 image_list',
+			'其余配置（完整 layout_list 等）与上方合并，JSON 优先',
 	},
 	{
 		displayName: '扩展请求JSON',

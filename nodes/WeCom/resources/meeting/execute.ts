@@ -1166,6 +1166,18 @@ export async function executeMeeting(
 				if (mra_tmp_openid) {
 					body.mra = { tmp_openid: mra_tmp_openid };
 				}
+				if (['roomsCall', 'roomsCancelCall', 'roomsGetResponseStatus'].includes(operation)) {
+					const rooms_invite_id = this.getNodeParameter('rooms_invite_id', i, '') as string;
+					const mra_protocol = this.getNodeParameter('mra_protocol', i, 0) as number;
+					const mra_dial_string = this.getNodeParameter('mra_dial_string', i, '') as string;
+					if (rooms_invite_id) body.invite_id = rooms_invite_id;
+					if (mra_protocol && mra_dial_string) {
+						body.mra_address = {
+							protocol: mra_protocol,
+							dial_string: mra_dial_string,
+						};
+					}
+				}
 				if (operation === 'mraSetDefaultLayout') {
 					body.default_layout = this.getNodeParameter('mra_default_layout', i, 2) as number;
 					body.default_novideo_user = this.getNodeParameter(
@@ -1401,6 +1413,85 @@ export async function executeMeeting(
 						1,
 					) as number;
 					if (default_image_order) body.default_image_order = default_image_order;
+				}
+				if (
+					['advLayoutAdd', 'advLayoutUpdate', 'basicLayoutAdd', 'basicLayoutUpdate'].includes(
+						operation,
+					)
+				) {
+					const layout_name = this.getNodeParameter('layout_name', i, '') as string;
+					const default_layout_order = this.getNodeParameter(
+						'default_layout_order',
+						i,
+						1,
+					) as number;
+					const pagesCollection = this.getNodeParameter(
+						'layoutPagesCollection',
+						i,
+						{},
+					) as IDataObject;
+					const page_list = ((pagesCollection?.pages as IDataObject[]) || [])
+						.filter((p) => p.layout_template_id)
+						.map((p) => {
+							const page: IDataObject = {
+								layout_template_id: p.layout_template_id,
+							};
+							if (p.enable_polling) {
+								page.enable_polling = true;
+								page.polling_setting = {
+									polling_interval_unit: p.polling_interval_unit ?? 1,
+									polling_interval: p.polling_interval ?? 10,
+									ignore_user_novideo: p.ignore_user_novideo ?? false,
+									ignore_user_absence: p.ignore_user_absence ?? false,
+								};
+							}
+							const seatsCol = (p.userSeats as IDataObject) || {};
+							const seats = ((seatsCol.seats as IDataObject[]) || [])
+								.filter((s) => s.grid_id)
+								.map((s) => {
+									const seat: IDataObject = {
+										grid_id: String(s.grid_id),
+										grid_type: s.grid_type ?? 1,
+									};
+									// 高级布局 user_list 嵌套；基础布局扁平字段
+									if (
+										operation === 'advLayoutAdd' ||
+										operation === 'advLayoutUpdate'
+									) {
+										const user: IDataObject = {};
+										if (s.userid) user.userid = s.userid;
+										if (s.tmp_openid) user.tmp_openid = s.tmp_openid;
+										if (s.nick_name) user.nick_name = s.nick_name;
+										if (Object.keys(user).length) {
+											seat.user_list = [user];
+											seat.video_type = 3;
+										}
+										if (s.tool_sdkid) seat.tool_sdkid = s.tool_sdkid;
+									} else {
+										if (s.userid) seat.userid = s.userid;
+										if (s.tmp_openid) seat.tmp_openid = s.tmp_openid;
+										if (s.nick_name) seat.nick_name = s.nick_name;
+										if (s.tool_sdkid) seat.tool_sdkid = s.tool_sdkid;
+									}
+									return seat;
+								});
+							if (seats.length) page.user_seat_list = seats;
+							return page;
+						});
+					if (page_list.length) {
+						const layoutItem: IDataObject = { page_list };
+						if (layout_name) layoutItem.layout_name = layout_name;
+						if (operation === 'advLayoutUpdate' || operation === 'basicLayoutUpdate') {
+							if (layout_id) layoutItem.layout_id = layout_id;
+						}
+						body.layout_list = [layoutItem];
+					}
+					if (
+						(operation === 'basicLayoutAdd' || operation === 'advLayoutAdd') &&
+						default_layout_order
+					) {
+						body.default_layout_order = default_layout_order;
+					}
 				}
 				if (layout_id !== undefined && layout_id !== null && [
 					'advLayoutApply',

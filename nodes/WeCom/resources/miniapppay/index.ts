@@ -107,6 +107,30 @@ export const miniapppayDescription: INodeProperties[] = [
 		description: 'merchant_short_name',
 	},
 	{
+		displayName: '商户名称',
+		name: 'merchant_name',
+		type: 'string',
+		displayOptions: { show: { ...showOnly, operation: ['applyMch'] } },
+		default: '',
+		description: '写入 business_license_info.merchant_name（若 JSON 未覆盖）',
+	},
+	{
+		displayName: '法人姓名',
+		name: 'legal_person',
+		type: 'string',
+		displayOptions: { show: { ...showOnly, operation: ['applyMch'] } },
+		default: '',
+		description: '写入 business_license_info.legal_person（若 JSON 未覆盖）',
+	},
+	{
+		displayName: '营业执照号',
+		name: 'business_license_number',
+		type: 'string',
+		displayOptions: { show: { ...showOnly, operation: ['applyMch'] } },
+		default: '',
+		description: 'business_license_info.business_license_number',
+	},
+	{
 		displayName: '进件申请其余字段JSON',
 		name: 'applyMchJson',
 		type: 'json',
@@ -114,7 +138,7 @@ export const miniapppayDescription: INodeProperties[] = [
 		displayOptions: { show: { ...showOnly, operation: ['applyMch'] } },
 		default: '{}',
 		description:
-			'营业执照、法人证件、联系人、结算账户等嵌套结构，与上方字段合并（JSON 优先）。见官方「提交创建对外收款账户的申请单」',
+			'证件图片 media_id、联系人、结算账户等嵌套结构，与上方合并（JSON 优先）',
 	},
 	// 公共商户字段
 	{
