@@ -444,13 +444,15 @@ export async function executeMeeting(
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/set_invitees', body);
 			} else if (operation === 'getLiveParticipants') {
 				// 获取实时会中成员列表
-				// https://developer.work.weixin.qq.com/document/path/98153
+				// https://developer.work.weixin.qq.com/document/path/98157
 				const meetingid = this.getNodeParameter('meetingid', i) as string;
 				const cursor = this.getNodeParameter('cursor', i, '') as string;
-				const size = this.getNodeParameter('size', i, 100) as number;
+				const size = this.getNodeParameter('size', i, 50) as number;
+				const sub_meetingid = this.getNodeParameter('sub_meetingid', i, '') as string;
 
-				const body: IDataObject = { meetingid, limit: size };
+				const body: IDataObject = { meetingid, limit: Math.min(size || 50, 50) };
 				if (cursor) body.cursor = cursor;
+				if (sub_meetingid) body.sub_meetingid = sub_meetingid;
 
 				response = await weComApiRequest.call(
 					this,
@@ -460,13 +462,19 @@ export async function executeMeeting(
 				);
 			} else if (operation === 'getParticipants') {
 				// 获取已参会成员列表
-				// https://developer.work.weixin.qq.com/document/path/98154
+				// https://developer.work.weixin.qq.com/document/path/98156
 				const meetingid = this.getNodeParameter('meetingid', i) as string;
 				const cursor = this.getNodeParameter('cursor', i, '') as string;
 				const size = this.getNodeParameter('size', i, 100) as number;
+				const sub_meetingid = this.getNodeParameter('sub_meetingid', i, '') as string;
+				const start_time = this.getNodeParameter('attendee_start_time', i, 0) as number;
+				const end_time = this.getNodeParameter('attendee_end_time', i, 0) as number;
 
-				const body: IDataObject = { meetingid, limit: size };
+				const body: IDataObject = { meetingid, limit: Math.min(size || 100, 100) };
 				if (cursor) body.cursor = cursor;
+				if (sub_meetingid) body.sub_meetingid = sub_meetingid;
+				if (start_time) body.start_time = start_time;
+				if (end_time) body.end_time = end_time;
 
 				response = await weComApiRequest.call(
 					this,

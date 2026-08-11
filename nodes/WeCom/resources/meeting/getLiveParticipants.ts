@@ -10,7 +10,16 @@ export const getLiveParticipantsDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: showOnly },
 		default: '',
-		description: '会议唯一标识ID。<a href="https://developer.work.weixin.qq.com/document/path/98153" target="_blank">官方文档</a>',
+		description:
+			'meetingid。<a href="https://developer.work.weixin.qq.com/document/path/98157" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '周期性子会议ID',
+		name: 'sub_meetingid',
+		type: 'string',
+		displayOptions: { show: showOnly },
+		default: '',
+		description: 'sub_meetingid，周期会议必传',
 	},
 	{
 		displayName: '分页游标',
@@ -18,15 +27,14 @@ export const getLiveParticipantsDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: { show: showOnly },
 		default: '',
-		description: '分页游标，首次请求留空，后续请求使用返回的cursor',
 	},
 	{
 		displayName: '每页数量',
 		name: 'size',
 		type: 'number',
 		displayOptions: { show: showOnly },
-		default: 100,
-		description: '每页返回的参会者数量',
-		typeOptions: { minValue: 1, maxValue: 1000 },
+		default: 50,
+		description: 'limit，最大 50',
+		typeOptions: { minValue: 1, maxValue: 50 },
 	},
 ];
