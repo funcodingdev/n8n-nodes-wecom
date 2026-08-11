@@ -764,6 +764,31 @@ export async function executeMeeting(
 				const meetingid = this.getNodeParameter('webinar_meetingid', i) as string;
 				const webinarEnrollJson = this.getNodeParameter('webinarEnrollJson', i, '{}') as string;
 				const body: IDataObject = { meetingid };
+				if (operation === 'webinarEnrollSetConfig') {
+					body.approve_type = this.getNodeParameter('webinar_approve_type', i, 1) as number;
+					body.is_collect_question = this.getNodeParameter(
+						'webinar_is_collect_question',
+						i,
+						1,
+					) as number;
+					body.no_registration_needed_for_staff = this.getNodeParameter(
+						'webinar_no_registration_needed_for_staff',
+						i,
+						false,
+					) as boolean;
+				}
+				if (operation === 'webinarEnrollApprove' || operation === 'webinarEnrollDelete') {
+					const enroll_ids = (
+						this.getNodeParameter('webinar_enroll_id_list', i, '') as string
+					)
+						.split(',')
+						.map((s) => s.trim())
+						.filter(Boolean);
+					if (enroll_ids.length) body.enroll_id_list = enroll_ids;
+				}
+				if (operation === 'webinarEnrollApprove') {
+					body.action = this.getNodeParameter('webinar_enroll_action', i, 3) as number;
+				}
 				try {
 					Object.assign(body, JSON.parse(webinarEnrollJson || '{}') as IDataObject);
 					body.meetingid = meetingid;

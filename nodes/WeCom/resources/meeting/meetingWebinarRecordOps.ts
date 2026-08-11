@@ -377,7 +377,73 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		description: '嘉宾数组，字段见官方「更新网络研讨会嘉宾列表」',
 	},
 	{
-		displayName: '报名/审批JSON',
+		displayName: '审批方式',
+		name: 'webinar_approve_type',
+		type: 'options',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarEnrollSetConfig'] },
+		},
+		options: [
+			{ name: '自动审批', value: 1 },
+			{ name: '手动审批', value: 2 },
+		],
+		default: 1,
+		description: 'approve_type',
+	},
+	{
+		displayName: '是否收集问题',
+		name: 'webinar_is_collect_question',
+		type: 'options',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarEnrollSetConfig'] },
+		},
+		options: [
+			{ name: '不收集', value: 1 },
+			{ name: '收集', value: 2 },
+		],
+		default: 1,
+		description: 'is_collect_question（研讨会：1 不收集 / 2 收集）',
+	},
+	{
+		displayName: '企业成员无需报名',
+		name: 'webinar_no_registration_needed_for_staff',
+		type: 'boolean',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarEnrollSetConfig'] },
+		},
+		default: false,
+	},
+	{
+		displayName: '报名ID列表',
+		name: 'webinar_enroll_id_list',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['meeting'],
+				operation: ['webinarEnrollApprove', 'webinarEnrollDelete'],
+			},
+		},
+		default: '',
+		placeholder: 'id1,id2',
+		description: 'enroll_id_list，逗号分隔',
+	},
+	{
+		displayName: '审批动作',
+		name: 'webinar_enroll_action',
+		type: 'options',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarEnrollApprove'] },
+		},
+		options: [
+			{ name: '取消批准', value: 1 },
+			{ name: '拒绝', value: 2 },
+			{ name: '批准', value: 3 },
+		],
+		default: 3,
+		description: 'action',
+	},
+	{
+		displayName: '报名/审批扩展JSON',
 		name: 'webinarEnrollJson',
 		type: 'json',
 		displayOptions: {
@@ -393,7 +459,7 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: '{}',
-		description: '与会议 ID 合并的请求字段，字段名与官方文档一致',
+		description: '其余字段（如 question_list、导入数据）与上方合并',
 	},
 	{
 		displayName: '扩展请求JSON',
