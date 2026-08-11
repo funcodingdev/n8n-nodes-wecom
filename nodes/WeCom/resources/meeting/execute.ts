@@ -580,18 +580,13 @@ export async function executeMeeting(
 				}
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/realcontrol/set', body);
 			} else if (operation === 'listLayoutTemplate') {
-				const extraJson = this.getNodeParameter('extraJson', i, '{}') as string;
-				let body: IDataObject = {};
-				try {
-					body = JSON.parse(extraJson || '{}') as IDataObject;
-				} catch {
-					body = {};
-				}
+				// https://developer.work.weixin.qq.com/document/path/98844
+				// GET，无请求体
 				response = await weComApiRequest.call(
 					this,
-					'POST',
+					'GET',
 					'/cgi-bin/meeting/layout/list_template',
-					body,
+					{},
 				);
 			} else if (operation === 'setDefaultLayout') {
 				const meetingid = this.getNodeParameter('meetingid', i) as string;
