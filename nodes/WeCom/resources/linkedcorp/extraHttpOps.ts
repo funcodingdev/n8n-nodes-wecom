@@ -43,6 +43,16 @@ export const linkedcorpExtraHttpOpsDescription: INodeProperties[] = [
 		description: '下级/下游企业 corpid',
 	},
 	{
+		displayName: '分组ID',
+		name: 'lc_groupid',
+		type: 'number',
+		displayOptions: {
+			show: { resource: ['linkedcorp'], operation: ['corpGetChainGroup'] },
+		},
+		default: 0,
+		description: '分组 id；不填或 0 返回全部分组',
+	},
+	{
 		displayName: 'OpenID',
 		name: 'lc_openid',
 		type: 'string',

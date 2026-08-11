@@ -124,6 +124,41 @@ export async function executeApproval(
 				if (appr_starttime) bodyDefaults.starttime = appr_starttime;
 				if (appr_endtime) bodyDefaults.endtime = appr_endtime;
 				if (next_spnum) bodyDefaults.next_spnum = next_spnum;
+				if (operation === 'advancedFeatureGetApplyIdList') {
+					const af_business_type = this.getNodeParameter('af_business_type', i, 1) as number;
+					const af_userid = this.getNodeParameter('af_userid', i, '') as string;
+					const af_limit = this.getNodeParameter('af_limit', i, 100) as number;
+					const af_cursor = this.getNodeParameter('af_cursor', i, '') as string;
+					const af_req_type = this.getNodeParameter('af_req_type', i, 0) as number;
+					bodyDefaults.business_type = af_business_type;
+					if (af_userid) bodyDefaults.userid = af_userid;
+					if (af_limit) bodyDefaults.limit = af_limit;
+					if (af_cursor) bodyDefaults.cursor = af_cursor;
+					bodyDefaults.req_type = af_req_type;
+				}
+				if (operation === 'advancedFeatureSetApprovalDetail') {
+					const af_apply_id = this.getNodeParameter('af_apply_id', i, '') as string;
+					const af_approval_id = this.getNodeParameter('af_approval_id', i, '') as string;
+					const af_approval_status = this.getNodeParameter('af_approval_status', i, 1) as number;
+					const af_approval_url = this.getNodeParameter('af_approval_url', i, '') as string;
+					const af_process_node_list_json = this.getNodeParameter(
+						'af_process_node_list_json',
+						i,
+						'[]',
+					) as string;
+					if (af_apply_id) bodyDefaults.apply_id = af_apply_id;
+					if (af_approval_id) bodyDefaults.approval_id = af_approval_id;
+					bodyDefaults.approval_status = af_approval_status;
+					if (af_approval_url) bodyDefaults.approval_url = af_approval_url;
+					try {
+						const node_list = JSON.parse(af_process_node_list_json || '[]');
+						if (Array.isArray(node_list) && node_list.length) {
+							bodyDefaults.process_list = { node_list };
+						}
+					} catch {
+						/* ignore */
+					}
+				}
 				responseData = await executeExtraHttpOp.call(
 					this,
 					approvalExtraHttpOpsById[operation],

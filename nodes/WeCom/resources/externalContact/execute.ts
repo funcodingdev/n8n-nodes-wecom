@@ -1980,16 +1980,50 @@ export async function executeExternalContact(
 				const strategy_name = this.getNodeParameter('strategy_name', i, '') as string;
 				const parent_id = this.getNodeParameter('parent_id', i, 0) as number;
 				const admin_list = this.getNodeParameter('admin_list', i, '') as string;
-				const range_json = this.getNodeParameter('range_json', i, '[]') as string;
-				const privilege_json = this.getNodeParameter('privilege_json', i, '{}') as string;
-				const tag_group_id = this.getNodeParameter('tag_group_id', i, '') as string;
-				const tag_group_name = this.getNodeParameter('tag_group_name', i, '') as string;
-				const tag_list_json = this.getNodeParameter('tag_list_json', i, '[]') as string;
 				const msgid = this.getNodeParameter('msgid', i, '') as string;
 				const takeover_userid = this.getNodeParameter('takeover_userid', i, '') as string;
-				const subscribe_config_json = this.getNodeParameter('subscribe_config_json', i, '{}') as string;
+				const handover_userid = this.getNodeParameter('handover_userid', i, '') as string;
 				const behavior_start_time = this.getNodeParameter('behavior_start_time', i, 0) as number;
 				const behavior_end_time = this.getNodeParameter('behavior_end_time', i, 0) as number;
+
+				const mapRangeNodes = (collection: IDataObject | undefined): IDataObject[] => {
+					const ranges = (collection?.ranges as IDataObject[]) || [];
+					return ranges
+						.map((r) => {
+							const type = Number(r.type) || 1;
+							const node: IDataObject = { type };
+							if (type === 1 && r.userid) node.userid = r.userid;
+							if (type === 2 && r.partyid) node.partyid = r.partyid;
+							return node;
+						})
+						.filter((n) => n.userid || n.partyid);
+				};
+
+				const buildPrivilege = (): IDataObject => ({
+					// 基础权限不可取消
+					view_customer_list: true,
+					view_customer_data: true,
+					view_room_list: true,
+					contact_me: true,
+					join_room: true,
+					share_customer: this.getNodeParameter('priv_share_customer', i, true) as boolean,
+					oper_resign_customer: this.getNodeParameter('priv_oper_resign_customer', i, true) as boolean,
+					oper_resign_group: this.getNodeParameter('priv_oper_resign_group', i, true) as boolean,
+					send_customer_msg: this.getNodeParameter('priv_send_customer_msg', i, true) as boolean,
+					edit_welcome_msg: this.getNodeParameter('priv_edit_welcome_msg', i, true) as boolean,
+					view_behavior_data: this.getNodeParameter('priv_view_behavior_data', i, true) as boolean,
+					view_room_data: this.getNodeParameter('priv_view_room_data', i, true) as boolean,
+					send_group_msg: this.getNodeParameter('priv_send_group_msg', i, true) as boolean,
+					room_deduplication: this.getNodeParameter('priv_room_deduplication', i, true) as boolean,
+					rapid_reply: this.getNodeParameter('priv_rapid_reply', i, true) as boolean,
+					onjob_customer_transfer: this.getNodeParameter('priv_onjob_customer_transfer', i, true) as boolean,
+					edit_anti_spam_rule: this.getNodeParameter('priv_edit_anti_spam_rule', i, true) as boolean,
+					export_customer_list: this.getNodeParameter('priv_export_customer_list', i, true) as boolean,
+					export_customer_data: this.getNodeParameter('priv_export_customer_data', i, true) as boolean,
+					export_customer_group_list: this.getNodeParameter('priv_export_customer_group_list', i, true) as boolean,
+					manage_customer_tag: this.getNodeParameter('priv_manage_customer_tag', i, true) as boolean,
+				});
+
 				if (strategy_id) bodyDefaults.strategy_id = strategy_id;
 				if (ec_external_userid) bodyDefaults.external_userid = ec_external_userid;
 				if (ec_userid) {
@@ -2002,35 +2036,76 @@ export async function executeExternalContact(
 				if (ec_cursor) bodyDefaults.cursor = ec_cursor;
 				if (ec_limit) bodyDefaults.limit = ec_limit;
 				if (strategy_name) bodyDefaults.strategy_name = strategy_name;
-				if (parent_id) bodyDefaults.parent_id = parent_id;
+				if (operation === 'externalcontactCustomerStrategyCreate') {
+					bodyDefaults.parent_id = parent_id || 0;
+				}
 				if (admin_list) {
 					bodyDefaults.admin_list = admin_list.split(',').map((s) => s.trim()).filter(Boolean);
 				}
-				try {
-					const range = JSON.parse(range_json || '[]');
-					if (Array.isArray(range) && range.length) bodyDefaults.range = range;
-				} catch { /* ignore */ }
-				try {
-					const privilege = JSON.parse(privilege_json || '{}');
-					if (privilege && typeof privilege === 'object' && Object.keys(privilege as object).length) {
-						bodyDefaults.privilege = privilege;
-					}
-				} catch { /* ignore */ }
-				if (tag_group_id) bodyDefaults.group_id = tag_group_id;
-				if (tag_group_name) bodyDefaults.group_name = tag_group_name;
-				try {
-					const tags = JSON.parse(tag_list_json || '[]');
-					if (Array.isArray(tags) && tags.length) {
-						if (operation === 'externalcontactDelStrategyTag') bodyDefaults.tag_id = tags;
-						else bodyDefaults.tag = tags;
-					}
-				} catch { /* ignore */ }
+
+				if (operation === 'externalcontactCustomerStrategyCreate') {
+					const rangeCollection = this.getNodeParameter('rangeCollection', i, {}) as IDataObject;
+					const range = mapRangeNodes(rangeCollection);
+					if (range.length) bodyDefaults.range = range;
+					// 有父规则组时官方忽略 privilege，但仍可提交
+					bodyDefaults.privilege = buildPrivilege();
+				}
+				if (operation === 'externalcontactCustomerStrategyEdit') {
+					const rangeAdd = mapRangeNodes(
+						this.getNodeParameter('rangeAddCollection', i, {}) as IDataObject,
+					);
+					const rangeDel = mapRangeNodes(
+						this.getNodeParameter('rangeDelCollection', i, {}) as IDataObject,
+					);
+					if (rangeAdd.length) bodyDefaults.range_add = rangeAdd;
+					if (rangeDel.length) bodyDefaults.range_del = rangeDel;
+					const updatePrivilege = this.getNodeParameter('updatePrivilege', i, false) as boolean;
+					if (updatePrivilege) bodyDefaults.privilege = buildPrivilege();
+				}
+
+				if (operation === 'externalcontactAddStrategyTag') {
+					const tag_group_id = this.getNodeParameter('tag_group_id', i, '') as string;
+					const tag_group_name = this.getNodeParameter('tag_group_name', i, '') as string;
+					const tag_group_order = this.getNodeParameter('tag_group_order', i, 0) as number;
+					if (tag_group_id) bodyDefaults.group_id = tag_group_id;
+					if (tag_group_name) bodyDefaults.group_name = tag_group_name;
+					if (tag_group_order) bodyDefaults.order = tag_group_order;
+					const tagCollection = this.getNodeParameter('strategyTagCollection', i, {}) as IDataObject;
+					const tags = ((tagCollection?.tags as IDataObject[]) || [])
+						.filter((t) => t.name)
+						.map((t) => {
+							const item: IDataObject = { name: t.name };
+							if (t.order) item.order = t.order;
+							return item;
+						});
+					if (tags.length) bodyDefaults.tag = tags;
+				}
+				if (operation === 'externalcontactEditStrategyTag') {
+					const strategy_tag_id = this.getNodeParameter('strategy_tag_id', i, '') as string;
+					const strategy_tag_name = this.getNodeParameter('strategy_tag_name', i, '') as string;
+					const strategy_tag_order = this.getNodeParameter('strategy_tag_order', i, 0) as number;
+					if (strategy_tag_id) bodyDefaults.id = strategy_tag_id;
+					if (strategy_tag_name) bodyDefaults.name = strategy_tag_name;
+					if (strategy_tag_order) bodyDefaults.order = strategy_tag_order;
+				}
+				if (
+					operation === 'externalcontactGetStrategyTagList' ||
+					operation === 'externalcontactDelStrategyTag'
+				) {
+					const strategy_tag_ids = this.getNodeParameter('strategy_tag_ids', i, '') as string;
+					const strategy_group_ids = this.getNodeParameter('strategy_group_ids', i, '') as string;
+					const tagIds = strategy_tag_ids.split(',').map((s) => s.trim()).filter(Boolean);
+					const groupIds = strategy_group_ids.split(',').map((s) => s.trim()).filter(Boolean);
+					if (tagIds.length) bodyDefaults.tag_id = tagIds;
+					if (groupIds.length) bodyDefaults.group_id = groupIds;
+				}
+				if (operation === 'externalcontactSetSubscribeMode') {
+					const subscribe_mode = this.getNodeParameter('subscribe_mode', i, 1) as number;
+					bodyDefaults.subscribe_mode = subscribe_mode;
+				}
 				if (msgid) bodyDefaults.msgid = msgid;
+				if (handover_userid) bodyDefaults.handover_userid = handover_userid;
 				if (takeover_userid) bodyDefaults.takeover_userid = takeover_userid;
-				try {
-					const sub = JSON.parse(subscribe_config_json || '{}');
-					if (sub && typeof sub === 'object') Object.assign(bodyDefaults, sub);
-				} catch { /* ignore */ }
 				if (behavior_start_time) bodyDefaults.start_time = behavior_start_time;
 				if (behavior_end_time) bodyDefaults.end_time = behavior_end_time;
 				response = await executeExtraHttpOp.call(

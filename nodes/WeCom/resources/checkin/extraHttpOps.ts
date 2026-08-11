@@ -28,15 +28,30 @@ export const checkinExtraHttpOpsDescription: INodeProperties[] = [
 		description: '打卡规则 groupid',
 	},
 	{
-		displayName: '要清空的字段名',
-		name: 'clear_field_names',
-		type: 'string',
+		displayName: '要清空的字段',
+		name: 'clear_field_ids',
+		type: 'multiOptions',
 		displayOptions: {
 			show: { resource: ['checkin'], operation: checkinExtraHttpOpsOptionValues },
 		},
-		default: '',
-		placeholder: 'field1,field2',
-		description: '规则中需清空的数组字段名，逗号分隔',
+		options: [
+			{ name: '特殊工作日 spe_workdays', value: 1 },
+			{ name: '特殊非工作日 spe_offdays', value: 2 },
+			{ name: 'WiFi 信息 wifimac_infos', value: 3 },
+			{ name: '位置信息 loc_infos', value: 4 },
+		],
+		default: [],
+		description: 'clear_field 标识；WiFi 与位置不可同时清空为空',
+	},
+	{
+		displayName: '立即生效',
+		name: 'clear_effective_now',
+		type: 'boolean',
+		displayOptions: {
+			show: { resource: ['checkin'], operation: checkinExtraHttpOpsOptionValues },
+		},
+		default: false,
+		description: 'effective_now，默认 false',
 	},
 	{
 		displayName: '请求体JSON',

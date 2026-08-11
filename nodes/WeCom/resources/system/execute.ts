@@ -34,6 +34,8 @@ export async function executeSystem(
 				const sys_userid = this.getNodeParameter('sys_userid', index, '') as string;
 				const sys_user_ticket = this.getNodeParameter('sys_user_ticket', index, '') as string;
 				const ticket_type = this.getNodeParameter('ticket_type', index, '') as string;
+				const launch_operator_userid = this.getNodeParameter('launch_operator_userid', index, '') as string;
+				const launch_chat_userid = this.getNodeParameter('launch_chat_userid', index, '') as string;
 				if (sys_code) qsDefaults.code = sys_code;
 				if (sys_code && operation === 'miniprogramJscode2session') {
 					qsDefaults.js_code = sys_code;
@@ -46,6 +48,12 @@ export async function executeSystem(
 					bodyDefaults.user_ticket = sys_user_ticket;
 				}
 				if (ticket_type) qsDefaults.type = ticket_type;
+				if (operation === 'getLaunchCode') {
+					if (launch_operator_userid) bodyDefaults.operator_userid = launch_operator_userid;
+					if (launch_chat_userid) {
+						bodyDefaults.single_chat = { userid: launch_chat_userid };
+					}
+				}
 				responseData = await executeExtraHttpOp.call(
 					this,
 					systemExtraHttpOpsById[operation],

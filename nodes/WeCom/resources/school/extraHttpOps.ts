@@ -127,6 +127,30 @@ export const schoolExtraHttpOpsDescription: INodeProperties[] = [
 		description: '同步/建群模式枚举，见官方文档',
 	},
 	{
+		displayName: '自动升年级时间',
+		name: 'upgrade_time',
+		type: 'number',
+		displayOptions: {
+			show: { resource: ['school'], operation: ['setUpgradeInfo'] },
+		},
+		default: 0,
+		description: '自动升年级时间戳，仅月日有效；0 表示 1 月 1 日',
+	},
+	{
+		displayName: '自动升年级开关',
+		name: 'upgrade_switch',
+		type: 'options',
+		displayOptions: {
+			show: { resource: ['school'], operation: ['setUpgradeInfo'] },
+		},
+		options: [
+			{ name: '关闭', value: 0 },
+			{ name: '开启', value: 1 },
+		],
+		default: 0,
+		description: '0 关闭，1 开启；其他值视为关闭',
+	},
+	{
 		displayName: '请求体JSON',
 		name: 'requestBody',
 		type: 'json',

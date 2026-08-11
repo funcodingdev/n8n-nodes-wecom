@@ -80,6 +80,26 @@ export const systemExtraHttpOpsDescription: INodeProperties[] = [
 		description: 'ticket/get 的 type 参数，企业身份配置常用 agent_config',
 	},
 	{
+		displayName: '操作者UserID',
+		name: 'launch_operator_userid',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['system'], operation: ['getLaunchCode'] },
+		},
+		default: '',
+		description: '当前操作者 userid（operator_userid）',
+	},
+	{
+		displayName: '单聊对象UserID',
+		name: 'launch_chat_userid',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['system'], operation: ['getLaunchCode'] },
+		},
+		default: '',
+		description: '需要发起单聊的企业内部成员 userid',
+	},
+	{
 		displayName: '请求体JSON',
 		name: 'requestBody',
 		type: 'json',

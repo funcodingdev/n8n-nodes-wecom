@@ -543,6 +543,8 @@ export async function executeSchool(
 						const school_livingid = this.getNodeParameter('school_livingid', i, '') as string;
 						const school_mode = this.getNodeParameter('school_mode', i, 0) as number;
 						const school_next_key = this.getNodeParameter('school_next_key', i, '') as string;
+						const upgrade_time = this.getNodeParameter('upgrade_time', i, 0) as number;
+						const upgrade_switch = this.getNodeParameter('upgrade_switch', i, 0) as number;
 						if (['departmentDelete', 'departmentUpdate'].includes(operation) && school_department_id) {
 							bodyDefaults.id = school_department_id;
 						}
@@ -553,6 +555,10 @@ export async function executeSchool(
 						if (school_next_key) bodyDefaults.next_key = school_next_key;
 						if (['setArchSyncMode', 'setChatCreateMode'].includes(operation)) {
 							bodyDefaults.mode = school_mode;
+						}
+						if (operation === 'setUpgradeInfo') {
+							bodyDefaults.upgrade_time = upgrade_time || 0;
+							bodyDefaults.upgrade_switch = upgrade_switch;
 						}
 						// GET query fields
 						if (operation === 'getuserinfo' && school_code) qsDefaults.code = school_code;
