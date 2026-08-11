@@ -365,6 +365,25 @@ export async function executeMeeting(
 					settings.allow_enter_before_host = advancedSettings.allow_enter_before_host;
 				}
 				if (Object.keys(settings).length) body.settings = settings;
+				try {
+					const updateMeetingExtraJson = this.getNodeParameter(
+						'updateMeetingExtraJson',
+						i,
+						'{}',
+					) as string;
+					const extra = JSON.parse(updateMeetingExtraJson || '{}') as IDataObject;
+					if (extra.settings && typeof extra.settings === 'object') {
+						body.settings = {
+							...((body.settings as IDataObject) || {}),
+							...(extra.settings as IDataObject),
+						};
+						delete extra.settings;
+					}
+					Object.assign(body, extra);
+					body.meetingid = meetingid;
+				} catch {
+					// ignore
+				}
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/update', body);
 			} else if (operation === 'getMeetingInvitees') {
