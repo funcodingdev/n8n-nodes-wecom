@@ -61,10 +61,10 @@ export const updateStaffInfoDescription: INodeProperties[] = [
 					{
 						displayName: '日期值',
 						name: 'value_date',
-						type: 'number',
-						default: 0,
+						type: 'dateTime',
+						default: '',
 						displayOptions: { show: { value_type: ['date'] } },
-						description: '日期类型的字段值（Unix时间戳秒）',
+						description: '日期类型字段值，转换为 Unix 秒写入 value_uint32',
 					},
 					{
 						displayName: '数字值',

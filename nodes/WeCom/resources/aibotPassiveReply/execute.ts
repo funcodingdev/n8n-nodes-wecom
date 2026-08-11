@@ -1,8 +1,59 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
+import { buildTemplateCardFromForm } from './templateCardForm';
 
 /** 智能机器人主动回复官方路径（response_url 中包含此 path） */
 const AIBOT_RESPONSE_PATH = '/cgi-bin/aibot/response';
+
+function resolveTemplateCard(
+	this: IExecuteFunctions,
+	itemIndex: number,
+): IDataObject {
+	const mode = this.getNodeParameter('template_card_input_mode', itemIndex, 'json') as string;
+	if (mode === 'form') {
+		const title = this.getNodeParameter('tc_main_title', itemIndex, '') as string;
+		if (!title) {
+			throw new NodeOperationError(this.getNode(), '主标题不能为空', { itemIndex });
+		}
+		return buildTemplateCardFromForm({
+			tc_main_title: title,
+			tc_main_desc: this.getNodeParameter('tc_main_desc', itemIndex, '') as string,
+			tc_sub_title_text: this.getNodeParameter('tc_sub_title_text', itemIndex, '') as string,
+			tc_emphasis_title: this.getNodeParameter('tc_emphasis_title', itemIndex, '') as string,
+			tc_emphasis_desc: this.getNodeParameter('tc_emphasis_desc', itemIndex, '') as string,
+			tc_card_action_type: this.getNodeParameter('tc_card_action_type', itemIndex, 1) as number,
+			tc_card_action_url: this.getNodeParameter('tc_card_action_url', itemIndex, '') as string,
+			tc_card_action_appid: this.getNodeParameter('tc_card_action_appid', itemIndex, '') as string,
+			tc_card_action_pagepath: this.getNodeParameter(
+				'tc_card_action_pagepath',
+				itemIndex,
+				'',
+			) as string,
+			tc_source_desc: this.getNodeParameter('tc_source_desc', itemIndex, '') as string,
+			tc_source_icon: this.getNodeParameter('tc_source_icon', itemIndex, '') as string,
+			horizontalCollection: this.getNodeParameter(
+				'tcHorizontalContentCollection',
+				itemIndex,
+				{},
+			) as IDataObject,
+			extraJson: this.getNodeParameter('template_card_extra_json', itemIndex, '{}') as string,
+		});
+	}
+
+	const templateCardStr = this.getNodeParameter('template_card', itemIndex) as string;
+	if (!templateCardStr) {
+		throw new NodeOperationError(this.getNode(), '模板卡片不能为空', { itemIndex });
+	}
+	try {
+		return JSON.parse(templateCardStr) as IDataObject;
+	} catch (error) {
+		throw new NodeOperationError(
+			this.getNode(),
+			`模板卡片必须是有效的JSON格式: ${(error as Error).message}`,
+			{ itemIndex },
+		);
+	}
+}
 
 export async function executeAIBotPassiveReply(
 	this: IExecuteFunctions,
@@ -64,24 +115,7 @@ export async function executeAIBotPassiveReply(
 					},
 				};
 			} else if (replyType === 'template_card') {
-				const templateCardStr = this.getNodeParameter('template_card', i) as string;
-				if (!templateCardStr) {
-					throw new NodeOperationError(
-						this.getNode(),
-						'模板卡片不能为空',
-						{ itemIndex: i },
-					);
-				}
-				let templateCard: IDataObject;
-				try {
-					templateCard = JSON.parse(templateCardStr);
-				} catch (error) {
-					throw new NodeOperationError(
-						this.getNode(),
-						`模板卡片必须是有效的JSON格式: ${(error as Error).message}`,
-						{ itemIndex: i },
-					);
-				}
+				const templateCard = resolveTemplateCard.call(this, i);
 				replyBody = {
 					msgtype: 'template_card',
 					template_card: templateCard,
@@ -130,26 +164,8 @@ export async function executeAIBotPassiveReply(
 					stream: streamData,
 				};
 			} else if (replyType === 'template_card') {
-				const templateCardStr = this.getNodeParameter('template_card', i) as string;
+				const templateCard = resolveTemplateCard.call(this, i);
 				const feedbackId = this.getNodeParameter('feedback_id', i, '') as string;
-
-				if (!templateCardStr) {
-					throw new NodeOperationError(
-						this.getNode(),
-						'模板卡片不能为空',
-						{ itemIndex: i },
-					);
-				}
-				let templateCard: IDataObject;
-				try {
-					templateCard = JSON.parse(templateCardStr);
-				} catch (error) {
-					throw new NodeOperationError(
-						this.getNode(),
-						`模板卡片必须是有效的JSON格式: ${(error as Error).message}`,
-						{ itemIndex: i },
-					);
-				}
 
 				if (feedbackId) {
 					templateCard.feedback = {
@@ -258,26 +274,8 @@ export async function executeAIBotPassiveReply(
 					markdown: markdownData,
 				};
 			} else if (replyType === 'template_card') {
-				const templateCardStr = this.getNodeParameter('template_card', i) as string;
+				const templateCard = resolveTemplateCard.call(this, i);
 				const feedbackId = this.getNodeParameter('feedback_id', i, '') as string;
-
-				if (!templateCardStr) {
-					throw new NodeOperationError(
-						this.getNode(),
-						'模板卡片不能为空',
-						{ itemIndex: i },
-					);
-				}
-				let templateCard: IDataObject;
-				try {
-					templateCard = JSON.parse(templateCardStr);
-				} catch (error) {
-					throw new NodeOperationError(
-						this.getNode(),
-						`模板卡片必须是有效的JSON格式: ${(error as Error).message}`,
-						{ itemIndex: i },
-					);
-				}
 
 				if (feedbackId) {
 					templateCard.feedback = {

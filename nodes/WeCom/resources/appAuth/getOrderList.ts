@@ -17,13 +17,27 @@ import { getWeComBaseUrl } from '../../shared/transport';
  *
  * @returns 订单列表信息
  */
+function dateTimeToUnixTimestamp(dateTime: string | number): number {
+	if (typeof dateTime === 'number') {
+		return dateTime;
+	}
+	if (!dateTime || dateTime === '') {
+		return 0;
+	}
+	return Math.floor(new Date(dateTime).getTime() / 1000);
+}
+
 export async function getOrderList(
 	this: IExecuteFunctions,
 	index: number,
 ): Promise<IDataObject> {
 	const suiteAccessToken = this.getNodeParameter('suiteAccessToken', index) as string;
-	const startTime = this.getNodeParameter('startTime', index) as number;
-	const endTime = this.getNodeParameter('endTime', index) as number;
+	const startTime = dateTimeToUnixTimestamp(
+		this.getNodeParameter('startTime', index) as string | number,
+	);
+	const endTime = dateTimeToUnixTimestamp(
+		this.getNodeParameter('endTime', index) as string | number,
+	);
 	const testMode = this.getNodeParameter('testMode', index) as number | undefined;
 
 	if (!suiteAccessToken) {

@@ -1,6 +1,16 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
 
+function dateTimeToUnixTimestamp(dateTime: string | number): number {
+	if (typeof dateTime === 'number') {
+		return dateTime;
+	}
+	if (!dateTime || dateTime === '') {
+		return 0;
+	}
+	return Math.floor(new Date(dateTime).getTime() / 1000);
+}
+
 export async function executeHr(
 	this: IExecuteFunctions,
 	operation: string,
@@ -38,7 +48,8 @@ export async function executeHr(
 						if (valueType === 'text') {
 							attr.value_string = field.value_text;
 						} else if (valueType === 'date') {
-							attr.value_uint32 = field.value_date;
+							const ts = dateTimeToUnixTimestamp(field.value_date as string | number);
+							if (ts) attr.value_uint32 = ts;
 						} else if (valueType === 'number') {
 							attr.value_uint32 = field.value_number;
 						}

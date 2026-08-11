@@ -416,7 +416,10 @@ export async function executeApproval(
 								.filter(Boolean);
 							if (current.length) node.current_approvers = current;
 							if (completed.length) node.completed_approvers = completed;
-							if (n.apv_update_time) node.apv_update_time = n.apv_update_time;
+							const apv_update_time = dateTimeToUnixTimestamp(
+								(n.apv_update_time as string | number) || '',
+							);
+							if (apv_update_time) node.apv_update_time = apv_update_time;
 							return node;
 						})
 						.filter((n) => n.current_approvers || n.completed_approvers);

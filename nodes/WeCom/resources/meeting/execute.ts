@@ -685,8 +685,12 @@ export async function executeMeeting(
 				const cursor = this.getNodeParameter('cursor', i, '') as string;
 				const size = this.getNodeParameter('size', i, 100) as number;
 				const sub_meetingid = this.getNodeParameter('sub_meetingid', i, '') as string;
-				const start_time = this.getNodeParameter('attendee_start_time', i, 0) as number;
-				const end_time = this.getNodeParameter('attendee_end_time', i, 0) as number;
+				const start_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('attendee_start_time', i, '') as string | number,
+				);
+				const end_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('attendee_end_time', i, '') as string | number,
+				);
 
 				const body: IDataObject = { meetingid, limit: Math.min(size || 100, 100) };
 				if (cursor) body.cursor = cursor;

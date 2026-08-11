@@ -243,9 +243,9 @@ export const approvalExtraHttpOpsDescription: INodeProperties[] = [
 					{
 						displayName: '节点更新时间',
 						name: 'apv_update_time',
-						type: 'number',
-						default: 0,
-						description: '秒级时间戳',
+						type: 'dateTime',
+						default: '',
+						description: 'apv_update_time（Unix 秒）',
 					},
 				],
 			},

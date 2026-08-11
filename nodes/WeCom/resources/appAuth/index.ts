@@ -554,7 +554,7 @@ export const appAuthDescription: INodeProperties[] = [
 	{
 		displayName: '起始时间',
 		name: 'startTime',
-		type: 'number',
+		type: 'dateTime',
 		required: true,
 		displayOptions: {
 			show: {
@@ -562,13 +562,14 @@ export const appAuthDescription: INodeProperties[] = [
 				operation: ['getOrderList'],
 			},
 		},
-		default: 0,
-		description: 'UNIX时间戳',
+		default: '',
+		description:
+			'start_time（Unix 秒）。<a href="https://developer.work.weixin.qq.com/document/path/90600" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '终止时间',
 		name: 'endTime',
-		type: 'number',
+		type: 'dateTime',
 		required: true,
 		displayOptions: {
 			show: {
@@ -576,8 +577,8 @@ export const appAuthDescription: INodeProperties[] = [
 				operation: ['getOrderList'],
 			},
 		},
-		default: 0,
-		description: 'UNIX时间戳',
+		default: '',
+		description: 'end_time（Unix 秒）',
 	},
 	{
 		displayName: '测试模式',
