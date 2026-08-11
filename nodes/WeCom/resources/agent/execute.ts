@@ -161,15 +161,65 @@ export async function executeAgent(
 						type,
 					};
 
-					// 根据类型添加对应的模版数据
 					if (type !== 'normal') {
-						const templateDataJson = this.getNodeParameter(type, i, '{}') as string;
-						let templateData: IDataObject;
-						try {
-							templateData = typeof templateDataJson === 'string' ? JSON.parse(templateDataJson) : templateDataJson;
-						} catch {
-							throw new Error(`${type}模版数据JSON格式错误，请检查JSON语法`);
+						let templateData: IDataObject = {};
+						if (type === 'keydata') {
+							const collection = this.getNodeParameter('keydataItems', i, {}) as IDataObject;
+							const items = ((collection?.items as IDataObject[]) || [])
+								.filter((it) => it.key)
+								.slice(0, 4)
+								.map((it) => {
+									const item: IDataObject = { key: it.key, data: it.data || '' };
+									if (it.jump_url) item.jump_url = it.jump_url;
+									if (it.pagepath) item.pagepath = it.pagepath;
+									return item;
+								});
+							templateData = { items };
+						} else if (type === 'image') {
+							const url = this.getNodeParameter('image_url', i, '') as string;
+							const jump_url = this.getNodeParameter('image_jump_url', i, '') as string;
+							const pagepath = this.getNodeParameter('image_pagepath', i, '') as string;
+							if (url) templateData.url = url;
+							if (jump_url) templateData.jump_url = jump_url;
+							if (pagepath) templateData.pagepath = pagepath;
+						} else if (type === 'list') {
+							const collection = this.getNodeParameter('listItems', i, {}) as IDataObject;
+							const items = ((collection?.items as IDataObject[]) || [])
+								.filter((it) => it.title)
+								.slice(0, 3)
+								.map((it) => {
+									const item: IDataObject = { title: it.title };
+									if (it.jump_url) item.jump_url = it.jump_url;
+									if (it.pagepath) item.pagepath = it.pagepath;
+									return item;
+								});
+							templateData = { items };
+						} else if (type === 'webview') {
+							const url = this.getNodeParameter('webview_url', i, '') as string;
+							const jump_url = this.getNodeParameter('webview_jump_url', i, '') as string;
+							const height = this.getNodeParameter('webview_height', i, 'double_row') as string;
+							const hide_title = this.getNodeParameter('webview_hide_title', i, false) as boolean;
+							const enable_webview_click = this.getNodeParameter(
+								'webview_enable_click',
+								i,
+								false,
+							) as boolean;
+							if (url) templateData.url = url;
+							if (jump_url) templateData.jump_url = jump_url;
+							templateData.height = height;
+							templateData.hide_title = hide_title;
+							templateData.enable_webview_click = enable_webview_click;
 						}
+
+						try {
+							const extra = JSON.parse(
+								this.getNodeParameter('templateExtraJson', i, '{}') as string,
+							) as IDataObject;
+							if (extra && typeof extra === 'object') Object.assign(templateData, extra);
+						} catch {
+							/* ignore */
+						}
+
 						body[type] = templateData;
 
 						const replace_user_data = this.getNodeParameter('replace_user_data', i, false) as boolean;

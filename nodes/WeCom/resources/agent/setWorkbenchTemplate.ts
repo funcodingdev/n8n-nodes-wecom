@@ -12,10 +12,7 @@ export const setWorkbenchTemplateDescription: INodeProperties[] = [
 		type: 'number',
 		required: true,
 		default: 0,
-		displayOptions: {
-			show: showOnlySetWorkbenchTemplate,
-		},
-		description: '企业应用的唯一标识',
+		displayOptions: { show: showOnlySetWorkbenchTemplate },
 	},
 	{
 		displayName: '模版类型',
@@ -23,122 +20,118 @@ export const setWorkbenchTemplateDescription: INodeProperties[] = [
 		type: 'options',
 		required: true,
 		options: [
-			{
-				name: '关键数据型',
-				value: 'keydata',
-				description: '展示关键数据，最多4项',
-			},
-			{
-				name: '图片型',
-				value: 'image',
-				description: '展示图片，最佳比例3.35:1',
-			},
-			{
-				name: '列表型',
-				value: 'list',
-				description: '展示列表，最多3项',
-			},
-			{
-				name: 'Webview型',
-				value: 'webview',
-				description: '嵌入网页展示',
-			},
-			{
-				name: '普通模式',
-				value: 'normal',
-				description: '取消自定义模式，改为普通展示模式',
-			},
+			{ name: '关键数据型', value: 'keydata' },
+			{ name: '图片型', value: 'image' },
+			{ name: '列表型', value: 'list' },
+			{ name: 'Webview型', value: 'webview' },
+			{ name: '普通模式', value: 'normal' },
 		],
 		default: 'keydata',
-		displayOptions: {
-			show: showOnlySetWorkbenchTemplate,
-		},
-		description: '工作台展示模版类型',
+		displayOptions: { show: showOnlySetWorkbenchTemplate },
 	},
 	{
-		displayName: '关键数据型配置（JSON）',
-		name: 'keydata',
-		type: 'json',
-		default: `{
-  "items": [
-    {
-      "key": "待审批",
-      "data": "2",
-      "jump_url": "http://www.example.com"
-    },
-    {
-      "key": "待处理",
-      "data": "4",
-      "jump_url": "http://www.example.com"
-    }
-  ]
-}`,
-		displayOptions: {
-			show: {
-				...showOnlySetWorkbenchTemplate,
-				type: ['keydata'],
+		displayName: '关键数据项',
+		name: 'keydataItems',
+		type: 'fixedCollection',
+		displayOptions: { show: { ...showOnlySetWorkbenchTemplate, type: ['keydata'] } },
+		default: {},
+		placeholder: '添加数据项',
+		typeOptions: { multipleValues: true },
+		description: '最多 4 项',
+		options: [
+			{
+				displayName: '数据项',
+				name: 'items',
+				values: [
+					{ displayName: '名称', name: 'key', type: 'string', default: '' },
+					{ displayName: '数值', name: 'data', type: 'string', default: '' },
+					{ displayName: '跳转URL', name: 'jump_url', type: 'string', default: '' },
+					{ displayName: '小程序路径', name: 'pagepath', type: 'string', default: '' },
+				],
 			},
-		},
-		description: '关键数据型模版数据。items数组不超过4个。items.key为数据名称，items.data为数据值，items.jump_url为跳转URL，items.pagepath为小程序页面路径',
+		],
 	},
 	{
-		displayName: '图片型配置（JSON）',
-		name: 'image',
-		type: 'json',
-		default: `{
-  "url": "https://example.com/image.png",
-  "jump_url": "http://www.example.com"
-}`,
-		displayOptions: {
-			show: {
-				...showOnlySetWorkbenchTemplate,
-				type: ['image'],
-			},
-		},
-		description: '图片型模版数据。图片最佳比例为3.35:1。URL为图片地址，jump_url为跳转URL，pagepath为小程序页面路径',
+		displayName: '图片URL',
+		name: 'image_url',
+		type: 'string',
+		displayOptions: { show: { ...showOnlySetWorkbenchTemplate, type: ['image'] } },
+		default: '',
+		description: '最佳比例约 3.35:1',
 	},
 	{
-		displayName: '列表型配置（JSON）',
-		name: 'list',
-		type: 'json',
-		default: `{
-  "items": [
-    {
-      "title": "标题1",
-      "jump_url": "http://www.example.com"
-    },
-    {
-      "title": "标题2",
-      "jump_url": "http://www.example.com"
-    }
-  ]
-}`,
-		displayOptions: {
-			show: {
-				...showOnlySetWorkbenchTemplate,
-				type: ['list'],
-			},
-		},
-		description: '列表型模版数据。items数组不超过3个。items.title为显示文字，items.jump_url为跳转URL，items.pagepath为小程序页面路径',
+		displayName: '图片跳转URL',
+		name: 'image_jump_url',
+		type: 'string',
+		displayOptions: { show: { ...showOnlySetWorkbenchTemplate, type: ['image'] } },
+		default: '',
 	},
 	{
-		displayName: 'Webview型配置（JSON）',
-		name: 'webview',
-		type: 'json',
-		default: `{
-  "url": "http://www.example.com",
-  "jump_url": "http://www.example.com",
-  "height": "double_row",
-  "hide_title": false,
-  "enable_webview_click": false
-}`,
-		displayOptions: {
-			show: {
-				...showOnlySetWorkbenchTemplate,
-				type: ['webview'],
+		displayName: '图片小程序路径',
+		name: 'image_pagepath',
+		type: 'string',
+		displayOptions: { show: { ...showOnlySetWorkbenchTemplate, type: ['image'] } },
+		default: '',
+	},
+	{
+		displayName: '列表项',
+		name: 'listItems',
+		type: 'fixedCollection',
+		displayOptions: { show: { ...showOnlySetWorkbenchTemplate, type: ['list'] } },
+		default: {},
+		placeholder: '添加列表项',
+		typeOptions: { multipleValues: true },
+		description: '最多 3 项',
+		options: [
+			{
+				displayName: '列表项',
+				name: 'items',
+				values: [
+					{ displayName: '标题', name: 'title', type: 'string', default: '' },
+					{ displayName: '跳转URL', name: 'jump_url', type: 'string', default: '' },
+					{ displayName: '小程序路径', name: 'pagepath', type: 'string', default: '' },
+				],
 			},
-		},
-		description: 'Webview型模版数据。height可选single_row或double_row。URL为渲染展示的URL，jump_url为跳转URL，height为高度，hide_title是否隐藏标题，enable_webview_click是否开启链接跳转',
+		],
+	},
+	{
+		displayName: 'Webview URL',
+		name: 'webview_url',
+		type: 'string',
+		displayOptions: { show: { ...showOnlySetWorkbenchTemplate, type: ['webview'] } },
+		default: '',
+	},
+	{
+		displayName: 'Webview 跳转URL',
+		name: 'webview_jump_url',
+		type: 'string',
+		displayOptions: { show: { ...showOnlySetWorkbenchTemplate, type: ['webview'] } },
+		default: '',
+	},
+	{
+		displayName: 'Webview 高度',
+		name: 'webview_height',
+		type: 'options',
+		displayOptions: { show: { ...showOnlySetWorkbenchTemplate, type: ['webview'] } },
+		options: [
+			{ name: '单行 single_row', value: 'single_row' },
+			{ name: '双行 double_row', value: 'double_row' },
+		],
+		default: 'double_row',
+	},
+	{
+		displayName: '隐藏标题',
+		name: 'webview_hide_title',
+		type: 'boolean',
+		displayOptions: { show: { ...showOnlySetWorkbenchTemplate, type: ['webview'] } },
+		default: false,
+	},
+	{
+		displayName: '开启链接跳转',
+		name: 'webview_enable_click',
+		type: 'boolean',
+		displayOptions: { show: { ...showOnlySetWorkbenchTemplate, type: ['webview'] } },
+		default: false,
 	},
 	{
 		displayName: '覆盖用户数据',
@@ -151,6 +144,18 @@ export const setWorkbenchTemplateDescription: INodeProperties[] = [
 				type: ['keydata', 'image', 'list', 'webview'],
 			},
 		},
-		description: '是否覆盖企业所有用户当前设置的数据',
+	},
+	{
+		displayName: '模版扩展JSON',
+		name: 'templateExtraJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				...showOnlySetWorkbenchTemplate,
+				type: ['keydata', 'image', 'list', 'webview'],
+			},
+		},
+		default: '{}',
+		description: '合并进对应 type 配置对象，JSON 优先',
 	},
 ];
