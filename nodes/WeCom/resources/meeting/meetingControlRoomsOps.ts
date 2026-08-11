@@ -185,12 +185,48 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		description: '批量取消高级账号任务的 jobid',
 	},
 	{
-		displayName: '被操作用户JSON',
+		displayName: '被操作用户',
+		name: 'operatedUsersCollection',
+		type: 'fixedCollection',
+		displayOptions: { show: { resource: ['meeting'], operation: needOperatedUsers } },
+		default: {},
+		placeholder: '添加用户',
+		typeOptions: { multipleValues: true },
+		options: [
+			{
+				displayName: '用户',
+				name: 'users',
+				values: [
+					{
+						displayName: '临时OpenID',
+						name: 'tmp_openid',
+						type: 'string',
+						default: '',
+					},
+					{
+						displayName: '实例ID',
+						name: 'instance_id',
+						type: 'number',
+						default: 1,
+					},
+					{
+						displayName: '昵称',
+						name: 'nickname',
+						type: 'string',
+						default: '',
+						description: '修改昵称接口使用',
+					},
+				],
+			},
+		],
+	},
+	{
+		displayName: '被操作用户扩展JSON',
 		name: 'operated_users_json',
 		type: 'json',
 		displayOptions: { show: { resource: ['meeting'], operation: needOperatedUsers } },
 		default: '[]',
-		description: '被操作成员列表（含 tmp_openid、instance_id、nickname 等），见官方文档',
+		description: '非空数组时覆盖上方表单',
 	},
 	{
 		displayName: '会议嘉宾列表',

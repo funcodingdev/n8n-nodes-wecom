@@ -1067,13 +1067,29 @@ export async function executeMeeting(
 						'rcSwitchUserVideo',
 					].includes(operation)
 				) {
+					const usersCollection = this.getNodeParameter(
+						'operatedUsersCollection',
+						i,
+						{},
+					) as IDataObject;
+					let users: IDataObject[] = ((usersCollection?.users as IDataObject[]) || [])
+						.filter((u) => u.tmp_openid)
+						.map((u) => {
+							const item: IDataObject = {
+								tmp_openid: u.tmp_openid,
+								instance_id: u.instance_id ?? 1,
+							};
+							if (u.nickname) item.nickname = u.nickname;
+							return item;
+						});
 					try {
-						const users = JSON.parse(operated_users_json || '[]');
-						if (operation === 'rcSetNicknames') body.operated_users = users;
-						else body.operated_user = users;
+						const fromJson = JSON.parse(operated_users_json || '[]');
+						if (Array.isArray(fromJson) && fromJson.length) users = fromJson as IDataObject[];
 					} catch {
 						// ignore
 					}
+					if (operation === 'rcSetNicknames') body.operated_users = users;
+					else body.operated_user = users;
 				}
 				if (operation === 'setGuests') {
 					const guestsCollection = this.getNodeParameter(
