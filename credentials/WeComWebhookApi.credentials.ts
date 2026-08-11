@@ -1,10 +1,11 @@
 import type {
 	IAuthenticateGeneric,
-	ICredentialTestRequest,
 	ICredentialType,
 	INodeProperties,
 } from 'n8n-workflow';
 
+// 凭证测试会向群聊发送消息，因此有意不提供测试请求
+// eslint-disable-next-line @n8n/community-nodes/credential-test-required
 export class WeComWebhookApi implements ICredentialType {
 	name = 'weComWebhookApi';
 
@@ -43,18 +44,5 @@ export class WeComWebhookApi implements ICredentialType {
 	authenticate: IAuthenticateGeneric = {
 		type: 'generic',
 		properties: {},
-	};
-
-	test: ICredentialTestRequest = {
-		request: {
-			baseURL: '={{$credentials.webhookUrl}}',
-			method: 'POST',
-			body: {
-				msgtype: 'text',
-				text: {
-					content: 'n8n 凭证测试消息',
-				},
-			},
-		},
 	};
 }
