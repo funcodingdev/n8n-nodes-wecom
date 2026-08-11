@@ -2413,11 +2413,20 @@ export async function executeWedoc(
 				);
 			} else if (operation === 'modPrivRuleMember') {
 				const docid = this.getNodeParameter('docid', i) as string;
+				const priv_rule_id = this.getNodeParameter('priv_rule_id', i, 0) as number;
+				const add_member_userids = this.getNodeParameter('add_member_userids', i, '') as string;
+				const del_member_userids = this.getNodeParameter('del_member_userids', i, '') as string;
 				const privRuleJson = this.getNodeParameter('privRuleJson', i, '{}') as string;
 				const body: IDataObject = { docid };
+				if (priv_rule_id) body.rule_id = priv_rule_id;
+				const addUsers = add_member_userids.split(',').map((s) => s.trim()).filter(Boolean);
+				const delUsers = del_member_userids.split(',').map((s) => s.trim()).filter(Boolean);
+				if (addUsers.length) body.add_member_range = { userid_list: addUsers };
+				if (delUsers.length) body.del_member_range = { userid_list: delUsers };
 				try {
 					Object.assign(body, JSON.parse(privRuleJson || '{}') as IDataObject);
 					body.docid = docid;
+					if (priv_rule_id) body.rule_id = priv_rule_id;
 				} catch {
 					// ignore
 				}
