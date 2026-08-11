@@ -517,29 +517,39 @@ export async function executeCalendar(
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/oa/schedule/update', body);
 			} else if (operation === 'updateRecurringSchedule') {
 				const schedule_id = this.getNodeParameter('schedule_id', i) as string;
-				const schedule = this.getNodeParameter('schedule', i) as string;
+				const schedule_summary = this.getNodeParameter('schedule_summary', i, '') as string;
+				const schedule_description = this.getNodeParameter('schedule_description', i, '') as string;
+				const schedule_start_time = this.getNodeParameter('schedule_start_time', i, 0) as number;
+				const schedule_end_time = this.getNodeParameter('schedule_end_time', i, 0) as number;
+				const schedule_location = this.getNodeParameter('schedule_location', i, '') as string;
+				const schedule = this.getNodeParameter('schedule', i, '{}') as string;
 				const skip_attendees = this.getNodeParameter('skip_attendees', i, false) as boolean;
 				const op_mode = this.getNodeParameter('op_mode', i, 1) as number;
 				const op_start_time_raw = this.getNodeParameter('op_start_time', i, '') as string | number;
 				const op_start_time = op_start_time_raw ? dateTimeToUnixTimestamp(op_start_time_raw) : 0;
 
-				let parsedSchedule;
+				const scheduleBody: IDataObject = { schedule_id };
+				if (schedule_summary) scheduleBody.summary = schedule_summary;
+				if (schedule_description) scheduleBody.description = schedule_description;
+				if (schedule_start_time) scheduleBody.start_time = schedule_start_time;
+				if (schedule_end_time) scheduleBody.end_time = schedule_end_time;
+				if (schedule_location) scheduleBody.location = schedule_location;
+
 				try {
-					parsedSchedule = JSON.parse(schedule);
+					const parsedSchedule = JSON.parse(schedule || '{}') as IDataObject;
+					if (parsedSchedule && typeof parsedSchedule === 'object') {
+						Object.assign(scheduleBody, parsedSchedule);
+						scheduleBody.schedule_id = schedule_id;
+					}
 				} catch (error) {
 					throw new NodeOperationError(
 						this.getNode(),
-						`schedule 必须是有效的 JSON: ${error.message}`,
+						`日程扩展JSON 必须是有效的 JSON: ${(error as Error).message}`,
 						{ itemIndex: i },
 					);
 				}
 
-				const body: IDataObject = {
-					schedule: {
-						schedule_id,
-						...parsedSchedule,
-					},
-				};
+				const body: IDataObject = { schedule: scheduleBody };
 
 				if (skip_attendees) {
 					body.skip_attendees = skip_attendees ? 1 : 0;
