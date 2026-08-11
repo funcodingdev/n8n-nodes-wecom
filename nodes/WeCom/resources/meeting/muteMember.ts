@@ -10,7 +10,8 @@ export const muteMemberDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: showOnly },
 		default: '',
-		description: '会议唯一标识ID。<a href="https://developer.work.weixin.qq.com/document/path/98184" target="_blank">官方文档</a>',
+		description:
+			'会议 ID。<a href="https://developer.work.weixin.qq.com/document/path/98184" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '操作类型',
@@ -19,14 +20,14 @@ export const muteMemberDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: showOnly },
 		options: [
-			{ name: '静音', value: 1, description: '将成员设为静音状态' },
-			{ name: '取消静音', value: 2, description: '取消成员的静音状态' },
+			{ name: '静音', value: 1, description: 'option=true' },
+			{ name: '取消静音', value: 2, description: 'option=false' },
 		],
 		default: 1,
-		description: '静音操作类型',
+		description: '映射为 option 布尔值',
 	},
 	{
-		displayName: '目标成员',
+		displayName: '被操作用户',
 		name: 'membersCollection',
 		type: 'fixedCollection',
 		required: true,
@@ -34,19 +35,27 @@ export const muteMemberDescription: INodeProperties[] = [
 		default: {},
 		placeholder: '添加成员',
 		typeOptions: { multipleValues: true },
-		description: '要操作的成员列表',
+		description: 'operated_user：会中临时 ID + 设备类型',
 		options: [
 			{
 				displayName: '成员',
 				name: 'members',
 				values: [
 					{
-						displayName: '用户ID',
-						name: 'userid',
+						displayName: '临时OpenID',
+						name: 'tmp_openid',
 						type: 'string',
 						default: '',
 						required: true,
-						description: '成员的企业微信UserID',
+						description: 'tmp_openid，会中临时 ID',
+					},
+					{
+						displayName: '设备实例ID',
+						name: 'instance_id',
+						type: 'number',
+						default: 1,
+						description:
+							'instance_id：0 PSTN / 1 PC / 2 Mac / 3 Android / 4 iOS / 5 Web 等',
 					},
 				],
 			},

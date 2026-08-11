@@ -10,10 +10,19 @@ export const removeMemberDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: showOnly },
 		default: '',
-		description: '会议唯一标识ID',
+		description:
+			'会议 ID。<a href="https://developer.work.weixin.qq.com/document/path/98181" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '移除成员',
+		displayName: '允许再次入会',
+		name: 'allow_rejoin',
+		type: 'boolean',
+		displayOptions: { show: showOnly },
+		default: true,
+		description: 'allow_rejoin',
+	},
+	{
+		displayName: '被操作用户',
 		name: 'membersCollection',
 		type: 'fixedCollection',
 		required: true,
@@ -21,19 +30,26 @@ export const removeMemberDescription: INodeProperties[] = [
 		default: {},
 		placeholder: '添加要移除的成员',
 		typeOptions: { multipleValues: true },
-		description: '要从会议中移除的成员列表',
+		description: 'operated_users：tmp_openid + instance_id',
 		options: [
 			{
 				displayName: '成员',
 				name: 'members',
 				values: [
 					{
-						displayName: '用户ID',
-						name: 'userid',
+						displayName: '临时OpenID',
+						name: 'tmp_openid',
 						type: 'string',
 						default: '',
 						required: true,
-						description: '要移除的成员UserID',
+						description: 'tmp_openid，会中临时 ID',
+					},
+					{
+						displayName: '设备实例ID',
+						name: 'instance_id',
+						type: 'number',
+						default: 1,
+						description: 'instance_id，需与入会设备类型一致',
 					},
 				],
 			},

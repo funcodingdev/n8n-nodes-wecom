@@ -254,13 +254,19 @@ export async function executeMeeting(
 				const mute_action = this.getNodeParameter('mute_action', i) as number;
 				const membersCollection = this.getNodeParameter('membersCollection', i, {}) as IDataObject;
 
-				const operated_user: IDataObject[] = [];
-				if (membersCollection.members) {
-					const membersList = membersCollection.members as IDataObject[];
-					membersList.forEach((m) => {
-						if (m.userid) operated_user.push({ userid: m.userid });
-					});
-				}
+				const users = ((membersCollection.members as IDataObject[]) || [])
+					.map((m) => {
+						const item: IDataObject = {
+							instance_id: m.instance_id ?? 1,
+						};
+						// 官方字段为 tmp_openid；兼容旧表单 userid 字段
+						if (m.tmp_openid) item.tmp_openid = m.tmp_openid;
+						else if (m.userid) item.tmp_openid = m.userid;
+						return item;
+					})
+					.filter((u) => u.tmp_openid);
+				// 示例为单对象；参数表为数组 —— 单人用对象，多人用数组
+				const operated_user = users.length === 1 ? users[0] : users;
 
 				response = await weComApiRequest.call(
 					this,
@@ -279,13 +285,16 @@ export async function executeMeeting(
 				const membersCollection = this.getNodeParameter('membersCollection', i, {}) as IDataObject;
 				const allow_rejoin = this.getNodeParameter('allow_rejoin', i, true) as boolean;
 
-				const operated_user: IDataObject[] = [];
-				if (membersCollection.members) {
-					const membersList = membersCollection.members as IDataObject[];
-					membersList.forEach((m) => {
-						if (m.userid) operated_user.push({ userid: m.userid });
-					});
-				}
+				const operated_users = ((membersCollection.members as IDataObject[]) || [])
+					.map((m) => {
+						const item: IDataObject = {
+							instance_id: m.instance_id ?? 1,
+						};
+						if (m.tmp_openid) item.tmp_openid = m.tmp_openid;
+						else if (m.userid) item.tmp_openid = m.userid;
+						return item;
+					})
+					.filter((u) => u.tmp_openid);
 
 				response = await weComApiRequest.call(
 					this,
@@ -294,7 +303,7 @@ export async function executeMeeting(
 					{
 						meetingid,
 						allow_rejoin,
-						operated_user,
+						operated_users,
 					},
 				);
 			} else if (operation === 'endMeeting') {
