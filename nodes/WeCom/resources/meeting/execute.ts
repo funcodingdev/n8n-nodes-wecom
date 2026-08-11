@@ -1219,13 +1219,16 @@ export async function executeMeeting(
 					} catch {
 						// ignore
 					}
-					// set_nicknames / manage_waiting_room_users 用 operated_users；
-					// close_screen_share / switch_user_video 用 operated_user
+					// set_nicknames / manage_waiting_room_users：operated_users 数组
+					// close_screen_share / switch_user_video：operated_user 单个对象
 					if (operation === 'rcSetNicknames' || operation === 'rcManageWaitingRoom') {
 						body.operated_users = users;
 					} else {
-						body.operated_user = users;
+						body.operated_user = users.length === 1 ? users[0] : users;
 					}
+				}
+				if (operation === 'rcSwitchUserVideo') {
+					body.video = this.getNodeParameter('rc_video_on', i, false) as boolean;
 				}
 				if (operation === 'setGuests') {
 					const guestsCollection = this.getNodeParameter(

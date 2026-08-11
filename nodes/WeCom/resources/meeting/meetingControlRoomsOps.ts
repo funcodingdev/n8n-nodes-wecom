@@ -383,6 +383,16 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		description: 'true 举手，false 放下',
 	},
 	{
+		displayName: '开启视频',
+		name: 'rc_video_on',
+		type: 'boolean',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['rcSwitchUserVideo'] },
+		},
+		default: false,
+		description: 'video：false 关闭（默认），true 开启（仅 MRA）',
+	},
+	{
 		displayName: '等候室操作类型',
 		name: 'waiting_operate_type',
 		type: 'options',
