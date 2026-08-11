@@ -76,14 +76,43 @@ export async function executeAgent(
 				// 创建菜单
 				case 'createMenu': {
 					const agentid = this.getNodeParameter('agentid', i) as number;
-					const buttonJson = this.getNodeParameter('button', i) as string;
+					const menuConfigMode = this.getNodeParameter('menuConfigMode', i, 'form') as string;
+					let button: IDataObject[] = [];
 
-					// 解析JSON字符串为数组
-					let button: IDataObject[];
-					try {
-						button = typeof buttonJson === 'string' ? JSON.parse(buttonJson) : buttonJson;
-					} catch {
-						throw new Error('菜单配置JSON格式错误，请检查JSON语法');
+					if (menuConfigMode === 'json') {
+						const buttonJson = this.getNodeParameter('button', i) as string;
+						try {
+							button = typeof buttonJson === 'string' ? JSON.parse(buttonJson) : buttonJson;
+						} catch {
+							throw new Error('菜单配置JSON格式错误，请检查JSON语法');
+						}
+					} else {
+						const collection = this.getNodeParameter('menuButtonCollection', i, {}) as IDataObject;
+						const items = (collection?.buttons as IDataObject[]) || [];
+						button = items
+							.filter((b) => b.name)
+							.map((b) => {
+								const item: IDataObject = { name: b.name };
+								if (b.type === 'sub') {
+									try {
+										const subs = JSON.parse(String(b.sub_button_json || '[]'));
+										if (Array.isArray(subs) && subs.length) item.sub_button = subs;
+									} catch {
+										/* ignore */
+									}
+								} else {
+									item.type = b.type;
+									if (b.key) item.key = b.key;
+									if (b.url) item.url = b.url;
+									if (b.appid) item.appid = b.appid;
+									if (b.pagepath) item.pagepath = b.pagepath;
+								}
+								return item;
+							});
+					}
+
+					if (!Array.isArray(button) || !button.length) {
+						throw new Error('请至少配置一个一级菜单');
 					}
 
 					responseData = await weComApiRequest.call(

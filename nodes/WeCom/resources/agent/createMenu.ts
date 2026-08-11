@@ -5,6 +5,69 @@ const showOnlyCreateMenu = {
 	operation: ['createMenu'],
 };
 
+const menuItemFields: INodeProperties[] = [
+	{
+		displayName: '菜单名称',
+		name: 'name',
+		type: 'string',
+		default: '',
+		description: '一级不超过 16 字节，二级不超过 40 字节',
+	},
+	{
+		displayName: '类型',
+		name: 'type',
+		type: 'options',
+		options: [
+			{ name: '含子菜单', value: 'sub' },
+			{ name: 'click 点击推事件', value: 'click' },
+			{ name: 'view 跳转网页', value: 'view' },
+			{ name: 'scancode_push 扫码推事件', value: 'scancode_push' },
+			{ name: 'scancode_waitmsg 扫码带提示', value: 'scancode_waitmsg' },
+			{ name: 'pic_sysphoto 系统拍照', value: 'pic_sysphoto' },
+			{ name: 'pic_photo_or_album 拍照或相册', value: 'pic_photo_or_album' },
+			{ name: 'pic_weixin 微信相册', value: 'pic_weixin' },
+			{ name: 'location_select 地理位置', value: 'location_select' },
+			{ name: 'view_miniprogram 小程序', value: 'view_miniprogram' },
+		],
+		default: 'click',
+	},
+	{
+		displayName: 'Key',
+		name: 'key',
+		type: 'string',
+		default: '',
+		description: 'click 等点击类必填',
+	},
+	{
+		displayName: 'URL',
+		name: 'url',
+		type: 'string',
+		default: '',
+		description: 'view 类型必填',
+	},
+	{
+		displayName: '小程序AppID',
+		name: 'appid',
+		type: 'string',
+		default: '',
+		description: 'view_miniprogram 必填',
+	},
+	{
+		displayName: '小程序页面路径',
+		name: 'pagepath',
+		type: 'string',
+		default: '',
+		description: 'view_miniprogram 必填',
+	},
+	{
+		displayName: '子菜单JSON',
+		name: 'sub_button_json',
+		type: 'json',
+		default: '[]',
+		description: 'type 为「含子菜单」时填写二级菜单数组（1~5 个）',
+	},
+];
+
 export const createMenuDescription: INodeProperties[] = [
 	{
 		displayName: '应用ID',
@@ -12,44 +75,50 @@ export const createMenuDescription: INodeProperties[] = [
 		type: 'number',
 		required: true,
 		default: 0,
-		displayOptions: {
-			show: showOnlyCreateMenu,
-		},
-		description: '企业应用的唯一标识，整型。可在应用的设置页面查看。<a href="https://developer.work.weixin.qq.com/document/path/90231" target="_blank">官方文档</a>',
+		displayOptions: { show: showOnlyCreateMenu },
+		description: '企业应用 agentid',
 	},
 	{
-		displayName: '菜单配置（JSON）',
+		displayName: '菜单配置方式',
+		name: 'menuConfigMode',
+		type: 'options',
+		displayOptions: { show: showOnlyCreateMenu },
+		options: [
+			{ name: '表单配置', value: 'form' },
+			{ name: '完整 JSON', value: 'json' },
+		],
+		default: 'form',
+	},
+	{
+		displayName: '一级菜单',
+		name: 'menuButtonCollection',
+		type: 'fixedCollection',
+		displayOptions: { show: { ...showOnlyCreateMenu, menuConfigMode: ['form'] } },
+		default: {},
+		placeholder: '添加一级菜单',
+		typeOptions: { multipleValues: true },
+		description: '1~3 个一级菜单',
+		options: [
+			{
+				displayName: '菜单项',
+				name: 'buttons',
+				values: menuItemFields,
+			},
+		],
+	},
+	{
+		displayName: '菜单配置JSON',
 		name: 'button',
 		type: 'json',
-		typeOptions: {
-			rows: 10,
-		},
-		required: true,
+		typeOptions: { rows: 10 },
+		displayOptions: { show: { ...showOnlyCreateMenu, menuConfigMode: ['json'] } },
 		default: `[
   {
     "type": "click",
     "name": "今日歌曲",
     "key": "V1001_TODAY_MUSIC"
-  },
-  {
-    "name": "菜单",
-    "sub_button": [
-      {
-        "type": "view",
-        "name": "搜索",
-        "url": "https://www.example.com/"
-      },
-      {
-        "type": "click",
-        "name": "赞一下我们",
-        "key": "V1001_GOOD"
-      }
-    ]
   }
 ]`,
-		displayOptions: {
-			show: showOnlyCreateMenu,
-		},
-		description: '菜单按钮配置数组。一级菜单数组，个数应为1~3个。每个菜单项包含：type（必填，菜单响应动作类型）、name（必填，主菜单不超过16字节，子菜单不超过40字节）、key（click等点击类型必填，不超过128字节）、URL（view类型必填，不超过1024字节）、pagepath和appid（view_miniprogram类型必填）。二级菜单sub_button数组个数应为1~5个',
+		description: 'button 数组，一级菜单 1~3 个',
 	},
 ];
