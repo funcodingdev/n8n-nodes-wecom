@@ -387,11 +387,11 @@ export async function executeMeeting(
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/update', body);
 			} else if (operation === 'getMeetingInvitees') {
+				// https://developer.work.weixin.qq.com/document/path/98160
 				const meetingid = this.getNodeParameter('meetingid', i) as string;
 				const cursor = this.getNodeParameter('cursor', i, '') as string;
-				const limit = this.getNodeParameter('limit', i, 20) as number;
 
-				const body: IDataObject = { meetingid, limit };
+				const body: IDataObject = { meetingid };
 				if (cursor) body.cursor = cursor;
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/get_invitees', body);
