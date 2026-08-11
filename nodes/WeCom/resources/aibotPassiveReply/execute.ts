@@ -182,8 +182,16 @@ export async function executeAIBotPassiveReply(
 				const finish = this.getNodeParameter('finish', i, false) as boolean;
 				const content = this.getNodeParameter('content', i, '') as string;
 				const streamFeedbackId = this.getNodeParameter('stream_feedback_id', i, '') as string;
-				const templateCardStr = this.getNodeParameter('template_card', i, '') as string;
-				const templateCardFeedbackId = this.getNodeParameter('template_card_feedback_id', i, '') as string;
+				const attachTemplateCard = this.getNodeParameter(
+					'attach_template_card',
+					i,
+					true,
+				) as boolean;
+				const templateCardFeedbackId = this.getNodeParameter(
+					'template_card_feedback_id',
+					i,
+					'',
+				) as string;
 				const msgItemData = this.getNodeParameter('msg_item', i, {}) as IDataObject;
 
 				if (!streamId) {
@@ -224,22 +232,14 @@ export async function executeAIBotPassiveReply(
 					stream: streamData,
 				};
 
-				if (templateCardStr) {
-					try {
-						const templateCard = JSON.parse(templateCardStr);
-						if (templateCardFeedbackId) {
-							templateCard.feedback = {
-								id: templateCardFeedbackId,
-							};
-						}
-						replyData.template_card = templateCard;
-					} catch (error) {
-						throw new NodeOperationError(
-							this.getNode(),
-							`模板卡片必须是有效的JSON格式: ${(error as Error).message}`,
-							{ itemIndex: i },
-						);
+				if (attachTemplateCard) {
+					const templateCard = resolveTemplateCard.call(this, i);
+					if (templateCardFeedbackId) {
+						templateCard.feedback = {
+							id: templateCardFeedbackId,
+						};
 					}
+					replyData.template_card = templateCard;
 				}
 
 				replyBody = replyData;

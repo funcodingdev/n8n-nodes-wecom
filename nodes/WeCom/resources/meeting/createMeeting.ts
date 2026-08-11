@@ -222,6 +222,30 @@ export const createMeetingDescription: INodeProperties[] = [
 		description: 'settings.auto_record_type',
 	},
 	{
+		displayName: '是否周期性会议',
+		name: 'reminders_is_repeat',
+		type: 'boolean',
+		displayOptions: { show: showOnly },
+		default: false,
+		description: 'reminders.is_repeat',
+	},
+	{
+		displayName: '周期类型',
+		name: 'reminders_repeat_type',
+		type: 'options',
+		displayOptions: {
+			show: { ...showOnly, reminders_is_repeat: [true] },
+		},
+		options: [
+			{ name: '每日', value: 0 },
+			{ name: '每周', value: 1 },
+			{ name: '每月', value: 2 },
+			{ name: '工作日', value: 7 },
+		],
+		default: 0,
+		description: 'reminders.repeat_type',
+	},
+	{
 		displayName: '扩展请求JSON',
 		name: 'createMeetingExtraJson',
 		type: 'json',

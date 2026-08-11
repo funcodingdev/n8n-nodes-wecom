@@ -169,7 +169,7 @@ export async function executeMeeting(
 					.filter(Boolean);
 				if (hostIds.length) settings.hosts = { userid: hostIds };
 
-				// 普通创建 / 高级创建共用设置（高级创建另支持周期会议）
+				// 普通创建 / 高级创建共用 settings 与周期会议
 				settings.allow_unmute_self = this.getNodeParameter(
 					'settings_allow_unmute_self',
 					i,
@@ -190,23 +190,21 @@ export async function executeMeeting(
 					i,
 					'none',
 				) as string;
-				if (operation === 'createAdvancedMeeting') {
-					const reminders_is_repeat = this.getNodeParameter(
-						'reminders_is_repeat',
+				const reminders_is_repeat = this.getNodeParameter(
+					'reminders_is_repeat',
+					i,
+					false,
+				) as boolean;
+				if (reminders_is_repeat) {
+					const reminders_repeat_type = this.getNodeParameter(
+						'reminders_repeat_type',
 						i,
-						false,
-					) as boolean;
-					if (reminders_is_repeat) {
-						const reminders_repeat_type = this.getNodeParameter(
-							'reminders_repeat_type',
-							i,
-							0,
-						) as number;
-						body.reminders = {
-							is_repeat: 1,
-							repeat_type: reminders_repeat_type,
-						};
-					}
+						0,
+					) as number;
+					body.reminders = {
+						is_repeat: 1,
+						repeat_type: reminders_repeat_type,
+					};
 				}
 
 				// 兼容旧 advancedSettings collection

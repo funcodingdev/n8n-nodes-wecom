@@ -56,12 +56,14 @@ export const setScheduleListDescription: INodeProperties[] = [
 						typeOptions: { minValue: 1, maxValue: 31 },
 					},
 					{
-						displayName: '排班ID',
+						displayName: '班次ID',
 						name: 'schedule_id',
 						type: 'number',
 						default: 0,
 						required: true,
-
+						description:
+							'schedule_id，来自打卡规则 schedulelist；0 表示休息。可通过获取员工打卡规则取得',
+						typeOptions: { minValue: 0 },
 					},
 				],
 			},
