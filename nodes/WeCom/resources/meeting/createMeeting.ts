@@ -246,6 +246,53 @@ export const createMeetingDescription: INodeProperties[] = [
 		description: 'reminders.repeat_type',
 	},
 	{
+		displayName: '重复间隔(周)',
+		name: 'reminders_repeat_interval',
+		type: 'number',
+		displayOptions: {
+			show: { ...showOnly, reminders_is_repeat: [true], reminders_repeat_type: [1] },
+		},
+		default: 1,
+		typeOptions: { minValue: 1, maxValue: 2 },
+		description: 'reminders.repeat_interval，仅每周时有效，最大 2',
+	},
+	{
+		displayName: '重复结束时间',
+		name: 'reminders_repeat_until',
+		type: 'dateTime',
+		displayOptions: {
+			show: { ...showOnly, reminders_is_repeat: [true] },
+		},
+		default: '',
+		description: 'reminders.repeat_until；空则默认最大结束时间',
+	},
+	{
+		displayName: '会前提醒',
+		name: 'reminders_remind_before',
+		type: 'multiOptions',
+		displayOptions: { show: showOnly },
+		options: [
+			{ name: '会议开始时', value: 0 },
+			{ name: '5分钟前', value: 300 },
+			{ name: '15分钟前', value: 900 },
+			{ name: '1小时前', value: 3600 },
+			{ name: '1天前', value: 86400 },
+		],
+		default: [],
+		description: 'reminders.remind_before，相对 meeting_start 的秒数',
+	},
+	{
+		displayName: '指定响铃UserID列表',
+		name: 'settings_ring_userids',
+		type: 'string',
+		displayOptions: {
+			show: { ...showOnly, settings_remind_scope: [4] },
+		},
+		default: '',
+		placeholder: 'zhangsan,lisi',
+		description: 'settings.ring_users.userid，remind_scope=4 时生效',
+	},
+	{
 		displayName: '扩展请求JSON',
 		name: 'createMeetingExtraJson',
 		type: 'json',

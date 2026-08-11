@@ -168,6 +168,13 @@ export async function executeMeeting(
 					.map((s) => s.trim())
 					.filter(Boolean);
 				if (hostIds.length) settings.hosts = { userid: hostIds };
+				if (settings_remind_scope === 4) {
+					const ringIds = (this.getNodeParameter('settings_ring_userids', i, '') as string)
+						.split(',')
+						.map((s) => s.trim())
+						.filter(Boolean);
+					if (ringIds.length) settings.ring_users = { userid: ringIds };
+				}
 
 				// 普通创建 / 高级创建共用 settings 与周期会议
 				settings.allow_unmute_self = this.getNodeParameter(
@@ -195,17 +202,37 @@ export async function executeMeeting(
 					i,
 					false,
 				) as boolean;
+				const remind_before = this.getNodeParameter(
+					'reminders_remind_before',
+					i,
+					[],
+				) as number[];
+				const reminders: IDataObject = {};
 				if (reminders_is_repeat) {
 					const reminders_repeat_type = this.getNodeParameter(
 						'reminders_repeat_type',
 						i,
 						0,
 					) as number;
-					body.reminders = {
-						is_repeat: 1,
-						repeat_type: reminders_repeat_type,
-					};
+					reminders.is_repeat = 1;
+					reminders.repeat_type = reminders_repeat_type;
+					if (reminders_repeat_type === 1) {
+						const interval = this.getNodeParameter(
+							'reminders_repeat_interval',
+							i,
+							1,
+						) as number;
+						if (interval) reminders.repeat_interval = Math.min(Math.max(interval, 1), 2);
+					}
+					const until = dateTimeToUnixTimestamp(
+						this.getNodeParameter('reminders_repeat_until', i, '') as string | number,
+					);
+					if (until) reminders.repeat_until = until;
 				}
+				if (Array.isArray(remind_before) && remind_before.length) {
+					reminders.remind_before = remind_before;
+				}
+				if (Object.keys(reminders).length) body.reminders = reminders;
 
 				// 兼容旧 advancedSettings collection
 				const advancedSettings = this.getNodeParameter(
