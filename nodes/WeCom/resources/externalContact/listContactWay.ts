@@ -9,20 +9,19 @@ export const listContactWayDescription: INodeProperties[] = [
 	{
 		displayName: '创建起始时间',
 		name: 'start_time',
-		type: 'number',
-		default: 0,
+		type: 'dateTime',
+		default: '',
 		displayOptions: { show: showOnly },
-		description: '「联系我」创建起始时间戳（秒），默认为90天前。注意：该接口仅可获取2021年7月10日以后创建的「联系我」',
-		placeholder: '1622476800',
+		description:
+			'「联系我」创建起始时间；空默认 90 天前。仅可获取 2021-07-10 以后创建的「联系我」',
 	},
 	{
 		displayName: '创建结束时间',
 		name: 'end_time',
-		type: 'number',
-		default: 0,
+		type: 'dateTime',
+		default: '',
 		displayOptions: { show: showOnly },
-		description: '「联系我」创建结束时间戳（秒），默认为当前时间',
-		placeholder: '1625068800',
+		description: '「联系我」创建结束时间；空默认当前时间',
 	},
 	{
 		displayName: '分页游标',

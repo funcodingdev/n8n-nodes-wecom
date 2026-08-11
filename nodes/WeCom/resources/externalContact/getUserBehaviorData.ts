@@ -39,19 +39,20 @@ export const getUserBehaviorDataDescription: INodeProperties[] = [
 	{
 		displayName: '起始时间（必填）',
 		name: 'start_time',
-		type: 'number',
+		type: 'dateTime',
 		required: true,
-		default: 0,
+		default: '',
 		displayOptions: { show: showOnly },
-		description: '数据起始时间（Unix时间戳）。查询的时间范围为[start_time,end_time]，最大查询跨度为30天，最多可获取最近180天内的数据',
+		description:
+			'数据起始时间；范围 [start_time,end_time]，跨度≤30 天，最多最近 180 天',
 	},
 	{
 		displayName: '结束时间（必填）',
 		name: 'end_time',
-		type: 'number',
+		type: 'dateTime',
 		required: true,
-		default: 0,
+		default: '',
 		displayOptions: { show: showOnly },
-		description: '数据结束时间（Unix时间戳）。当传入的时间不为0点时间戳时，会向下取整',
+		description: '数据结束时间；非 0 点时间戳时会向下取整到当天 0 点',
 	},
 ];

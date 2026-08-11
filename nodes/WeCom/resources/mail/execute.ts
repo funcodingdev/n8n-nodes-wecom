@@ -1,6 +1,16 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
 
+function dateTimeToUnixTimestamp(dateTime: string | number): number {
+	if (typeof dateTime === 'number') {
+		return dateTime;
+	}
+	if (!dateTime || dateTime === '') {
+		return 0;
+	}
+	return Math.floor(new Date(dateTime).getTime() / 1000);
+}
+
 function collectEmails(collection: IDataObject): string[] {
 	const list: string[] = [];
 	if (collection.recipients) {
@@ -185,8 +195,12 @@ export async function executeMail(
 			// 获取接收的邮件（应用收件箱）
 			// https://developer.work.weixin.qq.com/document/path/97369
 			else if (operation === 'getMailList') {
-				const begin_time = this.getNodeParameter('begin_time', i) as number;
-				const end_time = this.getNodeParameter('end_time', i) as number;
+				const begin_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('begin_time', i) as string | number,
+				);
+				const end_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('end_time', i) as string | number,
+				);
 				const limit = this.getNodeParameter('limit', i, 100) as number;
 				const cursor = this.getNodeParameter('cursor', i, '') as string;
 

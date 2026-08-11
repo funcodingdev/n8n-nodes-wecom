@@ -9,27 +9,25 @@ export const getMailListDescription: INodeProperties[] = [
 	{
 		displayName: '开始时间',
 		name: 'begin_time',
-		type: 'number',
+		type: 'dateTime',
 		required: true,
 		displayOptions: {
 			show: showOnlyForGetMailList,
 		},
-		default: 0,
-		placeholder: '1609459200',
+		default: '',
 		description:
-			'查询开始时间 Unix 时间戳（秒）。应用收件箱接口，无需传邮箱地址。<a href="https://developer.work.weixin.qq.com/document/path/97369" target="_blank">官方文档</a>',
+			'查询开始时间 begin_time。应用收件箱接口，无需传邮箱地址。<a href="https://developer.work.weixin.qq.com/document/path/97369" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '结束时间',
 		name: 'end_time',
-		type: 'number',
+		type: 'dateTime',
 		required: true,
 		displayOptions: {
 			show: showOnlyForGetMailList,
 		},
-		default: 0,
-		placeholder: '1609545600',
-		description: '查询结束时间 Unix 时间戳（秒）',
+		default: '',
+		description: '查询结束时间 end_time',
 	},
 	{
 		displayName: '邮件数量',

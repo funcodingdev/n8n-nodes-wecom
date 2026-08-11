@@ -495,8 +495,12 @@ export async function executeExternalContact(
 					{ config_id },
 				);
 			} else if (operation === 'listContactWay') {
-				const start_time = this.getNodeParameter('start_time', i, 0) as number;
-				const end_time = this.getNodeParameter('end_time', i, 0) as number;
+				const start_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('start_time', i, '') as string | number,
+				);
+				const end_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('end_time', i, '') as string | number,
+				);
 				const cursor = this.getNodeParameter('cursor', i, '') as string;
 				const limit = this.getNodeParameter('limit', i, 100) as number;
 
@@ -710,8 +714,12 @@ export async function executeExternalContact(
 					{ jobid },
 				);
 			} else if (operation === 'getMomentTaskList') {
-				const start_time = this.getNodeParameter('start_time', i) as number;
-				const end_time = this.getNodeParameter('end_time', i) as number;
+				const start_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('start_time', i) as string | number,
+				);
+				const end_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('end_time', i) as string | number,
+				);
 				const creator = this.getNodeParameter('creator', i, '') as string;
 				const filter_type = this.getNodeParameter('filter_type', i, 2) as number;
 				const cursor = this.getNodeParameter('cursor', i, '') as string;
@@ -1095,8 +1103,12 @@ export async function executeExternalContact(
 				);
 			} else if (operation === 'getGroupMsgListV2') {
 				const chat_type = this.getNodeParameter('chat_type', i) as string;
-				const start_time = this.getNodeParameter('start_time', i) as number;
-				const end_time = this.getNodeParameter('end_time', i) as number;
+				const start_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('start_time', i) as string | number,
+				);
+				const end_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('end_time', i) as string | number,
+				);
 				const creator = this.getNodeParameter('creator', i, '') as string;
 				const filter_type = this.getNodeParameter('filter_type', i, 2) as number;
 				const limit = this.getNodeParameter('limit', i, 50) as number;
@@ -1384,8 +1396,12 @@ export async function executeExternalContact(
 			// 统计管理
 			else if (operation === 'getUserBehaviorData') {
 				const filterType = this.getNodeParameter('filterType', i, 'user') as string;
-				const start_time = this.getNodeParameter('start_time', i) as number;
-				const end_time = this.getNodeParameter('end_time', i) as number;
+				const start_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('start_time', i) as string | number,
+				);
+				const end_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('end_time', i) as string | number,
+				);
 
 				const body: IDataObject = { start_time, end_time };
 

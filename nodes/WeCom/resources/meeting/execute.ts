@@ -410,8 +410,12 @@ export async function executeMeeting(
 				const userid = this.getNodeParameter('userid', i) as string;
 				const cursor = this.getNodeParameter('cursor', i, '') as string;
 				const limit = this.getNodeParameter('limit', i, 50) as number;
-				const begin_time = this.getNodeParameter('begin_time', i, 0) as number;
-				const end_time = this.getNodeParameter('end_time', i, 0) as number;
+				const begin_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('begin_time', i, '') as string | number,
+				);
+				const end_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('end_time', i, '') as string | number,
+				);
 
 				const body: IDataObject = { userid, limit: Math.min(limit || 50, 100) };
 				if (cursor) body.cursor = cursor;

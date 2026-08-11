@@ -30,24 +30,24 @@ export const getGroupMsgListV2Description: INodeProperties[] = [
 	{
 		displayName: '开始时间',
 		name: 'start_time',
-		type: 'number',
+		type: 'dateTime',
 		required: true,
-		default: 0,
+		default: '',
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '群发任务记录开始时间（Unix时间戳），起止时间间隔不能超过1个月',
+		description: '群发任务记录开始时间；起止间隔不能超过 1 个月',
 	},
 	{
 		displayName: '结束时间',
 		name: 'end_time',
-		type: 'number',
+		type: 'dateTime',
 		required: true,
-		default: 0,
+		default: '',
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '群发任务记录结束时间（Unix时间戳），起止时间间隔不能超过1个月',
+		description: '群发任务记录结束时间；起止间隔不能超过 1 个月',
 	},
 	{
 		displayName: '创建人',
