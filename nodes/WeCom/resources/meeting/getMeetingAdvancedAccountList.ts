@@ -9,7 +9,7 @@ export const getMeetingAdvancedAccountListDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: { show: showOnly },
 		default: '',
-		description: '分页游标，首次请求留空，后续请求使用返回的cursor',
+		description: '分页游标，首次请求留空，后续请求使用返回的cursor。<a href="https://developer.work.weixin.qq.com/document/path/99510" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '每页数量',

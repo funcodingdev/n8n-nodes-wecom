@@ -28,7 +28,7 @@ export const linkedcorpDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForLinkedcorp,
 		},
-		 
+		// 官方文档：企业互联/上下游 https://developer.work.weixin.qq.com/document/path/93403
 		options: [
 			// 上下游基础信息
 			{ name: '[基础信息] 获取上下游信息', value: 'getChainInfo', action: '获取上下游信息', description: '获取上下游企业的详细信息' },

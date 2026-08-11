@@ -15,7 +15,7 @@ export const getDeviceCheckinDataDescription: INodeProperties[] = [
 			show: showOnlyForGetDeviceCheckinData,
 		},
 		default: '',
-		description: '查询的起始时间，使用Unix时间戳格式（秒级）',
+		description: '查询的起始时间，使用Unix时间戳格式（秒级）。<a href="https://developer.work.weixin.qq.com/document/path/94126" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '结束时间',

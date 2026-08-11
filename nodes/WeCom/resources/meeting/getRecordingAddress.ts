@@ -10,7 +10,7 @@ export const getRecordingAddressDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: showOnly },
 		default: '',
-		description: '会议唯一标识ID',
+		description: '会议唯一标识ID。<a href="https://developer.work.weixin.qq.com/document/path/98193" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '录制文件ID',

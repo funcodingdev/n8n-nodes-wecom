@@ -12,7 +12,7 @@ export const allocateMeetingAdvancedAccountDescription: INodeProperties[] = [
 		default: {},
 		placeholder: '添加用户',
 		typeOptions: { multipleValues: true },
-		description: '要分配高级账号的用户列表',
+		description: '要分配高级账号的用户列表。<a href="https://developer.work.weixin.qq.com/document/path/99508" target="_blank">官方文档</a>',
 		options: [
 			{
 				displayName: '用户',

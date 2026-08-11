@@ -15,7 +15,7 @@ export const getDailyReportDescription: INodeProperties[] = [
 			show: showOnlyForGetDailyReport,
 		},
 		default: '',
-		description: '查询的起始日期，使用Unix时间戳格式（秒级）',
+		description: '查询的起始日期，使用Unix时间戳格式（秒级）。<a href="https://developer.work.weixin.qq.com/document/path/93374" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '结束时间',

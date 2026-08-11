@@ -10,7 +10,7 @@ export const createAdvancedMeetingDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: showOnly },
 		default: '',
-		description: '会议主题，长度限制128个字符',
+		description: '会议主题，长度限制128个字符。<a href="https://developer.work.weixin.qq.com/document/path/98148" target="_blank">官方文档</a>',
 		placeholder: '产品需求评审会',
 	},
 	{

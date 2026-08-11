@@ -10,7 +10,7 @@ export const getParticipantsDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: showOnly },
 		default: '',
-		description: '会议唯一标识ID',
+		description: '会议唯一标识ID。<a href="https://developer.work.weixin.qq.com/document/path/98154" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '分页游标',

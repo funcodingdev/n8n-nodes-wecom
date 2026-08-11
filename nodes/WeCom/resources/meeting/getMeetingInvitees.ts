@@ -15,7 +15,7 @@ export const getMeetingInviteesDescription: INodeProperties[] = [
 			show: showOnlyForGet,
 		},
 		default: '',
-		description: '要查询受邀成员的会议唯一标识ID',
+		description: '要查询受邀成员的会议唯一标识ID。<a href="https://developer.work.weixin.qq.com/document/path/98151" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '游标',

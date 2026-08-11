@@ -64,7 +64,7 @@ export class WeComBase implements INodeType {
 		subtitle:
 			'={{$parameter["resource"] === "passiveReply" ? "reply: " + $parameter["resource"] : ($parameter["resource"] === "system" ? $parameter["resource"] : $parameter["operation"] + ": " + $parameter["resource"])}}',
 		description:
-			'企业微信基础功能 - 通讯录、应用消息、群聊、消息推送、企业互联、素材、系统、电子发票、第三方应用授权、第三方应用接口调用许可、第三方应用收银台、第三方应用推广二维码、账号ID、安全管理',
+			'企业微信基础功能 - 通讯录、应用消息、群聊、消息推送、企业互联、素材、系统、电子发票、第三方应用授权、接口调用许可、收银台、对外收款、小程序对外收款、数据与智能专区、会话内容存档、推广二维码、账号ID、安全管理',
 		defaults: {
 			name: '企业微信-基础',
 		},

@@ -45,14 +45,15 @@ export const meetingDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForMeeting,
 		},
-		 
+		// 官方文档：https://developer.work.weixin.qq.com/document/path/93626
 		options: [
 			// 预约会议基础管理
 			{
 				name: '[预约会议管理] 创建预约会议',
 				value: 'createMeeting',
 				action: '创建预约会议',
-				description: '创建一个预定时间的会议',
+				description:
+					'创建一个预定时间的会议。<a href="https://developer.work.weixin.qq.com/document/path/98148" target="_blank">官方文档</a>',
 			},
 			{
 				name: '[预约会议管理] 修改预约会议',

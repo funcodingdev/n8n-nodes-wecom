@@ -55,6 +55,7 @@ export const mailDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForMail,
 		},
+		// 官方文档：https://developer.work.weixin.qq.com/document/path/97445
 		 
 		options: [
 			// 发送邮件

@@ -15,7 +15,7 @@ export const addFaceInfoDescription: INodeProperties[] = [
 			show: showOnlyForAddFaceInfo,
 		},
 		default: '',
-		description: '要添加人脸信息的员工UserID',
+		description: '要添加人脸信息的员工UserID。<a href="https://developer.work.weixin.qq.com/document/path/93378" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '人脸图片Media ID',

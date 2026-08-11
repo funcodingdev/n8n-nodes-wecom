@@ -15,7 +15,7 @@ export const endMeetingDescription: INodeProperties[] = [
 			show: showOnlyForEnd,
 		},
 		default: '',
-		description: '要结束的会议唯一标识ID',
+		description: '要结束的会议唯一标识ID。<a href="https://developer.work.weixin.qq.com/document/path/98180" target="_blank">官方文档</a>',
 	},
 ];
 

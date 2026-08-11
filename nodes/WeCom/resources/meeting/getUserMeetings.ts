@@ -15,7 +15,7 @@ export const getUserMeetingsDescription: INodeProperties[] = [
 			show: showOnlyForGet,
 		},
 		default: '',
-		description: '要查询会议列表的用户ID',
+		description: '要查询会议列表的用户ID。<a href="https://developer.work.weixin.qq.com/document/path/98150" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '游标',

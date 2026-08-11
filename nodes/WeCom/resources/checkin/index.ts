@@ -26,13 +26,15 @@ export const checkinDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForCheckin,
 		},
+		// 官方文档：https://developer.work.weixin.qq.com/document/path/90261
 		options: [
 			// 打卡规则
 			{
 				name: '[打卡规则] 获取企业所有打卡规则',
 				value: 'getCorporationRules',
 				action: '获取企业所有打卡规则',
-				description: '获取企业的所有打卡规则配置',
+				description:
+					'获取企业的所有打卡规则配置。<a href="https://developer.work.weixin.qq.com/document/path/93384" target="_blank">官方文档</a>',
 			},
 			{
 				name: '[打卡规则] 获取员工打卡规则',

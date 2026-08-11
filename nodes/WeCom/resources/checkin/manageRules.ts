@@ -15,7 +15,7 @@ export const manageRulesDescription: INodeProperties[] = [
 			{ name: '删除规则', value: 'delete' },
 		],
 		default: 'create',
-		description: '管理打卡规则的操作类型',
+		description: '管理打卡规则的操作类型。<a href="https://developer.work.weixin.qq.com/document/path/98041" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '规则ID',
