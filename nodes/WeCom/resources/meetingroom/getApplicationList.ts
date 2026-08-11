@@ -9,26 +9,25 @@ export const getApplicationListDescription: INodeProperties[] = [
 	{
 		displayName: '开始时间',
 		name: 'starttime',
-		type: 'number',
+		type: 'dateTime',
 		required: true,
 		displayOptions: {
 			show: showOnlyForGetApplicationList,
 		},
-		default: 0,
-		placeholder: '1609459200',
-		description: '查询的起始时间，Unix时间戳（秒）。<a href="https://developer.work.weixin.qq.com/document/path/93618" target="_blank">更多信息</a>',
+		default: '',
+		description:
+			'查询起始时间 starttime（Unix 秒）。<a href="https://developer.work.weixin.qq.com/document/path/99883" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '结束时间',
 		name: 'endtime',
-		type: 'number',
+		type: 'dateTime',
 		required: true,
 		displayOptions: {
 			show: showOnlyForGetApplicationList,
 		},
-		default: 0,
-		placeholder: '1609545600',
-		description: '查询的结束时间，Unix时间戳（秒）。<a href="https://developer.work.weixin.qq.com/document/path/93618" target="_blank">更多信息</a>',
+		default: '',
+		description: '查询结束时间 endtime（Unix 秒）',
 	},
 	{
 		displayName: '游标',

@@ -1,6 +1,16 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
 
+function dateTimeToUnixTimestamp(dateTime: string | number): number {
+	if (typeof dateTime === 'number') {
+		return dateTime;
+	}
+	if (!dateTime || dateTime === '') {
+		return 0;
+	}
+	return Math.floor(new Date(dateTime).getTime() / 1000);
+}
+
 export async function executeMeetingroom(
 	this: IExecuteFunctions,
 	operation: string,
@@ -82,8 +92,12 @@ export async function executeMeetingroom(
 					// 查询会议室的预定信息
 					endpoint = '/cgi-bin/oa/meetingroom/get_booking_info';
 					const meetingroom_id = this.getNodeParameter('meetingroom_id', i, 0) as number;
-					const start_time = this.getNodeParameter('start_time', i, 0) as number;
-					const end_time = this.getNodeParameter('end_time', i, 0) as number;
+					const start_time = dateTimeToUnixTimestamp(
+						this.getNodeParameter('start_time', i, '') as string | number,
+					);
+					const end_time = dateTimeToUnixTimestamp(
+						this.getNodeParameter('end_time', i, '') as string | number,
+					);
 					const city = this.getNodeParameter('city', i, '') as string;
 					const building = this.getNodeParameter('building', i, '') as string;
 					const floor = this.getNodeParameter('floor', i, '') as string;
@@ -102,8 +116,12 @@ export async function executeMeetingroom(
 				} else if (action === 'book') {
 					endpoint = '/cgi-bin/oa/meetingroom/book';
 					const meetingroom_id = this.getNodeParameter('meetingroom_id_book', i) as number;
-					const start_time = this.getNodeParameter('start_time', i) as number;
-					const end_time = this.getNodeParameter('end_time', i) as number;
+					const start_time = dateTimeToUnixTimestamp(
+						this.getNodeParameter('start_time', i) as string | number,
+					);
+					const end_time = dateTimeToUnixTimestamp(
+						this.getNodeParameter('end_time', i) as string | number,
+					);
 					const booker = this.getNodeParameter('booker', i) as string;
 					const subject = this.getNodeParameter('subject', i, '') as string;
 					const attendeesRaw = this.getNodeParameter('attendees', i, '') as string;
@@ -131,7 +149,9 @@ export async function executeMeetingroom(
 					endpoint = '/cgi-bin/oa/meetingroom/cancel_book';
 					const booking_id = this.getNodeParameter('booking_id', i) as string;
 					const keep_schedule = this.getNodeParameter('keep_schedule', i, 0) as number;
-					const cancel_date = this.getNodeParameter('cancel_date', i, 0) as number;
+					const cancel_date = dateTimeToUnixTimestamp(
+						this.getNodeParameter('cancel_date', i, '') as string | number,
+					);
 					body = { booking_id };
 					if (keep_schedule === 0 || keep_schedule === 1) body.keep_schedule = keep_schedule;
 					if (cancel_date) body.cancel_date = cancel_date;
@@ -141,8 +161,12 @@ export async function executeMeetingroom(
 			} else if (operation === 'getApplicationList') {
 				// 批量获取申请单ID
 				// https://developer.work.weixin.qq.com/document/path/99883
-				const starttime = this.getNodeParameter('starttime', i) as number;
-				const endtime = this.getNodeParameter('endtime', i) as number;
+				const starttime = dateTimeToUnixTimestamp(
+					this.getNodeParameter('starttime', i) as string | number,
+				);
+				const endtime = dateTimeToUnixTimestamp(
+					this.getNodeParameter('endtime', i) as string | number,
+				);
 				const cursor = this.getNodeParameter('cursor', i, '') as string;
 				const limit = this.getNodeParameter('limit', i, 50) as number;
 

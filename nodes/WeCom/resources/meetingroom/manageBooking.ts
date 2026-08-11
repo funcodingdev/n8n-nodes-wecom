@@ -33,18 +33,18 @@ export const manageBookingDescription: INodeProperties[] = [
 	{
 		displayName: '开始时间',
 		name: 'start_time',
-		type: 'number',
+		type: 'dateTime',
 		displayOptions: { show: { ...showOnly, action: ['list', 'book'] } },
-		default: 0,
-		description: '开始时间 Unix 时间戳（秒）；list 时可选，book 时必填',
+		default: '',
+		description: 'start_time，Unix 秒；list 时可选，book 时必填',
 	},
 	{
 		displayName: '结束时间',
 		name: 'end_time',
-		type: 'number',
+		type: 'dateTime',
 		displayOptions: { show: { ...showOnly, action: ['list', 'book'] } },
-		default: 0,
-		description: '结束时间 Unix 时间戳（秒）；list 时可选，book 时必填',
+		default: '',
+		description: 'end_time，Unix 秒；list 时可选，book 时必填',
 	},
 	{
 		displayName: '城市',
@@ -163,9 +163,9 @@ export const manageBookingDescription: INodeProperties[] = [
 	{
 		displayName: '取消日期',
 		name: 'cancel_date',
-		type: 'number',
+		type: 'dateTime',
 		displayOptions: { show: { ...showOnly, action: ['cancel'] } },
-		default: 0,
-		description: '重复日程时，取消对应日期当天的预定（当天 0 点时间戳）；0 表示不传则取消全部',
+		default: '',
+		description: '重复日程时，取消对应日期当天的预定（当天 0 点时间戳）；空表示取消全部',
 	},
 ];
