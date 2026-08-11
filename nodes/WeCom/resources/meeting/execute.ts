@@ -377,29 +377,41 @@ export async function executeMeeting(
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/get_invitees', body);
 			} else if (operation === 'updateMeetingInvitees') {
+				// https://developer.work.weixin.qq.com/document/path/98162
+				// 路径为 set_invitees，覆盖式完整列表
 				const meetingid = this.getNodeParameter('meetingid', i) as string;
-				const addInviteesCollection = this.getNodeParameter('addInviteesCollection', i, {}) as IDataObject;
-				const delInviteesCollection = this.getNodeParameter('delInviteesCollection', i, {}) as IDataObject;
+				const invitee_userids = this.getNodeParameter('invitee_userids', i, '') as string;
+				const inviteesCollection = this.getNodeParameter(
+					'inviteesCollection',
+					i,
+					{},
+				) as IDataObject;
+				// 兼容旧 add/del 表单：仅取 add 列表作为完整列表（官方不支持增量）
+				const addInviteesCollection = this.getNodeParameter(
+					'addInviteesCollection',
+					i,
+					{},
+				) as IDataObject;
 
-				const body: IDataObject = { meetingid };
+				const ids = new Set<string>();
+				invitee_userids
+					.split(',')
+					.map((s) => s.trim())
+					.filter(Boolean)
+					.forEach((id) => ids.add(id));
+				((inviteesCollection?.invitees as IDataObject[]) || []).forEach((inv) => {
+					if (inv.userid) ids.add(String(inv.userid).trim());
+				});
+				((addInviteesCollection?.invitees as IDataObject[]) || []).forEach((inv) => {
+					if (inv.userid) ids.add(String(inv.userid).trim());
+				});
 
-				// 处理添加的成员
-				if (addInviteesCollection.invitees) {
-					const addList = addInviteesCollection.invitees as IDataObject[];
-					if (addList.length > 0) {
-						body.add_invitees = addList.map((inv) => ({ userid: inv.userid }));
-					}
-				}
+				const body: IDataObject = {
+					meetingid,
+					invitees: Array.from(ids).map((userid) => ({ userid })),
+				};
 
-				// 处理删除的成员
-				if (delInviteesCollection.invitees) {
-					const delList = delInviteesCollection.invitees as IDataObject[];
-					if (delList.length > 0) {
-						body.del_invitees = delList.map((inv) => ({ userid: inv.userid }));
-					}
-				}
-
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/update_invitees', body);
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/set_invitees', body);
 			} else if (operation === 'getLiveParticipants') {
 				// 获取实时会中成员列表
 				// https://developer.work.weixin.qq.com/document/path/98153
