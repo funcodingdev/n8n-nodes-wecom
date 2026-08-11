@@ -157,6 +157,12 @@ export async function executeMeeting(
 				settings.allow_enter_before_host = settings_allow_enter_before_host;
 				settings.enable_enter_mute = settings_enable_enter_mute;
 				settings.remind_scope = settings_remind_scope;
+				const settings_enable_screen_watermark = this.getNodeParameter(
+					'settings_enable_screen_watermark',
+					i,
+					false,
+				) as boolean;
+				settings.enable_screen_watermark = settings_enable_screen_watermark;
 				const hostIds = settings_host_userids
 					.split(',')
 					.map((s) => s.trim())

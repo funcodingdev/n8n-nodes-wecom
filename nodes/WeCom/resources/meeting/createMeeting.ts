@@ -141,6 +141,14 @@ export const createMeetingDescription: INodeProperties[] = [
 		description: 'settings.hosts.userid，最多 10 个',
 	},
 	{
+		displayName: '开启屏幕水印',
+		name: 'settings_enable_screen_watermark',
+		type: 'boolean',
+		displayOptions: { show: showOnly },
+		default: false,
+		description: 'settings.enable_screen_watermark',
+	},
+	{
 		displayName: '扩展请求JSON',
 		name: 'createMeetingExtraJson',
 		type: 'json',
