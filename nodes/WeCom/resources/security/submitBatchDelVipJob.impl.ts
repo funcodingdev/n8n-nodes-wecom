@@ -1,4 +1,5 @@
 import type { IExecuteFunctions, IDataObject } from 'n8n-workflow';
+import { NodeOperationError } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
 
 export async function submitBatchDelVipJob(this: IExecuteFunctions): Promise<IDataObject> {
@@ -13,6 +14,9 @@ export async function submitBatchDelVipJob(this: IExecuteFunctions): Promise<IDa
 		...selected,
 	];
 	const unique = [...new Set(userid_list)].slice(0, 100);
+	if (!unique.length) {
+		throw new NodeOperationError(this.getNode(), '请至少填写或选择 1 个成员 UserID');
+	}
 
 	return weComApiRequest.call(this, 'POST', '/cgi-bin/security/vip/submit_batch_del_job', {
 		userid_list: unique,
