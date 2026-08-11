@@ -1763,7 +1763,6 @@ export async function executeMeeting(
 						'roomsListControllers',
 						'roomsListMeetings',
 						'waitingroomUserList',
-						'getGuests',
 						'getQuality',
 					].includes(operation)
 				) {
