@@ -1,5 +1,9 @@
 # n8n 企业微信节点 · UI 总览图
 
+> 由 `scripts/dump-ui-tree.mjs` 根据编译后节点 description 自动生成，请勿手改。
+>
+> 生成命令：`npm run build && node scripts/dump-ui-tree.mjs`
+
 交互路径：`节点 → 资源(Resource) → 操作(Operation) → 参数(Parameters)`
 
 ```
@@ -114,7 +118,7 @@ n8n 节点面板
 │  │       ├─ 更新模板卡片  (updateTemplateCard)
 │  │       └─ 主动回复消息  (activeReply)
 │
-│  ├─ 资源 · 企业互联  (linkedcorp)  · 15 ops
+│  ├─ 资源 · 企业互联  (linkedcorp)  · 18 ops
 │  │   ├─ [基础信息]
 │  │   │   ├─ 获取上下游信息  (getChainInfo)
 │  │   │   └─ 获取下级企业加入的上下游  (getSubCorpChainList)
@@ -132,9 +136,13 @@ n8n 节点面板
 │  │   │   ├─ 新增对接规则  (addChainRule)
 │  │   │   ├─ 更新对接规则  (updateChainRule)
 │  │   │   └─ 删除对接规则  (deleteChainRule)
-│  │   └─ [其他操作]
-│  │       ├─ 查询成员自定义ID  (getCustomUserId)
-│  │       └─ 移除企业  (removeChainCorp)
+│  │   ├─ [其他操作]
+│  │   │   ├─ 查询成员自定义ID  (getCustomUserId)
+│  │   │   └─ 移除企业  (removeChainCorp)
+│  │   └─ [上下游]
+│  │       ├─ 获取企业信息  (corpGetChainCorpinfo)
+│  │       ├─ 获取企业分组  (corpGetChainGroup)
+│  │       └─ unionid转pending_id  (unionidToPendingId)
 │
 │  ├─ 资源 · 素材管理  (material)  · 6 ops
 │  │   └─ [素材管理]
@@ -145,11 +153,24 @@ n8n 节点面板
 │  │       ├─ 异步上传临时素材  (uploadTempAsync)
 │  │       └─ 查询异步任务结果  (getUploadByUrlResult)
 │
-│  ├─ 资源 · 系统信息  (system)  · 3 ops
-│  │   └─ [基础]
-│  │       ├─ 获取接口IP段  (getApiDomainIp)
-│  │       ├─ 获取回调IP段  (getCallbackIp)
-│  │       └─ 获取AccessToken  (getAccessToken)
+│  ├─ 资源 · 系统信息  (system)  · 12 ops
+│  │   ├─ [基础]
+│  │   │   ├─ 获取接口IP段  (getApiDomainIp)
+│  │   │   ├─ 获取回调IP段  (getCallbackIp)
+│  │   │   └─ 获取AccessToken  (getAccessToken)
+│  │   ├─ [身份验证]
+│  │   │   ├─ 获取二次验证信息  (authGetTfaInfo)
+│  │   │   ├─ 获取访问用户敏感信息  (authGetuserdetail)
+│  │   │   ├─ 获取访问用户身份  (authGetuserinfo)
+│  │   │   ├─ 获取成员身份  (userGetuserinfo)
+│  │   │   └─ 二次验证成功  (userTfaSucc)
+│  │   ├─ [JS-SDK]
+│  │   │   ├─ 获取企业 jsapi_ticket  (ticketGet)
+│  │   │   └─ 获取应用 jsapi_ticket  (getJsapiTicket)
+│  │   ├─ [系统]
+│  │   │   └─ 获取 launch_code  (getLaunchCode)
+│  │   └─ [小程序]
+│  │       └─ 登录凭证校验  (miniprogramJscode2session)
 │
 │  ├─ 资源 · 电子发票  (invoice)  · 4 ops
 │  │   ├─ [发票查询]
@@ -240,7 +261,7 @@ n8n 节点面板
 │  │   └─ [资金]
 │  │       └─ 获取资金流水  (getFundFlow)
 │
-│  ├─ 资源 · 小程序对外收款  (miniapppay)  · 7 ops
+│  ├─ 资源 · 小程序对外收款  (miniapppay)  · 11 ops
 │  │   ├─ [支付]
 │  │   │   ├─ 小程序下单  (createOrder)
 │  │   │   ├─ 查询订单  (getOrder)
@@ -249,10 +270,23 @@ n8n 节点面板
 │  │   ├─ [退款]
 │  │   │   ├─ 申请退款  (refund)
 │  │   │   └─ 查询退款  (getRefundDetail)
-│  │   └─ [账单]
-│  │       └─ 交易账单申请  (getBill)
+│  │   ├─ [账单]
+│  │   │   ├─ 交易账单申请  (getBill)
+│  │   │   └─ 下载账单文件  (downloadBillFile)
+│  │   └─ [进件]
+│  │       ├─ 提交创建对外收款账户申请  (applyMch)
+│  │       ├─ 查询申请单状态  (getApplymentStatus)
+│  │       └─ 提交图片  (uploadImage)
 │
-│  ├─ 资源 · 数据与智能专区  (chatdata)  · 13 ops
+│  ├─ 资源 · 企业红包与向员工付款  (mchpay)  · 4 ops
+│  │   ├─ [企业红包]
+│  │   │   ├─ 发放企业红包  (sendRedpack)
+│  │   │   └─ 查询红包记录  (queryRedpack)
+│  │   └─ [向员工付款]
+│  │       ├─ 付款  (payToEmployee)
+│  │       └─ 查询付款记录  (queryPayToEmployee)
+│
+│  ├─ 资源 · 数据与智能专区  (chatdata)  · 14 ops
 │  │   ├─ [基础]
 │  │   │   ├─ 设置公钥  (setPublicKey)
 │  │   │   ├─ 获取授权存档成员列表  (getAuthUserList)
@@ -260,7 +294,8 @@ n8n 节点面板
 │  │   │   ├─ 设置敏感信息隐藏  (setHideSensitiveInfoConfig)
 │  │   │   ├─ 获取敏感信息隐藏配置  (getHideSensitiveInfoConfig)
 │  │   │   ├─ 设置日志级别  (setLogLevel)
-│  │   │   └─ 获取日志级别  (getLogLevel)
+│  │   │   ├─ 获取日志级别  (getLogLevel)
+│  │   │   └─ 上传临时文件到专区  (uploadMedia)
 │  │   ├─ [调用]
 │  │   │   ├─ 同步调用专区程序  (syncCallProgram)
 │  │   │   ├─ 创建异步调用任务  (asyncProgramTask)
@@ -288,7 +323,7 @@ n8n 节点面板
 │  │       ├─ 设置授权应用可见范围  (setAgentScope)
 │  │       └─ 设置通讯录同步完成  (setContactSyncSuccess)
 │
-│  ├─ 资源 · 账号 ID  (accountId)  · 12 ops
+│  ├─ 资源 · 账号 ID  (accountId)  · 13 ops
 │  │   └─ [账号ID]
 │  │       ├─ userid转换  (openuseridToUserid)
 │  │       ├─ userid转换（第三方应用）  (useridToOpenuserid)
@@ -301,7 +336,8 @@ n8n 节点面板
 │  │       ├─ external_userid查询pending_id（第三方应用）  (externalUseridToPendingId)
 │  │       ├─ 客户标签ID转换（第三方应用）  (externalTagidToOpenExternalTagid)
 │  │       ├─ 微信客服ID转换（第三方应用）  (openKfidToNewOpenKfid)
-│  │       └─ ID迁移完成状态设置（第三方应用）  (finishOpenidMigration)
+│  │       ├─ ID迁移完成状态设置（第三方应用）  (finishOpenidMigration)
+│  │       └─ 密文corpid转明文（服务商）  (opencorpidToCorpid)
 │
 │  ├─ 资源 · 文件解密  (file)  · 1 ops
 │  │   └─ [文件解密]
@@ -335,7 +371,7 @@ n8n 节点面板
 │  type: weComOffice
 │  配置顺序: Credential → Resource → Operation → Parameters
 │
-│  ├─ 资源 · 文档  (wedoc)  · 44 ops
+│  ├─ 资源 · 文档  (wedoc)  · 53 ops
 │  │   ├─ [管理文档]
 │  │   │   ├─ 新建文档  (createDoc)
 │  │   │   ├─ 重命名文档  (renameDoc)
@@ -362,7 +398,11 @@ n8n 节点面板
 │  │   │   ├─ 添加记录  (addSmartsheetRecord)
 │  │   │   ├─ 删除记录  (delSmartsheetRecord)
 │  │   │   ├─ 更新记录  (updateSmartsheetRecord)
-│  │   │   └─ Webhook 写入数据  (sendSmartsheetWebhook)
+│  │   │   ├─ Webhook 写入数据  (sendSmartsheetWebhook)
+│  │   │   ├─ 添加字段编组  (addFieldGroup)
+│  │   │   ├─ 更新字段编组  (updateFieldGroup)
+│  │   │   ├─ 删除字段编组  (deleteFieldGroups)
+│  │   │   └─ 查询字段编组  (getFieldGroups)
 │  │   ├─ [获取智能表格数据]
 │  │   │   ├─ 查询子表  (querySmartsheetSheet)
 │  │   │   ├─ 查询视图  (querySmartsheetView)
@@ -376,7 +416,12 @@ n8n 节点面板
 │  │   │   ├─ 修改文档通知范围及权限  (modDocMemberRule)
 │  │   │   ├─ 修改文档加入规则  (modDocShareScope)
 │  │   │   ├─ 修改文档安全设置  (modDocSafeRule)
-│  │   │   └─ 管理智能表格内容权限  (manageSmartsheetAuth)
+│  │   │   ├─ 管理智能表格内容权限  (manageSmartsheetAuth)
+│  │   │   ├─ 查询内容权限规则  (getSheetPriv)
+│  │   │   ├─ 创建额外权限规则  (createPrivRule)
+│  │   │   ├─ 更新子表内容权限  (updateSheetPrivFull)
+│  │   │   ├─ 修改权限规则成员  (modPrivRuleMember)
+│  │   │   └─ 删除额外权限规则  (deletePrivRule)
 │  │   ├─ [管理收集表]
 │  │   │   ├─ 创建收集表  (createForm)
 │  │   │   ├─ 编辑收集表  (modForm)
@@ -390,7 +435,7 @@ n8n 节点面板
 │  │   └─ [素材管理]
 │  │       └─ 上传文档图片  (uploadDocImage)
 │
-│  ├─ 资源 · 微盘  (wefile)  · 26 ops
+│  ├─ 资源 · 微盘  (wefile)  · 31 ops
 │  │   ├─ [空间管理]
 │  │   │   ├─ 创建空间  (createSpace)
 │  │   │   ├─ 删除空间  (deleteSpace)
@@ -416,11 +461,18 @@ n8n 节点面板
 │  │   │   ├─ 文件分享设置  (fileShareSettings)
 │  │   │   ├─ 获取文件分享链接  (getFileShareLink)
 │  │   │   └─ 文件安全设置  (fileSecuritySettings)
-│  │   └─ [高级功能]
-│  │       ├─ 分配高级功能账号  (assignVipAccounts)
-│  │       ├─ 取消高级功能账号  (revokeVipAccounts)
-│  │       ├─ 获取高级功能账号列表  (getVipAccountsList)
-│  │       └─ 获取专业版信息  (getProInfo)
+│  │   ├─ [高级功能]
+│  │   │   ├─ 分配高级功能账号  (assignVipAccounts)
+│  │   │   ├─ 取消高级功能账号  (revokeVipAccounts)
+│  │   │   ├─ 获取高级功能账号列表  (getVipAccountsList)
+│  │   │   ├─ 获取专业版信息  (getProInfo)
+│  │   │   └─ 获取容量信息  (getCapacity)
+│  │   ├─ [分片上传]
+│  │   │   ├─ 初始化分片上传  (uploadInit)
+│  │   │   ├─ 上传分片  (uploadPart)
+│  │   │   └─ 完成分片上传  (uploadFinish)
+│  │   └─ [微盘]
+│  │       └─ 获取文件权限  (wedriveGetFilePermission)
 │
 │  ├─ 资源 · 邮件  (mail)  · 26 ops
 │  │   ├─ [邮件收发]
@@ -457,7 +509,7 @@ n8n 节点面板
 │  │       ├─ 更改用户功能属性  (updateUserMailAttribute)
 │  │       └─ 获取邮件未读数  (getMailUnreadCount)
 │
-│  ├─ 资源 · 会议  (meeting)  · 20 ops
+│  ├─ 资源 · 会议  (meeting)  · 107 ops
 │  │   ├─ [预约会议管理]
 │  │   │   ├─ 创建预约会议  (createMeeting)
 │  │   │   ├─ 修改预约会议  (updateMeeting)
@@ -475,14 +527,113 @@ n8n 节点面板
 │  │   ├─ [会中控制]
 │  │   │   ├─ 静音成员  (muteMember)
 │  │   │   ├─ 移出成员  (removeMember)
-│  │   │   └─ 结束会议  (endMeeting)
+│  │   │   ├─ 结束会议  (endMeeting)
+│  │   │   ├─ 设置联席主持人  (setCohost)
+│  │   │   ├─ 会中设置(扩展)  (realcontrolSet)
+│  │   │   ├─ 关闭屏幕共享  (rcCloseScreenShare)
+│  │   │   ├─ 管理等候室成员  (rcManageWaitingRoom)
+│  │   │   ├─ 设置成员昵称  (rcSetNicknames)
+│  │   │   └─ 开关成员视频  (rcSwitchUserVideo)
 │  │   ├─ [录制管理]
 │  │   │   ├─ 获取会议录制列表  (listRecordings)
 │  │   │   └─ 获取会议录制地址  (getRecordingAddress)
-│  │   └─ [高级账号管理]
-│  │       ├─ 分配高级功能账号  (allocateMeetingAdvancedAccount)
-│  │       ├─ 取消高级功能账号  (deallocateMeetingAdvancedAccount)
-│  │       └─ 获取高级功能账号列表  (getMeetingAdvancedAccountList)
+│  │   ├─ [高级账号管理]
+│  │   │   ├─ 分配高级功能账号  (allocateMeetingAdvancedAccount)
+│  │   │   ├─ 取消高级功能账号  (deallocateMeetingAdvancedAccount)
+│  │   │   └─ 获取高级功能账号列表  (getMeetingAdvancedAccountList)
+│  │   ├─ [报名管理]
+│  │   │   ├─ 获取会议报名配置  (getEnrollConfig)
+│  │   │   ├─ 修改会议报名配置  (setEnrollConfig)
+│  │   │   ├─ 获取会议报名信息  (listEnroll)
+│  │   │   ├─ 审批会议报名  (approveEnroll)
+│  │   │   ├─ 删除报名信息  (enrollDelete)
+│  │   │   ├─ 导入报名信息  (enrollImport)
+│  │   │   └─ 按临时OpenID查询报名  (enrollQueryByTmpOpenid)
+│  │   ├─ [Rooms]
+│  │   │   ├─ 获取Rooms会议室列表  (listRooms)
+│  │   │   ├─ 获取Rooms会议室详情  (getRoomInfo)
+│  │   │   ├─ 预定Rooms会议室  (bookRooms)
+│  │   │   ├─ 释放Rooms会议室  (releaseRooms)
+│  │   │   ├─ 呼叫会议室  (roomsCall)
+│  │   │   ├─ 取消呼叫  (roomsCancelCall)
+│  │   │   ├─ 获取应答状态  (roomsGetResponseStatus)
+│  │   │   ├─ 获取会议室下会议列表  (roomsListMeetings)
+│  │   │   ├─ 获取配置项  (roomsGetConfig)
+│  │   │   ├─ 获取资源库存  (roomsGetInventory)
+│  │   │   ├─ 获取设备列表  (roomsListDevices)
+│  │   │   └─ 获取控制器列表  (roomsListControllers)
+│  │   ├─ [布局]
+│  │   │   ├─ 获取布局模板列表  (listLayoutTemplate)
+│  │   │   ├─ 设置默认布局  (setDefaultLayout)
+│  │   │   ├─ 添加基础布局  (basicLayoutAdd)
+│  │   │   ├─ 修改基础布局  (basicLayoutUpdate)
+│  │   │   ├─ 添加会议背景  (layoutAddBackground)
+│  │   │   ├─ 设置默认背景  (layoutSetDefaultBackground)
+│  │   │   ├─ 获取背景列表  (layoutListBackground)
+│  │   │   ├─ 删除会议背景  (layoutDeleteBackground)
+│  │   │   └─ 批量删除背景  (layoutBatchDeleteBackground)
+│  │   ├─ [电话入会]
+│  │   │   ├─ 外呼  (phoneCallout)
+│  │   │   ├─ 查询外呼状态  (phoneGetCalloutStatus)
+│  │   │   └─ 获取临时OpenID  (phoneGetTmpOpenid)
+│  │   ├─ [投票]
+│  │   │   ├─ 获取投票列表  (getPollList)
+│  │   │   ├─ 获取投票详情  (getPollDetail)
+│  │   │   ├─ 创建投票主题  (pollCreateTheme)
+│  │   │   ├─ 修改投票主题  (pollUpdateTheme)
+│  │   │   ├─ 获取投票主题信息  (pollGetThemeInfo)
+│  │   │   ├─ 发起投票  (pollStart)
+│  │   │   ├─ 结束投票  (pollFinish)
+│  │   │   └─ 删除投票  (pollDelete)
+│  │   ├─ [网络研讨会]
+│  │   │   ├─ 创建研讨会  (webinarCreate)
+│  │   │   ├─ 获取研讨会详情  (webinarGet)
+│  │   │   ├─ 修改研讨会  (webinarUpdate)
+│  │   │   ├─ 取消研讨会  (webinarCancel)
+│  │   │   ├─ 获取嘉宾列表  (webinarListGuest)
+│  │   │   ├─ 更新嘉宾列表  (webinarUpdateGuestList)
+│  │   │   ├─ 更新暖场配置  (webinarUpdateWarmUp)
+│  │   │   ├─ 获取报名配置  (webinarEnrollGetConfig)
+│  │   │   ├─ 修改报名配置  (webinarEnrollSetConfig)
+│  │   │   ├─ 获取报名信息  (webinarEnrollList)
+│  │   │   ├─ 审批报名  (webinarEnrollApprove)
+│  │   │   ├─ 导入报名  (webinarEnrollImport)
+│  │   │   ├─ 删除报名  (webinarEnrollDelete)
+│  │   │   └─ 按临时OpenID查询报名  (webinarEnrollQueryByTmpOpenid)
+│  │   ├─ [录制]
+│  │   │   ├─ 删除会议录制  (recordDelete)
+│  │   │   ├─ 删除单个录制文件  (recordDeleteFile)
+│  │   │   ├─ 获取录制文件列表  (recordGetFileList)
+│  │   │   ├─ 获取录制访问统计  (recordGetStatistics)
+│  │   │   ├─ 更新分享设置  (recordUpdateSharingConfig)
+│  │   │   ├─ 获取转写详情  (recordTranscriptGetDetail)
+│  │   │   ├─ 获取转写段落列表  (recordTranscriptGetParagraphList)
+│  │   │   └─ 搜索转写内容  (recordTranscriptSearch)
+│  │   ├─ [高级布局]
+│  │   │   ├─ 添加高级布局  (advLayoutAdd)
+│  │   │   ├─ 修改高级布局  (advLayoutUpdate)
+│  │   │   ├─ 应用高级布局  (advLayoutApply)
+│  │   │   ├─ 获取布局列表  (advLayoutList)
+│  │   │   ├─ 获取用户布局  (advLayoutGetUserLayout)
+│  │   │   └─ 批量删除布局  (advLayoutBatchDelete)
+│  │   ├─ [MRA]
+│  │   │   ├─ 挂断连接  (mraHangup)
+│  │   │   ├─ 查询状态  (mraQueryStatus)
+│  │   │   ├─ 设置默认布局  (mraSetDefaultLayout)
+│  │   │   └─ 设置举手  (mraSetRaiseHand)
+│  │   ├─ [等候室]
+│  │   │   ├─ 获取当前等候成员  (waitingroomCurrentUsers)
+│  │   │   └─ 获取等候室成员列表  (waitingroomUserList)
+│  │   ├─ [会议]
+│  │   │   ├─ 设置嘉宾  (setGuests)
+│  │   │   ├─ 设置邀请成员  (setInvitees)
+│  │   │   ├─ 获取嘉宾列表  (getGuests)
+│  │   │   ├─ 获取会议质量数据  (getQuality)
+│  │   │   ├─ 检查设备是否在会中  (checkDeviceInMeeting)
+│  │   │   ├─ 创建客户专属短链  (createCustomerShortUrl)
+│  │   │   └─ 获取客户专属短链  (getCustomerShortUrl)
+│  │   └─ [高级账号]
+│  │       └─ 查询批量取消任务结果  (vipBatchDelJobResult)
 │
 │  ├─ 资源 · 直播  (live)  · 9 ops
 │  │   ├─ [直播管理]
@@ -515,7 +666,7 @@ n8n 节点面板
 │  │       ├─ 获取日程详情  (getSchedule)
 │  │       └─ 取消日程  (cancelSchedule)
 │
-│  ├─ 资源 · 打卡  (checkin)  · 12 ops
+│  ├─ 资源 · 打卡  (checkin)  · 13 ops
 │  │   ├─ [打卡规则]
 │  │   │   ├─ 获取企业所有打卡规则  (getCorporationRules)
 │  │   │   ├─ 获取员工打卡规则  (getUserRules)
@@ -528,24 +679,32 @@ n8n 节点面板
 │  │   ├─ [排班管理]
 │  │   │   ├─ 获取打卡人员排班信息  (getScheduleList)
 │  │   │   └─ 为打卡人员排班  (setScheduleList)
-│  │   └─ [打卡操作]
-│  │       ├─ 为打卡人员补卡  (addCheckin)
-│  │       ├─ 添加打卡记录  (addCheckinRecord)
-│  │       └─ 录入打卡人员人脸信息  (addFaceInfo)
+│  │   ├─ [打卡操作]
+│  │   │   ├─ 为打卡人员补卡  (addCheckin)
+│  │   │   ├─ 添加打卡记录  (addCheckinRecord)
+│  │   │   └─ 录入打卡人员人脸信息  (addFaceInfo)
+│  │   └─ [打卡]
+│  │       └─ 清空规则数组字段  (clearCheckinOptionArrayField)
 │
-│  ├─ 资源 · 审批  (approval)  · 9 ops
+│  ├─ 资源 · 审批  (approval)  · 13 ops
 │  │   ├─ [审批申请]
 │  │   │   ├─ 提交审批申请  (submitApproval)
 │  │   │   ├─ 获取审批申请详情  (getApprovalDetail)
-│  │   │   └─ 批量获取审批单号  (getApprovalSpNoList)
+│  │   │   ├─ 批量获取审批单号  (getApprovalSpNoList)
+│  │   │   └─ 获取审批数据(旧版)  (getOpenApprovalData)
 │  │   ├─ [审批模板]
 │  │   │   ├─ 获取审批模板详情  (getTemplateDetail)
 │  │   │   ├─ 创建审批模板  (createApprovalTemplate)
 │  │   │   └─ 更新审批模板  (updateApprovalTemplate)
-│  │   └─ [假期管理]
-│  │       ├─ 获取企业假期管理配置  (getVacationConfig)
-│  │       ├─ 获取成员假期余额  (getVacationQuota)
-│  │       └─ 修改成员假期余额  (setVacationQuota)
+│  │   ├─ [假期管理]
+│  │   │   ├─ 获取企业假期管理配置  (getVacationConfig)
+│  │   │   ├─ 获取成员假期余额  (getVacationQuota)
+│  │   │   └─ 修改成员假期余额  (setVacationQuota)
+│  │   ├─ [审批]
+│  │   │   └─ 获取审批数据(旧版)  (getapprovaldata)
+│  │   └─ [高级功能]
+│  │       ├─ 获取申请单列表  (advancedFeatureGetApplyIdList)
+│  │       └─ 设置审批详情  (advancedFeatureSetApprovalDetail)
 │
 │  ├─ 资源 · 汇报  (journal)  · 4 ops
 │  │   ├─ [汇报记录]
@@ -585,7 +744,7 @@ n8n 节点面板
 │  type: weComWechat
 │  配置顺序: Credential → Resource → Operation → Parameters
 │
-│  ├─ 资源 · 客户联系  (externalContact)  · 79 ops
+│  ├─ 资源 · 客户联系  (externalContact)  · 104 ops
 │  │   ├─ [服务人员管理]
 │  │   │   └─ 获取配置了客户联系功能的成员列表  (getFollowUserList)
 │  │   ├─ [客户管理]
@@ -677,10 +836,41 @@ n8n 节点面板
 │  │   │   ├─ 删除获客链接  (deleteCustomerAcquisitionLink)
 │  │   │   ├─ 获取由获客链接添加的客户信息  (getCustomerAcquisitionCustomer)
 │  │   │   └─ 获取成员多次收消息详情  (getCustomerAcquisitionChatInfo)
-│  │   └─ [其他接口]
-│  │       ├─ 上传附件资源  (uploadAttachment)
-│  │       ├─ 获取已服务的外部联系人  (getServedExternalContact)
-│  │       └─ 生成代支付key  (createOnceKey)
+│  │   ├─ [其他接口]
+│  │   │   ├─ 上传附件资源  (uploadAttachment)
+│  │   │   ├─ 获取已服务的外部联系人  (getServedExternalContact)
+│  │   │   └─ 生成代支付key  (createOnceKey)
+│  │   ├─ [家校通知]
+│  │   │   └─ 发送学校通知  (sendSchoolMessage)
+│  │   ├─ [规则组标签]
+│  │   │   ├─ 添加企业客户标签  (externalcontactAddStrategyTag)
+│  │   │   ├─ 删除企业客户标签  (externalcontactDelStrategyTag)
+│  │   │   ├─ 编辑企业客户标签  (externalcontactEditStrategyTag)
+│  │   │   └─ 获取标签列表  (externalcontactGetStrategyTagList)
+│  │   ├─ [客户联系]
+│  │   │   ├─ external_userid转openid  (externalcontactConvertToOpenid)
+│  │   │   ├─ 获取群发执行结果(旧)  (externalcontactGetGroupMsgResult)
+│  │   │   └─ 分配在职成员客户(旧)  (externalcontactTransfer)
+│  │   ├─ [客户规则组]
+│  │   │   ├─ 创建规则组  (externalcontactCustomerStrategyCreate)
+│  │   │   ├─ 删除规则组  (externalcontactCustomerStrategyDel)
+│  │   │   ├─ 编辑规则组  (externalcontactCustomerStrategyEdit)
+│  │   │   ├─ 获取规则组详情  (externalcontactCustomerStrategyGet)
+│  │   │   ├─ 获取管理范围  (externalcontactCustomerStrategyGetRange)
+│  │   │   └─ 获取规则组列表  (externalcontactCustomerStrategyList)
+│  │   ├─ [学校通知]
+│  │   │   ├─ 获取关注模式  (externalcontactGetSubscribeMode)
+│  │   │   ├─ 获取关注二维码  (externalcontactGetSubscribeQrCode)
+│  │   │   └─ 设置关注模式  (externalcontactSetSubscribeMode)
+│  │   └─ [客户联系(旧)]
+│  │       ├─ 创建企业群发  (crmAddMsgTemplate)
+│  │       ├─ 获取客户列表  (crmGetCustomerContacts)
+│  │       ├─ 获取客户详情  (crmGetExternalContact)
+│  │       ├─ 获取客户列表2  (crmGetExternalContactList)
+│  │       ├─ 获取群发结果  (crmGetGroupMsgResult)
+│  │       ├─ 获取待分配列表  (crmGetUnassignedList)
+│  │       ├─ 获取联系客户统计  (crmGetUserBehaviorData)
+│  │       └─ 分配客户  (crmTransferExternalContact)
 │
 │  ├─ 资源 · 微信客服  (kf)  · 21 ops
 │  │   ├─ [客服账号管理]
@@ -710,36 +900,55 @@ n8n 节点面板
 │  │       ├─ 管理知识库分组  (manageKnowledgeGroup)
 │  │       └─ 管理知识库问答  (manageKnowledgeIntent)
 │
-│  ├─ 资源 · 家校应用  (school)  · 28 ops
-│  │   └─ [家校沟通]
-│  │       ├─ 获取健康上报使用统计  (getHealthReportStat)
-│  │       ├─ 获取健康上报任务ID列表  (getHealthReportJobIds)
-│  │       ├─ 获取健康上报任务详情  (getHealthReportJobInfo)
-│  │       ├─ 获取健康上报填写答案  (getHealthReportAnswer)
-│  │       ├─ 获取老师直播ID列表  (getUserLivingId)
-│  │       ├─ 获取直播详情  (getLivingInfo)
-│  │       ├─ 获取观看直播统计  (getLivingWatchStat)
-│  │       ├─ 获取未观看直播统计  (getLivingUnwatchStat)
-│  │       ├─ 删除直播回放  (deleteLivingReplayData)
-│  │       ├─ 获取观看直播统计V2  (getLivingWatchStatV2)
-│  │       ├─ 获取未观看直播统计V2  (getLivingUnwatchStatV2)
-│  │       ├─ 获取学生付款结果  (getTradeResult)
-│  │       ├─ 获取订单详情  (getTradeDetail)
-│  │       ├─ 获取可使用的家长范围  (getAllowScope)
-│  │       ├─ 获取家校访问用户身份  (getUserInfo3rd)
-│  │       ├─ 创建学生  (createStudent)
-│  │       ├─ 删除学生  (deleteStudent)
-│  │       ├─ 更新学生  (updateStudent)
-│  │       ├─ 批量创建学生  (batchCreateStudent)
-│  │       ├─ 批量删除学生  (batchDeleteStudent)
-│  │       ├─ 批量更新学生  (batchUpdateStudent)
-│  │       ├─ 创建家长  (createParent)
-│  │       ├─ 删除家长  (deleteParent)
-│  │       ├─ 更新家长  (updateParent)
-│  │       ├─ 批量创建家长  (batchCreateParent)
-│  │       ├─ 批量删除家长  (batchDeleteParent)
-│  │       ├─ 批量更新家长  (batchUpdateParent)
-│  │       └─ 读取学生或家长  (getSchoolUser)
+│  ├─ 资源 · 家校应用  (school)  · 42 ops
+│  │   ├─ [家校沟通]
+│  │   │   ├─ 获取健康上报使用统计  (getHealthReportStat)
+│  │   │   ├─ 获取健康上报任务ID列表  (getHealthReportJobIds)
+│  │   │   ├─ 获取健康上报任务详情  (getHealthReportJobInfo)
+│  │   │   ├─ 获取健康上报填写答案  (getHealthReportAnswer)
+│  │   │   ├─ 获取老师直播ID列表  (getUserLivingId)
+│  │   │   ├─ 获取直播详情  (getLivingInfo)
+│  │   │   ├─ 获取观看直播统计  (getLivingWatchStat)
+│  │   │   ├─ 获取未观看直播统计  (getLivingUnwatchStat)
+│  │   │   ├─ 删除直播回放  (deleteLivingReplayData)
+│  │   │   ├─ 获取观看直播统计V2  (getLivingWatchStatV2)
+│  │   │   ├─ 获取未观看直播统计V2  (getLivingUnwatchStatV2)
+│  │   │   ├─ 获取学生付款结果  (getTradeResult)
+│  │   │   ├─ 获取订单详情  (getTradeDetail)
+│  │   │   ├─ 获取可使用的家长范围  (getAllowScope)
+│  │   │   ├─ 获取家校访问用户身份  (getUserInfo3rd)
+│  │   │   ├─ 创建学生  (createStudent)
+│  │   │   ├─ 删除学生  (deleteStudent)
+│  │   │   ├─ 更新学生  (updateStudent)
+│  │   │   ├─ 批量创建学生  (batchCreateStudent)
+│  │   │   ├─ 批量删除学生  (batchDeleteStudent)
+│  │   │   ├─ 批量更新学生  (batchUpdateStudent)
+│  │   │   ├─ 创建家长  (createParent)
+│  │   │   ├─ 删除家长  (deleteParent)
+│  │   │   ├─ 更新家长  (updateParent)
+│  │   │   ├─ 批量创建家长  (batchCreateParent)
+│  │   │   ├─ 批量删除家长  (batchDeleteParent)
+│  │   │   ├─ 批量更新家长  (batchUpdateParent)
+│  │   │   └─ 读取学生或家长  (getSchoolUser)
+│  │   ├─ [家校部门]
+│  │   │   ├─ 创建部门  (departmentCreate)
+│  │   │   ├─ 删除部门  (departmentDelete)
+│  │   │   ├─ 获取部门列表  (departmentList)
+│  │   │   └─ 更新部门  (departmentUpdate)
+│  │   ├─ [家校]
+│  │   │   ├─ 获取群创建模式  (getChatCreateMode)
+│  │   │   ├─ 获取访问用户身份  (getuserinfo)
+│  │   │   ├─ 设置通讯录同步模式  (setArchSyncMode)
+│  │   │   ├─ 设置群创建模式  (setChatCreateMode)
+│  │   │   └─ 设置升级信息  (setUpgradeInfo)
+│  │   ├─ [家校直播]
+│  │   │   ├─ 获取直播详情  (livingGetLivingInfo)
+│  │   │   ├─ 获取未观看统计  (livingGetUnwatchStat)
+│  │   │   └─ 获取观看统计  (livingGetWatchStat)
+│  │   ├─ [家校学生]
+│  │   │   └─ 获取学生列表  (userList)
+│  │   └─ [家校家长]
+│  │       └─ 获取家长列表  (userListParent)
 │
 │  └─ 资源 · 政民沟通  (living)  · 21 ops
 │      ├─ [网格管理]
@@ -770,25 +979,25 @@ n8n 节点面板
 │
 └─ 触发器节点
    ├─ 企业微信消息接收触发器 (WeCom)
-   │   type: weComTrigger
-   │   ├─ 参数 · Path
-   │   ├─ 参数 · 事件类型
-   │   └─ 参数 · 返回原始数据
+   │    type: weComTrigger
+   │    ├─ 参数 · Path
+   │    ├─ 参数 · 事件类型
+   │    └─ 参数 · 返回原始数据
    ├─ 企业微信消息接收（被动回复）触发器 (WeCom)
-   │   type: weComPassiveTrigger
-   │   ├─ 参数 · Path
-   │   ├─ 参数 · 消息类型
-   │   └─ 参数 · 返回原始数据
+   │    type: weComPassiveTrigger
+   │    ├─ 参数 · Path
+   │    ├─ 参数 · 消息类型
+   │    └─ 参数 · 返回原始数据
    ├─ 企业微信第三方应用指令回调触发器 (WeCom)
-   │   type: weComSuiteTrigger
-   │   ├─ 参数 · Path
-   │   ├─ 参数 · 事件类型
-   │   └─ 参数 · 返回原始数据
+   │    type: weComSuiteTrigger
+   │    ├─ 参数 · Path
+   │    ├─ 参数 · 事件类型
+   │    └─ 参数 · 返回原始数据
    └─ 企业微信智能机器人消息接收触发器 (WeCom)
-       type: weComAiBotTrigger
-       ├─ 参数 · Path
-       ├─ 参数 · 消息类型
-       └─ 参数 · 返回原始数据
+        type: weComAiBotTrigger
+        ├─ 参数 · Path
+        ├─ 参数 · 消息类型
+        └─ 参数 · 返回原始数据
 ```
 
-**统计**：Action 节点 3 · 资源 39 · 操作 551 · 触发器 4
+**统计**：Action 节点 3 · 资源 40 · 操作 718 · 触发器 4
