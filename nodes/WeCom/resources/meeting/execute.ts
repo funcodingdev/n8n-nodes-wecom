@@ -1700,6 +1700,7 @@ export async function executeMeeting(
 					body.video = this.getNodeParameter('rc_video_on', i, false) as boolean;
 				}
 				if (operation === 'createCustomerShortUrl') {
+					// https://developer.work.weixin.qq.com/document/path/98818
 					const customer_data_raw = this.getNodeParameter('customer_data_raw', i, '') as string;
 					const customer_user_data = this.getNodeParameter('customer_user_data', i, '') as string;
 					if (customer_data_raw) {
@@ -1707,6 +1708,8 @@ export async function executeMeeting(
 					} else if (customer_user_data) {
 						const payload = JSON.stringify({ ver: '1.0', userData: customer_user_data });
 						body.customer_data = Buffer.from(payload, 'utf8').toString('base64');
+					} else {
+						throw new Error('请填写客户专属字段 userData 或 Base64 customer_data');
 					}
 				}
 				if (operation === 'getQuality') {

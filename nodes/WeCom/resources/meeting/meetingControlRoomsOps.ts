@@ -549,6 +549,20 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		description: 'true 举手，false 放下',
 	},
 	{
+		displayName: '说明',
+		name: 'customerShortUrlNotice',
+		type: 'notice',
+		displayOptions: {
+			show: {
+				resource: ['meeting'],
+				operation: ['createCustomerShortUrl', 'getCustomerShortUrl'],
+			},
+		},
+		default: '',
+		description:
+			'专属短链不支持 Webinar/个人会议号。创建时需 customer_data（可用 userData 自动 Base64）。',
+	},
+	{
 		displayName: '客户专属字段userData',
 		name: 'customer_user_data',
 		type: 'string',
@@ -556,7 +570,7 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 			show: { resource: ['meeting'], operation: ['createCustomerShortUrl'] },
 		},
 		default: '',
-		description: '将自动封装为 ver=1.0 并 Base64 编码为 customer_data',
+		description: '自动封装为 {"ver":"1.0","userData":...} 并 Base64 为 customer_data',
 	},
 	{
 		displayName: '客户专属字段Base64',
@@ -566,7 +580,7 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 			show: { resource: ['meeting'], operation: ['createCustomerShortUrl'] },
 		},
 		default: '',
-		description: '若已有 Base64 的 customer_data 可直接填写（优先）',
+		description: '已有 Base64 的 customer_data 时直接填（优先于 userData）',
 	},
 	{
 		displayName: '质量查询开始时间',
@@ -593,22 +607,24 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		displayName: '检查成员UserID',
 		name: 'device_check_userid',
 		type: 'string',
+		required: true,
 		displayOptions: {
 			show: { resource: ['meeting'], operation: ['checkDeviceInMeeting'] },
 		},
 		default: '',
-		description: 'userid',
+		description: 'userid，企业成员',
 	},
 	{
 		displayName: '会议ID列表',
 		name: 'device_meetingid_list',
 		type: 'string',
+		required: true,
 		displayOptions: {
 			show: { resource: ['meeting'], operation: ['checkDeviceInMeeting'] },
 		},
 		default: '',
 		placeholder: 'meeting1,meeting2',
-		description: 'meetingid_list，逗号分隔',
+		description: 'meetingid_list，逗号分隔；须为本企业创建的会议',
 	},
 	{
 		displayName: '设备类型列表',
@@ -619,7 +635,7 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: '1,2,3',
-		description: 'instance_id_list，逗号分隔数字；空表示全部设备',
+		description: 'instance_id_list；空表示查询全部设备（1 PC / 2 Mac / 3 Android…）',
 	},
 	{
 		displayName: '查询电话号码',
