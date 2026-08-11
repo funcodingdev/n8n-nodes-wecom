@@ -772,8 +772,20 @@ export async function executeMeeting(
 				);
 			} else if (operation === 'webinarUpdateWarmUp') {
 				const meetingid = this.getNodeParameter('webinar_meetingid', i) as string;
+				const warm_up_picture = this.getNodeParameter('warm_up_picture', i, '') as string;
+				const warm_up_video = this.getNodeParameter('warm_up_video', i, '') as string;
+				const allow_attendees_invite_others = this.getNodeParameter(
+					'allow_attendees_invite_others',
+					i,
+					true,
+				) as boolean;
 				const webinarExtraJson = this.getNodeParameter('webinarExtraJson', i, '{}') as string;
-				const body: IDataObject = { meetingid };
+				const body: IDataObject = {
+					meetingid,
+					allow_attendees_invite_others,
+				};
+				if (warm_up_picture) body.warm_up_picture = warm_up_picture;
+				if (warm_up_video) body.warm_up_video = warm_up_video;
 				try {
 					Object.assign(body, JSON.parse(webinarExtraJson || '{}') as IDataObject);
 					body.meetingid = meetingid;
@@ -930,13 +942,52 @@ export async function executeMeeting(
 				);
 			} else if (operation === 'recordUpdateSharingConfig') {
 				const meetingid = this.getNodeParameter('webinar_meetingid', i) as string;
-				const record_file_id = this.getNodeParameter('webinar_record_file_id', i) as string;
+				const record_file_id = this.getNodeParameter('webinar_record_file_id', i, '') as string;
+				const sharing_enable_sharing = this.getNodeParameter(
+					'sharing_enable_sharing',
+					i,
+					true,
+				) as boolean;
+				const sharing_auth_type = this.getNodeParameter('sharing_auth_type', i, 0) as number;
+				const sharing_enable_password = this.getNodeParameter(
+					'sharing_enable_password',
+					i,
+					false,
+				) as boolean;
+				const sharing_password = this.getNodeParameter('sharing_password', i, '') as string;
+				const sharing_allow_download = this.getNodeParameter(
+					'sharing_allow_download',
+					i,
+					false,
+				) as boolean;
 				const webinarExtraJson = this.getNodeParameter('webinarExtraJson', i, '{}') as string;
-				const body: IDataObject = { meetingid, record_file_id };
-				try {
-					Object.assign(body, JSON.parse(webinarExtraJson || '{}') as IDataObject);
-					body.meetingid = meetingid;
+				const sharing_config: IDataObject = {
+					enable_sharing: sharing_enable_sharing,
+					sharing_auth_type,
+					enable_password: sharing_enable_password,
+					allow_download: sharing_allow_download,
+				};
+				if (sharing_enable_password && sharing_password) {
+					sharing_config.password = sharing_password;
+				}
+				const body: IDataObject = {
+					meetingid,
+					sharing_config,
+				};
+				// 官方字段 meeting_record_id；兼容历史 record_file_id 入参
+				if (record_file_id) {
+					body.meeting_record_id = record_file_id;
 					body.record_file_id = record_file_id;
+				}
+				try {
+					const extra = JSON.parse(webinarExtraJson || '{}') as IDataObject;
+					if (extra.sharing_config && typeof extra.sharing_config === 'object') {
+						Object.assign(sharing_config, extra.sharing_config as IDataObject);
+						delete extra.sharing_config;
+					}
+					Object.assign(body, extra);
+					body.meetingid = meetingid;
+					body.sharing_config = sharing_config;
 				} catch {
 					// ignore
 				}

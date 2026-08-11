@@ -525,6 +525,93 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		description: '其余字段（如 question_list、导入数据）与上方合并',
 	},
 	{
+		displayName: '暖场图片URL',
+		name: 'warm_up_picture',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarUpdateWarmUp'] },
+		},
+		default: '',
+		description: '与暖场视频二选一，同时传则以图片为准',
+	},
+	{
+		displayName: '暖场视频URL',
+		name: 'warm_up_video',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarUpdateWarmUp'] },
+		},
+		default: '',
+	},
+	{
+		displayName: '允许暖场邀请成员',
+		name: 'allow_attendees_invite_others',
+		type: 'boolean',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarUpdateWarmUp'] },
+		},
+		default: true,
+	},
+	{
+		displayName: '分享开关',
+		name: 'sharing_enable_sharing',
+		type: 'boolean',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['recordUpdateSharingConfig'] },
+		},
+		default: true,
+		description: 'sharing_config.enable_sharing',
+	},
+	{
+		displayName: '分享权限类型',
+		name: 'sharing_auth_type',
+		type: 'options',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['recordUpdateSharingConfig'] },
+		},
+		options: [
+			{ name: '仅允许登录成员查看', value: 0 },
+			{ name: '仅企业内成员可查看', value: 1 },
+			{ name: '仅参会成员可查看', value: 2 },
+			{ name: '全部成员可查看', value: 3 },
+			{ name: '通过权限审批的成员可查看', value: 4 },
+			{ name: '微信特邀链接成员可查看', value: 5 },
+		],
+		default: 0,
+		description: 'sharing_auth_type',
+	},
+	{
+		displayName: '开启分享密码',
+		name: 'sharing_enable_password',
+		type: 'boolean',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['recordUpdateSharingConfig'] },
+		},
+		default: false,
+	},
+	{
+		displayName: '分享密码',
+		name: 'sharing_password',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['meeting'],
+				operation: ['recordUpdateSharingConfig'],
+				sharing_enable_password: [true],
+			},
+		},
+		default: '',
+	},
+	{
+		displayName: '允许下载',
+		name: 'sharing_allow_download',
+		type: 'boolean',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['recordUpdateSharingConfig'] },
+		},
+		default: false,
+	},
+	{
 		displayName: '扩展请求JSON',
 		name: 'webinarExtraJson',
 		type: 'json',
@@ -542,6 +629,6 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: '{}',
-		description: '其余可选字段（如 media_setting、分享配置等），与上方字段合并，JSON 优先',
+		description: '其余可选字段与上方合并，JSON 优先',
 	},
 ];
