@@ -2129,6 +2129,17 @@ export async function executeExternalContact(
 					}
 				}
 				if (msgid) bodyDefaults.msgid = msgid;
+				const groupmsg_userid = this.getNodeParameter('groupmsg_userid', i, '') as string;
+				const groupmsg_cursor = this.getNodeParameter('groupmsg_cursor', i, '') as string;
+				const groupmsg_limit = this.getNodeParameter('groupmsg_limit', i, 0) as number;
+				if (
+					operation === 'externalcontactGetGroupMsgResult' ||
+					operation === 'crmGetGroupMsgResult'
+				) {
+					if (groupmsg_userid) bodyDefaults.userid = groupmsg_userid;
+					if (groupmsg_cursor) bodyDefaults.cursor = groupmsg_cursor;
+					if (groupmsg_limit) bodyDefaults.limit = groupmsg_limit;
+				}
 				if (handover_userid) bodyDefaults.handover_userid = handover_userid;
 				if (takeover_userid) bodyDefaults.takeover_userid = takeover_userid;
 				if (behavior_start_time) bodyDefaults.start_time = behavior_start_time;

@@ -477,6 +477,44 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
+		displayName: '发送成员UserID',
+		name: 'groupmsg_userid',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactGetGroupMsgResult', 'crmGetGroupMsgResult'],
+			},
+		},
+		default: '',
+		description: '发送成员 userid，用于筛选该成员的发送结果',
+	},
+	{
+		displayName: '群发结果游标',
+		name: 'groupmsg_cursor',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactGetGroupMsgResult', 'crmGetGroupMsgResult'],
+			},
+		},
+		default: '',
+	},
+	{
+		displayName: '群发结果条数',
+		name: 'groupmsg_limit',
+		type: 'number',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactGetGroupMsgResult', 'crmGetGroupMsgResult'],
+			},
+		},
+		default: 50,
+		description: '最大 1000',
+	},
+	{
 		displayName: '群发文本内容',
 		name: 'crm_msg_text',
 		type: 'string',
