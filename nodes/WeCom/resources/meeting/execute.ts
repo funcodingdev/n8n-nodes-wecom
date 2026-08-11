@@ -1151,6 +1151,14 @@ export async function executeMeeting(
 				if (mra_tmp_openid) {
 					body.mra = { tmp_openid: mra_tmp_openid };
 				}
+				if (operation === 'mraSetDefaultLayout') {
+					body.default_layout = this.getNodeParameter('mra_default_layout', i, 2) as number;
+					body.default_novideo_user = this.getNodeParameter(
+						'mra_default_novideo_user',
+						i,
+						1,
+					) as number;
+				}
 				if (vip_jobid) body.jobid = vip_jobid;
 				if (
 					[

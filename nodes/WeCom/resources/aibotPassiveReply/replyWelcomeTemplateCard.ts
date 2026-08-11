@@ -17,8 +17,18 @@ export const replyWelcomeTemplateCardDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForReplyWelcomeTemplateCard,
 		},
-		default: '',
+		default: `{
+  "card_type": "text_notice",
+  "main_title": {
+    "title": "标题",
+    "desc": "说明"
+  },
+  "card_action": {
+    "type": 1,
+    "url": "https://work.weixin.qq.com"
+  }
+}`,
 		required: true,
-		description: '模板卡片结构体（JSON格式）',
+		description: '完整 template_card 结构体',
 	},
 ];

@@ -323,6 +323,35 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		description: '若为非空数组则覆盖上方表单；报名导入等复杂结构也写在这里',
 	},
 	{
+		displayName: 'MRA默认分屏',
+		name: 'mra_default_layout',
+		type: 'options',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['mraSetDefaultLayout'] },
+		},
+		options: [
+			{ name: '等分模式', value: 1 },
+			{ name: '全屏模式', value: 2 },
+			{ name: '1+N', value: 3 },
+		],
+		default: 2,
+		description: 'default_layout',
+	},
+	{
+		displayName: '非视频与会者显示',
+		name: 'mra_default_novideo_user',
+		type: 'options',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['mraSetDefaultLayout'] },
+		},
+		options: [
+			{ name: '显示', value: 1 },
+			{ name: '隐藏', value: 2 },
+		],
+		default: 1,
+		description: 'default_novideo_user',
+	},
+	{
 		displayName: '游标',
 		name: 'cr_cursor',
 		type: 'string',
