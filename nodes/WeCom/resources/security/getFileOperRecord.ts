@@ -30,7 +30,7 @@ export const getFileOperRecordDescription: INodeProperties[] = [
 		description: '结束时间（Unix时间戳，秒），开始时间到结束时间的范围不能超过14天',
 	},
 	{
-		displayName: '用户ID列表 Names or IDs',
+		displayName: '用户ID列表',
 		name: 'userid_list',
 		type: 'multiOptions',
 		displayOptions: {

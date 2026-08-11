@@ -81,7 +81,7 @@ export const getAdminOperLogDescription: INodeProperties[] = [
 		default: 2,
 	},
 	{
-		displayName: '操作者 Name or ID',
+		displayName: '操作者',
 		name: 'userid',
 		type: 'options',
 

@@ -30,7 +30,7 @@ export const createCalendarDescription: INodeProperties[] = [
 		placeholder: '用于管理部门日常会议和活动',
 	},
 	{
-		displayName: '管理员列表 Names or IDs',
+		displayName: '管理员列表',
 		name: 'admins',
 		type: 'multiOptions',
 		required: true,
@@ -100,7 +100,7 @@ export const createCalendarDescription: INodeProperties[] = [
 				name: 'shares',
 				values: [
 					{
-						displayName: '成员 Name or ID',
+						displayName: '成员',
 						name: 'userid',
 						type: 'options',
 						default: '',
@@ -152,7 +152,7 @@ export const createCalendarDescription: INodeProperties[] = [
 				description: '公开范围，仅当是公共日历时有效。&lt;strong&gt;创建全员日历时必须指定公开范围&lt;/strong&gt;。可以选择公开成员列表、公开部门列表，或两者都选',
 				options: [
 					{
-						displayName: '公开成员列表 Names or IDs',
+						displayName: '公开成员列表',
 						name: 'userids',
 						type: 'multiOptions',
 						typeOptions: {
@@ -162,7 +162,7 @@ export const createCalendarDescription: INodeProperties[] = [
 						description: '公开的成员列表范围，最多指定1000个成员',
 					},
 					{
-						displayName: '公开部门列表 Names or IDs',
+						displayName: '公开部门列表',
 						name: 'partyids',
 						type: 'multiOptions',
 						typeOptions: {

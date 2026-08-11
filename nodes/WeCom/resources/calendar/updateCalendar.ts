@@ -66,7 +66,7 @@ export const updateCalendarDescription: INodeProperties[] = [
 		description: '日历颜色，RGB颜色编码16进制表示，例如："#0000FF" 表示纯蓝色',
 	},
 	{
-		displayName: '管理员列表 Names or IDs',
+		displayName: '管理员列表',
 		name: 'admins',
 		type: 'multiOptions',
 		displayOptions: {
@@ -103,7 +103,7 @@ export const updateCalendarDescription: INodeProperties[] = [
 		description: '公开范围。仅当是公共日历时有效',
 		options: [
 			{
-				displayName: '公开成员列表 Names or IDs',
+				displayName: '公开成员列表',
 				name: 'userids',
 				type: 'multiOptions',
 				typeOptions: {
@@ -113,7 +113,7 @@ export const updateCalendarDescription: INodeProperties[] = [
 				description: '公开的成员列表范围。最多指定1000个成员',
 			},
 			{
-				displayName: '公开部门列表 Names or IDs',
+				displayName: '公开部门列表',
 				name: 'partyids',
 				type: 'multiOptions',
 				typeOptions: {
@@ -143,7 +143,7 @@ export const updateCalendarDescription: INodeProperties[] = [
 				name: 'shares',
 				values: [
 					{
-						displayName: '成员 Name or ID',
+						displayName: '成员',
 						name: 'userid',
 						type: 'options',
 						default: '',

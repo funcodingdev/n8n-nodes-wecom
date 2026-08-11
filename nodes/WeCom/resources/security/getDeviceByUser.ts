@@ -2,7 +2,7 @@ import type { INodeProperties } from 'n8n-workflow';
 
 export const getDeviceByUserDescription: INodeProperties[] = [
 	{
-		displayName: '成员 Name or ID',
+		displayName: '成员',
 		name: 'last_login_userid',
 		type: 'options',
 		required: true,

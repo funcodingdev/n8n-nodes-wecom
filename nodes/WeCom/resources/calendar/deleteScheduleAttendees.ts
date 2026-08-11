@@ -28,7 +28,7 @@ export const deleteScheduleAttendeesDescription: INodeProperties[] = [
 				name: 'attendees',
 				values: [
 					{
-						displayName: '成员 Name or ID',
+						displayName: '成员',
 						name: 'userid',
 						type: 'options',
 						default: '',

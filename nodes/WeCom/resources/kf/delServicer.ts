@@ -7,7 +7,7 @@ const showOnlyForDelServicer = {
 
 export const delServicerDescription: INodeProperties[] = [
 	{
-		displayName: '客服账号 Name or ID',
+		displayName: '客服账号',
 		name: 'open_kfid',
 		type: 'options',
 		typeOptions: {

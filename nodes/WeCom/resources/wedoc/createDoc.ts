@@ -42,7 +42,7 @@ export const createDocDescription: INodeProperties[] = [
 		description: '文件名最多填255个字符, 超过255个字符会被截断',
 	},
 	{
-		displayName: '管理员UserID列表 Names or IDs',
+		displayName: '管理员UserID列表',
 		name: 'admin_users',
 		type: 'multiOptions',
 		typeOptions: {

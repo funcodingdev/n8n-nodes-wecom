@@ -73,7 +73,7 @@ export const updateScheduleDescription: INodeProperties[] = [
 		placeholder: 'test_place',
 	},
 	{
-		displayName: '参与者 Names or IDs',
+		displayName: '参与者',
 		name: 'attendees',
 		type: 'multiOptions',
 		displayOptions: { show: showOnlyForUpdate },
@@ -84,7 +84,7 @@ export const updateScheduleDescription: INodeProperties[] = [
 		description: '日程参与者列表。最多支持1000人。注意：更新操作是覆盖式，如果需要增量式更新成员，可使用"新增日程参与者"与"删除日程参与者"接口。可从列表选择或手动输入UserID',
 	},
 	{
-		displayName: '日程管理员 Names or IDs',
+		displayName: '日程管理员',
 		name: 'admins',
 		type: 'multiOptions',
 		displayOptions: { show: showOnlyForUpdate },

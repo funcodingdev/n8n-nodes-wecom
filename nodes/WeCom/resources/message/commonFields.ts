@@ -64,7 +64,7 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 				`${recipientTypeDescription}<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>`,
 		},
 		{
-			displayName: '成员 Names or IDs',
+			displayName: '接收成员',
 			name: 'touser',
 			type: 'multiOptions',
 			typeOptions: {
@@ -80,7 +80,7 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 			description: '指定接收消息的成员，最多支持1000个。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>.',
 		},
 		{
-			displayName: '部门 Names or IDs',
+			displayName: '接收部门',
 			name: 'toparty',
 			type: 'multiOptions',
 			typeOptions: {
@@ -96,7 +96,7 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 			description: '指定接收消息的部门，最多支持100个。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>.',
 		},
 		{
-			displayName: '标签 Names or IDs',
+			displayName: '接收标签',
 			name: 'totag',
 			type: 'multiOptions',
 			typeOptions: {

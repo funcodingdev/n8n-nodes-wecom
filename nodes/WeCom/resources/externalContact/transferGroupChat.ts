@@ -18,7 +18,7 @@ export const transferGroupChatDescription: INodeProperties[] = [
 		description: '需要转群主的客户群ID列表。需要转群主的客户群ID列表，用逗号分隔，最多100个',
 	},
 	{
-		displayName: '新群主 Name or ID',
+		displayName: '新群主',
 		name: 'new_owner',
 		type: 'options',
 		typeOptions: {

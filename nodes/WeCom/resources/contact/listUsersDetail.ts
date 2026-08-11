@@ -7,7 +7,7 @@ const showOnlyListUsersDetail = {
 
 export const listUsersDetailDescription: INodeProperties[] = [
 	{
-		displayName: '部门 Name or ID',
+		displayName: '部门',
 		name: 'department_id',
 		type: 'options',
 		typeOptions: {

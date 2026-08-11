@@ -157,7 +157,7 @@ export const createFormDescription: INodeProperties[] = [
 				],
 			},
 			{
-				displayName: '指定填写人员 Names or IDs',
+				displayName: '指定填写人员',
 				name: 'fill_in_range_userids',
 				type: 'multiOptions',
 				typeOptions: {
@@ -172,7 +172,7 @@ export const createFormDescription: INodeProperties[] = [
 				description: '指定的可填写的企业成员列表。从列表中选择成员',
 			},
 			{
-				displayName: '指定填写部门 Names or IDs',
+				displayName: '指定填写部门',
 				name: 'fill_in_range_departmentids',
 				type: 'multiOptions',
 				typeOptions: {
@@ -187,7 +187,7 @@ export const createFormDescription: INodeProperties[] = [
 				description: '指定的可填写的部门列表。从列表中选择部门',
 			},
 			{
-				displayName: '收集表管理员 Names or IDs',
+				displayName: '收集表管理员',
 				name: 'setting_manager_range',
 				type: 'multiOptions',
 				typeOptions: {

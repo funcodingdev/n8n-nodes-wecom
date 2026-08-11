@@ -63,7 +63,7 @@ export const getMemberOperLogDescription: INodeProperties[] = [
 		default: 1,
 	},
 	{
-		displayName: '操作者 Name or ID',
+		displayName: '操作者',
 		name: 'userid',
 		type: 'options',
 

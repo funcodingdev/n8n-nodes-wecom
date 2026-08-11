@@ -7,7 +7,7 @@ const showOnly = {
 
 export const transferResultDescription: INodeProperties[] = [
 	{
-		displayName: '原成员 Name or ID',
+		displayName: '原成员',
 		name: 'handover_userid',
 		type: 'options',
 		typeOptions: {
@@ -21,7 +21,7 @@ export const transferResultDescription: INodeProperties[] = [
 		description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>。原跟进成员的userid',
 	},
 	{
-		displayName: '接替成员 Name or ID',
+		displayName: '接替成员',
 		name: 'takeover_userid',
 		type: 'options',
 		typeOptions: {

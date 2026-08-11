@@ -7,7 +7,7 @@ const showOnlyGetTag = {
 
 export const getTagDescription: INodeProperties[] = [
 	{
-		displayName: '标签 Name or ID',
+		displayName: '标签',
 		name: 'tagid',
 		type: 'options',
 		typeOptions: {

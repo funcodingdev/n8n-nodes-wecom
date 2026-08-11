@@ -2,7 +2,7 @@ import type { INodeProperties } from 'n8n-workflow';
 
 export const submitBatchAddVipJobDescription: INodeProperties[] = [
 	{
-		displayName: '成员列表 Names or IDs',
+		displayName: '成员列表',
 		name: 'userid_list',
 		type: 'multiOptions',
 		required: true,

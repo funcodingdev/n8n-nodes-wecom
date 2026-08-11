@@ -36,7 +36,7 @@ export const sendTextDescription: INodeProperties[] = [
 			'文本消息内容，最长不超过 2048 字节。支持换行，换行请使用 \\n。<a href="https://developer.work.weixin.qq.com/document/path/90248" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '@ 成员 Names or IDs',
+		displayName: '@提醒成员',
 		name: 'mentionedList',
 		type: 'multiOptions',
 		typeOptions: {

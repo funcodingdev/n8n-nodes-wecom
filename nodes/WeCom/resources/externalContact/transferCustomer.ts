@@ -7,7 +7,7 @@ const showOnly = {
 
 export const transferCustomerDescription: INodeProperties[] = [
 	{
-		displayName: '原成员 Name or ID',
+		displayName: '原成员',
 		name: 'handover_userid',
 		type: 'options',
 		typeOptions: {
@@ -22,7 +22,7 @@ export const transferCustomerDescription: INodeProperties[] = [
 		placeholder: 'zhangsan',
 	},
 	{
-		displayName: '接替成员 Name or ID',
+		displayName: '接替成员',
 		name: 'takeover_userid',
 		type: 'options',
 		typeOptions: {

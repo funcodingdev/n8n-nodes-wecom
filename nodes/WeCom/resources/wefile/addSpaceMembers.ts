@@ -45,7 +45,7 @@ export const addSpaceMembersDescription: INodeProperties[] = [
 						],
 					},
 					{
-						displayName: '成员 Name or ID',
+						displayName: '成员',
 						name: 'userid',
 						type: 'options',
 						required: true,
@@ -57,7 +57,7 @@ export const addSpaceMembersDescription: INodeProperties[] = [
 						description: '成员的userid',
 					},
 					{
-						displayName: '部门 Name or ID',
+						displayName: '部门',
 						name: 'departmentid',
 						required: true,
 						type: 'options',
