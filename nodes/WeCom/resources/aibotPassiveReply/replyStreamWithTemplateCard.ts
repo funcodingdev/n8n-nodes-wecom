@@ -110,8 +110,18 @@ export const replyStreamWithTemplateCardDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForReplyStreamWithTemplateCard,
 		},
-		default: '{}',
-		description: '模板卡片结构体（JSON格式）',
+		default: `{
+  "card_type": "text_notice",
+  "main_title": {
+    "title": "标题",
+    "desc": "说明"
+  },
+  "card_action": {
+    "type": 1,
+    "url": "https://work.weixin.qq.com"
+  }
+}`,
+		description: '完整 template_card 结构体',
 	},
 	{
 		displayName: '模板卡片反馈ID',

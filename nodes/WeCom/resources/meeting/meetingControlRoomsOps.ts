@@ -315,6 +315,27 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		description: 'invitees userid 列表，逗号分隔',
 	},
 	{
+		displayName: '临时OpenID',
+		name: 'enroll_tmp_openid',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['enrollQueryByTmpOpenid'] },
+		},
+		default: '',
+		description: 'tmp_openid，用于按临时 OpenID 查询报名',
+	},
+	{
+		displayName: '报名ID列表',
+		name: 'enroll_id_list_cr',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['enrollDelete'] },
+		},
+		default: '',
+		placeholder: 'id1,id2',
+		description: 'enroll_id_list，逗号分隔',
+	},
+	{
 		displayName: '列表数据扩展JSON',
 		name: 'list_data_json',
 		type: 'json',

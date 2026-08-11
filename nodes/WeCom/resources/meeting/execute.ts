@@ -1252,12 +1252,25 @@ export async function executeMeeting(
 					body.invitees = invitees;
 				}
 				if (['enrollImport', 'enrollDelete', 'enrollQueryByTmpOpenid'].includes(operation)) {
+					if (operation === 'enrollDelete') {
+						const enroll_id_list_cr = this.getNodeParameter('enroll_id_list_cr', i, '') as string;
+						const ids = enroll_id_list_cr.split(',').map((s) => s.trim()).filter(Boolean);
+						if (ids.length) body.enroll_id_list = ids;
+					}
+					if (operation === 'enrollQueryByTmpOpenid') {
+						const enroll_tmp_openid = this.getNodeParameter('enroll_tmp_openid', i, '') as string;
+						if (enroll_tmp_openid) body.tmp_openid = enroll_tmp_openid;
+					}
 					try {
-						Object.assign(body, {
-							...(Array.isArray(JSON.parse(list_data_json || '[]'))
-								? { enroll_list: JSON.parse(list_data_json || '[]') }
-								: JSON.parse(list_data_json || '{}')),
-						});
+						const parsed = JSON.parse(list_data_json || '[]');
+						if (Array.isArray(parsed) && parsed.length) {
+							if (operation === 'enrollImport') body.enroll_list = parsed;
+							else if (operation === 'enrollDelete' && !body.enroll_id_list) {
+								body.enroll_id_list = parsed;
+							}
+						} else if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+							Object.assign(body, parsed as IDataObject);
+						}
 					} catch {
 						// ignore
 					}
