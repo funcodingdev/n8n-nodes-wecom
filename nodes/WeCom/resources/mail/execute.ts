@@ -111,8 +111,12 @@ export async function executeMail(
 				const ccListCollection = this.getNodeParameter('ccListCollection', i, {}) as IDataObject;
 				const bccListCollection = this.getNodeParameter('bccListCollection', i, {}) as IDataObject;
 				const calTitle = this.getNodeParameter('calTitle', i, '') as string;
-				const calStartTime = this.getNodeParameter('calStartTime', i) as number;
-				const calEndTime = this.getNodeParameter('calEndTime', i) as number;
+				const calStartTime = dateTimeToUnixTimestamp(
+					this.getNodeParameter('calStartTime', i) as string | number,
+				);
+				const calEndTime = dateTimeToUnixTimestamp(
+					this.getNodeParameter('calEndTime', i) as string | number,
+				);
 				const calLocation = this.getNodeParameter('calLocation', i, '') as string;
 				const calDescription = this.getNodeParameter('calDescription', i, '') as string;
 				const attachmentCollection = this.getNodeParameter('attachmentCollection', i, {}) as IDataObject;
@@ -154,8 +158,12 @@ export async function executeMail(
 				const ccListCollection = this.getNodeParameter('ccListCollection', i, {}) as IDataObject;
 				const bccListCollection = this.getNodeParameter('bccListCollection', i, {}) as IDataObject;
 				const meetingTitle = this.getNodeParameter('meetingTitle', i, '') as string;
-				const meetingStartTime = this.getNodeParameter('meetingStartTime', i) as number;
-				const meetingEndTime = this.getNodeParameter('meetingEndTime', i) as number;
+				const meetingStartTime = dateTimeToUnixTimestamp(
+					this.getNodeParameter('meetingStartTime', i) as string | number,
+				);
+				const meetingEndTime = dateTimeToUnixTimestamp(
+					this.getNodeParameter('meetingEndTime', i) as string | number,
+				);
 				const meetingLocation = this.getNodeParameter('meetingLocation', i, '') as string;
 				const meetingDescription = this.getNodeParameter('meetingDescription', i, '') as string;
 				const attachmentCollection = this.getNodeParameter('attachmentCollection', i, {}) as IDataObject;

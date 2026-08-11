@@ -1421,8 +1421,12 @@ export async function executeExternalContact(
 				);
 			} else if (operation === 'getGroupChatStatistic') {
 				const statistic_type = this.getNodeParameter('statistic_type', i, 'by_owner') as string;
-				const day_begin_time = this.getNodeParameter('day_begin_time', i) as number;
-				const day_end_time = this.getNodeParameter('day_end_time', i, 0) as number;
+				const day_begin_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('day_begin_time', i) as string | number,
+				);
+				const day_end_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('day_end_time', i, '') as string | number,
+				);
 				const owner_userid_list = this.getNodeParameter('owner_userid_list', i, '') as string;
 
 				const body: IDataObject = { day_begin_time };

@@ -18,19 +18,20 @@ export const getGroupChatStatisticDescription: INodeProperties[] = [
 	{
 		displayName: '起始日期（必填）',
 		name: 'day_begin_time',
-		type: 'number',
+		type: 'dateTime',
 		required: true,
-		default: 0,
+		default: '',
 		displayOptions: { show: showOnly },
-		description: '起始日期的时间戳，填当天的0时0分0秒（否则系统自动处理）。取值范围：昨天至前180天',
+		description:
+			'起始日期 day_begin_time，建议当天 0 点；取值范围：昨天至前 180 天',
 	},
 	{
 		displayName: '结束日期',
 		name: 'day_end_time',
-		type: 'number',
-		default: 0,
+		type: 'dateTime',
+		default: '',
 		displayOptions: { show: showOnly },
-		description: '结束日期的时间戳，填当天的0时0分0秒。如果不填，默认同起始日期（即取一天的数据）。最大查询跨度30天',
+		description: '结束日期 day_end_time；空则默认同起始日期；最大跨度 30 天',
 	},
 	{
 		displayName: '群主UserID列表（必填）',
