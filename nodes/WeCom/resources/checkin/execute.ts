@@ -261,10 +261,14 @@ export async function executeCheckin(
 
 				responseData = await weComApiRequest.call(this, 'POST', endpoint, body);
 			} else if (checkinExtraHttpOpsById[operation]) {
+				const bodyDefaults: IDataObject = {};
+				const checkin_groupid = this.getNodeParameter('checkin_groupid', i, 0) as number;
+				if (checkin_groupid) bodyDefaults.groupid = checkin_groupid;
 				responseData = await executeExtraHttpOp.call(
 					this,
 					checkinExtraHttpOpsById[operation],
 					i,
+					bodyDefaults,
 				);
 			}
 

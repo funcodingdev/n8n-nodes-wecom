@@ -1,4 +1,4 @@
-import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
+import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
 import { executeExtraHttpOp } from '../../shared/extraHttpOp';
 import { approvalExtraHttpOpsById } from './extraHttpOps';
@@ -117,10 +117,16 @@ export async function executeApproval(
 					...JSON.parse(templateData),
 				});
 			} else if (approvalExtraHttpOpsById[operation]) {
+				const bodyDefaults: IDataObject = {};
+				const appr_starttime = this.getNodeParameter('appr_starttime', i, 0) as number;
+				const appr_endtime = this.getNodeParameter('appr_endtime', i, 0) as number;
+				if (appr_starttime) bodyDefaults.starttime = appr_starttime;
+				if (appr_endtime) bodyDefaults.endtime = appr_endtime;
 				responseData = await executeExtraHttpOp.call(
 					this,
 					approvalExtraHttpOpsById[operation],
 					i,
+					bodyDefaults,
 				);
 			}
 

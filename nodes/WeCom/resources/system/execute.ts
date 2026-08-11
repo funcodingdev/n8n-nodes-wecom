@@ -28,10 +28,19 @@ export async function executeSystem(
 			break;
 		default: {
 			if (systemExtraHttpOpsById[operation]) {
+				const bodyDefaults: IDataObject = {};
+				const qsDefaults: IDataObject = {};
+				const sys_code = this.getNodeParameter('sys_code', index, '') as string;
+				const sys_userid = this.getNodeParameter('sys_userid', index, '') as string;
+				if (sys_code) qsDefaults.code = sys_code;
+				if (sys_code && operation === 'miniprogramJscode2session') qsDefaults.js_code = sys_code;
+				if (sys_userid) bodyDefaults.userid = sys_userid;
 				responseData = await executeExtraHttpOp.call(
 					this,
 					systemExtraHttpOpsById[operation],
 					index,
+					bodyDefaults,
+					qsDefaults,
 				);
 				break;
 			}

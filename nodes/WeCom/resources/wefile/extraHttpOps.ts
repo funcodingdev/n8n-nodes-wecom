@@ -2,7 +2,6 @@ import type { INodeProperties } from 'n8n-workflow';
 import type { ExtraHttpOp } from '../../shared/extraHttpOp';
 import { extraHttpOpOptions } from '../../shared/extraHttpOp';
 
-/** 文档有、此前节点未封装的 wefile 相关 HTTP 接口（一等操作） */
 export const wefileExtraHttpOps: ExtraHttpOp[] = [
 	{ id: 'wedriveGetFilePermission', name: '[微盘] 获取文件权限', action: '获取微盘文件权限', description: '获取微盘文件权限', path: '/cgi-bin/wedrive/get_file_permission', method: 'POST' },
 ];
@@ -19,6 +18,16 @@ export function getWefileExtraHttpOpOptions() {
 
 export const wefileExtraHttpOpsDescription: INodeProperties[] = [
 	{
+		displayName: '文件ID',
+		name: 'wefile_fileid',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['wefile'], operation: wefileExtraHttpOpsOptionValues },
+		},
+		default: '',
+		description: '微盘 fileid',
+	},
+	{
 		displayName: '请求体JSON',
 		name: 'requestBody',
 		type: 'json',
@@ -26,7 +35,7 @@ export const wefileExtraHttpOpsDescription: INodeProperties[] = [
 			show: { resource: ['wefile'], operation: wefileExtraHttpOpsOptionValues },
 		},
 		default: '{}',
-		description: '请求体 JSON，字段名与企业微信接口文档保持一致；GET 请求可留空',
+		description: '其余字段与 fileid 合并',
 	},
 	{
 		displayName: 'Query参数JSON',
@@ -36,6 +45,5 @@ export const wefileExtraHttpOpsDescription: INodeProperties[] = [
 			show: { resource: ['wefile'], operation: wefileExtraHttpOpsOptionValues },
 		},
 		default: '{}',
-		description: 'URL 查询参数（访问凭证会自动附加，无需填写）',
 	},
 ];

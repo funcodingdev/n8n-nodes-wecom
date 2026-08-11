@@ -2,7 +2,6 @@ import type { INodeProperties } from 'n8n-workflow';
 import type { ExtraHttpOp } from '../../shared/extraHttpOp';
 import { extraHttpOpOptions } from '../../shared/extraHttpOp';
 
-/** 文档有、此前节点未封装的 linkedcorp 相关 HTTP 接口（一等操作） */
 export const linkedcorpExtraHttpOps: ExtraHttpOp[] = [
 	{ id: 'corpGetChainCorpinfo', name: '[上下游] 获取企业信息', action: '获取上下游企业信息', description: '获取上下游企业信息', path: '/cgi-bin/corpgroup/corp/get_chain_corpinfo', method: 'POST' },
 	{ id: 'corpGetChainGroup', name: '[上下游] 获取企业分组', action: '获取上下游企业分组', description: '获取上下游企业分组', path: '/cgi-bin/corpgroup/corp/get_chain_group', method: 'POST' },
@@ -21,6 +20,38 @@ export function getLinkedcorpExtraHttpOpOptions() {
 
 export const linkedcorpExtraHttpOpsDescription: INodeProperties[] = [
 	{
+		displayName: '上下游ID',
+		name: 'lc_chain_id',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['linkedcorp'],
+				operation: ['corpGetChainCorpinfo', 'corpGetChainGroup'],
+			},
+		},
+		default: '',
+		description: 'chain_id',
+	},
+	{
+		displayName: '企业ID',
+		name: 'lc_corpid',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['linkedcorp'], operation: ['corpGetChainCorpinfo'] },
+		},
+		default: '',
+		description: '下级/下游企业 corpid',
+	},
+	{
+		displayName: 'UnionID',
+		name: 'lc_unionid',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['linkedcorp'], operation: ['unionidToPendingId'] },
+		},
+		default: '',
+	},
+	{
 		displayName: '请求体JSON',
 		name: 'requestBody',
 		type: 'json',
@@ -28,7 +59,7 @@ export const linkedcorpExtraHttpOpsDescription: INodeProperties[] = [
 			show: { resource: ['linkedcorp'], operation: linkedcorpExtraHttpOpsOptionValues },
 		},
 		default: '{}',
-		description: '请求体 JSON，字段名与企业微信接口文档保持一致；GET 请求可留空',
+		description: '其余字段与上方合并',
 	},
 	{
 		displayName: 'Query参数JSON',
@@ -38,6 +69,5 @@ export const linkedcorpExtraHttpOpsDescription: INodeProperties[] = [
 			show: { resource: ['linkedcorp'], operation: linkedcorpExtraHttpOpsOptionValues },
 		},
 		default: '{}',
-		description: 'URL 查询参数（访问凭证会自动附加，无需填写）',
 	},
 ];

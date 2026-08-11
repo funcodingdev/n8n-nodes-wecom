@@ -533,10 +533,35 @@ export async function executeSchool(
 				}
 				default: {
 					if (schoolExtraHttpOpsById[operation]) {
+						const bodyDefaults: IDataObject = {};
+						const qsDefaults: IDataObject = {};
+						const school_department_id = this.getNodeParameter('school_department_id', i, 0) as number;
+						const school_department_name = this.getNodeParameter('school_department_name', i, '') as string;
+						const school_parentid = this.getNodeParameter('school_parentid', i, 0) as number;
+						const school_code = this.getNodeParameter('school_code', i, '') as string;
+						const school_livingid = this.getNodeParameter('school_livingid', i, '') as string;
+						const school_mode = this.getNodeParameter('school_mode', i, 0) as number;
+						if (['departmentDelete', 'departmentUpdate'].includes(operation) && school_department_id) {
+							bodyDefaults.id = school_department_id;
+						}
+						if (school_department_name) bodyDefaults.name = school_department_name;
+						if (school_parentid) bodyDefaults.parentid = school_parentid;
+						if (school_livingid) bodyDefaults.livingid = school_livingid;
+						if (['setArchSyncMode', 'setChatCreateMode'].includes(operation)) {
+							bodyDefaults.mode = school_mode;
+						}
+						// GET query fields
+						if (operation === 'getuserinfo' && school_code) qsDefaults.code = school_code;
+						if (['departmentList', 'userList', 'userListParent'].includes(operation) && school_department_id) {
+							qsDefaults.id = school_department_id;
+							bodyDefaults.department_id = school_department_id;
+						}
 						responseData = await executeExtraHttpOp.call(
 							this,
 							schoolExtraHttpOpsById[operation],
 							i,
+							bodyDefaults,
+							qsDefaults,
 						);
 						break;
 					}

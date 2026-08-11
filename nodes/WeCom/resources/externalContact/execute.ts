@@ -1971,10 +1971,22 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (externalContactExtraHttpOpsById[operation]) {
+				const bodyDefaults: IDataObject = {};
+				const strategy_id = this.getNodeParameter('strategy_id', i, 0) as number;
+				const ec_external_userid = this.getNodeParameter('ec_external_userid', i, '') as string;
+				const ec_userid = this.getNodeParameter('ec_userid', i, '') as string;
+				const ec_cursor = this.getNodeParameter('ec_cursor', i, '') as string;
+				const ec_limit = this.getNodeParameter('ec_limit', i, 0) as number;
+				if (strategy_id) bodyDefaults.strategy_id = strategy_id;
+				if (ec_external_userid) bodyDefaults.external_userid = ec_external_userid;
+				if (ec_userid) bodyDefaults.userid = ec_userid;
+				if (ec_cursor) bodyDefaults.cursor = ec_cursor;
+				if (ec_limit) bodyDefaults.limit = ec_limit;
 				response = await executeExtraHttpOp.call(
 					this,
 					externalContactExtraHttpOpsById[operation],
 					i,
+					bodyDefaults,
 				);
 			} else {
 				response = {};

@@ -295,10 +295,18 @@ export async function executeLinkedcorp(
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/corpgroup/rule/modify_rule', body);
 			} else if (linkedcorpExtraHttpOpsById[operation]) {
+				const bodyDefaults: IDataObject = {};
+				const lc_chain_id = this.getNodeParameter('lc_chain_id', i, '') as string;
+				const lc_corpid = this.getNodeParameter('lc_corpid', i, '') as string;
+				const lc_unionid = this.getNodeParameter('lc_unionid', i, '') as string;
+				if (lc_chain_id) bodyDefaults.chain_id = lc_chain_id;
+				if (lc_corpid) bodyDefaults.corpid = lc_corpid;
+				if (lc_unionid) bodyDefaults.unionid = lc_unionid;
 				response = await executeExtraHttpOp.call(
 					this,
 					linkedcorpExtraHttpOpsById[operation],
 					i,
+					bodyDefaults,
 				);
 			} else {
 				response = {};

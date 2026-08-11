@@ -548,10 +548,14 @@ export async function executeWefile(
 					{ upload_key },
 				);
 			} else if (wefileExtraHttpOpsById[operation]) {
+				const bodyDefaults: IDataObject = {};
+				const wefile_fileid = this.getNodeParameter('wefile_fileid', i, '') as string;
+				if (wefile_fileid) bodyDefaults.fileid = wefile_fileid;
 				responseData = await executeExtraHttpOp.call(
 					this,
 					wefileExtraHttpOpsById[operation],
 					i,
+					bodyDefaults,
 				);
 			}
 

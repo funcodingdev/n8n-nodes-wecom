@@ -2,7 +2,7 @@ import type { INodeProperties } from 'n8n-workflow';
 import type { ExtraHttpOp } from '../../shared/extraHttpOp';
 import { extraHttpOpOptions } from '../../shared/extraHttpOp';
 
-/** 文档有、此前节点未封装的 school 相关 HTTP 接口（一等操作） */
+/** 家校补全接口（部门 / 学生家长 / 直播 / 模式设置） */
 export const schoolExtraHttpOps: ExtraHttpOp[] = [
 	{ id: 'departmentCreate', name: '[家校部门] 创建部门', action: '创建家校部门', description: '创建家校部门', path: '/cgi-bin/school/department/create', method: 'POST' },
 	{ id: 'departmentDelete', name: '[家校部门] 删除部门', action: '删除家校部门', description: '删除家校部门', path: '/cgi-bin/school/department/delete', method: 'POST' },
@@ -32,6 +32,78 @@ export function getSchoolExtraHttpOpOptions() {
 
 export const schoolExtraHttpOpsDescription: INodeProperties[] = [
 	{
+		displayName: '部门ID',
+		name: 'school_department_id',
+		type: 'number',
+		displayOptions: {
+			show: {
+				resource: ['school'],
+				operation: [
+					'departmentDelete',
+					'departmentUpdate',
+					'departmentList',
+					'userList',
+					'userListParent',
+				],
+			},
+		},
+		default: 0,
+		description: '部门 ID；列表类接口可作筛选',
+	},
+	{
+		displayName: '部门名称',
+		name: 'school_department_name',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['school'], operation: ['departmentCreate', 'departmentUpdate'] },
+		},
+		default: '',
+	},
+	{
+		displayName: '父部门ID',
+		name: 'school_parentid',
+		type: 'number',
+		displayOptions: {
+			show: { resource: ['school'], operation: ['departmentCreate', 'departmentUpdate'] },
+		},
+		default: 0,
+	},
+	{
+		displayName: 'OAuth Code',
+		name: 'school_code',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['school'], operation: ['getuserinfo'] },
+		},
+		default: '',
+		description: '网页授权回调 code',
+	},
+	{
+		displayName: '直播ID',
+		name: 'school_livingid',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['school'],
+				operation: ['livingGetLivingInfo', 'livingGetUnwatchStat', 'livingGetWatchStat'],
+			},
+		},
+		default: '',
+	},
+	{
+		displayName: '模式值',
+		name: 'school_mode',
+		type: 'number',
+		displayOptions: {
+			show: {
+				resource: ['school'],
+				operation: ['setArchSyncMode', 'setChatCreateMode'],
+			},
+		},
+		default: 0,
+		description: '同步/建群模式枚举，见官方文档',
+	},
+	{
 		displayName: '请求体JSON',
 		name: 'requestBody',
 		type: 'json',
@@ -39,7 +111,7 @@ export const schoolExtraHttpOpsDescription: INodeProperties[] = [
 			show: { resource: ['school'], operation: schoolExtraHttpOpsOptionValues },
 		},
 		default: '{}',
-		description: '请求体 JSON，字段名与企业微信接口文档保持一致；GET 请求可留空',
+		description: '其余字段与上方合并，JSON 优先',
 	},
 	{
 		displayName: 'Query参数JSON',
@@ -49,6 +121,6 @@ export const schoolExtraHttpOpsDescription: INodeProperties[] = [
 			show: { resource: ['school'], operation: schoolExtraHttpOpsOptionValues },
 		},
 		default: '{}',
-		description: 'URL 查询参数（访问凭证会自动附加，无需填写）',
+		description: 'URL 查询参数（GET 接口常用；访问凭证自动附加）',
 	},
 ];
