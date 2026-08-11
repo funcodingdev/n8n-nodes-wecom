@@ -173,6 +173,14 @@ export const miniapppayDescription: INodeProperties[] = [
 		description: '支付者在小程序下的 OpenID',
 	},
 	{
+		displayName: '支付结果通知URL',
+		name: 'notify_url',
+		type: 'string',
+		displayOptions: { show: { ...showOnly, operation: ['createOrder'] } },
+		default: '',
+		description: '支付结果回调通知地址',
+	},
+	{
 		displayName: '下单场景Key',
 		name: 'scenekey',
 		type: 'string',

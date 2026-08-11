@@ -23,6 +23,7 @@ export async function executeMiniapppay(
 				const amount_currency = this.getNodeParameter('amount_currency', i, 'CNY') as string;
 				const payer_openid = this.getNodeParameter('payer_openid', i) as string;
 				const scenekey = this.getNodeParameter('scenekey', i, '') as string;
+				const notify_url = this.getNodeParameter('notify_url', i, '') as string;
 				const attach = this.getNodeParameter('attach', i, '') as string;
 				const payer_client_ip = this.getNodeParameter('payer_client_ip', i) as string;
 				const store_id = this.getNodeParameter('store_id', i) as string;
@@ -41,6 +42,7 @@ export async function executeMiniapppay(
 					},
 				};
 				if (scenekey) body.scenekey = scenekey;
+				if (notify_url) body.notify_url = notify_url;
 				if (attach) body.attach = attach;
 
 				try {

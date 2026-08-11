@@ -1992,7 +1992,13 @@ export async function executeExternalContact(
 				const behavior_end_time = this.getNodeParameter('behavior_end_time', i, 0) as number;
 				if (strategy_id) bodyDefaults.strategy_id = strategy_id;
 				if (ec_external_userid) bodyDefaults.external_userid = ec_external_userid;
-				if (ec_userid) bodyDefaults.userid = ec_userid;
+				if (ec_userid) {
+					if (operation === 'crmGetUserBehaviorData') {
+						bodyDefaults.userid = ec_userid.split(',').map((s) => s.trim()).filter(Boolean);
+					} else {
+						bodyDefaults.userid = ec_userid;
+					}
+				}
 				if (ec_cursor) bodyDefaults.cursor = ec_cursor;
 				if (ec_limit) bodyDefaults.limit = ec_limit;
 				if (strategy_name) bodyDefaults.strategy_name = strategy_name;
