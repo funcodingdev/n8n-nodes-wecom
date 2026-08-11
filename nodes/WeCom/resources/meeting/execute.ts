@@ -1031,6 +1031,14 @@ export async function executeMeeting(
 				};
 				if (sponsor) body.sponsor = sponsor;
 				if (password) body.password = password;
+				const cover_url = this.getNodeParameter('cover_url', i, '') as string;
+				const webinar_description = this.getNodeParameter(
+					'webinar_description',
+					i,
+					'',
+				) as string;
+				if (cover_url) body.cover_url = cover_url;
+				if (webinar_description) body.description = webinar_description;
 				if (host_userids) {
 					body.hosts = host_userids
 						.split(',')
@@ -1057,14 +1065,41 @@ export async function executeMeeting(
 					meetingid,
 				});
 			} else if (operation === 'webinarUpdate') {
+				// https://developer.work.weixin.qq.com/document/path/98843
 				const meetingid = this.getNodeParameter('webinar_meetingid', i) as string;
 				const title = this.getNodeParameter('title', i, '') as string;
+				const start_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('start_time', i, '') as string | number,
+				);
+				const end_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('end_time', i, '') as string | number,
+				);
+				const admission_type = this.getNodeParameter('admission_type', i, 0) as number;
+				const playback_for_audience = this.getNodeParameter(
+					'playback_for_audience',
+					i,
+					false,
+				) as boolean;
 				const sponsor = this.getNodeParameter('sponsor', i, '') as string;
+				const password = this.getNodeParameter('password', i, '') as string;
+				const cover_url = this.getNodeParameter('cover_url', i, '') as string;
+				const webinar_description = this.getNodeParameter(
+					'webinar_description',
+					i,
+					'',
+				) as string;
 				const host_userids = this.getNodeParameter('host_userids', i, '') as string;
 				const webinarExtraJson = this.getNodeParameter('webinarExtraJson', i, '{}') as string;
 				const body: IDataObject = { meetingid };
 				if (title) body.title = title;
+				if (start_time) body.start_time = String(start_time);
+				if (end_time) body.end_time = String(end_time);
+				body.admission_type = admission_type;
+				body.playback_for_audience = playback_for_audience;
 				if (sponsor) body.sponsor = sponsor;
+				if (password) body.password = password;
+				if (cover_url) body.cover_url = cover_url;
+				if (webinar_description) body.description = webinar_description;
 				if (host_userids) {
 					body.hosts = host_userids
 						.split(',')

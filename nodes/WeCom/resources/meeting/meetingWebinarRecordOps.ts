@@ -199,25 +199,31 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		name: 'start_time',
 		type: 'dateTime',
 		required: true,
-		displayOptions: { show: { resource: ['meeting'], operation: ['webinarCreate'] } },
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarCreate', 'webinarUpdate'] },
+		},
 		default: '',
-		description: '开始时间（将转为秒级时间戳）；不能早于当前时间约半小时以上',
+		description: '开始时间（秒级时间戳）；不能早于当前时间约半小时以上',
 	},
 	{
 		displayName: '结束时间',
 		name: 'end_time',
 		type: 'dateTime',
 		required: true,
-		displayOptions: { show: { resource: ['meeting'], operation: ['webinarCreate'] } },
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarCreate', 'webinarUpdate'] },
+		},
 		default: '',
-		description: '结束时间（将转为秒级时间戳）',
+		description: '结束时间（秒级时间戳）',
 	},
 	{
 		displayName: '观众限制类型',
 		name: 'admission_type',
 		type: 'options',
 		required: true,
-		displayOptions: { show: { resource: ['meeting'], operation: ['webinarCreate'] } },
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarCreate', 'webinarUpdate'] },
+		},
 		options: [
 			{ name: '公开', value: 0 },
 			{ name: '报名', value: 1 },
@@ -230,7 +236,9 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		displayName: '允许观众观看回放',
 		name: 'playback_for_audience',
 		type: 'boolean',
-		displayOptions: { show: { resource: ['meeting'], operation: ['webinarCreate'] } },
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarCreate', 'webinarUpdate'] },
+		},
 		default: false,
 		description: '开启时需配合云录制（auto_record_type=cloud）',
 	},
@@ -246,9 +254,32 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		displayName: '观众密码',
 		name: 'password',
 		type: 'string',
-		displayOptions: { show: { resource: ['meeting'], operation: ['webinarCreate'] } },
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarCreate', 'webinarUpdate'] },
+		},
 		default: '',
 		description: '观众限制为密码时必填，4～6 位数字',
+	},
+	{
+		displayName: '封面图片URL',
+		name: 'cover_url',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarCreate', 'webinarUpdate'] },
+		},
+		default: '',
+		description: 'cover_url，PNG/JPEG，建议 1280×720，需开启活动页',
+	},
+	{
+		displayName: '研讨会描述',
+		name: 'webinar_description',
+		type: 'string',
+		typeOptions: { rows: 2 },
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarCreate', 'webinarUpdate'] },
+		},
+		default: '',
+		description: 'description',
 	},
 	{
 		displayName: '主持人UserID列表',
