@@ -3,6 +3,16 @@ import { weComApiRequest } from '../../shared/transport';
 import { executeExtraHttpOp } from '../../shared/extraHttpOp';
 import { approvalExtraHttpOpsById } from './extraHttpOps';
 
+function dateTimeToUnixTimestamp(dateTime: string | number): number {
+	if (typeof dateTime === 'number') {
+		return dateTime;
+	}
+	if (!dateTime || dateTime === '') {
+		return 0;
+	}
+	return Math.floor(new Date(dateTime).getTime() / 1000);
+}
+
 export async function executeApproval(
 	this: IExecuteFunctions,
 	operation: string,
@@ -125,8 +135,12 @@ export async function executeApproval(
 			} else if (operation === 'getApprovalSpNoList') {
 				// 批量获取审批单号
 				// https://developer.work.weixin.qq.com/document/path/91816
-				const starttime = this.getNodeParameter('starttime', i) as number;
-				const endtime = this.getNodeParameter('endtime', i) as number;
+				const starttime = dateTimeToUnixTimestamp(
+					this.getNodeParameter('starttime', i) as string | number,
+				);
+				const endtime = dateTimeToUnixTimestamp(
+					this.getNodeParameter('endtime', i) as string | number,
+				);
 				const cursor = this.getNodeParameter('cursor', i, 0) as number;
 				const size = this.getNodeParameter('size', i, 100) as number;
 				const enableFilters = this.getNodeParameter('enableFilters', i, false) as boolean;

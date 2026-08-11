@@ -9,24 +9,24 @@ export const getInspectEventListDescription: INodeProperties[] = [
 	{
 		displayName: '创建时间起点',
 		name: 'begin_create_time',
-		type: 'number',
+		type: 'dateTime',
 		displayOptions: {
 			show: showOnlyForGetInspectEventList,
 		},
-		default: 0,
+		default: '',
 		description:
-			'可选。时间戳，筛选 begin_create_time 之后新创建的上报。<a href="https://developer.work.weixin.qq.com/document/path/93536" target="_blank">官方文档</a>',
+			'可选。筛选 begin_create_time 之后新创建的上报。<a href="https://developer.work.weixin.qq.com/document/path/93536" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '修改时间起点',
 		name: 'begin_modify_time',
-		type: 'number',
+		type: 'dateTime',
 		displayOptions: {
 			show: showOnlyForGetInspectEventList,
 		},
-		default: 0,
+		default: '',
 		description:
-			'可选。时间戳，筛选 begin_modify_time 之后新修改的上报。<a href="https://developer.work.weixin.qq.com/document/path/93536" target="_blank">官方文档</a>',
+			'可选。筛选 begin_modify_time 之后新修改的上报。<a href="https://developer.work.weixin.qq.com/document/path/93536" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '翻页游标',

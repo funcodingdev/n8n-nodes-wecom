@@ -25,26 +25,25 @@ export const getStatisticsDescription: INodeProperties[] = [
 	{
 		displayName: '开始时间',
 		name: 'starttime',
-		type: 'number',
+		type: 'dateTime',
 		required: true,
 		displayOptions: {
 			show: showOnlyForGetStatistics,
 		},
-		default: 0,
-		placeholder: '1609459200',
-		description: '统计的起始时间，Unix时间戳（秒）。<a href="https://developer.work.weixin.qq.com/document/path/93496" target="_blank">更多信息</a>',
+		default: '',
+		description:
+			'统计起始时间 starttime（Unix 秒）。<a href="https://developer.work.weixin.qq.com/document/path/93496" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '结束时间',
 		name: 'endtime',
-		type: 'number',
+		type: 'dateTime',
 		required: true,
 		displayOptions: {
 			show: showOnlyForGetStatistics,
 		},
-		default: 0,
-		placeholder: '1609545600',
-		description: '统计的结束时间，Unix时间戳（秒）。<a href="https://developer.work.weixin.qq.com/document/path/93496" target="_blank">更多信息</a>',
+		default: '',
+		description: '统计结束时间 endtime（Unix 秒）',
 	},
 	{
 		displayName: '成员UserID列表',

@@ -8,6 +8,16 @@ function parseCommaList(value: string): string[] {
 		.filter((item) => item.length > 0);
 }
 
+function dateTimeToUnixTimestamp(dateTime: string | number): number {
+	if (typeof dateTime === 'number') {
+		return dateTime;
+	}
+	if (!dateTime || dateTime === '') {
+		return 0;
+	}
+	return Math.floor(new Date(dateTime).getTime() / 1000);
+}
+
 /**
  * 政民沟通（居民联系 / 巡查上报 / 居民上报）
  * 官方路径前缀：/cgi-bin/report/*
@@ -229,8 +239,12 @@ export async function executeLiving(
 				}
 				case 'getInspectEventList': {
 					// POST /cgi-bin/report/patrol/get_order_list
-					const begin_create_time = this.getNodeParameter('begin_create_time', i, 0) as number;
-					const begin_modify_time = this.getNodeParameter('begin_modify_time', i, 0) as number;
+					const begin_create_time = dateTimeToUnixTimestamp(
+						this.getNodeParameter('begin_create_time', i, '') as string | number,
+					);
+					const begin_modify_time = dateTimeToUnixTimestamp(
+						this.getNodeParameter('begin_modify_time', i, '') as string | number,
+					);
 					const cursor = this.getNodeParameter('cursor', i, '') as string;
 					const limit = this.getNodeParameter('limit', i, 20) as number;
 
@@ -318,8 +332,12 @@ export async function executeLiving(
 				}
 				case 'getResidentEventList': {
 					// POST /cgi-bin/report/resident/get_order_list
-					const begin_create_time = this.getNodeParameter('begin_create_time', i, 0) as number;
-					const begin_modify_time = this.getNodeParameter('begin_modify_time', i, 0) as number;
+					const begin_create_time = dateTimeToUnixTimestamp(
+						this.getNodeParameter('begin_create_time', i, '') as string | number,
+					);
+					const begin_modify_time = dateTimeToUnixTimestamp(
+						this.getNodeParameter('begin_modify_time', i, '') as string | number,
+					);
 					const cursor = this.getNodeParameter('cursor', i, '') as string;
 					const limit = this.getNodeParameter('limit', i, 20) as number;
 

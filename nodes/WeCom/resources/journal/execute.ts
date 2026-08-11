@@ -1,6 +1,16 @@
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
 
+function dateTimeToUnixTimestamp(dateTime: string | number): number {
+	if (typeof dateTime === 'number') {
+		return dateTime;
+	}
+	if (!dateTime || dateTime === '') {
+		return 0;
+	}
+	return Math.floor(new Date(dateTime).getTime() / 1000);
+}
+
 export async function executeJournal(
 	this: IExecuteFunctions,
 	operation: string,
@@ -15,8 +25,12 @@ export async function executeJournal(
 			if (operation === 'getRecordList') {
 				// 批量获取汇报记录单号
 				// https://developer.work.weixin.qq.com/document/path/93393
-				const starttime = this.getNodeParameter('starttime', i) as number;
-				const endtime = this.getNodeParameter('endtime', i) as number;
+				const starttime = dateTimeToUnixTimestamp(
+					this.getNodeParameter('starttime', i) as string | number,
+				);
+				const endtime = dateTimeToUnixTimestamp(
+					this.getNodeParameter('endtime', i) as string | number,
+				);
 				const cursor = this.getNodeParameter('cursor', i, 0) as number;
 				const limit = this.getNodeParameter('limit', i, 50) as number;
 				const enableFilters = this.getNodeParameter('enableFilters', i, false) as boolean;
@@ -47,8 +61,12 @@ export async function executeJournal(
 				// 获取汇报统计数据
 				// https://developer.work.weixin.qq.com/document/path/93395
 				const template_type = this.getNodeParameter('template_type', i) as number;
-				const starttime = this.getNodeParameter('starttime', i) as number;
-				const endtime = this.getNodeParameter('endtime', i) as number;
+				const starttime = dateTimeToUnixTimestamp(
+					this.getNodeParameter('starttime', i) as string | number,
+				);
+				const endtime = dateTimeToUnixTimestamp(
+					this.getNodeParameter('endtime', i) as string | number,
+				);
 				const useridlist = this.getNodeParameter('useridlist', i, '') as string;
 
 				const body: {
