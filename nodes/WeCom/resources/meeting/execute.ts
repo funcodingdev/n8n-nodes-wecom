@@ -256,6 +256,13 @@ export async function executeMeeting(
 				const end_time_raw = this.getNodeParameter('end_time', i, '') as string | number;
 				const description = this.getNodeParameter('description', i, '') as string;
 				const location = this.getNodeParameter('location', i, '') as string;
+				const invitee_userids = this.getNodeParameter('invitee_userids', i, '') as string;
+				const settings_password = this.getNodeParameter('settings_password', i, '') as string;
+				const updateMeetingExtraJson = this.getNodeParameter(
+					'updateMeetingExtraJson',
+					i,
+					'{}',
+				) as string;
 
 				const body: IDataObject = { meetingid };
 				if (title) body.title = title;
@@ -272,6 +279,26 @@ export async function executeMeeting(
 				}
 				if (description) body.description = description;
 				if (location) body.location = location;
+				const inviteeIds = invitee_userids
+					.split(',')
+					.map((s) => s.trim())
+					.filter(Boolean);
+				if (inviteeIds.length) body.invitees = { userid: inviteeIds };
+				if (settings_password) body.settings = { password: settings_password };
+				try {
+					const extra = JSON.parse(updateMeetingExtraJson || '{}') as IDataObject;
+					if (extra.settings && typeof extra.settings === 'object') {
+						body.settings = {
+							...((body.settings as IDataObject) || {}),
+							...(extra.settings as IDataObject),
+						};
+						delete extra.settings;
+					}
+					Object.assign(body, extra);
+					body.meetingid = meetingid;
+				} catch {
+					// ignore
+				}
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/update', body);
 			} else if (operation === 'cancelMeeting') {
