@@ -107,24 +107,24 @@ export const externalpayDescription: INodeProperties[] = [
 	{
 		displayName: '开始时间',
 		name: 'begin_time',
-		type: 'number',
+		type: 'dateTime',
 		required: true,
 		displayOptions: {
 			show: { ...showOnly, operation: ['getBillList', 'getFundFlow'] },
 		},
-		default: 0,
-		description: '开始时间戳（秒）',
+		default: '',
+		description: 'begin_time（Unix 秒）',
 	},
 	{
 		displayName: '结束时间',
 		name: 'end_time',
-		type: 'number',
+		type: 'dateTime',
 		required: true,
 		displayOptions: {
 			show: { ...showOnly, operation: ['getBillList', 'getFundFlow'] },
 		},
-		default: 0,
-		description: '结束时间戳（秒），与开始时间间隔不超过约 1 个月',
+		default: '',
+		description: 'end_time（Unix 秒），与开始时间间隔不超过约 1 个月',
 	},
 	{
 		displayName: '收款成员UserID',

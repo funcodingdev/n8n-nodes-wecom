@@ -1,6 +1,16 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
 
+function dateTimeToUnixTimestamp(dateTime: string | number): number {
+	if (typeof dateTime === 'number') {
+		return dateTime;
+	}
+	if (!dateTime || dateTime === '') {
+		return 0;
+	}
+	return Math.floor(new Date(dateTime).getTime() / 1000);
+}
+
 function splitCsv(value: string): string[] {
 	return value
 		.split(',')
@@ -50,8 +60,12 @@ export async function executeExternalpay(
 				);
 			} else if (operation === 'getBillList') {
 				// https://developer.work.weixin.qq.com/document/path/93667
-				const begin_time = this.getNodeParameter('begin_time', i) as number;
-				const end_time = this.getNodeParameter('end_time', i) as number;
+				const begin_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('begin_time', i) as string | number,
+				);
+				const end_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('end_time', i) as string | number,
+				);
 				const payee_userid = this.getNodeParameter('payee_userid', i, '') as string;
 				const cursor = this.getNodeParameter('cursor', i, '') as string;
 				const limit = this.getNodeParameter('limit', i, 10) as number;
@@ -77,8 +91,12 @@ export async function executeExternalpay(
 				);
 			} else if (operation === 'getFundFlow') {
 				// https://developer.work.weixin.qq.com/document/path/98100
-				const begin_time = this.getNodeParameter('begin_time', i) as number;
-				const end_time = this.getNodeParameter('end_time', i) as number;
+				const begin_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('begin_time', i) as string | number,
+				);
+				const end_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('end_time', i) as string | number,
+				);
 				const mch_id = this.getNodeParameter('mch_id', i, '') as string;
 				const cursor = this.getNodeParameter('cursor', i, '') as string;
 				const limit = this.getNodeParameter('limit', i, 10) as number;
