@@ -541,7 +541,8 @@ export async function executeSchool(
 						const school_department_type = this.getNodeParameter('school_department_type', i, 1) as number;
 						const school_code = this.getNodeParameter('school_code', i, '') as string;
 						const school_livingid = this.getNodeParameter('school_livingid', i, '') as string;
-						const school_mode = this.getNodeParameter('school_mode', i, 0) as number;
+						const arch_sync_mode = this.getNodeParameter('arch_sync_mode', i, 1) as number;
+						const create_mode = this.getNodeParameter('create_mode', i, 0) as number;
 						const school_next_key = this.getNodeParameter('school_next_key', i, '') as string;
 						const upgrade_time = this.getNodeParameter('upgrade_time', i, 0) as number;
 						const upgrade_switch = this.getNodeParameter('upgrade_switch', i, 0) as number;
@@ -549,8 +550,11 @@ export async function executeSchool(
 						const register_year = this.getNodeParameter('register_year', i, 0) as number;
 						const standard_grade = this.getNodeParameter('standard_grade', i, 0) as number;
 						const school_department_order = this.getNodeParameter('school_department_order', i, 0) as number;
-						if (['departmentDelete', 'departmentUpdate'].includes(operation) && school_department_id) {
+						if (operation === 'departmentUpdate' && school_department_id) {
 							bodyDefaults.id = school_department_id;
+						}
+						if (operation === 'departmentDelete' && school_department_id) {
+							qsDefaults.id = school_department_id;
 						}
 						if (operation === 'departmentCreate') {
 							if (school_department_id) bodyDefaults.id = school_department_id;
@@ -593,8 +597,11 @@ export async function executeSchool(
 						}
 						if (school_livingid) bodyDefaults.livingid = school_livingid;
 						if (school_next_key) bodyDefaults.next_key = school_next_key;
-						if (['setArchSyncMode', 'setChatCreateMode'].includes(operation)) {
-							bodyDefaults.mode = school_mode;
+						if (operation === 'setArchSyncMode') {
+							bodyDefaults.arch_sync_mode = arch_sync_mode;
+						}
+						if (operation === 'setChatCreateMode') {
+							bodyDefaults.create_mode = create_mode;
 						}
 						if (operation === 'setUpgradeInfo') {
 							bodyDefaults.upgrade_time = upgrade_time || 0;

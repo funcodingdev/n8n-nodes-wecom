@@ -5,10 +5,10 @@ import { extraHttpOpOptions } from '../../shared/extraHttpOp';
 /** 家校补全接口（部门 / 学生家长 / 直播 / 模式设置） */
 export const schoolExtraHttpOps: ExtraHttpOp[] = [
 	{ id: 'departmentCreate', name: '[家校部门] 创建部门', action: '创建家校部门', description: '创建家校部门', path: '/cgi-bin/school/department/create', method: 'POST' },
-	{ id: 'departmentDelete', name: '[家校部门] 删除部门', action: '删除家校部门', description: '删除家校部门', path: '/cgi-bin/school/department/delete', method: 'POST' },
+	{ id: 'departmentDelete', name: '[家校部门] 删除部门', action: '删除家校部门', description: '删除家校部门', path: '/cgi-bin/school/department/delete', method: 'GET' },
 	{ id: 'departmentList', name: '[家校部门] 获取部门列表', action: '获取家校部门列表', description: '获取家校部门列表', path: '/cgi-bin/school/department/list', method: 'GET' },
 	{ id: 'departmentUpdate', name: '[家校部门] 更新部门', action: '更新家校部门', description: '更新家校部门', path: '/cgi-bin/school/department/update', method: 'POST' },
-	{ id: 'getChatCreateMode', name: '[家校] 获取群创建模式', action: '获取家校群创建模式', description: '获取家校群创建模式', path: '/cgi-bin/school/get_chat_create_mode', method: 'POST' },
+	{ id: 'getChatCreateMode', name: '[家校] 获取群创建模式', action: '获取家校群创建模式', description: '获取家校群创建模式', path: '/cgi-bin/school/get_chat_create_mode', method: 'GET' },
 	{ id: 'getuserinfo', name: '[家校] 获取访问用户身份', action: '获取家校访问用户身份', description: '获取家校访问用户身份', path: '/cgi-bin/school/getuserinfo', method: 'GET' },
 	{ id: 'livingGetLivingInfo', name: '[家校直播] 获取直播详情', action: '获取家校直播详情', description: '获取家校直播详情', path: '/cgi-bin/school/living/get_living_info', method: 'POST' },
 	{ id: 'livingGetUnwatchStat', name: '[家校直播] 获取未观看统计', action: '获取家校直播未观看统计', description: '获取家校直播未观看统计', path: '/cgi-bin/school/living/get_unwatch_stat', method: 'POST' },
@@ -219,17 +219,33 @@ export const schoolExtraHttpOpsDescription: INodeProperties[] = [
 		description: '上次返回的 next_key，首次可不填',
 	},
 	{
-		displayName: '模式值',
-		name: 'school_mode',
-		type: 'number',
+		displayName: '通讯录同步模式',
+		name: 'arch_sync_mode',
+		type: 'options',
 		displayOptions: {
-			show: {
-				resource: ['school'],
-				operation: ['setArchSyncMode', 'setChatCreateMode'],
-			},
+			show: { resource: ['school'], operation: ['setArchSyncMode'] },
 		},
+		options: [
+			{ name: '禁止将标签同步至家校通讯录', value: 1 },
+			{ name: '禁止将家校通讯录同步至标签', value: 2 },
+			{ name: '禁止家校通讯录和标签相互同步', value: 3 },
+		],
+		default: 1,
+		description: 'arch_sync_mode',
+	},
+	{
+		displayName: '班级群创建方式',
+		name: 'create_mode',
+		type: 'options',
+		displayOptions: {
+			show: { resource: ['school'], operation: ['setChatCreateMode'] },
+		},
+		options: [
+			{ name: '自动创建', value: 0 },
+			{ name: '手动创建', value: 1 },
+		],
 		default: 0,
-		description: '同步/建群模式枚举，见官方文档',
+		description: 'create_mode',
 	},
 	{
 		displayName: '自动升年级时间',

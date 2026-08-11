@@ -123,6 +123,11 @@ export async function executeMchpay(
 					(this.getNodeParameter('agentid', i, '') as string) || creds.agentId || '';
 				const sender_name = this.getNodeParameter('sender_name', i, '') as string;
 				const scene_id = this.getNodeParameter('scene_id', i, '') as string;
+				const sender_header_media_id = this.getNodeParameter(
+					'sender_header_media_id',
+					i,
+					'',
+				) as string;
 
 				const params: Record<string, string | number> = {
 					nonce_str: nonceStr(),
@@ -139,6 +144,7 @@ export async function executeMchpay(
 				if (agentid) params.agentid = agentid;
 				if (sender_name) params.sender_name = sender_name;
 				if (scene_id) params.scene_id = scene_id;
+				if (sender_header_media_id) params.sender_header_media_id = sender_header_media_id;
 
 				params.workwx_sign = workwxMd5Sign(params, creds.agentSecret, REDPACK_WORKWX_FIELDS);
 				params.sign = mchMd5Sign(params, creds.apiKey);
