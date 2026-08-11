@@ -543,12 +543,22 @@ export async function executeMeeting(
 					},
 				);
 			} else if (operation === 'endMeeting') {
-				// https://developer.work.weixin.qq.com/document/path/98180
+				// https://developer.work.weixin.qq.com/document/path/98187
 				const meetingid = this.getNodeParameter('meetingid', i) as string;
-
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/realcontrol/dismiss', {
+				const force_dismiss = this.getNodeParameter('force_dismiss', i, 1) as number;
+				const retrieve_code = this.getNodeParameter('retrieve_code', i, 0) as number;
+				const body: IDataObject = {
 					meetingid,
-				});
+					force_dismiss,
+					retrieve_code,
+				};
+
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/meeting/realcontrol/dismiss',
+					body,
+				);
 			}
 			// 录制管理
 			else if (operation === 'listRecordings') {
