@@ -72,6 +72,7 @@ const needOperator = [
 ];
 
 const needPollThemeId = ['pollUpdateTheme', 'pollGetThemeInfo', 'pollStart', 'pollDelete', 'pollFinish'];
+const needPollId = ['pollFinish', 'pollDelete'];
 const needRoomId = ['roomsCall', 'roomsCancelCall', 'roomsGetResponseStatus', 'roomsListMeetings', 'roomsGetConfig'];
 const needMraOpenid = ['mraHangup', 'mraQueryStatus', 'mraSetDefaultLayout', 'mraSetRaiseHand'];
 const needOperatedUsers = [
@@ -113,7 +114,15 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: { show: { resource: ['meeting'], operation: needPollThemeId } },
 		default: '',
-		description: '投票主题 ID',
+		description: 'poll_theme_id；删除时与投票 ID 二选一',
+	},
+	{
+		displayName: '投票ID',
+		name: 'poll_id',
+		type: 'string',
+		displayOptions: { show: { resource: ['meeting'], operation: needPollId } },
+		default: '',
+		description: 'poll_id；结束投票必填；删除时与主题 ID 二选一（优先投票 ID）',
 	},
 	{
 		displayName: '投票主题',

@@ -1535,6 +1535,8 @@ export async function executeMeeting(
 					body.instance_id = instance_id;
 				}
 				if (poll_theme_id) body.poll_theme_id = poll_theme_id;
+				const poll_id = this.getNodeParameter('poll_id', i, '') as string;
+				if (poll_id) body.poll_id = poll_id;
 				if (poll_topic) body.poll_topic = poll_topic;
 				if (poll_desc) body.poll_desc = poll_desc;
 				if (['pollCreateTheme', 'pollUpdateTheme'].includes(operation)) {

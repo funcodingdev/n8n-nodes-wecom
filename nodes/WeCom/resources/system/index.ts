@@ -38,5 +38,19 @@ export const systemDescription: INodeProperties[] = [
 		],
 		default: 'getApiDomainIp',
 	},
+	{
+		displayName: '说明',
+		name: 'systemBasicNotice',
+		type: 'notice',
+		displayOptions: {
+			show: {
+				resource: ['system'],
+				operation: ['getAccessToken', 'getCallbackIp', 'getApiDomainIp'],
+			},
+		},
+		default: '',
+		description:
+			'获取 AccessToken / IP 段无需额外业务参数，使用当前凭证配置即可。',
+	},
 	...systemExtraHttpOpsDescription,
 ];
