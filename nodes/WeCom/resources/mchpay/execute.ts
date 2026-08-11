@@ -2,11 +2,10 @@ import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-wor
 import { NodeOperationError } from 'n8n-workflow';
 import * as https from 'https';
 import {
-	MCH_API_HOST,
-	PATH_PAY_TO_EMPLOYEE,
-	PATH_QUERY_PAY,
-	PATH_QUERY_REDPACK,
-	PATH_SEND_REDPACK,
+	URL_PAY_TO_EMPLOYEE,
+	URL_QUERY_PAY,
+	URL_QUERY_REDPACK,
+	URL_SEND_REDPACK,
 	PAY_WORKWX_FIELDS,
 	REDPACK_WORKWX_FIELDS,
 	buildXml,
@@ -43,7 +42,7 @@ function parseExtra(raw: string): Record<string, string | number> {
 async function mchXmlRequest(
 	this: IExecuteFunctions,
 	creds: MchCreds,
-	apiPath: string,
+	url: string,
 	params: Record<string, string | number>,
 	itemIndex: number,
 ): Promise<IDataObject> {
@@ -54,8 +53,6 @@ async function mchXmlRequest(
 		passphrase: creds.keyPassphrase || undefined,
 		rejectUnauthorized: true,
 	});
-
-	const url = `${MCH_API_HOST}${apiPath}`;
 	let raw: string;
 	try {
 		raw = (await this.helpers.httpRequest({
@@ -146,7 +143,7 @@ export async function executeMchpay(
 				params.workwx_sign = workwxMd5Sign(params, creds.agentSecret, REDPACK_WORKWX_FIELDS);
 				params.sign = mchMd5Sign(params, creds.apiKey);
 
-				response = await mchXmlRequest.call(this, creds, PATH_SEND_REDPACK, params, i);
+				response = await mchXmlRequest.call(this, creds, URL_SEND_REDPACK, params, i);
 			} else if (operation === 'queryRedpack') {
 				const mch_billno = this.getNodeParameter('mch_billno', i) as string;
 				const params: Record<string, string | number> = {
@@ -157,7 +154,7 @@ export async function executeMchpay(
 					...extra,
 				};
 				params.sign = mchMd5Sign(params, creds.apiKey);
-				response = await mchXmlRequest.call(this, creds, PATH_QUERY_REDPACK, params, i);
+				response = await mchXmlRequest.call(this, creds, URL_QUERY_REDPACK, params, i);
 			} else if (operation === 'payToEmployee') {
 				const partner_trade_no = this.getNodeParameter('partner_trade_no', i) as string;
 				const openid = this.getNodeParameter('openid', i) as string;
@@ -196,7 +193,7 @@ export async function executeMchpay(
 				params.workwx_sign = workwxMd5Sign(params, creds.agentSecret, PAY_WORKWX_FIELDS);
 				params.sign = mchMd5Sign(params, creds.apiKey);
 
-				response = await mchXmlRequest.call(this, creds, PATH_PAY_TO_EMPLOYEE, params, i);
+				response = await mchXmlRequest.call(this, creds, URL_PAY_TO_EMPLOYEE, params, i);
 			} else if (operation === 'queryPayToEmployee') {
 				const partner_trade_no = this.getNodeParameter('partner_trade_no', i) as string;
 				const params: Record<string, string | number> = {
@@ -207,7 +204,7 @@ export async function executeMchpay(
 					...extra,
 				};
 				params.sign = mchMd5Sign(params, creds.apiKey);
-				response = await mchXmlRequest.call(this, creds, PATH_QUERY_PAY, params, i);
+				response = await mchXmlRequest.call(this, creds, URL_QUERY_PAY, params, i);
 			} else {
 				throw new NodeOperationError(this.getNode(), `未知 mchpay 操作: ${operation}`, {
 					itemIndex: i,

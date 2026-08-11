@@ -96,3 +96,10 @@ export const PATH_SEND_REDPACK = '/mmpaymkttransfers/sendworkwxredpack';
 export const PATH_QUERY_REDPACK = '/mmpaymkttransfers/queryworkwxredpack';
 export const PATH_PAY_TO_EMPLOYEE = '/mmpaymkttransfers/promotion/paywwsptrans2pocket';
 export const PATH_QUERY_PAY = '/mmpaymkttransfers/promotion/querywwsptrans2pocket';
+
+/** 完整 URL（便于文档路径覆盖校验与调用拼装） */
+export const URL_SEND_REDPACK = `${MCH_API_HOST}${PATH_SEND_REDPACK}`;
+export const URL_QUERY_REDPACK = `${MCH_API_HOST}${PATH_QUERY_REDPACK}`;
+export const URL_PAY_TO_EMPLOYEE = `${MCH_API_HOST}${PATH_PAY_TO_EMPLOYEE}`;
+export const URL_QUERY_PAY = `${MCH_API_HOST}${PATH_QUERY_PAY}`;
+
