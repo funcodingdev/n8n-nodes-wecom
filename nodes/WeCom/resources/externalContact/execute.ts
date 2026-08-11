@@ -2017,8 +2017,12 @@ export async function executeExternalContact(
 				const msgid = this.getNodeParameter('msgid', i, '') as string;
 				const takeover_userid = this.getNodeParameter('takeover_userid', i, '') as string;
 				const handover_userid = this.getNodeParameter('handover_userid', i, '') as string;
-				const behavior_start_time = this.getNodeParameter('behavior_start_time', i, 0) as number;
-				const behavior_end_time = this.getNodeParameter('behavior_end_time', i, 0) as number;
+				const behavior_start_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('behavior_start_time', i, '') as string | number,
+				);
+				const behavior_end_time = dateTimeToUnixTimestamp(
+					this.getNodeParameter('behavior_end_time', i, '') as string | number,
+				);
 
 				const mapRangeNodes = (collection: IDataObject | undefined): IDataObject[] => {
 					const ranges = (collection?.ranges as IDataObject[]) || [];
