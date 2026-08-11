@@ -290,27 +290,8 @@ export async function executeAIBotPassiveReply(
 			}
 		} else if (operation === 'updateTemplateCard') {
 			const useridsStr = this.getNodeParameter('userids', i, '') as string;
-			const templateCardStr = this.getNodeParameter('template_card', i) as string;
+			const templateCard = resolveTemplateCard.call(this, i);
 			const feedbackId = this.getNodeParameter('feedback_id', i, '') as string;
-
-			if (!templateCardStr) {
-				throw new NodeOperationError(
-					this.getNode(),
-					'模板卡片不能为空',
-					{ itemIndex: i },
-				);
-			}
-
-			let templateCard: IDataObject;
-			try {
-				templateCard = JSON.parse(templateCardStr);
-			} catch (error) {
-				throw new NodeOperationError(
-					this.getNode(),
-					`模板卡片必须是有效的JSON格式: ${(error as Error).message}`,
-					{ itemIndex: i },
-				);
-			}
 
 			if (feedbackId) {
 				templateCard.feedback = {

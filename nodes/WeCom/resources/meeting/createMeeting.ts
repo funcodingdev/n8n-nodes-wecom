@@ -67,6 +67,42 @@ export const createMeetingDescription: INodeProperties[] = [
 		description: 'invitees.userid，逗号分隔',
 	},
 	{
+		displayName: '嘉宾列表',
+		name: 'guestsCollection',
+		type: 'fixedCollection',
+		displayOptions: { show: showOnly },
+		default: {},
+		placeholder: '添加嘉宾',
+		typeOptions: { multipleValues: true },
+		description: 'guests，外部嘉宾手机号列表',
+		options: [
+			{
+				displayName: '嘉宾',
+				name: 'guests',
+				values: [
+					{
+						displayName: '国家/地区代码',
+						name: 'area',
+						type: 'string',
+						default: '86',
+					},
+					{
+						displayName: '手机号',
+						name: 'phone_number',
+						type: 'string',
+						default: '',
+					},
+					{
+						displayName: '嘉宾名称',
+						name: 'guest_name',
+						type: 'string',
+						default: '',
+					},
+				],
+			},
+		],
+	},
+	{
 		displayName: '日历ID',
 		name: 'cal_id',
 		type: 'string',

@@ -104,8 +104,8 @@ export async function executeMeeting(
 				}
 				if (inviteeIds.length) body.invitees = { userid: inviteeIds };
 
-				// guests (advanced)
-				if (operation === 'createAdvancedMeeting') {
+				// guests（普通/高级创建均支持）
+				{
 					const guestsCollection = this.getNodeParameter(
 						'guestsCollection',
 						i,
@@ -805,14 +805,36 @@ export async function executeMeeting(
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/record/list', body);
 			} else if (operation === 'getRecordingAddress') {
-				// https://developer.work.weixin.qq.com/document/path/98193
+				// get_file：单文件详情；get_file_list：会议录制地址（meeting_record_id）
+				// https://developer.work.weixin.qq.com/document/path/98205
+				// https://developer.work.weixin.qq.com/document/path/98196
 				const meetingid = this.getNodeParameter('meetingid', i, '') as string;
-				const record_file_id = this.getNodeParameter('record_file_id', i) as string;
+				const record_file_id = this.getNodeParameter('record_file_id', i, '') as string;
+				const meeting_record_id = this.getNodeParameter(
+					'meeting_record_id',
+					i,
+					'',
+				) as string;
 
-				const body: IDataObject = { record_file_id };
-				if (meetingid) body.meetingid = meetingid;
-
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/record/get_file', body);
+				if (meeting_record_id) {
+					const body: IDataObject = { meeting_record_id };
+					if (meetingid) body.meetingid = meetingid;
+					response = await weComApiRequest.call(
+						this,
+						'POST',
+						'/cgi-bin/meeting/record/get_file_list',
+						body,
+					);
+				} else {
+					const body: IDataObject = { record_file_id };
+					if (meetingid) body.meetingid = meetingid;
+					response = await weComApiRequest.call(
+						this,
+						'POST',
+						'/cgi-bin/meeting/record/get_file',
+						body,
+					);
+				}
 			}
 			// 高级功能账号管理
 			else if (operation === 'allocateMeetingAdvancedAccount') {
