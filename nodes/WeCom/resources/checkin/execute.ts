@@ -211,7 +211,9 @@ export async function executeCheckin(
 			} else if (operation === 'manageRules') {
 				// 管理打卡规则
 				// https://developer.work.weixin.qq.com/document/path/98041
+				// 官方结构：{ effective_now, group: { ... } }
 				const action = this.getNodeParameter('action', i) as string;
+				const effective_now = this.getNodeParameter('effective_now', i, false) as boolean;
 
 				const endpoint =
 					action === 'create'
@@ -225,38 +227,144 @@ export async function executeCheckin(
 				if (action === 'delete') {
 					const groupid = this.getNodeParameter('groupid', i) as number;
 					body = { groupid };
+					if (effective_now) body.effective_now = true;
 				} else {
+					const group: IDataObject = {};
 					const groupname = this.getNodeParameter('groupname', i, '') as string;
 					const useAdvancedConfig = this.getNodeParameter('useAdvancedConfig', i, false) as boolean;
+					const checkin_type = this.getNodeParameter('checkin_type', i, 0) as number;
+					const range_userids = this.getNodeParameter('range_userids', i, '') as string;
+					const range_partyids = this.getNodeParameter('range_partyids', i, '') as string;
+					const range_tagids = this.getNodeParameter('range_tagids', i, '') as string;
+					const white_users = this.getNodeParameter('white_users', i, '') as string;
+					const sync_holidays = this.getNodeParameter('sync_holidays', i, true) as boolean;
+					const need_photo = this.getNodeParameter('need_photo', i, false) as boolean;
+					const note_can_use_local_pic = this.getNodeParameter(
+						'note_can_use_local_pic',
+						i,
+						false,
+					) as boolean;
+					const allow_checkin_offworkday = this.getNodeParameter(
+						'allow_checkin_offworkday',
+						i,
+						false,
+					) as boolean;
+					const allow_apply_offworkday = this.getNodeParameter(
+						'allow_apply_offworkday',
+						i,
+						false,
+					) as boolean;
+					const use_face_detect = this.getNodeParameter('use_face_detect', i, false) as boolean;
+					const open_face_live_detect = this.getNodeParameter(
+						'open_face_live_detect',
+						i,
+						false,
+					) as boolean;
+					const sync_out_checkin = this.getNodeParameter('sync_out_checkin', i, false) as boolean;
+					const checkin_method_type = this.getNodeParameter('checkin_method_type', i, 0) as number;
+					const workdaysRaw = this.getNodeParameter('workdays', i, '1,2,3,4,5') as string;
+					const work_sec = this.getNodeParameter('work_sec', i, 32400) as number;
+					const off_work_sec = this.getNodeParameter('off_work_sec', i, 64800) as number;
 
 					if (action === 'update') {
 						const groupid = this.getNodeParameter('groupid', i) as number;
-						body.groupid = groupid;
+						group.groupid = groupid;
 					}
 					if (action === 'create') {
 						const grouptype = this.getNodeParameter('grouptype', i, 1) as number;
-						body.grouptype = grouptype;
+						group.grouptype = grouptype;
 					}
-					if (groupname) body.groupname = groupname;
+					if (groupname) group.groupname = groupname;
+					group.type = checkin_type;
+					group.sync_holidays = sync_holidays;
+					group.need_photo = need_photo;
+					group.note_can_use_local_pic = note_can_use_local_pic;
+					group.allow_checkin_offworkday = allow_checkin_offworkday;
+					group.allow_apply_offworkday = allow_apply_offworkday;
+					group.use_face_detect = use_face_detect;
+					group.open_face_live_detect = open_face_live_detect;
+					group.sync_out_checkin = sync_out_checkin;
+					group.checkin_method_type = checkin_method_type;
 
-					// 构建成员列表
-					const memberCollection = this.getNodeParameter('memberCollection', i, {}) as { members?: Array<{ userid: string }> };
-					if (memberCollection.members && memberCollection.members.length > 0) {
-						body.range = {
-							userid: memberCollection.members.map((m) => m.userid),
-						};
+					const range: IDataObject = {};
+					const userids = range_userids.split(',').map((s) => s.trim()).filter(Boolean);
+					const partyids = range_partyids
+						.split(',')
+						.map((s) => s.trim())
+						.filter(Boolean)
+						.map((n) => Number(n));
+					const tagids = range_tagids
+						.split(',')
+						.map((s) => s.trim())
+						.filter(Boolean)
+						.map((n) => Number(n));
+					if (userids.length) range.userid = userids;
+					if (partyids.length) range.party_id = partyids;
+					if (tagids.length) range.tagid = tagids;
+					if (Object.keys(range).length) group.range = range;
+
+					const whiteUsers = white_users.split(',').map((s) => s.trim()).filter(Boolean);
+					if (whiteUsers.length) group.white_users = whiteUsers;
+
+					const workdays = workdaysRaw
+						.split(',')
+						.map((s) => Number(s.trim()))
+						.filter((n) => n >= 1 && n <= 7);
+					if (workdays.length && work_sec && off_work_sec) {
+						group.checkindate = [
+							{
+								workdays,
+								checkintime: [
+									{
+										time_id: 1,
+										work_sec,
+										off_work_sec,
+										remind_work_sec: Math.max(0, work_sec - 600),
+										remind_off_work_sec: off_work_sec,
+									},
+								],
+							},
+						];
 					}
 
-					// 高级配置
+					const locCollection = this.getNodeParameter('locInfosCollection', i, {}) as IDataObject;
+					const locs = ((locCollection?.locs as IDataObject[]) || [])
+						.filter((l) => l.lat || l.lng)
+						.map((l) => ({
+							lat: l.lat,
+							lng: l.lng,
+							loc_title: l.loc_title || '',
+							loc_detail: l.loc_detail || '',
+							distance: l.distance || 300,
+						}));
+					if (locs.length) group.loc_infos = locs;
+
+					const wifiCollection = this.getNodeParameter('wifiInfosCollection', i, {}) as IDataObject;
+					const wifis = ((wifiCollection?.wifis as IDataObject[]) || [])
+						.filter((w) => w.wifimac)
+						.map((w) => ({
+							wifiname: w.wifiname || '',
+							wifimac: w.wifimac,
+						}));
+					if (wifis.length) group.wifimac_infos = wifis;
+
 					if (useAdvancedConfig) {
 						const advancedConfig = this.getNodeParameter('advancedConfig', i, '{}') as string;
 						try {
 							const config = JSON.parse(advancedConfig) as IDataObject;
-							body = { ...body, ...config };
-					} catch {
-						// 忽略JSON解析错误
+							// 允许 advanced 直接给完整 group，或只给 group 内字段
+							if (config.group && typeof config.group === 'object') {
+								Object.assign(group, config.group as IDataObject);
+							} else {
+								Object.assign(group, config);
+							}
+						} catch {
+							// 忽略 JSON 解析错误
+						}
 					}
-					}
+
+					body = { group };
+					if (effective_now) body.effective_now = true;
 				}
 
 				responseData = await weComApiRequest.call(this, 'POST', endpoint, body);
