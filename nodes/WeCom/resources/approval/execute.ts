@@ -24,13 +24,77 @@ export async function executeApproval(
 			} else if (operation === 'submitApproval') {
 				// 提交审批申请
 				// https://developer.work.weixin.qq.com/document/path/91853
-				const approvalData = this.getNodeParameter('approvalData', i) as string;
-				responseData = await weComApiRequest.call(
-					this,
-					'POST',
-					'/cgi-bin/oa/applyevent',
-					JSON.parse(approvalData),
-				);
+				const creator_userid = this.getNodeParameter('creator_userid', i) as string;
+				const template_id = this.getNodeParameter('template_id', i) as string;
+				const use_template_approver = this.getNodeParameter(
+					'use_template_approver',
+					i,
+					1,
+				) as number;
+				const choose_department = this.getNodeParameter('choose_department', i, 0) as number;
+				const apply_data_json = this.getNodeParameter('apply_data_json', i) as string;
+				const summaryCollection = this.getNodeParameter('summaryLines', i, {}) as IDataObject;
+				const processCollection = this.getNodeParameter(
+					'processNodeCollection',
+					i,
+					{},
+				) as IDataObject;
+				const approvalExtraJson = this.getNodeParameter('approvalExtraJson', i, '{}') as string;
+
+				const body: IDataObject = {
+					creator_userid,
+					template_id,
+					use_template_approver,
+				};
+				if (choose_department) body.choose_department = choose_department;
+
+				try {
+					const apply_data = JSON.parse(apply_data_json || '{}');
+					body.apply_data = apply_data;
+				} catch (e) {
+					throw new Error(`申请表单数据JSON 解析失败: ${(e as Error).message}`);
+				}
+
+				const lines = ((summaryCollection?.lines as IDataObject[]) || []).filter((l) => l.text);
+				if (lines.length) {
+					body.summary_list = lines.slice(0, 3).map((l) => ({
+						summary_info: [{ text: l.text, lang: l.lang || 'zh_CN' }],
+					}));
+				} else {
+					// 官方要求必填；提供默认一行摘要
+					body.summary_list = [
+						{ summary_info: [{ text: '审批申请', lang: 'zh_CN' }] },
+					];
+				}
+
+				if (use_template_approver === 0) {
+					const nodes = ((processCollection?.nodes as IDataObject[]) || [])
+						.map((n) => {
+							const userids = String(n.userid_list || '')
+								.split(',')
+								.map((s) => s.trim())
+								.filter(Boolean);
+							const node: IDataObject = {
+								type: n.type ?? 1,
+								userid: userids,
+							};
+							if (n.type === 1 || n.type === 3) {
+								node.apv_rel = n.apv_rel ?? 1;
+							}
+							return node;
+						})
+						.filter((n) => Array.isArray(n.userid) && (n.userid as string[]).length);
+					if (nodes.length) body.process = { node_list: nodes };
+				}
+
+				try {
+					const extra = JSON.parse(approvalExtraJson || '{}') as IDataObject;
+					if (extra && typeof extra === 'object') Object.assign(body, extra);
+				} catch {
+					/* ignore */
+				}
+
+				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/oa/applyevent', body);
 			} else if (operation === 'getApprovalSpNoList') {
 				// 批量获取审批单号
 				// https://developer.work.weixin.qq.com/document/path/91816
