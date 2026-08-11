@@ -44,6 +44,10 @@ import {
 	layoutOperationOptions,
 	meetingLayoutOpsDescription,
 } from './meetingLayoutOps';
+import {
+	controlRoomsOperationOptions,
+	meetingControlRoomsOpsDescription,
+} from './meetingControlRoomsOps';
 
 const showOnlyForMeeting = {
 	resource: ['meeting'],
@@ -292,7 +296,9 @@ export const meetingDescription: INodeProperties[] = [
 			...webinarRecordOperationOptions,
 			// 布局 / 高级布局 / 背景（结构化表单）
 			...layoutOperationOptions,
-			// 其余会议补全（关键字段 + JSON）
+			// Rooms / MRA / 投票 / 会中扩展等（结构化表单）
+			...controlRoomsOperationOptions,
+			// 其余会议补全（若仍有）
 			...getMeetingExtraHttpOpOptions(),
 		],
 		default: 'createMeeting',
@@ -320,6 +326,7 @@ export const meetingDescription: INodeProperties[] = [
 	...meetingAdvancedOpsDescription,
 	...meetingWebinarRecordOpsDescription,
 	...meetingLayoutOpsDescription,
+	...meetingControlRoomsOpsDescription,
 	...meetingExtraHttpOpsDescription,
 ];
 

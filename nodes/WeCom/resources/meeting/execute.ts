@@ -869,6 +869,198 @@ export async function executeMeeting(
 					{ meetingid, record_file_id, text },
 				);
 			}
+			// --- Rooms / MRA / 投票 / 会中扩展等（结构化） ---
+			else if (
+				[
+					'roomsCall',
+					'roomsCancelCall',
+					'roomsGetResponseStatus',
+					'roomsListMeetings',
+					'roomsGetConfig',
+					'roomsGetInventory',
+					'roomsListDevices',
+					'roomsListControllers',
+					'mraHangup',
+					'mraQueryStatus',
+					'mraSetDefaultLayout',
+					'mraSetRaiseHand',
+					'pollCreateTheme',
+					'pollUpdateTheme',
+					'pollGetThemeInfo',
+					'pollStart',
+					'pollFinish',
+					'pollDelete',
+					'rcCloseScreenShare',
+					'rcManageWaitingRoom',
+					'rcSetNicknames',
+					'rcSwitchUserVideo',
+					'waitingroomCurrentUsers',
+					'waitingroomUserList',
+					'enrollDelete',
+					'enrollImport',
+					'enrollQueryByTmpOpenid',
+					'setGuests',
+					'setInvitees',
+					'getGuests',
+					'getQuality',
+					'checkDeviceInMeeting',
+					'createCustomerShortUrl',
+					'getCustomerShortUrl',
+					'phoneGetTmpOpenid',
+					'vipBatchDelJobResult',
+				].includes(operation)
+			) {
+				const meetingid = this.getNodeParameter('cr_meetingid', i, '') as string;
+				const operator_userid = this.getNodeParameter('operator_userid', i, '') as string;
+				const instance_id = this.getNodeParameter('instance_id', i, 1) as number;
+				const poll_theme_id = this.getNodeParameter('poll_theme_id', i, '') as string;
+				const poll_topic = this.getNodeParameter('poll_topic', i, '') as string;
+				const poll_desc = this.getNodeParameter('poll_desc', i, '') as string;
+				const is_anony = this.getNodeParameter('is_anony', i, 0) as number;
+				const poll_questions_json = this.getNodeParameter(
+					'poll_questions_json',
+					i,
+					'[]',
+				) as string;
+				const meeting_room_id = this.getNodeParameter('cr_meeting_room_id', i, '') as string;
+				const mra_tmp_openid = this.getNodeParameter('mra_tmp_openid', i, '') as string;
+				const vip_jobid = this.getNodeParameter('vip_jobid', i, '') as string;
+				const operated_users_json = this.getNodeParameter(
+					'operated_users_json',
+					i,
+					'[]',
+				) as string;
+				const list_data_json = this.getNodeParameter('list_data_json', i, '[]') as string;
+				const cursor = this.getNodeParameter('cr_cursor', i, '') as string;
+				const limit = this.getNodeParameter('cr_limit', i, 20) as number;
+				const cr_extra_json = this.getNodeParameter('cr_extra_json', i, '{}') as string;
+
+				const body: IDataObject = {};
+				if (meetingid) body.meetingid = meetingid;
+				if (operator_userid) body.operator_userid = operator_userid;
+				if (
+					[
+						'pollCreateTheme',
+						'pollUpdateTheme',
+						'pollGetThemeInfo',
+						'pollStart',
+						'pollFinish',
+						'pollDelete',
+					].includes(operation)
+				) {
+					body.instance_id = instance_id;
+				}
+				if (poll_theme_id) body.poll_theme_id = poll_theme_id;
+				if (poll_topic) body.poll_topic = poll_topic;
+				if (poll_desc) body.poll_desc = poll_desc;
+				if (['pollCreateTheme', 'pollUpdateTheme'].includes(operation)) {
+					body.is_anony = is_anony;
+					try {
+						body.poll_questions = JSON.parse(poll_questions_json || '[]');
+					} catch {
+						body.poll_questions = [];
+					}
+				}
+				if (meeting_room_id) body.meeting_room_id = meeting_room_id;
+				if (mra_tmp_openid) {
+					body.mra = { tmp_openid: mra_tmp_openid };
+				}
+				if (vip_jobid) body.jobid = vip_jobid;
+				if (
+					[
+						'rcCloseScreenShare',
+						'rcManageWaitingRoom',
+						'rcSetNicknames',
+						'rcSwitchUserVideo',
+					].includes(operation)
+				) {
+					try {
+						const users = JSON.parse(operated_users_json || '[]');
+						if (operation === 'rcSetNicknames') body.operated_users = users;
+						else body.operated_user = users;
+					} catch {
+						// ignore
+					}
+				}
+				if (['setGuests', 'setInvitees'].includes(operation)) {
+					try {
+						const list = JSON.parse(list_data_json || '[]');
+						if (operation === 'setGuests') body.guests = list;
+						else body.invitees = list;
+					} catch {
+						// ignore
+					}
+				}
+				if (['enrollImport', 'enrollDelete', 'enrollQueryByTmpOpenid'].includes(operation)) {
+					try {
+						Object.assign(body, {
+							...(Array.isArray(JSON.parse(list_data_json || '[]'))
+								? { enroll_list: JSON.parse(list_data_json || '[]') }
+								: JSON.parse(list_data_json || '{}')),
+						});
+					} catch {
+						// ignore
+					}
+				}
+				if (cursor) body.cursor = cursor;
+				if (
+					[
+						'roomsListDevices',
+						'roomsListControllers',
+						'roomsListMeetings',
+						'waitingroomUserList',
+						'getGuests',
+					].includes(operation)
+				) {
+					body.limit = limit;
+				}
+				try {
+					Object.assign(body, JSON.parse(cr_extra_json || '{}') as IDataObject);
+				} catch {
+					// ignore
+				}
+				if (meetingid) body.meetingid = meetingid;
+
+				const pathMap: Record<string, string> = {
+					roomsCall: '/cgi-bin/meeting/rooms/call',
+					roomsCancelCall: '/cgi-bin/meeting/rooms/cancel_call',
+					roomsGetResponseStatus: '/cgi-bin/meeting/rooms/get_response_status',
+					roomsListMeetings: '/cgi-bin/meeting/rooms/list_meetings',
+					roomsGetConfig: '/cgi-bin/meeting/rooms/get_config',
+					roomsGetInventory: '/cgi-bin/meeting/rooms/get_inventory',
+					roomsListDevices: '/cgi-bin/meeting/rooms/list_devices',
+					roomsListControllers: '/cgi-bin/meeting/rooms/list_controllers',
+					mraHangup: '/cgi-bin/meeting/mra/hangup',
+					mraQueryStatus: '/cgi-bin/meeting/mra/query_status',
+					mraSetDefaultLayout: '/cgi-bin/meeting/mra/set_default_layout',
+					mraSetRaiseHand: '/cgi-bin/meeting/mra/set_raise_hand',
+					pollCreateTheme: '/cgi-bin/meeting/poll/create_theme',
+					pollUpdateTheme: '/cgi-bin/meeting/poll/update_theme',
+					pollGetThemeInfo: '/cgi-bin/meeting/poll/get_theme_info',
+					pollStart: '/cgi-bin/meeting/poll/start',
+					pollFinish: '/cgi-bin/meeting/poll/finish',
+					pollDelete: '/cgi-bin/meeting/poll/delete',
+					rcCloseScreenShare: '/cgi-bin/meeting/realcontrol/close_screen_share',
+					rcManageWaitingRoom: '/cgi-bin/meeting/realcontrol/manage_waiting_room_users',
+					rcSetNicknames: '/cgi-bin/meeting/realcontrol/set_nicknames',
+					rcSwitchUserVideo: '/cgi-bin/meeting/realcontrol/switch_user_video',
+					waitingroomCurrentUsers: '/cgi-bin/meeting/waitingroom/get_current_user_list',
+					waitingroomUserList: '/cgi-bin/meeting/waitingroom/get_user_list',
+					enrollDelete: '/cgi-bin/meeting/enroll/delete',
+					enrollImport: '/cgi-bin/meeting/enroll/import',
+					enrollQueryByTmpOpenid: '/cgi-bin/meeting/enroll/query_by_tmp_openid',
+					setGuests: '/cgi-bin/meeting/set_guests',
+					setInvitees: '/cgi-bin/meeting/set_invitees',
+					getGuests: '/cgi-bin/meeting/get_guests',
+					getQuality: '/cgi-bin/meeting/get_quality',
+					checkDeviceInMeeting: '/cgi-bin/meeting/check_device_in_meeting',
+					createCustomerShortUrl: '/cgi-bin/meeting/create_customer_short_url',
+					getCustomerShortUrl: '/cgi-bin/meeting/get_customer_short_url',
+					phoneGetTmpOpenid: '/cgi-bin/meeting/phone/get_tmp_openid',
+					vipBatchDelJobResult: '/cgi-bin/meeting/vip/batch_del_job_result',
+				};
+				response = await weComApiRequest.call(this, 'POST', pathMap[operation], body);
+			}
 			// --- 布局 / 高级布局 / 背景（结构化） ---
 			else if (
 				operation === 'advLayoutAdd' ||
