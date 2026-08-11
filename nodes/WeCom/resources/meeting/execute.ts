@@ -85,25 +85,40 @@ export async function executeMeeting(
 				const body: IDataObject = { userid, limit };
 				if (cursor) body.cursor = cursor;
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/get_user_meeting_id', body);
+				// 官方路径：get_user_meetingid
+				// https://developer.work.weixin.qq.com/document/path/98150
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/get_user_meetingid', body);
 			}
 			// 会议统计管理
 			else if (operation === 'getMeetingRecords') {
-				const meetingid = this.getNodeParameter('meetingid', i) as string;
+				// 获取会议发起记录
+				// https://developer.work.weixin.qq.com/document/path/99651
+				const type = this.getNodeParameter('record_type', i, 1) as number;
 				const start_time_raw = this.getNodeParameter('start_time', i, '') as string | number;
 				const end_time_raw = this.getNodeParameter('end_time', i, '') as string | number;
+				const begin_time =
+					dateTimeToUnixTimestamp(start_time_raw) ||
+					(this.getNodeParameter('begin_time', i, 0) as number);
+				const end_time =
+					dateTimeToUnixTimestamp(end_time_raw) ||
+					(this.getNodeParameter('end_time_ts', i, 0) as number);
+				const limit = this.getNodeParameter('limit', i, 200) as number;
+				const cursor = this.getNodeParameter('cursor', i, '') as string;
 
-				const body: IDataObject = { meetingid };
-				if (start_time_raw) {
-					const start_time = dateTimeToUnixTimestamp(start_time_raw);
-					if (start_time > 0) body.start_time = start_time;
-				}
-				if (end_time_raw) {
-					const end_time = dateTimeToUnixTimestamp(end_time_raw);
-					if (end_time > 0) body.end_time = end_time;
-				}
+				const body: IDataObject = {
+					type,
+					begin_time,
+					end_time,
+					limit,
+				};
+				if (cursor) body.cursor = cursor;
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/get_user_meeting_list', body);
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/meeting/statistics/get_start_list',
+					body,
+				);
 			}
 			// 预约会议高级管理
 			else if (operation === 'createAdvancedMeeting') {
@@ -197,84 +212,125 @@ export async function executeMeeting(
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/update_invitees', body);
 			} else if (operation === 'getLiveParticipants') {
+				// 获取实时会中成员列表
+				// https://developer.work.weixin.qq.com/document/path/98153
 				const meetingid = this.getNodeParameter('meetingid', i) as string;
 				const cursor = this.getNodeParameter('cursor', i, '') as string;
 				const size = this.getNodeParameter('size', i, 100) as number;
 
-				const body: IDataObject = { meetingid, size };
+				const body: IDataObject = { meetingid, limit: size };
 				if (cursor) body.cursor = cursor;
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/get_participants', body);
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/meeting/get_realtime_attendee_list',
+					body,
+				);
 			} else if (operation === 'getParticipants') {
+				// 获取已参会成员列表
+				// https://developer.work.weixin.qq.com/document/path/98154
 				const meetingid = this.getNodeParameter('meetingid', i) as string;
 				const cursor = this.getNodeParameter('cursor', i, '') as string;
 				const size = this.getNodeParameter('size', i, 100) as number;
 
-				const body: IDataObject = { meetingid, size };
+				const body: IDataObject = { meetingid, limit: size };
 				if (cursor) body.cursor = cursor;
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/get_user_meeting_list', body);
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/meeting/get_attendee_list',
+					body,
+				);
 			}
 			// 会中控制管理
 			else if (operation === 'muteMember') {
+				// https://developer.work.weixin.qq.com/document/path/98184
 				const meetingid = this.getNodeParameter('meetingid', i) as string;
 				const mute_action = this.getNodeParameter('mute_action', i) as number;
 				const membersCollection = this.getNodeParameter('membersCollection', i, {}) as IDataObject;
 
-				const userid_list: string[] = [];
+				const operated_user: IDataObject[] = [];
 				if (membersCollection.members) {
 					const membersList = membersCollection.members as IDataObject[];
 					membersList.forEach((m) => {
-						if (m.userid) userid_list.push(m.userid as string);
+						if (m.userid) operated_user.push({ userid: m.userid });
 					});
 				}
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/mute', {
-					meetingid,
-					action: mute_action,
-					userid_list,
-				});
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/meeting/realcontrol/mute_user',
+					{
+						meetingid,
+						// true 静音，false 解除静音
+						option: mute_action === 1,
+						operated_user,
+					},
+				);
 			} else if (operation === 'removeMember') {
+				// https://developer.work.weixin.qq.com/document/path/98181
 				const meetingid = this.getNodeParameter('meetingid', i) as string;
 				const membersCollection = this.getNodeParameter('membersCollection', i, {}) as IDataObject;
+				const allow_rejoin = this.getNodeParameter('allow_rejoin', i, true) as boolean;
 
-				const userid_list: string[] = [];
+				const operated_user: IDataObject[] = [];
 				if (membersCollection.members) {
 					const membersList = membersCollection.members as IDataObject[];
 					membersList.forEach((m) => {
-						if (m.userid) userid_list.push(m.userid as string);
+						if (m.userid) operated_user.push({ userid: m.userid });
 					});
 				}
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/kick_user', {
-					meetingid,
-					userid_list,
-				});
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/meeting/realcontrol/kickout_users',
+					{
+						meetingid,
+						allow_rejoin,
+						operated_user,
+					},
+				);
 			} else if (operation === 'endMeeting') {
+				// https://developer.work.weixin.qq.com/document/path/98180
 				const meetingid = this.getNodeParameter('meetingid', i) as string;
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/dismiss', {
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/realcontrol/dismiss', {
 					meetingid,
 				});
 			}
 			// 录制管理
 			else if (operation === 'listRecordings') {
-				const meetingid = this.getNodeParameter('meetingid', i) as string;
+				// https://developer.work.weixin.qq.com/document/path/98192
+				const meetingid = this.getNodeParameter('meetingid', i, '') as string;
+				const userid = this.getNodeParameter('userid', i, '') as string;
+				const start_time_raw = this.getNodeParameter('start_time', i, '') as string | number;
+				const end_time_raw = this.getNodeParameter('end_time', i, '') as string | number;
 				const cursor = this.getNodeParameter('cursor', i, '') as string;
-				const size = this.getNodeParameter('size', i, 100) as number;
+				const size = this.getNodeParameter('size', i, 10) as number;
 
-				const body: IDataObject = { meetingid, size };
+				const body: IDataObject = {
+					start_time: dateTimeToUnixTimestamp(start_time_raw),
+					end_time: dateTimeToUnixTimestamp(end_time_raw),
+					limit: Math.min(size || 10, 20),
+				};
+				if (meetingid) body.meetingid = meetingid;
+				if (userid) body.userid = userid;
 				if (cursor) body.cursor = cursor;
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/get_meeting_record_list', body);
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/record/list', body);
 			} else if (operation === 'getRecordingAddress') {
-				const meetingid = this.getNodeParameter('meetingid', i) as string;
+				// https://developer.work.weixin.qq.com/document/path/98193
+				const meetingid = this.getNodeParameter('meetingid', i, '') as string;
 				const record_file_id = this.getNodeParameter('record_file_id', i) as string;
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/get_meeting_record', {
-					meetingid,
-					record_file_id,
-				});
+				const body: IDataObject = { record_file_id };
+				if (meetingid) body.meetingid = meetingid;
+
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/record/get_file', body);
 			}
 			// 高级功能账号管理
 			else if (operation === 'allocateMeetingAdvancedAccount') {
@@ -288,9 +344,12 @@ export async function executeMeeting(
 					});
 				}
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/vip_batch_add', {
-					userid_list,
-				});
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/meeting/vip/submit_batch_add_job',
+					{ userid_list },
+				);
 			} else if (operation === 'deallocateMeetingAdvancedAccount') {
 				const useridCollection = this.getNodeParameter('useridCollection', i, {}) as IDataObject;
 
@@ -302,9 +361,12 @@ export async function executeMeeting(
 					});
 				}
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/vip_batch_del', {
-					userid_list,
-				});
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/meeting/vip/submit_batch_del_job',
+					{ userid_list },
+				);
 			} else if (operation === 'getMeetingAdvancedAccountList') {
 				const limit = this.getNodeParameter('limit', i, 100) as number;
 				const cursor = this.getNodeParameter('cursor', i, '') as string;
@@ -312,7 +374,7 @@ export async function executeMeeting(
 				const body: IDataObject = { limit };
 				if (cursor) body.cursor = cursor;
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/vip_list', body);
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/vip/list', body);
 			} else {
 				response = {};
 			}
