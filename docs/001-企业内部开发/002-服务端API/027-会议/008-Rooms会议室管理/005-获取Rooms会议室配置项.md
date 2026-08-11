@@ -1,13 +1,12 @@
 ---
 title: "获取Rooms会议室配置项"
-doc_id: 47197
-category_id: 98802
-source_url: https://developer.work.weixin.qq.com/document/path/98802
+path: "001-企业内部开发/002-服务端API/028-会议/008-Rooms会议室管理/005-获取Rooms会议室配置项"
+specfusion_id: wecom_e217bb6a835e
+source_url: "https://developer.work.weixin.qq.com/document/path/98802"
+last_updated: "2026-06-26T05:48:56.769Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T08:28:23Z"
 ---
-最后更新：2023/05/30
-
-获取Rooms会议室的配置项。
-
 **请求方式：** POST（**HTTPS**）
 **请求地址：** https://qyapi.weixin.qq.com/cgi-bin/meeting/rooms/get_config?access_token=ACCESS_TOKEN
  

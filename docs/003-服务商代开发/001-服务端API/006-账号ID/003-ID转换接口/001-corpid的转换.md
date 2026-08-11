@@ -1,13 +1,12 @@
 ---
 title: "corpid的转换"
-doc_id: 42270
-category_id: 97105
-source_url: https://developer.work.weixin.qq.com/document/path/97105
+path: "003-服务商代开发/001-服务端API/006-账号ID/003-ID转换接口/001-corpid的转换"
+specfusion_id: wecom_ad41ba6d9c29
+source_url: "https://developer.work.weixin.qq.com/document/path/97105"
+last_updated: "2026-02-12T17:41:00.917Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T08:05:16Z"
 ---
-最后更新：2024/04/02
-
-用于将企业主体的明文corpid转换为服务商主体的密文corpid。
-
 **请求方式：**POST（**HTTPS**）
 **请求地址**：https://qyapi.weixin.qq.com/cgi-bin/service/corpid_to_opencorpid?provider_access_token=ACCESS_TOKEN 
 

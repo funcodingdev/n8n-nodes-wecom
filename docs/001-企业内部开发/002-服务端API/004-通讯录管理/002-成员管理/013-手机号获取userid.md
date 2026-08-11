@@ -1,13 +1,12 @@
 ---
 title: "手机号获取userid"
-doc_id: 16820
-category_id: 95402
-source_url: https://developer.work.weixin.qq.com/document/path/95402
+path: "001-企业内部开发/002-服务端API/004-通讯录管理/002-成员管理/013-手机号获取userid"
+specfusion_id: wecom_59b54865f6df
+source_url: "https://developer.work.weixin.qq.com/document/path/95402"
+last_updated: "2026-02-12T12:33:20.536Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T07:29:34Z"
 ---
-最后更新：2025/08/29
-
-通过手机号获取其所对应的userid。
-
 **请求方式：**POST（**HTTPS**）
 **请求地址：**https://qyapi.weixin.qq.com/cgi-bin/user/getuserid?access_token=ACCESS_TOKEN
 

@@ -1,6 +1,8 @@
 # 企业微信文档目录
 
-> 来源: [wxkingstar/doc-hub-mcp](https://github.com/wxkingstar/doc-hub-mcp) `wecom/`
+> 来源: SpecFusion 校准 + doc-hub-mcp 镜像
+
+> 已校准: **2492** 篇 | 未匹配 SpecFusion: **268** 篇
 
 ## 顶层结构
 

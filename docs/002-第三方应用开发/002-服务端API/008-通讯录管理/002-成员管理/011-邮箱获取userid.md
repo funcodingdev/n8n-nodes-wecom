@@ -1,13 +1,12 @@
 ---
 title: "邮箱获取userid"
-doc_id: 39794
-category_id: 95892
-source_url: https://developer.work.weixin.qq.com/document/path/95892
+path: "002-第三方应用开发/002-服务端API/008-通讯录管理/002-成员管理/011-邮箱获取userid"
+specfusion_id: wecom_2026b671f885
+source_url: "https://developer.work.weixin.qq.com/document/path/95892"
+last_updated: "2026-02-12T17:14:39.981Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T07:49:55Z"
 ---
-最后更新：2025/08/29
-
-通过邮箱获取其所对应的userid。
-
 **请求方式：**POST（**HTTPS**）
 **请求地址：**https://qyapi.weixin.qq.com/cgi-bin/user/get_userid_by_email?access_token=ACCESS_TOKEN
 

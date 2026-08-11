@@ -1,13 +1,12 @@
 ---
 title: "返回ticket的选人接口"
-doc_id: 30288
-category_id: 94516
-source_url: https://developer.work.weixin.qq.com/document/path/94516
+path: "002-第三方应用开发/003-客户端API/002-JS-SDK/005-企业通讯录/004-返回ticket的选人接口"
+specfusion_id: wecom_98e66273f80e
+source_url: "https://developer.work.weixin.qq.com/document/path/94516"
+last_updated: "2026-02-12T17:31:29.653Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T08:00:50Z"
 ---
-最后更新：2025/03/27
-
-[[toc]]
-
 <!-- import selectPrivilegedContact from @wecom/jssdk -->
 
 ## 旧版jweixin调用

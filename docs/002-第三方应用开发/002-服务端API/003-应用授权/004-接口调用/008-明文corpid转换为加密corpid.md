@@ -1,13 +1,12 @@
 ---
 title: "明文corpid转换为加密corpid"
-doc_id: 37921
-category_id: 95604
-source_url: https://developer.work.weixin.qq.com/document/path/95604
+path: "002-第三方应用开发/002-服务端API/003-应用授权/004-接口调用/008-明文corpid转换为加密corpid"
+specfusion_id: wecom_323d1b2ebc6b
+source_url: "https://developer.work.weixin.qq.com/document/path/95604"
+last_updated: "2026-02-12T17:11:27.040Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T07:48:09Z"
 ---
-最后更新：2022/03/22
-
-为更好地保护企业与用户的数据，第三方应用获取的corpid不再是明文的corpid，将升级为第三方服务商级别的加密corpid（[了解更多](#35863)）。第三方可以将已有的明文corpid转换为第三方的加密corpid。
-
 **请求方式：**POST（**HTTPS**）
 **请求地址**：https://qyapi.weixin.qq.com/cgi-bin/service/corpid_to_opencorpid?provider_access_token=ACCESS_TOKEN 
 

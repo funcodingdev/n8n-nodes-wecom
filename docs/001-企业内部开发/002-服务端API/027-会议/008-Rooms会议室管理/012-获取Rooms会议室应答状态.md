@@ -1,13 +1,12 @@
 ---
 title: "获取Rooms会议室应答状态"
-doc_id: 47203
-category_id: 98806
-source_url: https://developer.work.weixin.qq.com/document/path/98806
+path: "001-企业内部开发/002-服务端API/028-会议/008-Rooms会议室管理/012-获取Rooms会议室应答状态"
+specfusion_id: wecom_57e95a565e9c
+source_url: "https://developer.work.weixin.qq.com/document/path/98806"
+last_updated: "2026-06-26T05:50:29.703Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T08:28:37Z"
 ---
-最后更新：2024/07/22
-
-会议获取其呼叫Rooms会议室的应答状态。
-
 **请求方式：** POST（**HTTPS**）
 **请求地址：** https://qyapi.weixin.qq.com/cgi-bin/meeting/rooms/get_response_status?access_token=ACCESS_TOKEN
  

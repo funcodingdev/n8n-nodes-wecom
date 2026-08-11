@@ -1,13 +1,12 @@
 ---
 title: "设备型号model_ticket推送事件"
-doc_id: 40668
-category_id: 96053
-source_url: https://developer.work.weixin.qq.com/document/path/96053
+path: "004-智慧硬件开发/003-硬件云端接入/002-设备接入/002-回调通知/006-设备型号model_ticket推送事件"
+specfusion_id: wecom_1fe0bace709c
+source_url: "https://developer.work.weixin.qq.com/document/path/96053"
+last_updated: "2026-02-12T18:05:07.531Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T08:20:29Z"
 ---
-最后更新：2022/08/19
-
-企业微信服务器会定时（每十分钟）回调事件到厂商在设备型号详情中登记的回调URL。ticket会实时变更，并用于后续接口的调用。
-
 **请求方式：**POST（**HTTPS**）
 **请求地址：**https://127.0.0.1/suite/receive?msg_signature=3a7b08bb8e6dbce3c9671d6fdb69d15066227608&amp;timestamp=1403610513&amp;nonce=380320359
 

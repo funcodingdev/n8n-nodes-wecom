@@ -1,13 +1,12 @@
 ---
-title: "连接 Wi-Fi"
-doc_id: 45983
-category_id: 100628
-source_url: https://developer.work.weixin.qq.com/document/path/100628
+title: "连接-Wi-Fi"
+path: "001-企业内部开发/003-客户端API/002-JS-SDK/018-Wi-Fi/004-连接-Wi-Fi"
+specfusion_id: wecom_835258b77e73
+source_url: "https://developer.work.weixin.qq.com/document/path/100543"
+last_updated: "2026-07-26T06:37:06.360Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T09:00:19Z"
 ---
-最后更新：2024/11/13
-
-[[toc]]
-
 <!-- import connectWifi from @wecom/jssdk -->
 ## 旧版jweixin调用
 ### 示例代码

@@ -1,12 +1,12 @@
 ---
 title: "Android应用"
-doc_id: 10948
-category_id: 91196
-source_url: https://developer.work.weixin.qq.com/document/path/91196
+path: "001-企业内部开发/003-客户端API/003-移动端SDK/003-企业微信分享/002-Android应用"
+specfusion_id: wecom_731d80ea9ddf
+source_url: "https://developer.work.weixin.qq.com/document/path/91196"
+last_updated: "2026-02-12T17:10:09.489Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T07:47:26Z"
 ---
-最后更新：2024/11/27
-
-[TOC]
 ## Android接入指南
 
 > **接入说明：**

@@ -1,13 +1,12 @@
 ---
 title: "获取UserId的变更信息"
-doc_id: 16447
-category_id: 91586
-source_url: https://developer.work.weixin.qq.com/document/path/91586
+path: "004-智慧硬件开发/002-硬件直连接入/003-考勤-门禁设备/001-接口调用/004-获取UserId的变更信息"
+specfusion_id: wecom_fe082ce8576b
+source_url: "https://developer.work.weixin.qq.com/document/path/91586"
+last_updated: "2026-02-12T18:03:13.110Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T08:19:29Z"
 ---
-最后更新：2022/09/16
-
-获取该设备历史的云端通知。目前仅保存3个月的[userid变更事件](#15377)。
-
 **请求包体：**
 ```
 {

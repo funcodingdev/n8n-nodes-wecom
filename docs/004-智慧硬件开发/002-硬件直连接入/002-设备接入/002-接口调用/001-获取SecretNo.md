@@ -1,12 +1,12 @@
 ---
 title: "获取SecretNo"
-doc_id: 15350
-category_id: 91369
-source_url: https://developer.work.weixin.qq.com/document/path/91369
+path: "004-智慧硬件开发/002-硬件直连接入/002-设备接入/002-接口调用/001-获取SecretNo"
+specfusion_id: wecom_da53d85d2435
+source_url: "https://developer.work.weixin.qq.com/document/path/91369"
+last_updated: "2026-02-12T18:02:35.063Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T08:18:59Z"
 ---
-最后更新：2020/09/27
-
-部分设备希望在生产时烧录同一个SecretNo以降低生产成本，管理员可在服务商管理端添加设备时勾选“该型号设备使用同一个初始SecretNo”（如下图），**勾选此选项后，此型号下登记sn得到均为seedSecreteNo(初始secretNo)，此类型的secretNo仅可应用于“获取SecretNo(get_secret_no)”接口来将统一的seedSecretNo换为每个设备独立的SecretNo**，成功换取之后设备可通过新得到的secretNo发起“注册网络”请求。
 <center>
 - ![](http://p.qpic.cn/pic_wework/920237496/0204db0df5eedf562f711460aab8b70c042106837af4c1bf/0)
 </center>

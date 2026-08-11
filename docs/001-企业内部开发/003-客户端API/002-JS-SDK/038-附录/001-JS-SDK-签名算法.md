@@ -1,13 +1,12 @@
 ---
-title: "JS-SDK 签名算法"
-doc_id: 14924
-category_id: 90506
-source_url: https://developer.work.weixin.qq.com/document/path/90506
+title: "JS-SDK-签名算法"
+path: "001-企业内部开发/003-客户端API/002-JS-SDK/040-附录/001-JS-SDK-签名算法"
+specfusion_id: wecom_cf8a20115132
+source_url: "https://developer.work.weixin.qq.com/document/path/90506"
+last_updated: "2026-07-26T06:41:24.319Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T08:40:53Z"
 ---
-最后更新：2024/11/14
-
-[TOC]
-
 ## 签名算法
 
 生成 JS-SDK 签名需要用到以下参数：

@@ -1,13 +1,12 @@
 ---
 title: "打开个人聊天窗口schema"
-doc_id: 27500
-category_id: 94346
-source_url: https://developer.work.weixin.qq.com/document/path/94346
+path: "001-企业内部开发/003-客户端API/002-JS-SDK/009-会话/004-打开个人聊天窗口schema"
+specfusion_id: wecom_ebb14502a4aa
+source_url: "https://developer.work.weixin.qq.com/document/path/94345"
+last_updated: "2026-07-26T06:32:51.802Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T08:58:33Z"
 ---
-最后更新：2021/05/10
-
-[TOC]
-
 ## 概述
 在外部浏览器的web页面上，可通过该schema协议打开个人聊天窗口，目前仅支持windows和mac平台（仅3.1.6及以后版本支持）。注意这是在外部浏览器web页面的调用方式，不需要引入企业微信的jssdk。调用流程如下：
 - ![](https://wework.qpic.cn/wwpic/29691_EC-pwts9Sf-lxjC_1616664130/0)

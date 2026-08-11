@@ -1,13 +1,12 @@
 ---
-title: "获取下级/下游企业的access_token"
-doc_id: 24919
-category_id: 95816
-source_url: https://developer.work.weixin.qq.com/document/path/95816
+title: "获取下级-下游企业的access_token"
+path: "001-企业内部开发/002-服务端API/007-上下游/002-基础接口/002-获取下级-下游企业的access_token"
+specfusion_id: wecom_3a9ecd52d9cf
+source_url: "https://developer.work.weixin.qq.com/document/path/95816"
+last_updated: "2026-02-12T16:34:40.109Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T07:30:31Z"
 ---
-最后更新：2025/08/15
-
-获取应用可见范围内下级/下游企业的access_token，该access_token可用于调用下级/下游企业通讯录的只读接口。
-
 **请求方式：** POST（**HTTPS**）
 **请求地址：** https://qyapi.weixin.qq.com/cgi-bin/corpgroup/corp/gettoken?access_token=ACCESS_TOKEN
 

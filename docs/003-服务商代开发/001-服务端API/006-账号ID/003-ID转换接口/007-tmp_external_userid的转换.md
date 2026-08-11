@@ -1,13 +1,12 @@
 ---
 title: "tmp_external_userid的转换"
-doc_id: 46252
-category_id: 98741
-source_url: https://developer.work.weixin.qq.com/document/path/98741
+path: "003-服务商代开发/001-服务端API/006-账号ID/003-ID转换接口/007-tmp_external_userid的转换"
+specfusion_id: wecom_5ecc6e32549d
+source_url: "https://developer.work.weixin.qq.com/document/path/98741"
+last_updated: "2026-02-12T17:41:00.917Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T08:05:22Z"
 ---
-最后更新：2025/07/01
-
-[TOC]
-
 将应用获取的外部用户临时id`tmp_external_userid`，转换为external_userid。
 
 支持将以下业务类型（business_type）对应接口获取到的tmp_external_userid进行转换：

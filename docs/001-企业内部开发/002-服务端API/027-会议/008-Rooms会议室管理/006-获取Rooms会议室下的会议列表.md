@@ -1,13 +1,12 @@
 ---
 title: "获取Rooms会议室下的会议列表"
-doc_id: 47184
-category_id: 98796
-source_url: https://developer.work.weixin.qq.com/document/path/98796
+path: "001-企业内部开发/002-服务端API/028-会议/008-Rooms会议室管理/006-获取Rooms会议室下的会议列表"
+specfusion_id: wecom_efd9d699b92d
+source_url: "https://developer.work.weixin.qq.com/document/path/98796"
+last_updated: "2026-06-26T05:48:56.769Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T08:28:25Z"
 ---
-最后更新：2024/07/22
-
-获取指定Rooms会议室下的会议列表。
-
 **请求方式：** POST（**HTTPS**）
 **请求地址：** https://qyapi.weixin.qq.com/cgi-bin/meeting/rooms/list_meetings?access_token=ACCESS_TOKEN
  

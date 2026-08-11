@@ -1,13 +1,12 @@
 ---
 title: "code2Session"
-doc_id: 16056
-category_id: 96959
-source_url: https://developer.work.weixin.qq.com/document/path/96959
+path: "003-服务商代开发/004-客户端API/001-小程序/003-登录/003-code2Session"
+specfusion_id: wecom_98de6c626a0c
+source_url: "https://developer.work.weixin.qq.com/document/path/96959"
+last_updated: "2026-02-12T17:55:36.779Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T08:14:39Z"
 ---
-最后更新：2023/04/10
-
-临时登录凭证校验接口是一个```服务端HTTPS 接口```，开发者服务器使用临时登录凭证code获取 session_key、用户userid以及用户所在企业的corpid等信息。
-
 **请求方式**：GET（HTTPS）
 
 **接口地址：**

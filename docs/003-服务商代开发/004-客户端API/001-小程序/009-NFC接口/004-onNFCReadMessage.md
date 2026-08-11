@@ -1,13 +1,12 @@
 ---
 title: "onNFCReadMessage"
-doc_id: 16080
-category_id: 96986
-source_url: https://developer.work.weixin.qq.com/document/path/96986
+path: "001-企业内部开发/003-客户端API/001-小程序/010-NFC接口/004-onNFCReadMessage"
+specfusion_id: wecom_993bcf3afa71
+source_url: "https://developer.work.weixin.qq.com/document/path/91529"
+last_updated: "2026-07-26T06:28:36.908Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T09:19:35Z"
 ---
-最后更新：2019/05/10
-
-### onNFCReadMessage(function callback)
-
 监听NFC设备的消息回调。当用户离开小程序后，此接口无效。
 
 #### 参数

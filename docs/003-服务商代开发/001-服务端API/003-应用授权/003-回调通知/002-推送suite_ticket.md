@@ -1,12 +1,12 @@
 ---
 title: "推送suite_ticket"
-doc_id: 14947
-category_id: 97173
-source_url: https://developer.work.weixin.qq.com/document/path/97173
+path: "003-服务商代开发/001-服务端API/003-应用授权/003-回调通知/002-推送suite_ticket"
+specfusion_id: wecom_724191dd4d4e
+source_url: "https://developer.work.weixin.qq.com/document/path/97173"
+last_updated: "2026-02-12T17:39:06.651Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T08:04:21Z"
 ---
-最后更新：2024/01/09
-
-企业微信服务器会定时（每十分钟）向指令回调url推送ticket，suite_ticket实际有效期为30分钟，ticket会实时变更，并用于后续接口的调用。
 > 若开发者想立即获得ticket推送值，可登录<a href="https://open.work.weixin.qq.com/wwopen/developer" target="_blank">服务商平台</a>，在第三方应用详情-回调配置，手动刷新ticket推送。
 
 **请求方式：**POST（**HTTPS**）

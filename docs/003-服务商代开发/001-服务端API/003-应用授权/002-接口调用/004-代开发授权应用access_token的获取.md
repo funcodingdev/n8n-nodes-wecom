@@ -1,13 +1,12 @@
 ---
 title: "代开发授权应用access_token的获取"
-doc_id: 42543
-category_id: 97164
-source_url: https://developer.work.weixin.qq.com/document/path/97164
+path: "003-服务商代开发/001-服务端API/003-应用授权/002-接口调用/004-代开发授权应用access_token的获取"
+specfusion_id: wecom_2db80ac2a8a5
+source_url: "https://developer.work.weixin.qq.com/document/path/97164"
+last_updated: "2026-02-12T17:39:06.651Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T08:04:14Z"
 ---
-最后更新：2022/10/19
-
-获取[代开发应用的secret](#42542)之后，接口调用凭证access_token的获取方式与自建应用完全一致，即调用的是[获取access_token](#15074)接口。
-
 ::: tip
 注意，这与第三方应用的access_token获取方式不一样。
 :::

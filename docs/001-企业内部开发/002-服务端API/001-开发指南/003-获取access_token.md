@@ -1,12 +1,12 @@
 ---
 title: "获取access_token"
-doc_id: 15074
-category_id: 91039
-source_url: https://developer.work.weixin.qq.com/document/path/91039
+path: "001-企业内部开发/002-服务端API/001-开发指南/003-获取access_token"
+specfusion_id: wecom_293926a9c299
+source_url: "https://developer.work.weixin.qq.com/document/path/91039"
+last_updated: "2026-02-12T12:33:20.536Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T07:29:11Z"
 ---
-最后更新：2024/03/26
-
-::: warning 
 为了安全考虑，开发者 **请勿** 将 access_token 返回给前端，需要开发者保存在后台，所有访问企业微信api的请求由后台发起
 :::
 

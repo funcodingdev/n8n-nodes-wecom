@@ -4,3 +4,7 @@ node_modules
 .cursor
 .claude
 .vscode
+docs/.calibrate-state.json
+.agents
+skills-lock.json
+docs/calibrate-summary.json

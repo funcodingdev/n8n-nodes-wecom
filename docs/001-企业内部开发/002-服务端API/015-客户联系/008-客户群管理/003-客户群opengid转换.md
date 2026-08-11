@@ -1,13 +1,12 @@
 ---
 title: "客户群opengid转换"
-doc_id: 31650
-category_id: 94822
-source_url: https://developer.work.weixin.qq.com/document/path/94822
+path: "001-企业内部开发/002-服务端API/015-客户联系/008-客户群管理/003-客户群opengid转换"
+specfusion_id: wecom_b9b363f31192
+source_url: "https://developer.work.weixin.qq.com/document/path/94822"
+last_updated: "2026-02-12T16:38:20.313Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T07:33:11Z"
 ---
-最后更新：2023/12/01
-
-用户在微信里的客户群里打开小程序时，某些场景下可以获取到群的opengid，如果该群是企业微信的客户群，则企业或第三方可以调用此接口将一个opengid转换为客户群chat_id
-
 **请求方式：**POST（**HTTPS**）
 **请求地址**：https://qyapi.weixin.qq.com/cgi-bin/externalcontact/opengid_to_chatid?access_token=ACCESS_TOKEN
 

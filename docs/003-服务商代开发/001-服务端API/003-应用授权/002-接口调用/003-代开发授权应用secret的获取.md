@@ -1,13 +1,12 @@
 ---
 title: "代开发授权应用secret的获取"
-doc_id: 42542
-category_id: 97163
-source_url: https://developer.work.weixin.qq.com/document/path/97163
+path: "003-服务商代开发/001-服务端API/003-应用授权/002-接口调用/003-代开发授权应用secret的获取"
+specfusion_id: wecom_6fcbe512a2c1
+source_url: "https://developer.work.weixin.qq.com/document/path/97163"
+last_updated: "2026-02-12T17:39:06.651Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T08:04:13Z"
 ---
-最后更新：2025/01/02
-
-[TOC]
-
 ## secret的获取
 对于企业自建应用开发模式，secret由企业管理员登录管理端获取。而代开发应用的secret获取方式与第三方应用中的企业永久授权码更为相似，流程如下：
 （1）企业管理员扫代开发模版授权码时，授权完成后会推送[授权成功通知](#14951)到应用代开发模版回调url。

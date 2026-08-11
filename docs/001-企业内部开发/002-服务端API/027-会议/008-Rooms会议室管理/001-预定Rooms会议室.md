@@ -1,12 +1,12 @@
 ---
 title: "预定Rooms会议室"
-doc_id: 47179
-category_id: 98791
-source_url: https://developer.work.weixin.qq.com/document/path/98791
+path: "001-企业内部开发/002-服务端API/028-会议/008-Rooms会议室管理/001-预定Rooms会议室"
+specfusion_id: wecom_43414412f71b
+source_url: "https://developer.work.weixin.qq.com/document/path/98791"
+last_updated: "2026-06-26T05:48:56.769Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T08:28:16Z"
 ---
-最后更新：2023/05/30
-
-对成功预定的会议添加Rooms会议室，支持为同一个会议预定多个Rooms会议室。
 Rooms会议室预定对会议时长有硬性要求，会议时长不得大于24小时，且不支持周期性会议。
 
 **请求方式：** POST（**HTTPS**）

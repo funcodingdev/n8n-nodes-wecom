@@ -1,13 +1,12 @@
 ---
 title: "呼叫Rooms会议室"
-doc_id: 47200
-category_id: 98804
-source_url: https://developer.work.weixin.qq.com/document/path/98804
+path: "001-企业内部开发/002-服务端API/028-会议/008-Rooms会议室管理/010-呼叫Rooms会议室"
+specfusion_id: wecom_c27a9519ba87
+source_url: "https://developer.work.weixin.qq.com/document/path/98804"
+last_updated: "2026-06-26T05:50:29.703Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T08:28:32Z"
 ---
-最后更新：2023/05/30
-
-会议可以通过Rooms会议室 ID 呼叫Rooms会议室邀请其入会。
-
 **请求方式：** POST（**HTTPS**）
 **请求地址：** https://qyapi.weixin.qq.com/cgi-bin/meeting/rooms/call?access_token=ACCESS_TOKEN
  

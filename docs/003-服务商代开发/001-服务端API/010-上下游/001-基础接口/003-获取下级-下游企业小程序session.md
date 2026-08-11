@@ -1,13 +1,12 @@
 ---
-title: "获取下级/下游企业小程序session"
-doc_id: 25574
-category_id: 96874
-source_url: https://developer.work.weixin.qq.com/document/path/96874
+title: "获取下级-下游企业小程序session"
+path: "003-服务商代开发/001-服务端API/010-上下游/001-基础接口/003-获取下级-下游企业小程序session"
+specfusion_id: wecom_b1d2bb8869ef
+source_url: "https://developer.work.weixin.qq.com/document/path/96874"
+last_updated: "2026-02-12T17:42:16.584Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T08:06:17Z"
 ---
-最后更新：2023/01/11
-
-[TOC]
-
 上级/上游企业通过该接口转换为下级/下游企业的小程序session
 
 **请求方式**:POST(**HTTPS**)

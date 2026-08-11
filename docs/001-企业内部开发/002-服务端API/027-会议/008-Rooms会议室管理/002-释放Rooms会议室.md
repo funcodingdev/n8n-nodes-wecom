@@ -1,13 +1,12 @@
 ---
 title: "释放Rooms会议室"
-doc_id: 47180
-category_id: 98792
-source_url: https://developer.work.weixin.qq.com/document/path/98792
+path: "001-企业内部开发/002-服务端API/028-会议/008-Rooms会议室管理/002-释放Rooms会议室"
+specfusion_id: wecom_617481ce2213
+source_url: "https://developer.work.weixin.qq.com/document/path/98792"
+last_updated: "2026-06-26T05:48:56.769Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T08:28:18Z"
 ---
-最后更新：2023/05/30
-
-通过会议 ID 释放Rooms会议室，支持释放多个Rooms会议室。
-
 **请求方式：** POST（**HTTPS**）
 **请求地址：** https://qyapi.weixin.qq.com/cgi-bin/meeting/rooms/release?access_token=ACCESS_TOKEN
  

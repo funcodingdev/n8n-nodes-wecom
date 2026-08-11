@@ -1,12 +1,12 @@
 ---
 title: "Wi-Fi-概述"
-doc_id: 14918
-category_id: 100540
-source_url: https://developer.work.weixin.qq.com/document/path/100540
+path: "001-企业内部开发/003-客户端API/002-JS-SDK/018-Wi-Fi/001-Wi-Fi-概述"
+specfusion_id: wecom_1188cfba71d1
+source_url: "https://developer.work.weixin.qq.com/document/path/100540"
+last_updated: "2026-07-26T06:35:41.704Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T08:38:19Z"
 ---
-最后更新：2024/11/20
-
-[[toc]]
 支持搜索周边的 Wi-Fi，同时可以针对指定 Wi-Fi，传入密码发起连接。
 该系列接口为系统原生能力。
 

@@ -1,13 +1,12 @@
 ---
 title: "取消呼叫Rooms会议室"
-doc_id: 47202
-category_id: 98805
-source_url: https://developer.work.weixin.qq.com/document/path/98805
+path: "001-企业内部开发/002-服务端API/028-会议/008-Rooms会议室管理/011-取消呼叫Rooms会议室"
+specfusion_id: wecom_956112be8ab7
+source_url: "https://developer.work.weixin.qq.com/document/path/98805"
+last_updated: "2026-06-26T05:50:29.703Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T08:28:35Z"
 ---
-最后更新：2023/05/30
-
-会议可以通过Rooms会议室 ID 进行取消呼叫操作。
-
 **请求方式：** POST（**HTTPS**）
 **请求地址：** https://qyapi.weixin.qq.com/cgi-bin/meeting/rooms/cancel_call?access_token=ACCESS_TOKEN
  

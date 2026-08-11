@@ -1,13 +1,12 @@
 ---
 title: "检查UserId合法性"
-doc_id: 16457
-category_id: 93991
-source_url: https://developer.work.weixin.qq.com/document/path/93991
+path: "004-智慧硬件开发/002-硬件直连接入/003-考勤-门禁设备/001-接口调用/003-检查UserId合法性"
+specfusion_id: wecom_37f21eac70cf
+source_url: "https://developer.work.weixin.qq.com/document/path/93991"
+last_updated: "2026-02-12T18:03:13.110Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T08:19:28Z"
 ---
-最后更新：2022/09/16
-
-检查userid是否在设备的使用范围内
-
 **请求包体：**
 ```
 {

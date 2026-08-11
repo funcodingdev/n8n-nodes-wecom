@@ -1,12 +1,12 @@
 ---
 title: "通讯录userid排序"
-doc_id: 19287
-category_id: 92093
-source_url: https://developer.work.weixin.qq.com/document/path/92093
+path: "002-第三方应用开发/002-服务端API/008-通讯录管理/011-通讯录userid排序"
+specfusion_id: wecom_6d35326d6746
+source_url: "https://developer.work.weixin.qq.com/document/path/92093"
+last_updated: "2026-02-12T17:15:57.917Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T07:50:40Z"
 ---
-最后更新：2022/09/05
-
-**请求方式：**POST（**HTTPS**）
 **请求地址：**https://qyapi.weixin.qq.com/cgi-bin/service/contact/sort?provider_access_token=ACCESS_TOKEN
 
 **请求包体：**

@@ -1,12 +1,12 @@
 ---
 title: "Harmony应用"
-doc_id: 59012
-category_id: 101022
-source_url: https://developer.work.weixin.qq.com/document/path/101022
+path: "001-企业内部开发/003-客户端API/003-移动端SDK/003-企业微信分享/003-Harmony应用"
+specfusion_id: wecom_45ad5dbc163c
+source_url: "https://developer.work.weixin.qq.com/document/path/101022"
+last_updated: "2026-02-12T17:10:09.489Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T07:47:27Z"
 ---
-最后更新：2025/11/21
-
-[TOC]
 ## Harmony接入指南
 >**接入说明：**
 > 任何需要调用企业微信API的应用，都需要先在企业微信管理后台创建一个应用，设置完成后，即可使用对应的功能。

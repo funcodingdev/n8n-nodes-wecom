@@ -1,13 +1,12 @@
 ---
 title: "external_userid的转换"
-doc_id: 42272
-category_id: 97063
-source_url: https://developer.work.weixin.qq.com/document/path/97063
+path: "002-第三方应用开发/002-服务端API/007-账号ID/003-ID转换接口/003-external_userid的转换"
+specfusion_id: wecom_cf97850b508e
+source_url: "https://developer.work.weixin.qq.com/document/path/97063"
+last_updated: "2026-02-12T17:14:01.715Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T07:49:34Z"
 ---
-最后更新：2022/11/03
-
-[TOC]
-
 将企业主体下的external_userid转换为服务商主体下的external_userid。
 
 ### 转换客户external_userid

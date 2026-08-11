@@ -1,12 +1,12 @@
 ---
 title: "userid与openid互换"
-doc_id: 11279
-category_id: 96261
-source_url: https://developer.work.weixin.qq.com/document/path/96261
+path: "003-服务商代开发/001-服务端API/007-通讯录管理/002-成员管理/005-userid与openid互换"
+specfusion_id: wecom_23c80aa67c41
+source_url: "https://developer.work.weixin.qq.com/document/path/96261"
+last_updated: "2026-02-12T17:41:00.917Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T08:05:33Z"
 ---
-最后更新：2022/01/20
-
-## userid转openid
 该接口使用场景为企业支付，在使用企业红包和向员工付款时，需要自行将企业微信的userid转成openid。
 
 注：需要成员使用微信登录企业微信或者关注微信插件（原企业号）才能转成openid;

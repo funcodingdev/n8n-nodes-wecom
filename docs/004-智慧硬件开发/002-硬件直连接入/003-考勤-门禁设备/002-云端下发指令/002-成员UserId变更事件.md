@@ -1,13 +1,12 @@
 ---
 title: "成员UserId变更事件"
-doc_id: 15377
-category_id: 93997
-source_url: https://developer.work.weixin.qq.com/document/path/93997
+path: "004-智慧硬件开发/002-硬件直连接入/003-考勤-门禁设备/002-云端下发指令/002-成员UserId变更事件"
+specfusion_id: wecom_968f8b22c188
+source_url: "https://developer.work.weixin.qq.com/document/path/93997"
+last_updated: "2026-02-12T18:03:51.235Z"
+calibrated_from: "SpecFusion"
+calibrated_at: "2026-08-11T08:19:45Z"
 ---
-最后更新：2020/04/16
-
-企业微信userid由系统生成时，可更改一次，变更时推送。
-
 **指令包体：**
 
 ```
