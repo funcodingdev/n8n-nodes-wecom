@@ -2374,6 +2374,139 @@ export async function executeWedoc(
 				if (response.errcode !== undefined && response.errcode !== 0) {
 					throw new Error(`上传文档图片失败: ${response.errmsg} (错误码: ${response.errcode})`);
 				}
+			} else if (operation === 'getSheetPriv') {
+				const docid = this.getNodeParameter('docid', i) as string;
+				const type = this.getNodeParameter('priv_type', i, 1) as number;
+				const rule_id_list_raw = this.getNodeParameter('rule_id_list', i, '') as string;
+				const body: IDataObject = { docid, type };
+				if (rule_id_list_raw) {
+					body.rule_id_list = rule_id_list_raw
+						.split(',')
+						.map((id) => id.trim())
+						.filter(Boolean)
+						.map((id) => Number(id) || id);
+				}
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/wedoc/smartsheet/content_priv/get_sheet_priv',
+					body,
+				);
+			} else if (operation === 'createPrivRule') {
+				const docid = this.getNodeParameter('docid', i) as string;
+				const name = this.getNodeParameter('rule_name', i, '') as string;
+				const privRuleJson = this.getNodeParameter('privRuleJson', i, '{}') as string;
+				const body: IDataObject = { docid };
+				if (name) body.name = name;
+				try {
+					Object.assign(body, JSON.parse(privRuleJson || '{}') as IDataObject);
+					body.docid = docid;
+					if (name) body.name = name;
+				} catch {
+					// ignore
+				}
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/wedoc/smartsheet/content_priv/create_rule',
+					body,
+				);
+			} else if (operation === 'modPrivRuleMember') {
+				const docid = this.getNodeParameter('docid', i) as string;
+				const privRuleJson = this.getNodeParameter('privRuleJson', i, '{}') as string;
+				const body: IDataObject = { docid };
+				try {
+					Object.assign(body, JSON.parse(privRuleJson || '{}') as IDataObject);
+					body.docid = docid;
+				} catch {
+					// ignore
+				}
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/wedoc/smartsheet/content_priv/mod_rule_member',
+					body,
+				);
+			} else if (operation === 'deletePrivRule') {
+				const docid = this.getNodeParameter('docid', i) as string;
+				const rule_id_list_raw = this.getNodeParameter('rule_id_list', i, '') as string;
+				const body: IDataObject = {
+					docid,
+					rule_id_list: rule_id_list_raw
+						.split(',')
+						.map((id) => id.trim())
+						.filter(Boolean)
+						.map((id) => Number(id) || id),
+				};
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/wedoc/smartsheet/content_priv/delete_rule',
+					body,
+				);
+			} else if (operation === 'addFieldGroup') {
+				const docid = this.getNodeParameter('docid', i) as string;
+				const sheet_id = this.getNodeParameter('sheet_id', i) as string;
+				const name = this.getNodeParameter('group_name', i) as string;
+				const field_ids = this.getNodeParameter('field_ids', i, '') as string;
+				const body: IDataObject = { docid, sheet_id, name };
+				if (field_ids) {
+					body.children = field_ids
+						.split(',')
+						.map((id) => id.trim())
+						.filter(Boolean)
+						.map((field_id) => ({ field_id }));
+				}
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/wedoc/smartsheet/add_field_group',
+					body,
+				);
+			} else if (operation === 'updateFieldGroup') {
+				const docid = this.getNodeParameter('docid', i) as string;
+				const sheet_id = this.getNodeParameter('sheet_id', i) as string;
+				const group_id = this.getNodeParameter('group_id', i) as string;
+				const name = this.getNodeParameter('group_name', i, '') as string;
+				const field_ids = this.getNodeParameter('field_ids', i, '') as string;
+				const body: IDataObject = { docid, sheet_id, group_id };
+				if (name) body.name = name;
+				if (field_ids) {
+					body.children = field_ids
+						.split(',')
+						.map((id) => id.trim())
+						.filter(Boolean)
+						.map((field_id) => ({ field_id }));
+				}
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/wedoc/smartsheet/update_field_group',
+					body,
+				);
+			} else if (operation === 'deleteFieldGroups') {
+				const docid = this.getNodeParameter('docid', i) as string;
+				const sheet_id = this.getNodeParameter('sheet_id', i) as string;
+				const group_id = this.getNodeParameter('group_id', i) as string;
+				const group_id_list = group_id
+					.split(',')
+					.map((id) => id.trim())
+					.filter(Boolean);
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/wedoc/smartsheet/delete_field_groups',
+					{ docid, sheet_id, group_id_list },
+				);
+			} else if (operation === 'getFieldGroups') {
+				const docid = this.getNodeParameter('docid', i) as string;
+				const sheet_id = this.getNodeParameter('sheet_id', i) as string;
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/wedoc/smartsheet/get_field_groups',
+					{ docid, sheet_id },
+				);
 			} else {
 				response = {};
 			}

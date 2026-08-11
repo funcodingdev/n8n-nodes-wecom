@@ -487,6 +487,64 @@ export async function executeWefile(
 					'/cgi-bin/wedrive/mng_pro_info',
 					{},
 				);
+			} else if (operation === 'getCapacity') {
+				// https://developer.work.weixin.qq.com/document/path/97880
+				const spaceid = this.getNodeParameter('spaceId', i, '') as string;
+				const body: IDataObject = {};
+				if (spaceid) body.spaceid = spaceid;
+				responseData = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/wedrive/mng_capacity',
+					body,
+				);
+			} else if (operation === 'uploadInit') {
+				const file_name = this.getNodeParameter('fileName', i) as string;
+				const size = this.getNodeParameter('fileSize', i) as number;
+				const block_sha_raw = this.getNodeParameter('block_sha', i) as string;
+				const skip_push_card = this.getNodeParameter('skip_push_card', i, false) as boolean;
+				const selectedTicket = this.getNodeParameter('selectedTicket', i, '') as string;
+				const spaceId = this.getNodeParameter('spaceId', i, '') as string;
+				const fatherId = this.getNodeParameter('fatherId', i, '') as string;
+				const body: IDataObject = {
+					file_name,
+					size,
+					block_sha: block_sha_raw
+						.split(',')
+						.map((s) => s.trim())
+						.filter(Boolean),
+					skip_push_card,
+				};
+				if (selectedTicket) {
+					body.selected_ticket = selectedTicket;
+				} else {
+					body.spaceid = spaceId;
+					body.fatherid = fatherId || spaceId;
+				}
+				responseData = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/wedrive/file_upload_init',
+					body,
+				);
+			} else if (operation === 'uploadPart') {
+				const upload_key = this.getNodeParameter('upload_key', i) as string;
+				const index = this.getNodeParameter('part_index', i) as number;
+				const file_base64_content = this.getNodeParameter('file_base64_content', i) as string;
+				responseData = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/wedrive/file_upload_part',
+					{ upload_key, index, file_base64_content },
+				);
+			} else if (operation === 'uploadFinish') {
+				const upload_key = this.getNodeParameter('upload_key', i) as string;
+				responseData = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/wedrive/file_upload_finish',
+					{ upload_key },
+				);
 			}
 
 			if (responseData) {

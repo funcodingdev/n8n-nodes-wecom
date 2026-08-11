@@ -175,10 +175,11 @@ export async function executeSchool(
 						body.limit = limit;
 					}
 
+					// V2 官方路径
 					responseData = await weComApiRequest.call(
 						this,
 						'POST',
-						'/cgi-bin/school/living/get_watch_stat',
+						'/cgi-bin/school/living/get_watch_stat_v2',
 						body,
 					);
 					break;
@@ -199,12 +200,13 @@ export async function executeSchool(
 					responseData = await weComApiRequest.call(
 						this,
 						'POST',
-						'/cgi-bin/school/living/get_unwatch_stat',
+						'/cgi-bin/school/living/get_unwatch_stat_v2',
 						body,
 					);
 					break;
 				}
 				case 'getTradeResult': {
+					// 官方：/cgi-bin/school/get_payment_result
 					const payment_id = this.getNodeParameter('payment_id', i) as string;
 					const next_key = this.getNodeParameter('next_key', i, '') as string;
 					const limit = this.getNodeParameter('limit', i, 100) as number;
@@ -220,17 +222,18 @@ export async function executeSchool(
 					responseData = await weComApiRequest.call(
 						this,
 						'POST',
-						'/cgi-bin/externalcontact/get_trade_result',
+						'/cgi-bin/school/get_payment_result',
 						body,
 					);
 					break;
 				}
 				case 'getTradeDetail': {
+					// 官方：/cgi-bin/school/get_trade
 					const payment_id = this.getNodeParameter('payment_id', i) as string;
 					responseData = await weComApiRequest.call(
 						this,
 						'POST',
-						'/cgi-bin/externalcontact/get_trade_detail',
+						'/cgi-bin/school/get_trade',
 						{ payment_id },
 					);
 					break;

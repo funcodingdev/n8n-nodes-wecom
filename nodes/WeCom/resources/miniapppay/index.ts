@@ -52,8 +52,39 @@ export const miniapppayDescription: INodeProperties[] = [
 				action: '交易账单申请',
 				description: 'miniapppay/get_bill',
 			},
+			{
+				name: '[进件] 提交创建对外收款账户申请',
+				value: 'applyMch',
+				action: '提交进件申请',
+				description: 'miniapppay/apply_mch，请求体 JSON',
+			},
+			{
+				name: '[进件] 查询申请单状态',
+				value: 'getApplymentStatus',
+				action: '查询进件状态',
+				description: 'miniapppay/get_applyment_status',
+			},
 		],
 		default: 'createOrder',
+	},
+	{
+		displayName: '进件申请JSON',
+		name: 'applyMchJson',
+		type: 'json',
+		required: true,
+		displayOptions: { show: { ...showOnly, operation: ['applyMch'] } },
+		default: '{}',
+		description:
+			'apply_mch 完整请求体，字段见官方「提交创建对外收款账户的申请单」。<a href="https://developer.work.weixin.qq.com/document/path/98973" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '商户申请单号',
+		name: 'out_request_no',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { ...showOnly, operation: ['getApplymentStatus'] } },
+		default: '',
+		description: 'out_request_no，进件时填写的业务申请编号',
 	},
 	// 公共商户字段
 	{

@@ -43,6 +43,12 @@ export const approvalDescription: INodeProperties[] = [
 				action: '批量获取审批单号',
 				description: '批量获取符合条件的审批单号列表',
 			},
+			{
+				name: '[审批申请] 获取审批数据(旧版)',
+				value: 'getOpenApprovalData',
+				action: '获取审批数据旧版',
+				description: 'corp/getopenapprovaldata，兼容旧接口',
+			},
 			// 审批模板
 			{
 				name: '[审批模板] 获取审批模板详情',
@@ -88,6 +94,17 @@ export const approvalDescription: INodeProperties[] = [
 	...submitApprovalDescription,
 	...getApprovalSpNoListDescription,
 	...getApprovalDetailDescription,
+	{
+		displayName: '第三方审批单号',
+		name: 'thirdNo',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: { resource: ['approval'], operation: ['getOpenApprovalData'] },
+		},
+		default: '',
+		description: 'thirdNo，审批单号',
+	},
 	...getVacationConfigDescription,
 	...getVacationQuotaDescription,
 	...setVacationQuotaDescription,

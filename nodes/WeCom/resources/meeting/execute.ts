@@ -479,6 +479,95 @@ export async function executeMeeting(
 					// ignore
 				}
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/realcontrol/set', body);
+			} else if (operation === 'listLayoutTemplate') {
+				const extraJson = this.getNodeParameter('extraJson', i, '{}') as string;
+				let body: IDataObject = {};
+				try {
+					body = JSON.parse(extraJson || '{}') as IDataObject;
+				} catch {
+					body = {};
+				}
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/meeting/layout/list_template',
+					body,
+				);
+			} else if (operation === 'setDefaultLayout') {
+				const meetingid = this.getNodeParameter('meetingid', i) as string;
+				const extraJson = this.getNodeParameter('extraJson', i, '{}') as string;
+				const body: IDataObject = { meetingid };
+				try {
+					Object.assign(body, JSON.parse(extraJson || '{}') as IDataObject);
+					body.meetingid = meetingid;
+				} catch {
+					// ignore
+				}
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/meeting/layout/set_default',
+					body,
+				);
+			} else if (operation === 'phoneCallout') {
+				const meetingid = this.getNodeParameter('meetingid', i) as string;
+				const extraJson = this.getNodeParameter('extraJson', i, '{}') as string;
+				const body: IDataObject = { meetingid };
+				try {
+					Object.assign(body, JSON.parse(extraJson || '{}') as IDataObject);
+					body.meetingid = meetingid;
+				} catch {
+					// ignore
+				}
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/phone/callout', body);
+			} else if (operation === 'phoneGetCalloutStatus') {
+				const meetingid = this.getNodeParameter('meetingid', i) as string;
+				const extraJson = this.getNodeParameter('extraJson', i, '{}') as string;
+				const body: IDataObject = { meetingid };
+				try {
+					Object.assign(body, JSON.parse(extraJson || '{}') as IDataObject);
+					body.meetingid = meetingid;
+				} catch {
+					// ignore
+				}
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/meeting/phone/get_callout_status',
+					body,
+				);
+			} else if (operation === 'getPollList') {
+				const meetingid = this.getNodeParameter('meetingid', i) as string;
+				const extraJson = this.getNodeParameter('extraJson', i, '{}') as string;
+				const body: IDataObject = { meetingid };
+				try {
+					Object.assign(body, JSON.parse(extraJson || '{}') as IDataObject);
+					body.meetingid = meetingid;
+				} catch {
+					// ignore
+				}
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/meeting/poll/get_poll_list',
+					body,
+				);
+			} else if (operation === 'getPollDetail') {
+				const meetingid = this.getNodeParameter('meetingid', i) as string;
+				const extraJson = this.getNodeParameter('extraJson', i, '{}') as string;
+				const body: IDataObject = { meetingid };
+				try {
+					Object.assign(body, JSON.parse(extraJson || '{}') as IDataObject);
+					body.meetingid = meetingid;
+				} catch {
+					// ignore
+				}
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/meeting/poll/get_poll_detail',
+					body,
+				);
 			} else {
 				response = {};
 			}

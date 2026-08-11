@@ -1,0 +1,91 @@
+import type { INodeProperties } from 'n8n-workflow';
+
+const show = (ops: string[]) => ({
+	show: { resource: ['wefile'], operation: ops },
+});
+
+export const chunkUploadOpsDescription: INodeProperties[] = [
+	{
+		displayName: '空间ID',
+		name: 'spaceId',
+		type: 'string',
+		displayOptions: show(['uploadInit', 'getCapacity']),
+		default: '',
+	},
+	{
+		displayName: '父目录ID',
+		name: 'fatherId',
+		type: 'string',
+		displayOptions: show(['uploadInit']),
+		default: '',
+		description: '根目录时为 spaceid',
+	},
+	{
+		displayName: '选择凭证',
+		name: 'selectedTicket',
+		type: 'string',
+		displayOptions: show(['uploadInit']),
+		default: '',
+		description: 'selected_ticket，与 spaceid/fatherid 二选一',
+	},
+	{
+		displayName: '文件名',
+		name: 'fileName',
+		type: 'string',
+		required: true,
+		displayOptions: show(['uploadInit']),
+		default: '',
+	},
+	{
+		displayName: '文件大小(字节)',
+		name: 'fileSize',
+		type: 'number',
+		required: true,
+		displayOptions: show(['uploadInit']),
+		default: 0,
+		description: 'size，最大支持 20G',
+	},
+	{
+		displayName: '分块SHA列表',
+		name: 'block_sha',
+		type: 'string',
+		required: true,
+		displayOptions: show(['uploadInit']),
+		default: '',
+		description: 'block_sha，逗号分隔的分块累积 sha（顺序）',
+	},
+	{
+		displayName: '跳过推送卡片',
+		name: 'skip_push_card',
+		type: 'boolean',
+		displayOptions: show(['uploadInit']),
+		default: false,
+	},
+	{
+		displayName: 'upload_key',
+		name: 'upload_key',
+		type: 'string',
+		required: true,
+		displayOptions: show(['uploadPart', 'uploadFinish']),
+		default: '',
+		description: 'upload_init 返回的 upload_key',
+	},
+	{
+		displayName: '分块序号',
+		name: 'part_index',
+		type: 'number',
+		required: true,
+		displayOptions: show(['uploadPart']),
+		default: 1,
+		description: 'index，从 1 开始',
+	},
+	{
+		displayName: '分块Base64内容',
+		name: 'file_base64_content',
+		type: 'string',
+		required: true,
+		displayOptions: show(['uploadPart']),
+		default: '',
+		typeOptions: { rows: 3 },
+	},
+];

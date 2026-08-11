@@ -237,6 +237,45 @@ export const meetingDescription: INodeProperties[] = [
 				action: '会中设置',
 				description: 'realcontrol/set，JSON 扩展体',
 			},
+			// 布局
+			{
+				name: '[布局] 获取布局模板列表',
+				value: 'listLayoutTemplate',
+				action: '布局模板列表',
+				description: 'layout/list_template',
+			},
+			{
+				name: '[布局] 设置默认布局',
+				value: 'setDefaultLayout',
+				action: '设置默认布局',
+				description: 'layout/set_default',
+			},
+			// 电话入会
+			{
+				name: '[电话入会] 外呼',
+				value: 'phoneCallout',
+				action: '电话外呼',
+				description: 'phone/callout',
+			},
+			{
+				name: '[电话入会] 查询外呼状态',
+				value: 'phoneGetCalloutStatus',
+				action: '外呼状态',
+				description: 'phone/get_callout_status',
+			},
+			// 投票
+			{
+				name: '[投票] 获取投票列表',
+				value: 'getPollList',
+				action: '投票列表',
+				description: 'poll/get_poll_list',
+			},
+			{
+				name: '[投票] 获取投票详情',
+				value: 'getPollDetail',
+				action: '投票详情',
+				description: 'poll/get_poll_detail',
+			},
 		],
 		default: 'createMeeting',
 	},

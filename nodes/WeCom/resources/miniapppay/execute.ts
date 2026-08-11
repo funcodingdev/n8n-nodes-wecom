@@ -131,6 +131,25 @@ export async function executeMiniapppay(
 				if (tar_type) body.tar_type = tar_type;
 
 				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/miniapppay/get_bill', body);
+			} else if (operation === 'applyMch') {
+				// https://developer.work.weixin.qq.com/document/path/98973
+				const applyMchJson = this.getNodeParameter('applyMchJson', i, '{}') as string;
+				let body: IDataObject = {};
+				try {
+					body = JSON.parse(applyMchJson || '{}') as IDataObject;
+				} catch {
+					throw new Error('进件申请JSON 解析失败');
+				}
+				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/miniapppay/apply_mch', body);
+			} else if (operation === 'getApplymentStatus') {
+				// https://developer.work.weixin.qq.com/document/path/98974
+				const out_request_no = this.getNodeParameter('out_request_no', i) as string;
+				responseData = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/miniapppay/get_applyment_status',
+					{ out_request_no },
+				);
 			}
 
 			returnData.push({

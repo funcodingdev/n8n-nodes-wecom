@@ -80,17 +80,19 @@ docs/001-企业内部开发/002-服务端API
 
 ## 优先补齐建议（按投入产出）
 
-| 优先级 | 章节 | 建议 |
+| 优先级 | 章节 | 状态 |
 |--------|------|------|
-| P0 | 027-会议 | 继续按子目录补：enroll / rooms / layout / phone，不必新开 Resource |
-| P0 | 命名债 | `living` 政民说明、`wefile`=微盘/wedrive、`linkedcorp`=corpgroup |
-| P1 | 017-企业支付 | 补红包/向员工付款，或拆 `corpPay` 资源 |
-| P1 | 025-文档 | smartsheet content_priv / field_group |
-| P1 | 028-微盘 | 分片上传三件套 + capacity |
-| P2 | 005-身份验证 | 若有网页登录场景，补 auth/getuserinfo 等 |
-| P2 | 020/021 家校 | 对齐 school/* 路径命名差异 |
-| P3 | 036-高级功能 | 保持分散 vip；仅补 advanced_feature 审批类若需要 |
-| — | 013/019 | 保持部分即可（SDK 边界） |
+| P0 | 027-会议 enroll/rooms/layout/phone/poll | **已补一批**（仍非全量高级能力） |
+| P0 | 命名债 living/wefile/linkedcorp | **已做** UI 说明 |
+| P1 | 017 红包/向员工付款 | **边界**：mch XML+证书，未进 weComApi |
+| P1 | 018 进件 apply_mch | **已补** miniapppay |
+| P1 | 025 content_priv / field_group | **已补** |
+| P1 | 028 分片上传 + capacity | **已补** |
+| P2 | 021 家校路径 | **已对齐** school payment/living v2 |
+| P2 | 003 opencorpid_to_corpid | **已补** |
+| P2 | 032 旧版审批数据 | **已补** getopenapprovaldata |
+| — | 005 身份验证 oauth | 仍属客户端/网页场景，可选 |
+| — | 013/019 SDK | 保持部分即可 |
 
 ## 各「部分」章节缺口样例
 

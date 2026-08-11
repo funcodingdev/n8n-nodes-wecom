@@ -60,6 +60,16 @@ export async function executeApproval(
 				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/oa/getapprovaldetail', {
 					sp_no,
 				});
+			} else if (operation === 'getOpenApprovalData') {
+				// 旧版获取审批数据
+				// https://developer.work.weixin.qq.com/document/path/90269
+				const thirdNo = this.getNodeParameter('thirdNo', i) as string;
+				responseData = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/corp/getopenapprovaldata',
+					{ thirdNo },
+				);
 			} else if (operation === 'getVacationConfig') {
 				// 获取企业假期管理配置
 				// https://developer.work.weixin.qq.com/document/path/93375

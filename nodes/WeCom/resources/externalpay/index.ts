@@ -43,6 +43,15 @@ export const externalpayDescription: INodeProperties[] = [
 		],
 		default: 'getBillList',
 	},
+	{
+		displayName: '说明',
+		name: 'corpPayNotice',
+		type: 'notice',
+		displayOptions: { show: showOnly },
+		default: '',
+		description:
+			'本资源覆盖企业微信 OpenAPI 对外收款（/cgi-bin/externalpay/*）。企业红包、向员工付款走微信支付商户平台 XML 接口（api.mch.weixin.qq.com，需商户证书与双重签名），与当前 weComApi 凭证模型不同，暂不封装。小程序进件见「小程序对外收款」apply_mch。',
+	},
 	// getMerchant / setMchUseScope
 	{
 		displayName: '商户号',

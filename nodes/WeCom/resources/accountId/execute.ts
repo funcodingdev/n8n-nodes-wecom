@@ -11,6 +11,7 @@ import { externalUseridToPendingId } from './externalUseridToPendingId';
 import { externalTagidToOpenExternalTagid } from './externalTagidToOpenExternalTagid';
 import { openKfidToNewOpenKfid } from './openKfidToNewOpenKfid';
 import { finishOpenidMigration } from './finishOpenidMigration';
+import { opencorpidToCorpid } from './opencorpidToCorpid';
 
 export async function executeAccountId(
 	this: IExecuteFunctions,
@@ -59,6 +60,9 @@ export async function executeAccountId(
 					break;
 				case 'finishOpenidMigration':
 					responseData = await finishOpenidMigration.call(this, i);
+					break;
+				case 'opencorpidToCorpid':
+					responseData = await opencorpidToCorpid.call(this, i);
 					break;
 				default:
 					throw new Error(`未知操作: ${operation}`);

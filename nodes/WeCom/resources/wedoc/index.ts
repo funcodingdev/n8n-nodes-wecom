@@ -46,6 +46,7 @@ import { modDocSafeRuleDescription } from './modDocSafeRule';
 import { modDocMemberRuleDescription } from './modDocMemberRule';
 import { modDocShareScopeDescription } from './modDocShareScope';
 import { manageSmartsheetAuthDescription } from './manageSmartsheetAuth';
+import { smartsheetExtraOpsDescription } from './smartsheetExtraOps';
 
 // 收集表
 import { createFormDescription } from './createForm';
@@ -289,7 +290,55 @@ export const wedocDescription: INodeProperties[] = [
 				name: '[权限设置] 管理智能表格内容权限',
 				value: 'manageSmartsheetAuth',
 				action: '[权限设置] 管理智能表格内容权限',
-				description: '管理智能表格的内容权限',
+				description: 'update_sheet_priv 快捷开关',
+			},
+			{
+				name: '[权限设置] 查询内容权限规则',
+				value: 'getSheetPriv',
+				action: '查询内容权限',
+				description: 'content_priv/get_sheet_priv',
+			},
+			{
+				name: '[权限设置] 创建额外权限规则',
+				value: 'createPrivRule',
+				action: '创建权限规则',
+				description: 'content_priv/create_rule',
+			},
+			{
+				name: '[权限设置] 修改权限规则成员',
+				value: 'modPrivRuleMember',
+				action: '修改规则成员',
+				description: 'content_priv/mod_rule_member',
+			},
+			{
+				name: '[权限设置] 删除额外权限规则',
+				value: 'deletePrivRule',
+				action: '删除权限规则',
+				description: 'content_priv/delete_rule',
+			},
+			{
+				name: '[智能表格] 添加字段编组',
+				value: 'addFieldGroup',
+				action: '添加编组',
+				description: 'smartsheet/add_field_group',
+			},
+			{
+				name: '[智能表格] 更新字段编组',
+				value: 'updateFieldGroup',
+				action: '更新编组',
+				description: 'smartsheet/update_field_group',
+			},
+			{
+				name: '[智能表格] 删除字段编组',
+				value: 'deleteFieldGroups',
+				action: '删除编组',
+				description: 'smartsheet/delete_field_groups',
+			},
+			{
+				name: '[智能表格] 查询字段编组',
+				value: 'getFieldGroups',
+				action: '查询编组',
+				description: 'smartsheet/get_field_groups',
 			},
 			// 管理收集表
 			{
@@ -386,6 +435,7 @@ export const wedocDescription: INodeProperties[] = [
 	...modDocMemberRuleDescription,
 	...modDocShareScopeDescription,
 	...manageSmartsheetAuthDescription,
+	...smartsheetExtraOpsDescription,
 	...createFormDescription,
 	...modFormDescription,
 	...getFormInfoDescription,

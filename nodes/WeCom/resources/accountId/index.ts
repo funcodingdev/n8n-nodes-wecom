@@ -84,6 +84,12 @@ export const accountIdDescription: INodeProperties[] = [
 				description: '服务商完成企业下所有第三方应用的新旧ID迁移后，将该企业设置为"迁移完成"',
 				action: 'ID迁移完成状态设置（第三方应用）',
 			},
+			{
+				name: '[账号ID] 密文corpid转明文（服务商）',
+				value: 'opencorpidToCorpid',
+				description: '将服务商主体下的密文 corpid 转为企业明文 corpid',
+				action: 'opencorpid转corpid',
+			},
 		],
 		default: 'openuseridToUserid',
 	},
@@ -226,7 +232,7 @@ export const accountIdDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['accountId'],
-				operation: ['corpidToOpencorpid'],
+				operation: ['corpidToOpencorpid', 'opencorpidToCorpid'],
 			},
 		},
 		default: '',
@@ -245,6 +251,20 @@ export const accountIdDescription: INodeProperties[] = [
 		},
 		default: '',
 		description: '待获取的企业ID',
+	},
+	{
+		displayName: '密文CorpID',
+		name: 'opencorpid',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['accountId'],
+				operation: ['opencorpidToCorpid'],
+			},
+		},
+		default: '',
+		description: '服务商主体下的密文 corpid',
 	},
 	{
 		displayName: 'Userid列表',

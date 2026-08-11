@@ -14,11 +14,42 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['meeting'],
-				operation: [...enrollOps, 'bookRooms', 'releaseRooms', 'setCohost', 'realcontrolSet'],
+				operation: [
+					...enrollOps,
+					'bookRooms',
+					'releaseRooms',
+					'setCohost',
+					'realcontrolSet',
+					'setDefaultLayout',
+					'phoneCallout',
+					'phoneGetCalloutStatus',
+					'getPollList',
+					'getPollDetail',
+				],
 			},
 		},
 		default: '',
 		description: 'meetingid',
+	},
+	{
+		displayName: '扩展请求JSON',
+		name: 'extraJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['meeting'],
+				operation: [
+					'setDefaultLayout',
+					'phoneCallout',
+					'phoneGetCalloutStatus',
+					'getPollList',
+					'getPollDetail',
+					'listLayoutTemplate',
+				],
+			},
+		},
+		default: '{}',
+		description: '合并进请求体的扩展字段（layout_id、电话号码、poll_id 等）',
 	},
 	{
 		displayName: '报名配置JSON',

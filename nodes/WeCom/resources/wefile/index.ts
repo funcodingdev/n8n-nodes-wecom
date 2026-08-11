@@ -25,6 +25,7 @@ import { assignVipAccountsDescription } from './assignVipAccounts';
 import { revokeVipAccountsDescription } from './revokeVipAccounts';
 import { getVipAccountsListDescription } from './getVipAccountsList';
 import { getProInfoDescription } from './getProInfo';
+import { chunkUploadOpsDescription } from './chunkUploadOps';
 
 // 资源 value=wefile；官方微盘 API 前缀 /cgi-bin/wedrive/*
 const showOnlyForWefile = {
@@ -201,6 +202,30 @@ export const wefileDescription: INodeProperties[] = [
 				description: '获取微盘专业版信息',
 				action: '获取专业版信息',
 			},
+			{
+				name: '[高级功能] 获取容量信息',
+				value: 'getCapacity',
+				description: 'wedrive/mng_capacity',
+				action: '获取容量信息',
+			},
+			{
+				name: '[分片上传] 初始化分片上传',
+				value: 'uploadInit',
+				description: 'wedrive/file_upload_init',
+				action: '初始化分片上传',
+			},
+			{
+				name: '[分片上传] 上传分片',
+				value: 'uploadPart',
+				description: 'wedrive/file_upload_part',
+				action: '上传分片',
+			},
+			{
+				name: '[分片上传] 完成分片上传',
+				value: 'uploadFinish',
+				description: 'wedrive/file_upload_finish',
+				action: '完成分片上传',
+			},
 		],
 		default: 'getFileList',
 	},
@@ -230,4 +255,5 @@ export const wefileDescription: INodeProperties[] = [
 	...revokeVipAccountsDescription,
 	...getVipAccountsListDescription,
 	...getProInfoDescription,
+	...chunkUploadOpsDescription,
 ];
