@@ -20,13 +20,13 @@ export const setVacationQuotaDescription: INodeProperties[] = [
 	{
 		displayName: '假期配置ID',
 		name: 'vacation_id',
-		type: 'string',
+		type: 'number',
 		required: true,
 		displayOptions: {
 			show: showOnlyForSetVacationQuota,
 		},
-		default: '',
-		description: '假期类型的配置ID，可通过获取假期配置接口获取',
+		default: 0,
+		description: 'vacation_id，可通过获取假期配置接口获取',
 	},
 	{
 		displayName: '剩余假期时长',

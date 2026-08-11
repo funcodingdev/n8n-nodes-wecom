@@ -178,7 +178,7 @@ export async function executeApproval(
 				// https://developer.work.weixin.qq.com/document/path/94213
 				// 修改成员假期余额
 				const userid = this.getNodeParameter('userid', i) as string;
-				const vacation_id = this.getNodeParameter('vacation_id', i) as string;
+				const vacation_id = Number(this.getNodeParameter('vacation_id', i) as string | number);
 				const leftduration = this.getNodeParameter('leftduration', i) as number;
 				const time_attr = this.getNodeParameter('time_attr', i, 0) as number;
 				const remarks = this.getNodeParameter('remarks', i, '') as string;
