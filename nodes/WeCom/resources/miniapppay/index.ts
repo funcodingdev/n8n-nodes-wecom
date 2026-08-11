@@ -335,6 +335,18 @@ export const miniapppayDescription: INodeProperties[] = [
 		displayOptions: { show: { ...showOnly, operation: ['refund'] } },
 		default: '',
 	},
+	{
+		displayName: '资金账户',
+		name: 'funds_account',
+		type: 'options',
+		displayOptions: { show: { ...showOnly, operation: ['refund'] } },
+		options: [
+			{ name: '不指定', value: '' },
+			{ name: '可用余额 AVAILABLE', value: 'AVAILABLE' },
+		],
+		default: '',
+		description: '待分账状态订单可填 AVAILABLE，从二级商户余额退款',
+	},
 	// getBill
 	{
 		displayName: '账单日期',

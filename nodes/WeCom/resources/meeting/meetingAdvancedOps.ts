@@ -69,6 +69,46 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: '默认布局ID',
+		name: 'selected_layout_id',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['setDefaultLayout'] },
+		},
+		default: '',
+		description: 'selected_layout_id，空字符串表示恢复默认原始布局',
+	},
+	{
+		displayName: '投票ID',
+		name: 'poll_id_adv',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['getPollDetail'] },
+		},
+		default: '',
+		description: 'poll_id',
+	},
+	{
+		displayName: '操作者UserID',
+		name: 'poll_operator_userid',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['getPollDetail', 'getPollList'] },
+		},
+		default: '',
+		description: 'operator_userid',
+	},
+	{
+		displayName: '操作者实例ID',
+		name: 'poll_instance_id',
+		type: 'number',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['getPollDetail', 'getPollList'] },
+		},
+		default: 1,
+		description: 'instance_id，操作者入会设备',
+	},
+	{
 		displayName: '扩展请求JSON',
 		name: 'extraJson',
 		type: 'json',

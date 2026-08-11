@@ -537,8 +537,12 @@ export async function executeMeeting(
 				);
 			} else if (operation === 'setDefaultLayout') {
 				const meetingid = this.getNodeParameter('meetingid', i) as string;
+				const selected_layout_id = this.getNodeParameter('selected_layout_id', i, '') as string;
 				const extraJson = this.getNodeParameter('extraJson', i, '{}') as string;
-				const body: IDataObject = { meetingid };
+				const body: IDataObject = {
+					meetingid,
+					selected_layout_id,
+				};
 				try {
 					Object.assign(body, JSON.parse(extraJson || '{}') as IDataObject);
 					body.meetingid = meetingid;
@@ -592,8 +596,15 @@ export async function executeMeeting(
 				);
 			} else if (operation === 'getPollList') {
 				const meetingid = this.getNodeParameter('meetingid', i) as string;
+				const poll_operator_userid = this.getNodeParameter(
+					'poll_operator_userid',
+					i,
+					'',
+				) as string;
+				const poll_instance_id = this.getNodeParameter('poll_instance_id', i, 1) as number;
 				const extraJson = this.getNodeParameter('extraJson', i, '{}') as string;
-				const body: IDataObject = { meetingid };
+				const body: IDataObject = { meetingid, instance_id: poll_instance_id };
+				if (poll_operator_userid) body.operator_userid = poll_operator_userid;
 				try {
 					Object.assign(body, JSON.parse(extraJson || '{}') as IDataObject);
 					body.meetingid = meetingid;
@@ -608,8 +619,20 @@ export async function executeMeeting(
 				);
 			} else if (operation === 'getPollDetail') {
 				const meetingid = this.getNodeParameter('meetingid', i) as string;
+				const poll_id_adv = this.getNodeParameter('poll_id_adv', i, '') as string;
+				const poll_operator_userid = this.getNodeParameter(
+					'poll_operator_userid',
+					i,
+					'',
+				) as string;
+				const poll_instance_id = this.getNodeParameter('poll_instance_id', i, 1) as number;
 				const extraJson = this.getNodeParameter('extraJson', i, '{}') as string;
-				const body: IDataObject = { meetingid };
+				const body: IDataObject = {
+					meetingid,
+					instance_id: poll_instance_id,
+				};
+				if (poll_id_adv) body.poll_id = poll_id_adv;
+				if (poll_operator_userid) body.operator_userid = poll_operator_userid;
 				try {
 					Object.assign(body, JSON.parse(extraJson || '{}') as IDataObject);
 					body.meetingid = meetingid;

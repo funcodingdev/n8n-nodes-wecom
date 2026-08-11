@@ -110,6 +110,7 @@ export async function executeMiniapppay(
 				const total_amount = this.getNodeParameter('total_amount', i) as number;
 				const amount_currency = this.getNodeParameter('amount_currency', i, 'CNY') as string;
 				const reason = this.getNodeParameter('reason', i, '') as string;
+				const funds_account = this.getNodeParameter('funds_account', i, '') as string;
 
 				const body: IDataObject = {
 					mchid,
@@ -123,6 +124,7 @@ export async function executeMiniapppay(
 					},
 				};
 				if (reason) body.reason = reason;
+				if (funds_account) body.funds_account = funds_account;
 
 				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/miniapppay/refund', body);
 			} else if (operation === 'getRefundDetail') {
