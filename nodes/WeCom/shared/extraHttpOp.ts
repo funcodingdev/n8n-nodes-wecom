@@ -58,7 +58,8 @@ export function extraHttpOpOptions(ops: ExtraHttpOp[]) {
 		name: o.name,
 		value: o.id,
 		action: o.action,
-		description: `${o.method} ${o.path}`,
+		// 面向用户：展示操作说明，不暴露内部 API 路径
+		description: o.action || o.name,
 	}));
 }
 

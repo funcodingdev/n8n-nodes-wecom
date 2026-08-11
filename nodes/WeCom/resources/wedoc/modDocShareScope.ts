@@ -126,7 +126,6 @@ export const modDocShareScopeDescription: INodeProperties[] = [
 						name: 'departmentid',
 						type: 'number',
 						default: 0,
-						description: '部门 ID',
 					},
 					{
 						displayName: '权限',

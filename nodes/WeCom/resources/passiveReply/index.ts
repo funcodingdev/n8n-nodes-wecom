@@ -119,7 +119,6 @@ export const passiveReplyDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '视频标题（可选）',
 	},
 	{
 		displayName: '视频描述',
@@ -136,7 +135,6 @@ export const passiveReplyDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '视频描述（可选）',
 	},
 	{
 		displayName: '图文消息',
@@ -329,7 +327,6 @@ export const passiveReplyDescription: INodeProperties[] = [
 				replyType: ['update_template_card'],
 			},
 		},
-		description: '可选。关键数据样式',
 		options: [
 			{
 				name: 'emphasisContent',
@@ -902,7 +899,6 @@ export const passiveReplyDescription: INodeProperties[] = [
 				replyType: ['update_template_card'],
 			},
 		},
-		description: '可选。卡片右上角更多操作按钮',
 		options: [
 			{
 				name: 'actionMenu',

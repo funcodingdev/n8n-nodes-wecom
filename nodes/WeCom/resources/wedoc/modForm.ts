@@ -32,7 +32,6 @@ export const modFormDescription: INodeProperties[] = [
 				name: 'allow_anonymous',
 				type: 'boolean',
 				default: false,
-				description: '是否允许匿名填写',
 			},
 			{
 				displayName: '限制每人填写次数',

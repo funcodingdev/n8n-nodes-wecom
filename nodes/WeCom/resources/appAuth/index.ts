@@ -15,7 +15,7 @@ export const appAuthDescription: INodeProperties[] = [
 			{
 				name: '[第三方应用授权] 获取第三方应用凭证',
 				value: 'getSuiteToken',
-				description: '获取第三方应用凭证（suite_access_token）',
+				description: '获取第三方应用凭证',
 				action: '获取第三方应用凭证',
 			},
 			{
@@ -45,7 +45,7 @@ export const appAuthDescription: INodeProperties[] = [
 			{
 				name: '[第三方应用授权] 获取企业凭证',
 				value: 'getCorpToken',
-				description: '第三方服务商在取得企业的永久授权码后，通过此接口可以获取到企业的access_token',
+				description: '使用永久授权码获取企业访问凭证',
 				action: '获取企业凭证',
 			},
 			{

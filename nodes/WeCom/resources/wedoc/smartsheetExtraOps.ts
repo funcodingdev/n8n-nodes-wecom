@@ -58,7 +58,7 @@ export const smartsheetExtraOpsDescription: INodeProperties[] = [
 		type: 'json',
 		displayOptions: show(['createPrivRule', 'modPrivRuleMember', 'updateSheetPrivFull']),
 		default: '{}',
-		description: '合并进请求体的扩展字段（成员、权限明细等）',
+		description: '额外请求字段，按文档填写（如成员、权限明细等）',
 	},
 	{
 		displayName: '子表ID',

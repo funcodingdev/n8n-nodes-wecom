@@ -36,7 +36,7 @@ export const agentDescription: INodeProperties[] = [
 				name: '[应用管理] 获取应用列表',
 				value: 'listAgents',
 				action: '获取应用列表',
-				description: '获取access_token对应的应用列表，企业仅可获取当前凭证对应的应用；第三方仅可获取被授权的应用',
+				description: '获取当前凭证可访问的应用列表',
 			},
 			{
 				name: '[应用管理] 设置应用',

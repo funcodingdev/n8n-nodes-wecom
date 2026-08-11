@@ -45,7 +45,6 @@ export const updateProductAlbumDescription: INodeProperties[] = [
 		type: 'boolean',
 		default: false,
 		displayOptions: { show: showOnly },
-		description: '是否更新商品图片',
 	},
 	{
 		displayName: '商品图片',

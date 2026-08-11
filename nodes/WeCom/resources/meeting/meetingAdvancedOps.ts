@@ -29,7 +29,6 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'meetingid',
 	},
 	{
 		displayName: '扩展请求JSON',
@@ -49,7 +48,7 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: '{}',
-		description: '合并进请求体的扩展字段（layout_id、电话号码、poll_id 等）',
+		description: '额外请求字段，按会议接口文档填写（如布局 ID、电话号码、投票 ID 等）',
 	},
 	{
 		displayName: '报名配置JSON',
@@ -117,7 +116,7 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 			show: { resource: ['meeting'], operation: ['listRooms'] },
 		},
 		default: '',
-		description: '模糊匹配 meeting_room_name（可选）',
+		description: '按会议室名称模糊筛选（可选）',
 	},
 	{
 		displayName: 'Rooms会议室ID',
@@ -131,7 +130,6 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'meeting_room_id',
 	},
 	{
 		displayName: 'Rooms会议室ID列表',
@@ -155,7 +153,7 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 			show: { resource: ['meeting'], operation: ['setCohost'] },
 		},
 		default: '',
-		description: '设置为联席主持人的 userid，逗号分隔',
+		description: '联席主持人成员账号，多个用逗号分隔',
 	},
 	{
 		displayName: '会中控制JSON',

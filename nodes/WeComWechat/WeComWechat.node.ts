@@ -60,18 +60,17 @@ export class WeComWechat implements INodeType {
 					{
 						name: '微信客服',
 						value: 'kf',
-						description: '管理微信客服（客服账号、接待人员、消息收发等）',
+						description: '微信客服管理（客服账号、接待人员、消息收发等）',
 					},
 					{
 						name: '家校应用',
 						value: 'school',
-						description: '家校应用（健康上报、上课直播、班级收款）',
+						description: '家校应用管理（健康上报、上课直播、班级收款等）',
 					},
 					{
 						name: '政民沟通',
 						value: 'living',
-						description:
-							'政民沟通（居民联系）：网格/事件类别/巡查上报/居民上报。对应官方 report/*，资源 value 历史为 living（非直播 live）',
+						description: '政民沟通管理（网格、事件类别、巡查上报、居民上报等）',
 					},
 				],
 				default: 'externalContact',

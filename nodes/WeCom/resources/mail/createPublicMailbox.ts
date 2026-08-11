@@ -72,6 +72,6 @@ export const createPublicMailboxDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: { show: { ...showOnly, create_auth_code: [1] } },
 		default: '',
-		description: 'auth_code_info.remark',
+		description: '客户端专用密码的备注说明',
 	},
 ];

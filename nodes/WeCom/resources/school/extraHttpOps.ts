@@ -39,7 +39,7 @@ export const schoolExtraHttpOpsDescription: INodeProperties[] = [
 			show: { resource: ['school'], operation: schoolExtraHttpOpsOptionValues },
 		},
 		default: '{}',
-		description: 'POST 请求体，字段与官方文档一致；GET 可留空',
+		description: '请求体 JSON，字段名与企业微信接口文档保持一致；GET 请求可留空',
 	},
 	{
 		displayName: 'Query参数JSON',
@@ -49,6 +49,6 @@ export const schoolExtraHttpOpsDescription: INodeProperties[] = [
 			show: { resource: ['school'], operation: schoolExtraHttpOpsOptionValues },
 		},
 		default: '{}',
-		description: '查询参数（access_token 自动附加）；如 code、userid 等',
+		description: 'URL 查询参数（访问凭证会自动附加，无需填写）',
 	},
 ];

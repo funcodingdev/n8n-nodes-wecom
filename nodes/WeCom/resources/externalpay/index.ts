@@ -14,31 +14,31 @@ export const externalpayDescription: INodeProperties[] = [
 				name: '[商户号] 查询商户号详情',
 				value: 'getMerchant',
 				action: '查询商户号详情',
-				description: 'externalpay/getmerchant',
+				description: '查询商户号详情',
 			},
 			{
 				name: '[商户号] 设置商户号使用范围',
 				value: 'setMchUseScope',
 				action: '设置商户号使用范围',
-				description: 'externalpay/set_mch_use_scope',
+				description: '设置商户号可使用范围',
 			},
 			{
 				name: '[收款] 获取对外收款记录',
 				value: 'getBillList',
 				action: '获取对外收款记录',
-				description: 'externalpay/get_bill_list',
+				description: '获取对外收款记录',
 			},
 			{
 				name: '[收款] 获取收款项目商户单号',
 				value: 'getPaymentInfo',
 				action: '获取收款项目商户单号',
-				description: 'externalpay/get_payment_info',
+				description: '获取收款项目的商户单号',
 			},
 			{
 				name: '[资金] 获取资金流水',
 				value: 'getFundFlow',
 				action: '获取资金流水',
-				description: 'externalpay/get_fund_flow',
+				description: '获取资金流水',
 			},
 		],
 		default: 'getBillList',
@@ -50,7 +50,7 @@ export const externalpayDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly },
 		default: '',
 		description:
-			'本资源覆盖企业微信 OpenAPI 对外收款（/cgi-bin/externalpay/*）。企业红包、向员工付款见资源「企业红包与向员工付款」(mchpay，商户 XML+证书)。小程序进件见「小程序对外收款」apply_mch。',
+			'管理企业对外收款，包括商户号、收款记录与资金流水。企业红包、向员工付款请使用「企业红包与向员工付款」；小程序进件请使用「小程序对外收款」。',
 	},
 	// getMerchant / setMchUseScope
 	{

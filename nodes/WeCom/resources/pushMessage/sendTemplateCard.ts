@@ -384,7 +384,6 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 							},
 						],
 						default: 1,
-						description: '跳转链接类型',
 					},
 					{
 						displayName: '跳转链接',

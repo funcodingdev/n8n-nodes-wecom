@@ -122,7 +122,7 @@ export const schoolDescription: INodeProperties[] = [
 			{
 				name: '[家校沟通] 获取家校访问用户身份',
 				value: 'getUserInfo3rd',
-				description: '获取家校访问用户身份（需要suite_access_token）',
+				description: '获取家校访问用户身份',
 				action: '获取家校访问用户身份',
 			},
 			{

@@ -483,7 +483,6 @@ export const accountIdDescription: INodeProperties[] = [
 			{
 				name: 'External Userid',
 				value: 3,
-				description: 'External_userid',
 			},
 		],
 		default: 1,

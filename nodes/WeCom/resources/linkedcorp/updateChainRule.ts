@@ -35,7 +35,6 @@ export const updateChainRuleDescription: INodeProperties[] = [
 		type: 'boolean',
 		displayOptions: { show: showOnly },
 		default: false,
-		description: '是否更新匹配配置',
 	},
 	{
 		displayName: '匹配类型',

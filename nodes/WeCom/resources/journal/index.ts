@@ -41,7 +41,7 @@ export const journalDescription: INodeProperties[] = [
 				name: '[汇报附件] 下载微盘文件',
 				value: 'downloadFile',
 				action: '下载微盘文件',
-				description: '下载汇报中的微盘附件（oa/journal/download_wedrive_file）',
+				description: '下载汇报记录中的微盘附件',
 			},
 		],
 		default: 'getRecordList',

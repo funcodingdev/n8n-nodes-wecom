@@ -23,6 +23,5 @@ export const deleteClientPasswordDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: showOnly },
 		default: 0,
-		description: 'auth_code_id',
 	},
 ];

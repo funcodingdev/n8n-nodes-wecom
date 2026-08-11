@@ -207,7 +207,6 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 				template_card_input_mode: ['form'],
 			},
 		},
-		description: '关键数据样式',
 		options: [
 			{
 				name: 'emphasisInfo',
@@ -494,7 +493,6 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 							},
 						],
 						default: 0,
-						description: '跳转链接类型',
 					},
 					{
 						displayName: '标题',
@@ -797,7 +795,6 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 							},
 						],
 						default: 0,
-						description: '按钮点击事件类型',
 					},
 					{
 						displayName: '按钮文案',
@@ -915,7 +912,6 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						name: 'disable',
 						type: 'boolean',
 						default: false,
-						description: '是否可以选择状态',
 					},
 					{
 						displayName: '选项列表',
@@ -1011,7 +1007,6 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 				card_type: ['vote_interaction'],
 			},
 		},
-		description: '是否可以选择状态',
 	},
 	{
 		displayName: '选项列表（可选）',
@@ -1183,7 +1178,6 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 							},
 						],
 						default: 0,
-						description: '左图右文样式区域点击事件',
 					},
 					{
 						displayName: '图片链接',
@@ -1311,7 +1305,6 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 				template_card_input_mode: ['form'],
 			},
 		},
-		description: '卡片右上角更多操作按钮',
 		options: [
 			{
 				name: 'menuInfo',

@@ -23,13 +23,11 @@ export const addSmartsheetSheetDescription: INodeProperties[] = [
 				name: 'sheet_title',
 				type: 'string',
 				default: '',
-				description: '智能表标题（可选）',
 			},
 			{
 				displayName: '智能表下标',
 				name: 'sheet_index',
 				type: 'number',
-				description: '智能表下标（可选）',
 				default: 0,
 			},
 		],

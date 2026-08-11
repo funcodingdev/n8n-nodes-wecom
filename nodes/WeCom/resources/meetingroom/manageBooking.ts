@@ -10,12 +10,12 @@ export const manageBookingDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: showOnly },
 		options: [
-			{ name: '查询预定信息', value: 'list', description: '按时间段查询会议室预定情况 get_booking_info' },
-			{ name: '按预定ID查询详情', value: 'get', description: 'bookinfo/get' },
-			{ name: '预定会议室', value: 'book', description: 'book' },
-			{ name: '通过日程预定', value: 'bookBySchedule', description: 'book_by_schedule' },
-			{ name: '通过会议预定', value: 'bookByMeeting', description: 'book_by_meeting' },
-			{ name: '取消预定', value: 'cancel', description: 'cancel_book' },
+			{ name: '查询预定信息', value: 'list' },
+			{ name: '按预定ID查询详情', value: 'get' },
+			{ name: '预定会议室', value: 'book' },
+			{ name: '通过日程预定', value: 'bookBySchedule' },
+			{ name: '通过会议预定', value: 'bookByMeeting' },
+			{ name: '取消预定', value: 'cancel' },
 		],
 		default: 'list',
 		description:
@@ -107,7 +107,6 @@ export const manageBookingDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: { show: { ...showOnly, action: ['book'] } },
 		default: '',
-		description: '会议主题（可选）',
 	},
 	{
 		displayName: '预定人UserID',

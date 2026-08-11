@@ -14,27 +14,25 @@ export const mchpayDescription: INodeProperties[] = [
 				name: '[企业红包] 发放企业红包',
 				value: 'sendRedpack',
 				action: '发放企业红包',
-				description:
-					'mmpaymkttransfers/sendworkwxredpack。<a href="https://developer.work.weixin.qq.com/document/path/90275" target="_blank">官方文档</a>',
+				description: '向成员发放企业红包',
 			},
 			{
 				name: '[企业红包] 查询红包记录',
 				value: 'queryRedpack',
 				action: '查询红包记录',
-				description: 'mmpaymkttransfers/queryworkwxredpack',
+				description: '查询企业红包发放结果',
 			},
 			{
 				name: '[向员工付款] 付款',
 				value: 'payToEmployee',
 				action: '向员工付款',
-				description:
-					'mmpaymkttransfers/promotion/paywwsptrans2pocket。<a href="https://developer.work.weixin.qq.com/document/path/90278" target="_blank">官方文档</a>',
+				description: '向员工发起企业付款',
 			},
 			{
 				name: '[向员工付款] 查询付款记录',
 				value: 'queryPayToEmployee',
 				action: '查询付款记录',
-				description: 'mmpaymkttransfers/promotion/querywwsptrans2pocket',
+				description: '查询向员工付款的结果',
 			},
 		],
 		default: 'sendRedpack',
@@ -46,7 +44,7 @@ export const mchpayDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly },
 		default: '',
 		description:
-			'本资源调用 api.mch.weixin.qq.com 商户 XML 接口，需配置「企业微信商户支付」凭证（商户号、API 密钥、双向证书、应用 secret）。openid 可用通讯录 convertToOpenid 获取。',
+			'使用前请配置「企业微信商户支付」凭证（商户号、密钥与证书）。收款人 OpenID 可先用通讯录「userid 与 openid 互换」获取。',
 	},
 	// --- 红包 ---
 	{
@@ -56,7 +54,7 @@ export const mchpayDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { ...showOnly, operation: ['sendRedpack', 'queryRedpack'] } },
 		default: '',
-		description: 'mch_billno，唯一',
+		description: '商户订单号，需保证唯一；超时重试时请使用原单号',
 	},
 	{
 		displayName: '接收人 OpenID',
@@ -65,7 +63,7 @@ export const mchpayDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { ...showOnly, operation: ['sendRedpack'] } },
 		default: '',
-		description: 're_openid，wxappid 下的 openid',
+		description: '收款用户在企业微信下的 OpenID',
 	},
 	{
 		displayName: '金额(分)',
@@ -74,7 +72,7 @@ export const mchpayDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { ...showOnly, operation: ['sendRedpack'] } },
 		default: 100,
-		description: 'total_amount，单位分',
+		description: '红包金额，单位：分（默认单笔不小于 1 元）',
 	},
 	{
 		displayName: '祝福语',
@@ -91,7 +89,6 @@ export const mchpayDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { ...showOnly, operation: ['sendRedpack', 'payToEmployee'] } },
 		default: '',
-		description: 'act_name',
 	},
 	{
 		displayName: '备注',
@@ -107,7 +104,7 @@ export const mchpayDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: { show: { ...showOnly, operation: ['sendRedpack', 'payToEmployee'] } },
 		default: '',
-		description: '与 sender_name 互斥；空则用凭证默认 agentId',
+		description: '以企业应用名义发红包时填写；与「发送者名称」二选一，空则使用凭证中的默认应用',
 	},
 	{
 		displayName: '发送者名称',
@@ -115,15 +112,15 @@ export const mchpayDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: { show: { ...showOnly, operation: ['sendRedpack'] } },
 		default: '',
-		description: '以个人名义发送时填写，与 agentid 互斥',
+		description: '以个人名义发红包时填写；与「应用 AgentID」二选一',
 	},
 	{
-		displayName: '场景 scene_id',
+		displayName: '场景 ID',
 		name: 'scene_id',
 		type: 'string',
 		displayOptions: { show: { ...showOnly, operation: ['sendRedpack'] } },
 		default: '',
-		description: '金额>200元或<1元时必填，如 PRODUCT_4',
+		description: '金额大于 200 元或小于 1 元时必填，例如 PRODUCT_4（企业内部福利）',
 	},
 	{
 		displayName: '扩展字段JSON',
@@ -131,7 +128,7 @@ export const mchpayDescription: INodeProperties[] = [
 		type: 'json',
 		displayOptions: { show: showOnly },
 		default: '{}',
-		description: '合并进 XML 的额外字段（如 sender_header_media_id）',
+		description: '额外业务字段，按企业微信支付文档填写（如发送者头像素材 ID）',
 	},
 	// --- 付款 ---
 	{
@@ -143,7 +140,6 @@ export const mchpayDescription: INodeProperties[] = [
 			show: { ...showOnly, operation: ['payToEmployee', 'queryPayToEmployee'] },
 		},
 		default: '',
-		description: 'partner_trade_no',
 	},
 	{
 		displayName: '员工 OpenID',

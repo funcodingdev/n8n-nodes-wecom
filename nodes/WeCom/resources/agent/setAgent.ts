@@ -108,6 +108,5 @@ export const setAgentDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlySetAgent,
 		},
-		description: '是否上报用户进入应用事件',
-	},
+		},
 ];

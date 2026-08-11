@@ -39,7 +39,6 @@ export const updateInterceptRuleDescription: INodeProperties[] = [
 		type: 'boolean',
 		default: false,
 		displayOptions: { show: showOnly },
-		description: '是否更新拦截方式',
 	},
 	{
 		displayName: '拦截方式',
