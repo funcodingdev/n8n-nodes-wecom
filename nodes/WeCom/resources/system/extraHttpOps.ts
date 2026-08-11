@@ -5,7 +5,7 @@ import { extraHttpOpOptions } from '../../shared/extraHttpOp';
 /** 系统 / 身份验证 / JS-SDK / 小程序登录 */
 export const systemExtraHttpOps: ExtraHttpOp[] = [
 	{ id: 'authGetTfaInfo', name: '[身份验证] 获取二次验证信息', action: '获取二次验证信息', description: '获取二次验证信息', path: '/cgi-bin/auth/get_tfa_info', method: 'GET' },
-	{ id: 'authGetuserdetail', name: '[身份验证] 获取访问用户敏感信息', action: '获取访问用户敏感信息', description: '获取访问用户敏感信息', path: '/cgi-bin/auth/getuserdetail', method: 'GET' },
+	{ id: 'authGetuserdetail', name: '[身份验证] 获取访问用户敏感信息', action: '获取访问用户敏感信息', description: '获取访问用户敏感信息', path: '/cgi-bin/auth/getuserdetail', method: 'POST' },
 	{ id: 'authGetuserinfo', name: '[身份验证] 获取访问用户身份', action: '获取访问用户身份', description: '获取访问用户身份', path: '/cgi-bin/auth/getuserinfo', method: 'GET' },
 	{ id: 'userGetuserinfo', name: '[身份验证] 获取成员身份', action: '获取成员身份', description: '获取成员身份', path: '/cgi-bin/user/getuserinfo', method: 'GET' },
 	{ id: 'userTfaSucc', name: '[身份验证] 二次验证成功', action: '二次验证成功', description: '二次验证成功', path: '/cgi-bin/user/tfa_succ', method: 'POST' },
@@ -46,6 +46,16 @@ export const systemExtraHttpOpsDescription: INodeProperties[] = [
 		description: '网页授权或小程序登录返回的 code',
 	},
 	{
+		displayName: '用户票据 user_ticket',
+		name: 'sys_user_ticket',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['system'], operation: ['authGetuserdetail'] },
+		},
+		default: '',
+		description: '获取访问用户身份接口返回的 user_ticket，用于拉取敏感信息',
+	},
+	{
 		displayName: '成员UserID',
 		name: 'sys_userid',
 		type: 'string',
@@ -54,6 +64,20 @@ export const systemExtraHttpOpsDescription: INodeProperties[] = [
 		},
 		default: '',
 		description: '完成二次验证的成员 userid',
+	},
+	{
+		displayName: 'Ticket类型',
+		name: 'ticket_type',
+		type: 'options',
+		displayOptions: {
+			show: { resource: ['system'], operation: ['ticketGet'] },
+		},
+		options: [
+			{ name: '企业 jsapi_ticket (agent_config)', value: 'agent_config' },
+			{ name: '默认', value: '' },
+		],
+		default: 'agent_config',
+		description: 'ticket/get 的 type 参数，企业身份配置常用 agent_config',
 	},
 	{
 		displayName: '请求体JSON',

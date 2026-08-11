@@ -132,6 +132,153 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		default: 100,
 	},
 	{
+		displayName: '规则组名称',
+		name: 'strategy_name',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactCustomerStrategyCreate', 'externalcontactCustomerStrategyEdit'],
+			},
+		},
+		default: '',
+		description: '规则组名称 strategy_name',
+	},
+	{
+		displayName: '父规则组ID',
+		name: 'parent_id',
+		type: 'number',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactCustomerStrategyCreate'],
+			},
+		},
+		default: 0,
+		description: '父规则组 id，顶级填 0',
+	},
+	{
+		displayName: '管理员UserID列表',
+		name: 'admin_list',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactCustomerStrategyCreate', 'externalcontactCustomerStrategyEdit'],
+			},
+		},
+		default: '',
+		placeholder: 'zhangsan,lisi',
+		description: '规则组管理员 userid，逗号分隔，最多 20 个',
+	},
+	{
+		displayName: '管理范围JSON',
+		name: 'range_json',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactCustomerStrategyCreate', 'externalcontactCustomerStrategyEdit'],
+			},
+		},
+		default: '[]',
+		description: '管理范围节点数组：type=1 成员(userid) / type=2 部门(partyid)',
+	},
+	{
+		displayName: '权限配置JSON',
+		name: 'privilege_json',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactCustomerStrategyCreate', 'externalcontactCustomerStrategyEdit'],
+			},
+		},
+		default: '{}',
+		description: 'privilege 权限开关；有父规则组时会被忽略',
+	},
+	{
+		displayName: '标签组ID',
+		name: 'tag_group_id',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactAddStrategyTag', 'externalcontactEditStrategyTag'],
+			},
+		},
+		default: '',
+		description: '标签组 group_id（可选）',
+	},
+	{
+		displayName: '标签组名称',
+		name: 'tag_group_name',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactAddStrategyTag', 'externalcontactEditStrategyTag'],
+			},
+		},
+		default: '',
+		description: '标签组名称，最长 30 字符',
+	},
+	{
+		displayName: '标签列表JSON',
+		name: 'tag_list_json',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactAddStrategyTag', 'externalcontactEditStrategyTag', 'externalcontactDelStrategyTag'],
+			},
+		},
+		default: '[]',
+		description: '标签数组，如 [{"name":"标签1","order":1}] 或删除时的 tag_id 列表',
+	},
+	{
+		displayName: '订阅场景/配置JSON',
+		name: 'subscribe_config_json',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: [
+					'externalcontactSetSubscribeMode',
+					'externalcontactGetSubscribeMode',
+					'externalcontactGetSubscribeQrCode',
+				],
+			},
+		},
+		default: '{}',
+		description: '「联系我」相关配置字段，与官方 subscribe 接口一致',
+	},
+	{
+		displayName: '企业群发消息ID',
+		name: 'msgid',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactGetGroupMsgResult', 'crmGetGroupMsgResult'],
+			},
+		},
+		default: '',
+	},
+	{
+		displayName: '接替成员UserID',
+		name: 'takeover_userid',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactTransfer', 'crmTransferExternalContact'],
+			},
+		},
+		default: '',
+		description: '客户接替成员 userid',
+	},
+	{
 		displayName: '请求体JSON',
 		name: 'requestBody',
 		type: 'json',

@@ -40,6 +40,16 @@ export const approvalExtraHttpOpsDescription: INodeProperties[] = [
 		description: '结束时间戳（秒）',
 	},
 	{
+		displayName: '下一条审批单号',
+		name: 'next_spnum',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['approval'], operation: ['getapprovaldata'] },
+		},
+		default: '',
+		description: '分页用 next_spnum，首次可不传',
+	},
+	{
 		displayName: '请求体JSON',
 		name: 'requestBody',
 		type: 'json',

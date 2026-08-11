@@ -32,9 +32,20 @@ export async function executeSystem(
 				const qsDefaults: IDataObject = {};
 				const sys_code = this.getNodeParameter('sys_code', index, '') as string;
 				const sys_userid = this.getNodeParameter('sys_userid', index, '') as string;
+				const sys_user_ticket = this.getNodeParameter('sys_user_ticket', index, '') as string;
+				const ticket_type = this.getNodeParameter('ticket_type', index, '') as string;
 				if (sys_code) qsDefaults.code = sys_code;
-				if (sys_code && operation === 'miniprogramJscode2session') qsDefaults.js_code = sys_code;
+				if (sys_code && operation === 'miniprogramJscode2session') {
+					qsDefaults.js_code = sys_code;
+					// 小程序登录凭证校验常用 grant_type
+					if (!qsDefaults.grant_type) qsDefaults.grant_type = 'authorization_code';
+				}
 				if (sys_userid) bodyDefaults.userid = sys_userid;
+				if (sys_user_ticket) {
+					// 官方：POST /auth/getuserdetail 请求体 user_ticket
+					bodyDefaults.user_ticket = sys_user_ticket;
+				}
+				if (ticket_type) qsDefaults.type = ticket_type;
 				responseData = await executeExtraHttpOp.call(
 					this,
 					systemExtraHttpOpsById[operation],

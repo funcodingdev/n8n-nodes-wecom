@@ -1977,11 +1977,52 @@ export async function executeExternalContact(
 				const ec_userid = this.getNodeParameter('ec_userid', i, '') as string;
 				const ec_cursor = this.getNodeParameter('ec_cursor', i, '') as string;
 				const ec_limit = this.getNodeParameter('ec_limit', i, 0) as number;
+				const strategy_name = this.getNodeParameter('strategy_name', i, '') as string;
+				const parent_id = this.getNodeParameter('parent_id', i, 0) as number;
+				const admin_list = this.getNodeParameter('admin_list', i, '') as string;
+				const range_json = this.getNodeParameter('range_json', i, '[]') as string;
+				const privilege_json = this.getNodeParameter('privilege_json', i, '{}') as string;
+				const tag_group_id = this.getNodeParameter('tag_group_id', i, '') as string;
+				const tag_group_name = this.getNodeParameter('tag_group_name', i, '') as string;
+				const tag_list_json = this.getNodeParameter('tag_list_json', i, '[]') as string;
+				const msgid = this.getNodeParameter('msgid', i, '') as string;
+				const takeover_userid = this.getNodeParameter('takeover_userid', i, '') as string;
+				const subscribe_config_json = this.getNodeParameter('subscribe_config_json', i, '{}') as string;
 				if (strategy_id) bodyDefaults.strategy_id = strategy_id;
 				if (ec_external_userid) bodyDefaults.external_userid = ec_external_userid;
 				if (ec_userid) bodyDefaults.userid = ec_userid;
 				if (ec_cursor) bodyDefaults.cursor = ec_cursor;
 				if (ec_limit) bodyDefaults.limit = ec_limit;
+				if (strategy_name) bodyDefaults.strategy_name = strategy_name;
+				if (parent_id) bodyDefaults.parent_id = parent_id;
+				if (admin_list) {
+					bodyDefaults.admin_list = admin_list.split(',').map((s) => s.trim()).filter(Boolean);
+				}
+				try {
+					const range = JSON.parse(range_json || '[]');
+					if (Array.isArray(range) && range.length) bodyDefaults.range = range;
+				} catch { /* ignore */ }
+				try {
+					const privilege = JSON.parse(privilege_json || '{}');
+					if (privilege && typeof privilege === 'object' && Object.keys(privilege as object).length) {
+						bodyDefaults.privilege = privilege;
+					}
+				} catch { /* ignore */ }
+				if (tag_group_id) bodyDefaults.group_id = tag_group_id;
+				if (tag_group_name) bodyDefaults.group_name = tag_group_name;
+				try {
+					const tags = JSON.parse(tag_list_json || '[]');
+					if (Array.isArray(tags) && tags.length) {
+						if (operation === 'externalcontactDelStrategyTag') bodyDefaults.tag_id = tags;
+						else bodyDefaults.tag = tags;
+					}
+				} catch { /* ignore */ }
+				if (msgid) bodyDefaults.msgid = msgid;
+				if (takeover_userid) bodyDefaults.takeover_userid = takeover_userid;
+				try {
+					const sub = JSON.parse(subscribe_config_json || '{}');
+					if (sub && typeof sub === 'object') Object.assign(bodyDefaults, sub);
+				} catch { /* ignore */ }
 				response = await executeExtraHttpOp.call(
 					this,
 					externalContactExtraHttpOpsById[operation],

@@ -91,6 +91,19 @@ export const schoolExtraHttpOpsDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
+		displayName: '分页next_key',
+		name: 'school_next_key',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['school'],
+				operation: ['livingGetUnwatchStat', 'livingGetWatchStat'],
+			},
+		},
+		default: '',
+		description: '上次返回的 next_key，首次可不填',
+	},
+	{
 		displayName: '模式值',
 		name: 'school_mode',
 		type: 'number',
