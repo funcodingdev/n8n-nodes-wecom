@@ -581,13 +581,13 @@ export class WeComTrigger implements INodeType {
 				hint: '开启后会在输出中包含原始的 XML 字符串（解密后的XML）',
 			},
 			{
-				displayName: '自动恢复原生 HITL 审批',
+				displayName: '自动处理企业微信内的审批选择',
 				name: 'autoResumeNativeHitl',
 				type: 'boolean',
 				default: true,
 				description:
-					'是否自动识别由本插件生成的原生审批按钮事件，并恢复对应的 n8n 等待执行',
-				hint: '仅处理带有有效签名的 n8n HITL EventKey；普通模板卡片事件不受影响',
+					'开启后，审批人在企业微信中选择操作时，会自动继续对应的等待工作流',
+				hint: '仅处理由本插件发送的审批卡片，不影响其他模板卡片事件',
 			},
 		],
 	};
@@ -767,14 +767,14 @@ export class WeComTrigger implements INodeType {
 					)?.replace(/]]>/g, ']]]]><![CDATA[>');
 					const resultTitle = isDefaultOption
 						? eventKeyResult.payload.approved
-							? '审批已通过'
-							: '审批已拒绝'
-						: `已选择：${selectedLabel}`;
+							? '已提交：通过'
+							: '已提交：拒绝'
+						: `已提交：${selectedLabel}`;
 					const replaceText = isDefaultOption
 						? eventKeyResult.payload.approved
-							? '已通过'
-							: '已拒绝'
-						: `已选择：${selectedLabel}`;
+							? '已提交：通过'
+							: '已提交：拒绝'
+						: `已提交：${selectedLabel}`;
 					const replyMessage = generateReplyMessageXML(
 						callbackContext.respondedBy,
 						messageData.ToUserName || corpId,
@@ -784,9 +784,9 @@ export class WeComTrigger implements INodeType {
 								CardType: 'button_interaction',
 								MainTitle: {
 									title: resultTitle,
-									desc: `操作人：${callbackContext.respondedBy}`,
+									desc: `由 ${callbackContext.respondedBy} 提交`,
 								},
-								SubTitleText: 'n8n 工作流已恢复执行',
+								SubTitleText: '你的选择已记录，无需重复操作',
 								TaskId: callbackContext.taskId,
 								ReplaceText: replaceText,
 							},
@@ -801,7 +801,7 @@ export class WeComTrigger implements INodeType {
 				} catch {
 					nativeHitlResult = {
 						status: 'failed',
-						reason: '等待执行不存在、已处理或已超时',
+						reason: '这条审批已处理或已过期，无需重复操作',
 						taskId: callbackContext.taskId,
 					};
 				}

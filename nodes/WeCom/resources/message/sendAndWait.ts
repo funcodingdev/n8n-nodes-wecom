@@ -64,17 +64,25 @@ const showOnlyForSendAndWait = {
 
 const limitWaitTimeProperties: INodeProperties[] = [
 	{
-		displayName: '限制类型',
+		displayName: '结束等待的方式',
 		name: 'limitType',
 		type: 'options',
 		default: 'afterTimeInterval',
 		options: [
-			{ name: '等待一段时间', value: 'afterTimeInterval' },
-			{ name: '等待到指定时间', value: 'atSpecifiedTime' },
+			{
+				name: '从消息发出后开始计时',
+				value: 'afterTimeInterval',
+				description: '适合给审批人预留固定的处理时长',
+			},
+			{
+				name: '在指定时间结束',
+				value: 'atSpecifiedTime',
+				description: '适合有明确截止时间的审批',
+			},
 		],
 	},
 	{
-		displayName: '等待时长',
+		displayName: '等待多久',
 		name: 'resumeAmount',
 		type: 'number',
 		default: 1,
@@ -82,7 +90,7 @@ const limitWaitTimeProperties: INodeProperties[] = [
 		displayOptions: { show: { limitType: ['afterTimeInterval'] } },
 	},
 	{
-		displayName: '时间单位',
+		displayName: '单位',
 		name: 'resumeUnit',
 		type: 'options',
 		default: 'hours',
@@ -94,10 +102,11 @@ const limitWaitTimeProperties: INodeProperties[] = [
 		displayOptions: { show: { limitType: ['afterTimeInterval'] } },
 	},
 	{
-		displayName: '最晚响应时间',
+		displayName: '结束时间',
 		name: 'maxDateAndTime',
 		type: 'dateTime',
 		default: '',
+		description: '到达这个时间后，即使审批人还没有选择，工作流也会结束等待',
 		displayOptions: { show: { limitType: ['atSpecifiedTime'] } },
 	},
 ];
@@ -106,56 +115,55 @@ export const sendAndWaitDescription: INodeProperties[] = [
 	...getRecipientFields(SEND_AND_WAIT_OPERATION),
 	{
 		displayName:
-			'用于 AI 工具人工审核时，标题和内容可使用 $tool.name（工具名称）与 $tool.parameters（AI 即将提交的完整参数）。审批通过后 n8n 才会执行原工具。',
+			'连接在 AI 工具前时，消息会自动显示工具名称和即将使用的参数。只有审批人选择“允许继续”的操作后，工具才会运行。',
 		name: 'hitlToolNotice',
 		type: 'notice',
 		default: '',
 		displayOptions: { show: showOnlyForSendAndWait },
 	},
 	{
-		displayName: '审批方式',
+		displayName: '审批人如何操作',
 		name: 'approvalMode',
 		type: 'options',
 		default: 'url',
 		options: [
 			{
-				name: 'URL 按钮',
+				name: '打开结果页（推荐）',
 				value: 'url',
-				description: '点击按钮后打开 n8n 恢复地址，无需配置企业微信接收消息回调',
+				description: '审批人选择卡片操作后，会打开结果页；设置简单，适合大多数场景',
 			},
 			{
-				name: '企业微信原生回调',
+				name: '直接在企业微信中选择',
 				value: 'native',
-				description: '在企业微信内完成操作，可返回实际审批成员，需要启用企业微信消息接收触发器',
+				description: '审批人无需离开企业微信，并可记录操作成员；使用前需要配置消息接收',
 			},
 		],
 		displayOptions: { show: showOnlyForSendAndWait },
 	},
 	{
-		displayName: '审批标题',
+		displayName: '消息标题',
 		name: 'subject',
 		type: 'string',
-		default:
-			"={{ $tool?.name ? 'AI 工具调用审批：' + $tool.name : '操作审批' }}",
+		default: "={{ $tool?.name ? '请确认 AI 操作：' + $tool.name : '请确认此操作' }}",
 		required: true,
-		placeholder: '例如：工具调用审批',
-		description: '建议不超过 36 个字；用于 AI 工具审核时会自动带入工具名称',
+		placeholder: '例如：确认发送客户通知',
+		description: '告诉审批人需要确认什么，建议不超过 36 个字',
 		displayOptions: { show: showOnlyForSendAndWait },
 	},
 	{
-		displayName: '审批内容',
+		displayName: '给审批人的说明',
 		name: 'message',
 		type: 'string',
 		typeOptions: { rows: 4 },
 		default:
-			"={{ $tool?.name ? 'AI 希望调用工具：' + $tool.name + '\\n参数：\\n' + JSON.stringify($tool.parameters, null, 2) : '请确认是否继续执行此操作。' }}",
+			"={{ $tool?.name ? 'AI 准备执行：' + $tool.name + '\\n请确认是否允许继续。\\n\\n操作内容：\\n' + JSON.stringify($tool.parameters, null, 2) : '请查看操作内容，并选择如何处理。' }}",
 		required: true,
-		description:
-			'AI 工具审核默认展示工具名称与完整参数，可按需改写；普通工作流中可直接填写审批说明',
+		description: '说明操作的目的、内容和可能影响，帮助审批人作出判断',
 		displayOptions: { show: showOnlyForSendAndWait },
 	},
 	{
-		displayName: 'URL 审批按钮无法校验实际点击人，请仅发送给可信接收人，并避免转发审批链接。',
+		displayName:
+			'任何拿到确认链接的人都可以提交选择。请只发送给可信成员，并提醒审批人不要转发。',
 		name: 'urlApprovalNotice',
 		type: 'notice',
 		default: '',
@@ -168,7 +176,7 @@ export const sendAndWaitDescription: INodeProperties[] = [
 	},
 	{
 		displayName:
-			'原生模式需要在企业微信后台配置接收消息回调，并保持一个启用了“自动恢复原生 HITL 审批”的企业微信消息接收触发器处于激活状态。',
+			'审批人可以直接在企业微信中完成选择，并记录其成员身份。使用前，请先激活“企业微信消息接收”触发器，并开启“自动处理企业微信内的审批选择”。',
 		name: 'nativeApprovalNotice',
 		type: 'notice',
 		default: '',
@@ -180,69 +188,69 @@ export const sendAndWaitDescription: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: '审批选项',
+		displayName: '审批人可选操作',
 		name: 'customApprovalOptions',
 		type: 'fixedCollection',
 		typeOptions: { multipleValues: true },
 		default: {},
-		placeholder: '添加审批选项',
-		description: '至少添加 1 个、最多 6 个选项；返回值必须唯一。按钮文案建议不超过 10 个字。',
+		placeholder: '添加一个操作',
+		description: '这些操作会显示为卡片按钮。至少添加 1 个、最多 6 个。',
 		displayOptions: { show: showOnlyForSendAndWait },
 		options: [
 			{
-				displayName: '选项',
+				displayName: '操作',
 				name: 'options',
 				values: [
 					{
-						displayName: '按钮文案',
+						displayName: '按钮上显示的文字',
 						name: 'label',
 						type: 'string',
 						default: '',
 						required: true,
-						placeholder: '例如：转交主管',
-						description: '企业微信建议不超过 10 个字',
+						placeholder: '例如：允许执行',
+						description: '让审批人一眼看懂选择后的结果，建议不超过 10 个字',
 					},
 					{
-						displayName: '返回值',
+						displayName: '工作流返回值',
 						name: 'value',
 						type: 'string',
 						default: '',
 						required: true,
-						placeholder: '例如：transfer_to_manager',
-						description: '工作流输出中的 selectedOption；同一张卡片内不可重复',
+						placeholder: '例如：allow',
+						description: '审批人选择后写入 selectedOption，供后续节点判断；每个操作必须不同',
 					},
 					{
-						displayName: '允许工具执行',
+						displayName: '选择后允许继续执行',
 						name: 'approved',
 						type: 'boolean',
 						default: false,
-						description: '开启后该选项返回 approved=true，AI Agent 才会执行受控工具',
+						description: '开启后会继续执行受保护的 AI 工具；关闭后会停止本次工具调用',
 					},
 					{
-						displayName: '按钮样式',
+						displayName: '按钮外观',
 						name: 'style',
 						type: 'options',
 						default: 1,
 						options: [
 							{
-								name: '主要操作（蓝底白字）',
+								name: '主要选择（蓝底白字）',
 								value: 1,
-								description: '强调最重要的操作，例如通过、确认或立即执行',
+								description: '最醒目，适合“允许”“确认”“立即执行”等主要选择',
 							},
 							{
-								name: '次要操作（灰底蓝字）',
+								name: '次要选择（灰底蓝字）',
 								value: 2,
-								description: '用于次要但可继续的操作，例如查看详情或稍后处理',
+								description: '较温和，适合“稍后处理”“查看详情”等补充选择',
 							},
 							{
-								name: '危险操作（灰底红字）',
+								name: '需要警示（灰底红字）',
 								value: 3,
-								description: '用于拒绝、删除、终止等需要警示的操作',
+								description: '突出风险，适合“拒绝”“终止”“删除”等不可继续的选择',
 							},
 							{
-								name: '普通操作（灰底黑字）',
+								name: '普通选择（灰底黑字）',
 								value: 4,
-								description: '用于中性操作，例如转交、返回或关闭',
+								description: '保持中性，适合“转交”“返回”“关闭”等普通选择',
 							},
 						],
 					},
@@ -251,21 +259,21 @@ export const sendAndWaitDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '选项',
+		displayName: '更多设置',
 		name: 'options',
 		type: 'collection',
 		default: {},
-		placeholder: '添加选项',
+		placeholder: '添加设置',
 		displayOptions: { show: showOnlyForSendAndWait },
 		options: [
 			{
-				displayName: '限制等待时间',
+				displayName: '设置审批期限',
 				name: 'limitWaitTime',
 				type: 'fixedCollection',
 				default: {},
 				options: [
 					{
-						displayName: '配置',
+						displayName: '审批期限',
 						name: 'values',
 						values: limitWaitTimeProperties,
 					},
@@ -288,7 +296,7 @@ export const sendAndWaitWebhooksDescription: IWebhookDescription[] = [
 ];
 
 export const SEND_AND_WAIT_WAITING_TOOLTIP =
-	'={{ $parameter["operation"] === "sendAndWait" ? "收到审批响应后将继续执行" : "" }}';
+	'={{ $parameter["operation"] === "sendAndWait" ? "正在等待审批人选择" : "" }}';
 
 export function createSendAndWaitTaskId(
 	executionId: string,
@@ -313,16 +321,16 @@ export function resolveApprovalOptions(
 	}));
 
 	if (options.length === 0) {
-		throw new Error('审批至少需要 1 个选项');
+		throw new Error('请至少添加 1 个审批人可选操作');
 	}
 	if (options.length > 6) {
-		throw new Error('企业微信模板卡片最多支持 6 个按钮');
+		throw new Error('审批人可选操作最多添加 6 个');
 	}
 	if (options.some((option) => !option.label || !option.value)) {
-		throw new Error('每个自定义选项都必须填写按钮文案和返回值');
+		throw new Error('请为每个操作填写按钮文字和工作流返回值');
 	}
 	if (new Set(options.map((option) => option.value)).size !== options.length) {
-		throw new Error('自定义选项的返回值不可重复');
+		throw new Error('每个操作的工作流返回值必须不同');
 	}
 
 	return options;
@@ -355,7 +363,7 @@ export function calculateWaitTill(limitOptions: LimitWaitTimeOptions, now = new 
 	if (limitOptions.limitType === 'atSpecifiedTime') {
 		const waitTill = new Date(limitOptions.maxDateAndTime ?? '');
 		if (Number.isNaN(waitTill.getTime())) {
-			throw new Error('最晚响应时间格式无效');
+			throw new Error('请选择有效的结束时间');
 		}
 		return waitTill;
 	}
@@ -382,7 +390,7 @@ export async function executeSendAndWait(
 	if (!recipients.touser && !recipients.toparty && !recipients.totag) {
 		throw new NodeOperationError(
 			this.getNode(),
-			'必须指定至少一个审批接收人（成员ID、部门ID或标签ID）',
+			'请选择至少一位审批消息接收人',
 			{ itemIndex },
 		);
 	}
@@ -397,7 +405,7 @@ export async function executeSendAndWait(
 	try {
 		approvalOptionDefinitions = resolveApprovalOptions(customApprovalOptions);
 	} catch (error) {
-		throw new NodeOperationError(this.getNode(), '无法配置审批选项', {
+		throw new NodeOperationError(this.getNode(), '请完善审批人可选操作', {
 			description: (error as Error).message,
 			itemIndex,
 		});
@@ -423,7 +431,7 @@ export async function executeSendAndWait(
 	try {
 		waitTill = calculateWaitTill(limitOptions);
 	} catch (error) {
-		throw new NodeOperationError(this.getNode(), '无法配置审批等待时间', {
+		throw new NodeOperationError(this.getNode(), '请检查审批期限', {
 			description: (error as Error).message,
 			itemIndex,
 		});
@@ -432,7 +440,8 @@ export async function executeSendAndWait(
 	if (approvalMode === 'native') {
 		const receiveCredentials = await this.getCredentials('weComReceiveApi');
 		if (receiveCredentials.corpId !== credentials.corpId) {
-			throw new NodeOperationError(this.getNode(), '消息发送与消息接收凭证的企业 ID 不一致', {
+			throw new NodeOperationError(this.getNode(), '请选择属于同一个企业的发送和接收凭证', {
+				description: '直接在企业微信中选择时，发送消息和接收选择必须使用同一个企业 ID',
 				itemIndex,
 			});
 		}
@@ -446,7 +455,7 @@ export async function executeSendAndWait(
 				);
 			}
 		} catch (error) {
-			throw new NodeOperationError(this.getNode(), '无法生成企业微信原生审批按钮', {
+			throw new NodeOperationError(this.getNode(), '无法创建企业微信内的操作按钮', {
 				description: (error as Error).message,
 				itemIndex,
 			});
@@ -511,12 +520,15 @@ export async function sendAndWaitWebhook(this: IWebhookFunctions): Promise<IWebh
 				nativeContext.selectedOption !== selectedOption) ||
 			(nativeContext.selectedLabel !== undefined && nativeContext.selectedLabel !== selectedLabel)
 		) {
-			throw new NodeOperationError(this.getNode(), '企业微信原生审批回调上下文无效');
+			throw new NodeOperationError(
+				this.getNode(),
+				'无法确认本次企业微信操作，请返回企业微信重新选择',
+			);
 		}
 	}
 
 	return {
-		webhookResponse: '审批结果已记录，可以关闭此页面。',
+		webhookResponse: `已提交“${selectedLabel}”，无需再次操作。现在可以关闭此页面。`,
 		workflowData: [
 			[
 				{

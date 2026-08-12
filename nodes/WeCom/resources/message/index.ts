@@ -46,7 +46,7 @@ export const messageDescription: INodeProperties[] = [
 			{ name: '[卡片消息] 发送小程序通知消息', value: 'sendMiniprogramNotice', action: '发送小程序通知消息', description: '发送小程序通知应用消息' },
 			{ name: '[卡片消息] 发送任务卡片消息', value: 'sendTaskCard', action: '发送任务卡片消息', description: '发送任务卡片应用消息' },
 			{ name: '[卡片消息] 发送模板卡片消息', value: 'sendTemplateCard', action: '发送模板卡片消息', description: '发送模板卡片应用消息' },
-			{ name: '[卡片消息] 发送并等待审批', value: SEND_AND_WAIT_OPERATION, action: '发送消息并等待审批', description: '发送带有自定义审批选项的模板卡片，暂停执行，并可作为 AI 工具调用的人工审核步骤' },
+			{ name: '[卡片消息] 发送并等待审批', value: SEND_AND_WAIT_OPERATION, action: '发送消息并等待审批', description: '向审批人发送企业微信卡片，等待其选择后再继续工作流' },
 			{ name: '[卡片消息] 发送学校通知', value: 'sendSchoolNotice', action: '发送学校通知', description: '发送学校通知应用消息' },
 			// 消息操作
 			{ name: '[消息操作] 撤回应用消息', value: 'recallMessage', action: '撤回应用消息', description: '撤回已发送的应用消息' },

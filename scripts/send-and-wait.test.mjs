@@ -137,7 +137,7 @@ test('shows only explicitly configured approval options', () => {
 	assert.equal(
 		sendAndWaitDescription.find((property) => property.name === 'customApprovalOptions')
 			?.displayName,
-		'审批选项',
+		'审批人可选操作',
 	);
 });
 
@@ -152,12 +152,33 @@ test('describes every WeCom button style by visual intent', () => {
 	assert.deepEqual(
 		styleProperty.options.map((option) => option.name),
 		[
-			'主要操作（蓝底白字）',
-			'次要操作（灰底蓝字）',
-			'危险操作（灰底红字）',
-			'普通操作（灰底黑字）',
+			'主要选择（蓝底白字）',
+			'次要选择（灰底蓝字）',
+			'需要警示（灰底红字）',
+			'普通选择（灰底黑字）',
 		],
 	);
+});
+
+test('describes approval interactions from the approver perspective', () => {
+	const recipientType = sendAndWaitDescription.find((property) => property.name === 'recipientType');
+	const recipient = sendAndWaitDescription.find((property) => property.name === 'touser');
+	const approvalMode = sendAndWaitDescription.find((property) => property.name === 'approvalMode');
+	const subject = sendAndWaitDescription.find((property) => property.name === 'subject');
+	const message = sendAndWaitDescription.find((property) => property.name === 'message');
+
+	assert.equal(recipientType.displayName, '发送给谁');
+	assert.equal(recipient.displayName, '选择成员');
+	assert.doesNotMatch(recipientType.description, /touser|toparty|totag/);
+	assert.equal(approvalMode.displayName, '审批人如何操作');
+	assert.deepEqual(
+		approvalMode.options.map((option) => option.name),
+		['打开结果页（推荐）', '直接在企业微信中选择'],
+	);
+	assert.equal(subject.displayName, '消息标题');
+	assert.equal(message.displayName, '给审批人的说明');
+	assert.doesNotMatch(approvalMode.options[0].description, /恢复地址|回调/);
+	assert.doesNotMatch(approvalMode.options[1].description, /HITL|EventKey/);
 });
 
 test('creates URL buttons for approve and reject', () => {
@@ -253,7 +274,7 @@ test('creates native WeCom callback buttons', () => {
 });
 
 test('requires at least one explicitly configured approval option', () => {
-	assert.throws(() => resolveApprovalOptions({}), /审批至少需要 1 个选项/);
+	assert.throws(() => resolveApprovalOptions({}), /请至少添加 1 个审批人可选操作/);
 });
 
 test('supports up to six custom approval options with unique values', () => {
@@ -279,7 +300,7 @@ test('supports up to six custom approval options with unique values', () => {
 					value: `option_${index}`,
 				})),
 			}),
-		/最多支持 6 个按钮/,
+		/最多添加 6 个/,
 	);
 	assert.throws(
 		() =>
@@ -289,7 +310,7 @@ test('supports up to six custom approval options with unique values', () => {
 					{ label: '选项二', value: 'same' },
 				],
 			}),
-		/返回值不可重复/,
+		/返回值必须不同/,
 	);
 });
 
@@ -365,7 +386,7 @@ test('calculates a limited wait time', () => {
 	assert.equal(waitTill.toISOString(), '2026-08-12T00:45:00.000Z');
 	assert.throws(
 		() => calculateWaitTill({ limitType: 'atSpecifiedTime', maxDateAndTime: 'not-a-date' }),
-		/最晚响应时间格式无效/,
+		/请选择有效的结束时间/,
 	);
 });
 
@@ -435,7 +456,7 @@ test('relays an encrypted native callback and returns the verified approver', as
 		helpers: {
 			httpRequest: async (options) => {
 				relayRequests.push(options);
-				return '审批结果已记录，可以关闭此页面。';
+				return '已提交“通过”，无需再次操作。现在可以关闭此页面。';
 			},
 		},
 	});
@@ -450,7 +471,7 @@ test('relays an encrypted native callback and returns the verified approver', as
 	const encryptedReply = parseXML(result.webhookResponse).Encrypt;
 	const reply = parseXML(crypto.decrypt(encryptedReply, node));
 	assert.equal(reply.MsgType, 'update_template_card');
-	assert.equal(reply.ReplaceText, '已通过');
+	assert.equal(reply.ReplaceText, '已提交：通过');
 
 	const nativeResult = await sendAndWaitWebhook.call({
 		getQueryData: () => ({ approved: 'true', taskId }),
@@ -485,7 +506,7 @@ test('relays a native rejection and updates the card as rejected', async () => {
 	assert.equal(result.workflowData[0][0].json.hitlResume.approved, false);
 	assert.equal(result.workflowData[0][0].json.hitlResume.respondedBy, 'zhaoliu');
 	const reply = parseXML(crypto.decrypt(parseXML(result.webhookResponse).Encrypt, node));
-	assert.equal(reply.ReplaceText, '已拒绝');
+	assert.equal(reply.ReplaceText, '已提交：拒绝');
 });
 
 test('relays a custom native option and updates the card with its label', async () => {
@@ -500,7 +521,7 @@ test('relays a custom native option and updates the card with its label', async 
 	assert.equal(result.workflowData[0][0].json.hitlResume.selectedOption, 'transfer_to_manager');
 	assert.equal(result.workflowData[0][0].json.hitlResume.selectedLabel, '转交主管');
 	const reply = parseXML(crypto.decrypt(parseXML(result.webhookResponse).Encrypt, node));
-	assert.equal(reply.ReplaceText, '已选择：转交主管');
+	assert.equal(reply.ReplaceText, '已提交：转交主管');
 
 	const context = JSON.parse(
 		Buffer.from(relayRequests[0].headers[NATIVE_HITL_CONTEXT_HEADER], 'base64url').toString(
@@ -582,7 +603,7 @@ test('does not resume a native callback twice', async () => {
 	assert.equal(result.webhookResponse, 'success');
 	assert.deepEqual(result.workflowData[0][0].json.hitlResume, {
 		status: 'failed',
-		reason: '等待执行不存在、已处理或已超时',
+		reason: '这条审批已处理或已过期，无需重复操作',
 		taskId,
 	});
 });
@@ -597,7 +618,7 @@ test('requires a signed native callback context at the waiting webhook', async (
 				getHeaderData: () => ({}),
 				getNode: () => ({ id: 'node-1', name: 'WeCom', type: 'weComBase', typeVersion: 1 }),
 			}),
-		/企业微信原生审批回调上下文无效/,
+		/无法确认本次企业微信操作，请返回企业微信重新选择/,
 	);
 });
 
@@ -629,7 +650,7 @@ test('binds native callback context to the signed decision, option, and task id'
 				getHeaderData: () => headers,
 				getNode: () => ({ id: 'node-3', name: 'WeCom', type: 'weComBase', typeVersion: 1 }),
 			}),
-		/企业微信原生审批回调上下文无效/,
+		/无法确认本次企业微信操作，请返回企业微信重新选择/,
 	);
 });
 

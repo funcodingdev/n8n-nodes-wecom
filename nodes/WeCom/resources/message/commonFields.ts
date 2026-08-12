@@ -14,12 +14,12 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 		{
 			name: '手动输入',
 			value: 'manual',
-			description: '手动输入成员ID、部门ID或标签ID',
+			description: '已有成员、部门或标签 ID 时使用',
 		},
 		{
 			name: '组合选择',
 			value: 'mixed',
-			description: '同时选择成员、部门和标签',
+			description: '同时添加成员、部门和标签',
 		},
 		{
 			name: '指定标签',
@@ -42,17 +42,17 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 		recipientTypeOptions.unshift({
 			name: '全体成员',
 			value: 'all',
-			description: '向应用的全部成员发送消息',
+			description: '发送给应用可见范围内的所有成员',
 		});
 	}
 
 	const recipientTypeDescription = allowAll
-		? '选择接收消息的对象类型。touser、toparty、totag不能同时为空，后面不再强调。'
-		: '选择接收消息的对象类型。小程序通知不支持 @all。touser、toparty、totag不能同时为空，后面不再强调。';
+		? '选择哪些人会收到消息；需要同时添加不同范围时，请选择“组合选择”。'
+		: '选择哪些人会收到消息；小程序通知不能发送给全体成员。';
 
 	return [
 		{
-			displayName: '接收人类型',
+			displayName: '发送给谁',
 			name: 'recipientType',
 			type: 'options',
 			options: recipientTypeOptions,
@@ -64,7 +64,7 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 				`${recipientTypeDescription}<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>`,
 		},
 		{
-			displayName: '接收成员',
+			displayName: '选择成员',
 			name: 'touser',
 			type: 'multiOptions',
 			typeOptions: {
@@ -77,10 +77,10 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 					recipientType: ['users', 'mixed'],
 				},
 			},
-			description: '指定接收消息的成员，最多支持1000个。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>.',
+			description: '选择会收到消息的成员，最多 1000 人。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
 		},
 		{
-			displayName: '接收部门',
+			displayName: '选择部门',
 			name: 'toparty',
 			type: 'multiOptions',
 			typeOptions: {
@@ -93,10 +93,10 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 					recipientType: ['departments', 'mixed'],
 				},
 			},
-			description: '指定接收消息的部门，最多支持100个。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>.',
+			description: '所选部门中的成员都会收到消息，最多 100 个部门。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
 		},
 		{
-			displayName: '接收标签',
+			displayName: '选择标签',
 			name: 'totag',
 			type: 'multiOptions',
 			typeOptions: {
@@ -109,10 +109,10 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 					recipientType: ['tags', 'mixed'],
 				},
 			},
-			description: '指定接收消息的标签，最多支持100个。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>.',
+			description: '带有所选标签的成员都会收到消息，最多 100 个标签。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
 		},
 		{
-			displayName: '成员ID（手动输入）',
+			displayName: '成员 ID',
 			name: 'touser_manual',
 			type: 'string',
 			default: '',
@@ -124,10 +124,10 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 				},
 			},
 			description:
-				'可选。成员ID列表，多个接收者用 | 分隔，最多支持1000个。特殊情况：指定为 @all，则向该企业应用的全部成员发送。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
+				'多个成员 ID 用 | 分隔，最多 1000 个；输入 @all 可发送给应用可见范围内的所有成员。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
 		},
 		{
-			displayName: '部门ID（手动输入）',
+			displayName: '部门 ID',
 			name: 'toparty_manual',
 			type: 'string',
 			default: '',
@@ -139,10 +139,10 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 				},
 			},
 			description:
-				'可选。部门ID列表，多个接收者用 | 分隔，最多支持100个。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
+				'多个部门 ID 用 | 分隔，最多 100 个。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
 		},
 		{
-			displayName: '标签ID（手动输入）',
+			displayName: '标签 ID',
 			name: 'totag_manual',
 			type: 'string',
 			default: '',
@@ -154,7 +154,7 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 				},
 			},
 			description:
-				'可选。标签ID列表，多个接收者用 | 分隔，最多支持100个。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
+				'多个标签 ID 用 | 分隔，最多 100 个。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
 		},
 	];
 }
