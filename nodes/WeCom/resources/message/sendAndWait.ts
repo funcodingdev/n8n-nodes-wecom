@@ -48,6 +48,15 @@ interface ApprovalCardOption extends ApprovalOption {
 	action: string;
 }
 
+interface ApprovalCardState extends IDataObject {
+	responseCode: string;
+	createdAt: number;
+}
+
+const APPROVAL_CARD_STATE_KEY = 'sendAndWaitApprovalCards';
+const APPROVAL_CARD_STATE_TTL = 72 * 60 * 60 * 1000;
+const approvalCardStateCache = new Map<string, ApprovalCardState>();
+
 const showOnlyForSendAndWait = {
 	resource: ['message'],
 	operation: [SEND_AND_WAIT_OPERATION],
@@ -309,6 +318,85 @@ export function createApprovalTemplateCard(input: ApprovalCardInput): IDataObjec
 	};
 }
 
+function getApprovalCardStateStore(
+	context: IExecuteFunctions | IWebhookFunctions,
+): IDataObject {
+	const staticData = context.getWorkflowStaticData('node');
+	const storedStates = staticData[APPROVAL_CARD_STATE_KEY];
+
+	if (storedStates && typeof storedStates === 'object' && !Array.isArray(storedStates)) {
+		return storedStates as IDataObject;
+	}
+
+	const newStore: IDataObject = {};
+	staticData[APPROVAL_CARD_STATE_KEY] = newStore;
+	return newStore;
+}
+
+function cleanupExpiredApprovalCardStates(
+	context: IExecuteFunctions | IWebhookFunctions,
+	now = Date.now(),
+): void {
+	const expiresBefore = now - APPROVAL_CARD_STATE_TTL;
+	const storedStates = getApprovalCardStateStore(context);
+
+	for (const [taskId, state] of Object.entries(storedStates)) {
+		const createdAt = Number((state as IDataObject | undefined)?.createdAt ?? 0);
+		if (!createdAt || createdAt < expiresBefore) {
+			delete storedStates[taskId];
+		}
+	}
+
+	for (const [taskId, state] of approvalCardStateCache.entries()) {
+		if (state.createdAt < expiresBefore) {
+			approvalCardStateCache.delete(taskId);
+		}
+	}
+}
+
+function saveApprovalCardState(
+	context: IExecuteFunctions,
+	taskId: string,
+	responseCode: string,
+): void {
+	cleanupExpiredApprovalCardStates(context);
+	const state: ApprovalCardState = {
+		responseCode,
+		createdAt: Date.now(),
+	};
+
+	approvalCardStateCache.set(taskId, state);
+	getApprovalCardStateStore(context)[taskId] = state;
+}
+
+function getApprovalCardState(
+	context: IWebhookFunctions,
+	taskId: string,
+): ApprovalCardState | undefined {
+	cleanupExpiredApprovalCardStates(context);
+	const cachedState = approvalCardStateCache.get(taskId);
+	if (cachedState) {
+		return cachedState;
+	}
+
+	const storedState = getApprovalCardStateStore(context)[taskId];
+	if (
+		storedState &&
+		typeof storedState === 'object' &&
+		typeof (storedState as IDataObject).responseCode === 'string' &&
+		typeof (storedState as IDataObject).createdAt === 'number'
+	) {
+		return storedState as ApprovalCardState;
+	}
+
+	return undefined;
+}
+
+function deleteApprovalCardState(context: IWebhookFunctions, taskId: string): void {
+	approvalCardStateCache.delete(taskId);
+	delete getApprovalCardStateStore(context)[taskId];
+}
+
 export function calculateWaitTill(limitOptions: LimitWaitTimeOptions, now = new Date()): Date {
 	if (Object.keys(limitOptions).length === 0) {
 		return WAIT_INDEFINITELY;
@@ -371,6 +459,7 @@ export async function executeSendAndWait(
 			selectedOption: option.value,
 			selectedLabel: option.label,
 			optionMode: 'custom',
+			taskId,
 		}),
 	}));
 	const limitOptions = this.getNodeParameter(
@@ -397,12 +486,22 @@ export async function executeSendAndWait(
 	});
 
 	try {
-		await weComApiRequest.call(this, 'POST', '/cgi-bin/message/send', {
+		const sendResult = await weComApiRequest.call(this, 'POST', '/cgi-bin/message/send', {
 			...recipients,
 			agentid: credentials.agentId as string,
 			msgtype: 'template_card',
 			template_card: templateCard,
 		});
+		const responseCode =
+			typeof sendResult.response_code === 'string' ? sendResult.response_code.trim() : '';
+
+		if (responseCode) {
+			saveApprovalCardState(this, taskId, responseCode);
+		} else {
+			this.logger.warn('企业微信发送审批卡片后未返回 response_code，确认后将无法更新卡片状态', {
+				taskId,
+			});
+		}
 	} catch (error) {
 		if (this.continueOnFail()) {
 			return [{ json: { error: (error as Error).message }, pairedItem: { item: itemIndex } }];
@@ -419,13 +518,59 @@ export async function sendAndWaitWebhook(this: IWebhookFunctions): Promise<IWebh
 		approved?: string;
 		selectedOption?: string;
 		selectedLabel?: string;
+		taskId?: string;
 	};
 	const approved = query.approved === 'true';
 	const selectedOption = query.selectedOption || (approved ? 'approve' : 'reject');
 	const selectedLabel = query.selectedLabel || (approved ? '通过' : '拒绝');
+	let cardUpdate: IDataObject;
+
+	if (!query.taskId) {
+		cardUpdate = {
+			status: 'unavailable',
+			reason: '这条审批消息创建于卡片状态同步功能启用之前',
+		};
+	} else {
+		const cardState = getApprovalCardState(this, query.taskId);
+
+		if (!cardState) {
+			cardUpdate = {
+				status: 'unavailable',
+				reason: '未找到可用的企业微信卡片更新凭据',
+			};
+		} else {
+			try {
+				const credentials = await this.getCredentials('weComApi');
+				await weComApiRequest.call(this, 'POST', '/cgi-bin/message/update_template_card', {
+					atall: 1,
+					agentid: credentials.agentId as string,
+					response_code: cardState.responseCode,
+					button: {
+						replace_name: `已处理：${selectedLabel}`,
+					},
+				});
+				cardUpdate = {
+					status: 'updated',
+					scope: 'allRecipients',
+				};
+			} catch (error) {
+				cardUpdate = {
+					status: 'failed',
+					reason: (error as Error).message,
+				};
+			} finally {
+				deleteApprovalCardState(this, query.taskId);
+			}
+		}
+	}
+
+	const cardUpdated = cardUpdate.status === 'updated';
+	const webhookResponse = cardUpdated
+		? `已提交“${selectedLabel}”，企业微信卡片已更新，无需再次操作。现在可以关闭此页面。`
+		: `已提交“${selectedLabel}”，但企业微信卡片状态未能自动更新。现在可以关闭此页面。`;
 
 	return {
-		webhookResponse: `已提交“${selectedLabel}”，无需再次操作。现在可以关闭此页面。`,
+		webhookResponse,
 		workflowData: [
 			[
 				{
@@ -435,6 +580,7 @@ export async function sendAndWaitWebhook(this: IWebhookFunctions): Promise<IWebh
 							selectedOption,
 							selectedLabel,
 							respondedAt: new Date().toISOString(),
+							cardUpdate,
 						},
 					},
 				},

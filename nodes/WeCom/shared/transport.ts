@@ -1,6 +1,7 @@
 import type {
 	IExecuteFunctions,
 	ILoadOptionsFunctions,
+	IWebhookFunctions,
 	IHttpRequestMethods,
 	IDataObject,
 	IHttpRequestOptions,
@@ -85,7 +86,7 @@ function normalizeBaseUrl(baseUrl?: string): string {
  * 优先从凭证读取，未设置时使用默认值
  */
 export async function getWeComBaseUrl(
-	this: IExecuteFunctions | ILoadOptionsFunctions,
+	this: IExecuteFunctions | ILoadOptionsFunctions | IWebhookFunctions,
 	credentialType: 'weComApi' | 'weComWebhookApi' = 'weComApi',
 ): Promise<string> {
 	const credentials = (await this.getCredentials(credentialType)) as { baseUrl?: string };
@@ -123,7 +124,7 @@ export interface IAccessTokenInfo {
  * @returns 有效的 access_token
  */
 export async function getAccessToken(
-	this: IExecuteFunctions | ILoadOptionsFunctions,
+	this: IExecuteFunctions | ILoadOptionsFunctions | IWebhookFunctions,
 ): Promise<string> {
 	const credentials = (await this.getCredentials('weComApi')) as IWeComCredentials;
 	const cacheKey = getCacheKey(credentials);
@@ -171,7 +172,7 @@ export async function getAccessToken(
  * @returns 包含 access_token 和过期信息的对象
  */
 export async function getAccessTokenInfo(
-	this: IExecuteFunctions | ILoadOptionsFunctions,
+	this: IExecuteFunctions | ILoadOptionsFunctions | IWebhookFunctions,
 ): Promise<IAccessTokenInfo> {
 	const credentials = (await this.getCredentials('weComApi')) as IWeComCredentials;
 	const cacheKey = getCacheKey(credentials);
@@ -246,7 +247,7 @@ export async function getAccessTokenInfo(
  * @returns 新获取的 access_token
  */
 async function fetchAccessToken(
-	this: IExecuteFunctions | ILoadOptionsFunctions,
+	this: IExecuteFunctions | ILoadOptionsFunctions | IWebhookFunctions,
 	credentials: IWeComCredentials,
 	cacheKey: string,
 ): Promise<string> {
@@ -302,7 +303,7 @@ async function fetchAccessToken(
  * @returns API 响应数据
  */
 export async function weComApiRequest(
-	this: IExecuteFunctions | ILoadOptionsFunctions,
+	this: IExecuteFunctions | ILoadOptionsFunctions | IWebhookFunctions,
 	method: IHttpRequestMethods,
 	resource: string,
 	body: IDataObject = {},
