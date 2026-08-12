@@ -309,9 +309,18 @@ npm install n8n-nodes-wecom
 - ✅ 发送小程序通知消息
 - ✅ 发送任务卡片消息
 - ✅ 发送模板卡片消息
+- ✅ 发送并等待审批（n8n AI Tool Human Review，URL 按钮版）
 - ✅ [发送学校通知](https://developer.work.weixin.qq.com/document/path/91609)（家校应用）
 - ✅ [撤回应用消息](https://developer.work.weixin.qq.com/document/path/94867)
 - ✅ [更新模板卡片消息](https://developer.work.weixin.qq.com/document/path/94888)
+
+#### AI 工具人工审批（URL 版本）
+
+在支持 Human Review for AI Tool Calls 的 n8n 版本中，将 WeCom 节点作为 AI Tool 连接到 Human Review 节点，选择“发送并等待审批”。节点会向企业微信发送含“通过/拒绝”URL 按钮的模板卡片，并暂停工作流，直到有人点击按钮或超过配置的等待时间。
+
+- n8n 的等待 Webhook 地址必须是企业微信客户端可访问的公网 HTTPS 地址。
+- URL 版本不需要配置企业微信回调地址；审批按钮直接访问 n8n 生成并签名的恢复链接。
+- 审批链接等同于一次性授权链接，无法校验实际点击人。请只发送给可信接收人，不要转发；首次有效响应会恢复工作流。
 
 ### 群聊会话
 

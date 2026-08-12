@@ -5,6 +5,8 @@ import type {
 	INodePropertyOptions,
 	INodeType,
 	INodeTypeDescription,
+	IWebhookFunctions,
+	IWebhookResponseData,
 } from 'n8n-workflow';
 import { NodeConnectionTypes } from 'n8n-workflow';
 import { messageDescription } from '../WeCom/resources/message';
@@ -54,6 +56,11 @@ import { executeAccountId } from '../WeCom/resources/accountId/execute';
 import { executeFile } from '../WeCom/resources/file/execute';
 import { executeSecurity } from '../WeCom/resources/security/execute';
 import { weComApiRequest } from '../WeCom/shared/transport';
+import {
+	SEND_AND_WAIT_WAITING_TOOLTIP,
+	sendAndWaitWebhook,
+	sendAndWaitWebhooksDescription,
+} from '../WeCom/resources/message/sendAndWait';
 
 export class WeComBase implements INodeType {
 	description: INodeTypeDescription = {
@@ -72,6 +79,8 @@ export class WeComBase implements INodeType {
 		},
 		inputs: [NodeConnectionTypes.Main],
 		outputs: [NodeConnectionTypes.Main],
+		waitingNodeTooltip: SEND_AND_WAIT_WAITING_TOOLTIP,
+		webhooks: sendAndWaitWebhooksDescription,
 		credentials: [
 			{
 				name: 'weComApi',
@@ -345,6 +354,10 @@ export class WeComBase implements INodeType {
 			...securityDescription,
 		],
 		usableAsTool: true,
+	};
+
+	webhook = async function (this: IWebhookFunctions): Promise<IWebhookResponseData> {
+		return await sendAndWaitWebhook.call(this);
 	};
 
 	methods = {

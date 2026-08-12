@@ -1,4 +1,4 @@
-import type { INodeProperties } from 'n8n-workflow';
+import type { IExecuteFunctions, INodeProperties } from 'n8n-workflow';
 
 /**
  * 消息接收人通用字段定义
@@ -217,4 +217,36 @@ export function extractRecipients(
 	}
 
 	return result;
+}
+
+/**
+ * 从消息节点参数中读取接收人，兼容新版选择器和旧版直接输入字段。
+ */
+export function getRecipientsFromNode(
+	context: IExecuteFunctions,
+	itemIndex: number,
+): { touser?: string; toparty?: string; totag?: string } {
+	const recipientType = context.getNodeParameter('recipientType', itemIndex, null) as string | null;
+
+	if (recipientType === null) {
+		return extractRecipients(
+			'manual',
+			'',
+			'',
+			'',
+			context.getNodeParameter('touser', itemIndex, '') as string,
+			context.getNodeParameter('toparty', itemIndex, '') as string,
+			context.getNodeParameter('totag', itemIndex, '') as string,
+		);
+	}
+
+	return extractRecipients(
+		recipientType,
+		context.getNodeParameter('touser', itemIndex, []) as string[],
+		context.getNodeParameter('toparty', itemIndex, []) as string[],
+		context.getNodeParameter('totag', itemIndex, []) as string[],
+		context.getNodeParameter('touser_manual', itemIndex, '') as string,
+		context.getNodeParameter('toparty_manual', itemIndex, '') as string,
+		context.getNodeParameter('totag_manual', itemIndex, '') as string,
+	);
 }

@@ -1,4 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { SEND_AND_WAIT_OPERATION } from 'n8n-workflow';
 import { sendTextDescription } from './sendText';
 import { sendMarkdownDescription } from './sendMarkdown';
 import { sendImageDescription } from './sendImage';
@@ -14,6 +15,7 @@ import { sendTemplateCardDescription } from './sendTemplateCard';
 import { updateTemplateCardDescription } from './updateTemplateCard';
 import { recallMessageDescription } from './recallMessage';
 import { sendSchoolNoticeDescription } from './sendSchoolNotice';
+import { sendAndWaitDescription } from './sendAndWait';
 
 const showOnlyForMessage = {
 	resource: ['message'],
@@ -28,7 +30,7 @@ export const messageDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForMessage,
 		},
-		 
+
 		options: [
 			// 基础消息
 			{ name: '[基础消息] 发送文本消息', value: 'sendText', action: '发送文本消息', description: '发送纯文本应用消息' },
@@ -44,6 +46,7 @@ export const messageDescription: INodeProperties[] = [
 			{ name: '[卡片消息] 发送小程序通知消息', value: 'sendMiniprogramNotice', action: '发送小程序通知消息', description: '发送小程序通知应用消息' },
 			{ name: '[卡片消息] 发送任务卡片消息', value: 'sendTaskCard', action: '发送任务卡片消息', description: '发送任务卡片应用消息' },
 			{ name: '[卡片消息] 发送模板卡片消息', value: 'sendTemplateCard', action: '发送模板卡片消息', description: '发送模板卡片应用消息' },
+			{ name: '[卡片消息] 发送并等待审批', value: SEND_AND_WAIT_OPERATION, action: '发送消息并等待审批', description: '发送带有通过或拒绝链接的模板卡片，并暂停执行等待响应' },
 			{ name: '[卡片消息] 发送学校通知', value: 'sendSchoolNotice', action: '发送学校通知', description: '发送学校通知应用消息' },
 			// 消息操作
 			{ name: '[消息操作] 撤回应用消息', value: 'recallMessage', action: '撤回应用消息', description: '撤回已发送的应用消息' },
@@ -63,6 +66,7 @@ export const messageDescription: INodeProperties[] = [
 	...sendMiniprogramNoticeDescription,
 	...sendTaskCardDescription,
 	...sendTemplateCardDescription,
+	...sendAndWaitDescription,
 	...recallMessageDescription,
 	...updateTemplateCardDescription,
 	...sendSchoolNoticeDescription,

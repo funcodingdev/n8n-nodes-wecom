@@ -1,13 +1,18 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
-import { NodeOperationError } from 'n8n-workflow';
+import { NodeOperationError, SEND_AND_WAIT_OPERATION } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
 import { extractRecipients } from './commonFields';
+import { executeSendAndWait } from './sendAndWait';
 
 export async function executeMessage(
 	this: IExecuteFunctions,
 	operation: string,
 	items: INodeExecutionData[],
 ): Promise<INodeExecutionData[]> {
+	if (operation === SEND_AND_WAIT_OPERATION) {
+		return await executeSendAndWait.call(this, items);
+	}
+
 	const returnData: INodeExecutionData[] = [];
 	const parseOptionalJsonParameter = (
 		value: unknown,
