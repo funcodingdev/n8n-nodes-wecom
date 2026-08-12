@@ -216,6 +216,13 @@ export class WeComBase implements INodeType {
 		},
 		properties: [
 			{
+				// 固定 n8n 凭证选择器的位置；实际显示的凭证仍由上方 credentials 配置决定
+				displayName: '',
+				name: 'credentials',
+				type: 'credentials',
+				default: '',
+			},
+			{
 				displayName: '资源',
 				name: 'resource',
 				type: 'options',
@@ -338,7 +345,9 @@ export class WeComBase implements INodeType {
 						description: '安全管理（文件防泄漏、设备与操作日志等）',
 					},
 				],
-				default: 'pushMessage',
+				// n8n 的 Human review 动作只预填 operation=sendAndWait，多资源节点会继续使用
+				// 这里的默认资源；必须指向应用消息，才能加载审批参数与 weComApi 凭证。
+				default: 'message',
 			},
 			...contactDescription,
 			...messageDescription,

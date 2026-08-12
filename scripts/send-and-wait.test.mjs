@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import sendAndWaitModule from '../dist/nodes/WeCom/resources/message/sendAndWait.js';
@@ -13,6 +14,7 @@ const {
 	createSendAndWaitTaskId,
 	executeSendAndWait,
 	resolveApprovalOptions,
+	sendAndWaitDescription,
 	sendAndWaitWebhook,
 } = sendAndWaitModule;
 const { WeComBase } = weComBaseModule;
@@ -86,15 +88,76 @@ async function invokeNativeTriggerCallback({ approved, userId, selectedOption, s
 
 test('registers sendAndWait as a waiting operation on the WeCom node', () => {
 	const node = new WeComBase();
+	const resource = node.description.properties.find((property) => property.name === 'resource');
 	const operation = node.description.properties.find(
 		(property) =>
 			property.name === 'operation' &&
 			property.options?.some((option) => option.value === 'sendAndWait'),
 	);
 
+	assert.equal(resource.default, 'message');
 	assert.ok(operation);
 	assert.equal(node.description.webhooks.length, 1);
 	assert.equal(node.description.webhooks[0].restartWebhook, true);
+});
+
+test('registers WeCom as an n8n Human review channel', () => {
+	const codex = JSON.parse(
+		readFileSync(new URL('../nodes/WeComBase/WeComBase.node.json', import.meta.url), 'utf8'),
+	);
+
+	assert.ok(codex.categories.includes('HITL'));
+	assert.deepEqual(codex.subcategories.HITL, ['Human in the Loop']);
+	assert.ok(codex.alias.includes('approval'));
+});
+
+test('shows the AI tool name and parameters in the default approval message', () => {
+	const subject = sendAndWaitDescription.find((property) => property.name === 'subject');
+	const message = sendAndWaitDescription.find((property) => property.name === 'message');
+
+	assert.match(subject.default, /\$tool\?\.name/);
+	assert.match(message.default, /\$tool\?\.name/);
+	assert.match(message.default, /JSON\.stringify\(\$tool\.parameters/);
+});
+
+test('places the credential picker before all business parameters', () => {
+	const node = new WeComBase();
+
+	assert.equal(node.description.properties[0].type, 'credentials');
+	assert.equal(node.description.properties[0].name, 'credentials');
+});
+
+test('shows only explicitly configured approval options', () => {
+	assert.equal(
+		sendAndWaitDescription.some((property) =>
+			['approvalOptionMode', 'approvalOptions'].includes(property.name),
+		),
+		false,
+	);
+	assert.equal(
+		sendAndWaitDescription.find((property) => property.name === 'customApprovalOptions')
+			?.displayName,
+		'审批选项',
+	);
+});
+
+test('describes every WeCom button style by visual intent', () => {
+	const approvalOptions = sendAndWaitDescription.find(
+		(property) => property.name === 'customApprovalOptions',
+	);
+	const styleProperty = approvalOptions.options[0].values.find(
+		(property) => property.name === 'style',
+	);
+
+	assert.deepEqual(
+		styleProperty.options.map((option) => option.name),
+		[
+			'主要操作（蓝底白字）',
+			'次要操作（灰底蓝字）',
+			'危险操作（灰底红字）',
+			'普通操作（灰底黑字）',
+		],
+	);
 });
 
 test('creates URL buttons for approve and reject', () => {
@@ -138,7 +201,7 @@ test('creates URL buttons for approve and reject', () => {
 	]);
 });
 
-test('creates only an approve button for single approval', () => {
+test('creates a card with one custom option', () => {
 	const card = createApprovalTemplateCard({
 		title: '审批',
 		message: '内容',
@@ -189,25 +252,18 @@ test('creates native WeCom callback buttons', () => {
 	]);
 });
 
-test('uses approve and reject as the default options', () => {
-	assert.deepEqual(resolveApprovalOptions('default', {}, {}), [
-		{ label: '拒绝', value: 'reject', approved: false, style: 2 },
-		{ label: '通过', value: 'approve', approved: true, style: 1 },
-	]);
+test('requires at least one explicitly configured approval option', () => {
+	assert.throws(() => resolveApprovalOptions({}), /审批至少需要 1 个选项/);
 });
 
 test('supports up to six custom approval options with unique values', () => {
-	const options = resolveApprovalOptions(
-		'custom',
-		{},
-		{
-			options: [
-				{ label: '通过', value: 'approve_now', approved: true, style: 1 },
-				{ label: '拒绝', value: 'reject_now', approved: false, style: 2 },
-				{ label: '转交主管', value: 'transfer', approved: false, style: 3 },
-			],
-		},
-	);
+	const options = resolveApprovalOptions({
+		options: [
+			{ label: '通过', value: 'approve_now', approved: true, style: 1 },
+			{ label: '拒绝', value: 'reject_now', approved: false, style: 2 },
+			{ label: '转交主管', value: 'transfer', approved: false, style: 3 },
+		],
+	});
 
 	assert.deepEqual(options[2], {
 		label: '转交主管',
@@ -217,7 +273,7 @@ test('supports up to six custom approval options with unique values', () => {
 	});
 	assert.throws(
 		() =>
-			resolveApprovalOptions('custom', {}, {
+			resolveApprovalOptions({
 				options: Array.from({ length: 7 }, (_, index) => ({
 					label: `选项${index}`,
 					value: `option_${index}`,
@@ -227,7 +283,7 @@ test('supports up to six custom approval options with unique values', () => {
 	);
 	assert.throws(
 		() =>
-			resolveApprovalOptions('custom', {}, {
+			resolveApprovalOptions({
 				options: [
 					{ label: '选项一', value: 'same' },
 					{ label: '选项二', value: 'same' },
@@ -238,7 +294,7 @@ test('supports up to six custom approval options with unique values', () => {
 });
 
 test('creates URL buttons for custom approval options', () => {
-	const options = resolveApprovalOptions('custom', {}, {
+	const options = resolveApprovalOptions({
 		options: [
 			{ label: '立即执行', value: 'run_now', approved: true, style: 1 },
 			{ label: '稍后处理', value: 'later', approved: false, style: 3 },
@@ -590,7 +646,6 @@ test('sends the signed URL card before putting execution to wait', async () => {
 		totag_manual: '',
 		subject: '工具调用审批',
 		message: '即将发送一条消息',
-		approvalOptionMode: 'custom',
 		customApprovalOptions: {
 			options: [
 				{ label: '立即执行', value: 'run_now', approved: true, style: 1 },
@@ -677,7 +732,12 @@ test('sends native callback buttons before putting execution to wait', async () 
 		subject: '工具调用审批',
 		message: '即将执行工具',
 		approvalMode: 'native',
-		'approvalOptions.values': { approvalType: 'double' },
+		customApprovalOptions: {
+			options: [
+				{ label: '拒绝执行', value: 'reject_now', approved: false, style: 2 },
+				{ label: '立即执行', value: 'run_now', approved: true, style: 1 },
+			],
+		},
 		'options.limitWaitTime.values': {},
 	};
 	const context = {
@@ -732,7 +792,7 @@ test('sends native callback buttons before putting execution to wait', async () 
 			token,
 			'https://n8n.example/webhook/wecom-native',
 		).payload.selectedOption,
-		'reject',
+		'reject_now',
 	);
 	assert.equal(
 		parseNativeHitlEventKey(
@@ -742,6 +802,15 @@ test('sends native callback buttons before putting execution to wait', async () 
 			'https://n8n.example/webhook/wecom-native',
 		).payload.approved,
 		true,
+	);
+	assert.equal(
+		parseNativeHitlEventKey(
+			card.button_list[1].key,
+			card.task_id,
+			token,
+			'https://n8n.example/webhook/wecom-native',
+		).payload.selectedOption,
+		'run_now',
 	);
 	assert.equal(waitTill.getUTCFullYear(), 3000);
 });

@@ -18,9 +18,7 @@ import {
 } from '../../shared/nativeHitl';
 import { getRecipientFields, getRecipientsFromNode } from './commonFields';
 
-type ApprovalType = 'single' | 'double';
 type ApprovalMode = 'url' | 'native';
-type ApprovalOptionMode = 'default' | 'custom';
 
 interface CustomApprovalOption {
 	label?: string;
@@ -31,12 +29,6 @@ interface CustomApprovalOption {
 
 interface CustomApprovalOptions {
 	options?: CustomApprovalOption[];
-}
-
-interface ApprovalOptions {
-	approvalType?: ApprovalType;
-	approveLabel?: string;
-	disapproveLabel?: string;
 }
 
 interface LimitWaitTimeOptions {
@@ -113,6 +105,14 @@ const limitWaitTimeProperties: INodeProperties[] = [
 export const sendAndWaitDescription: INodeProperties[] = [
 	...getRecipientFields(SEND_AND_WAIT_OPERATION),
 	{
+		displayName:
+			'用于 AI 工具人工审核时，标题和内容可使用 $tool.name（工具名称）与 $tool.parameters（AI 即将提交的完整参数）。审批通过后 n8n 才会执行原工具。',
+		name: 'hitlToolNotice',
+		type: 'notice',
+		default: '',
+		displayOptions: { show: showOnlyForSendAndWait },
+	},
+	{
 		displayName: '审批方式',
 		name: 'approvalMode',
 		type: 'options',
@@ -135,9 +135,11 @@ export const sendAndWaitDescription: INodeProperties[] = [
 		displayName: '审批标题',
 		name: 'subject',
 		type: 'string',
-		default: '',
+		default:
+			"={{ $tool?.name ? 'AI 工具调用审批：' + $tool.name : '操作审批' }}",
 		required: true,
 		placeholder: '例如：工具调用审批',
+		description: '建议不超过 36 个字；用于 AI 工具审核时会自动带入工具名称',
 		displayOptions: { show: showOnlyForSendAndWait },
 	},
 	{
@@ -145,8 +147,11 @@ export const sendAndWaitDescription: INodeProperties[] = [
 		name: 'message',
 		type: 'string',
 		typeOptions: { rows: 4 },
-		default: '',
+		default:
+			"={{ $tool?.name ? 'AI 希望调用工具：' + $tool.name + '\\n参数：\\n' + JSON.stringify($tool.parameters, null, 2) : '请确认是否继续执行此操作。' }}",
 		required: true,
+		description:
+			'AI 工具审核默认展示工具名称与完整参数，可按需改写；普通工作流中可直接填写审批说明',
 		displayOptions: { show: showOnlyForSendAndWait },
 	},
 	{
@@ -175,82 +180,14 @@ export const sendAndWaitDescription: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: '选项类型',
-		name: 'approvalOptionMode',
-		type: 'options',
-		default: 'default',
-		options: [
-			{
-				name: '默认（通过 / 拒绝）',
-				value: 'default',
-				description: '使用兼容现有工作流的通过、拒绝按钮',
-			},
-			{
-				name: '自定义选项',
-				value: 'custom',
-				description: '配置最多 6 个按钮，并指定每个选项是否允许工具执行',
-			},
-		],
-		displayOptions: { show: showOnlyForSendAndWait },
-	},
-	{
 		displayName: '审批选项',
-		name: 'approvalOptions',
-		type: 'fixedCollection',
-		default: {},
-		placeholder: '配置审批选项',
-		displayOptions: {
-			show: {
-				...showOnlyForSendAndWait,
-				approvalOptionMode: ['default'],
-			},
-		},
-		options: [
-			{
-				displayName: '配置',
-				name: 'values',
-				values: [
-					{
-						displayName: '审批类型',
-						name: 'approvalType',
-						type: 'options',
-						default: 'double',
-						options: [
-							{ name: '仅通过', value: 'single' },
-							{ name: '通过或拒绝', value: 'double' },
-						],
-					},
-					{
-						displayName: '通过按钮文案',
-						name: 'approveLabel',
-						type: 'string',
-						default: '通过',
-					},
-					{
-						displayName: '拒绝按钮文案',
-						name: 'disapproveLabel',
-						type: 'string',
-						default: '拒绝',
-						displayOptions: { show: { approvalType: ['double'] } },
-					},
-				],
-			},
-		],
-	},
-	{
-		displayName: '自定义选项',
 		name: 'customApprovalOptions',
 		type: 'fixedCollection',
 		typeOptions: { multipleValues: true },
 		default: {},
-		placeholder: '添加选项',
+		placeholder: '添加审批选项',
 		description: '至少添加 1 个、最多 6 个选项；返回值必须唯一。按钮文案建议不超过 10 个字。',
-		displayOptions: {
-			show: {
-				...showOnlyForSendAndWait,
-				approvalOptionMode: ['custom'],
-			},
-		},
+		displayOptions: { show: showOnlyForSendAndWait },
 		options: [
 			{
 				displayName: '选项',
@@ -287,10 +224,26 @@ export const sendAndWaitDescription: INodeProperties[] = [
 						type: 'options',
 						default: 1,
 						options: [
-							{ name: '样式 1', value: 1 },
-							{ name: '样式 2', value: 2 },
-							{ name: '样式 3', value: 3 },
-							{ name: '样式 4', value: 4 },
+							{
+								name: '主要操作（蓝底白字）',
+								value: 1,
+								description: '强调最重要的操作，例如通过、确认或立即执行',
+							},
+							{
+								name: '次要操作（灰底蓝字）',
+								value: 2,
+								description: '用于次要但可继续的操作，例如查看详情或稍后处理',
+							},
+							{
+								name: '危险操作（灰底红字）',
+								value: 3,
+								description: '用于拒绝、删除、终止等需要警示的操作',
+							},
+							{
+								name: '普通操作（灰底黑字）',
+								value: 4,
+								description: '用于中性操作，例如转交、返回或关闭',
+							},
 						],
 					},
 				],
@@ -350,23 +303,8 @@ export function createSendAndWaitTaskId(
 }
 
 export function resolveApprovalOptions(
-	optionMode: ApprovalOptionMode,
-	approvalOptions: ApprovalOptions,
 	customApprovalOptions: CustomApprovalOptions,
 ): ApprovalOption[] {
-	if (optionMode !== 'custom') {
-		const approveLabel = approvalOptions.approveLabel?.trim() || '通过';
-		const disapproveLabel = approvalOptions.disapproveLabel?.trim() || '拒绝';
-		const options: ApprovalOption[] = [];
-
-		if ((approvalOptions.approvalType ?? 'double') === 'double') {
-			options.push({ label: disapproveLabel, value: 'reject', approved: false, style: 2 });
-		}
-
-		options.push({ label: approveLabel, value: 'approve', approved: true, style: 1 });
-		return options;
-	}
-
 	const options = (customApprovalOptions.options ?? []).map((option) => ({
 		label: option.label?.trim() ?? '',
 		value: option.value?.trim() ?? '',
@@ -375,7 +313,7 @@ export function resolveApprovalOptions(
 	}));
 
 	if (options.length === 0) {
-		throw new Error('自定义审批至少需要 1 个选项');
+		throw new Error('审批至少需要 1 个选项');
 	}
 	if (options.length > 6) {
 		throw new Error('企业微信模板卡片最多支持 6 个按钮');
@@ -449,16 +387,6 @@ export async function executeSendAndWait(
 		);
 	}
 
-	const approvalOptions = this.getNodeParameter(
-		'approvalOptions.values',
-		itemIndex,
-		{},
-	) as ApprovalOptions;
-	const approvalOptionMode = this.getNodeParameter(
-		'approvalOptionMode',
-		itemIndex,
-		'default',
-	) as ApprovalOptionMode;
 	const customApprovalOptions = this.getNodeParameter(
 		'customApprovalOptions',
 		itemIndex,
@@ -467,11 +395,7 @@ export async function executeSendAndWait(
 	const approvalMode = this.getNodeParameter('approvalMode', itemIndex, 'url') as ApprovalMode;
 	let approvalOptionDefinitions: ApprovalOption[];
 	try {
-		approvalOptionDefinitions = resolveApprovalOptions(
-			approvalOptionMode,
-			approvalOptions,
-			customApprovalOptions,
-		);
+		approvalOptionDefinitions = resolveApprovalOptions(customApprovalOptions);
 	} catch (error) {
 		throw new NodeOperationError(this.getNode(), '无法配置审批选项', {
 			description: (error as Error).message,
@@ -485,7 +409,7 @@ export async function executeSendAndWait(
 			approved: String(option.approved),
 			selectedOption: option.value,
 			selectedLabel: option.label,
-			...(approvalOptionMode === 'custom' ? { optionMode: 'custom' } : {}),
+			optionMode: 'custom',
 			...(approvalMode === 'native' ? { taskId } : {}),
 		}),
 	}));

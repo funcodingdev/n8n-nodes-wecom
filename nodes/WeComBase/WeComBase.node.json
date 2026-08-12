@@ -2,7 +2,11 @@
 	"node": "n8n-nodes-wecom.weComBase",
 	"nodeVersion": "1.0",
 	"codexVersion": "1.0",
-	"categories": ["Communication"],
+	"categories": ["Communication", "HITL"],
+	"subcategories": {
+		"HITL": ["Human in the Loop"]
+	},
+	"alias": ["human", "form", "wait", "hitl", "approval", "人工审批", "人工审核"],
 	"resources": {
 		"credentialDocumentation": [
 			{
@@ -11,9 +15,8 @@
 		],
 		"primaryDocumentation": [
 			{
-				"url": "https://github.com/yourusername/n8n-nodes-wecom"
+				"url": "https://github.com/funcodingdev/n8n-nodes-wecom"
 			}
 		]
 	}
 }
-
