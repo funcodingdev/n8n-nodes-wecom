@@ -15,8 +15,24 @@ import {
 } from '../WeCom/shared/crypto';
 import {
 	createNativeHitlContextHeaders,
+	createNativeHitlStatusText,
 	parseNativeHitlEventKey,
 } from '../WeCom/shared/nativeHitl';
+
+function createNativeHitlButtonUpdateResponse(
+	crypto: WeComCrypto,
+	token: string,
+	toUser: string,
+	fromUser: string,
+	replaceName: string,
+	node: Parameters<typeof generateEncryptedResponseXML>[3],
+): string {
+	const replyMessage = generateReplyMessageXML(toUser, fromUser, 'update_button', {
+		Button: { ReplaceName: replaceName },
+	});
+
+	return generateEncryptedResponseXML(crypto, token, replyMessage, node);
+}
 
 // eslint-disable-next-line @n8n/community-nodes/node-usable-as-tool
 export class WeComTrigger implements INodeType {
@@ -586,7 +602,7 @@ export class WeComTrigger implements INodeType {
 				type: 'boolean',
 				default: true,
 				description:
-					'开启后，审批人在企业微信中选择操作时，会自动继续对应的等待工作流',
+					'开启后，审批人在企业微信中选择操作时，会自动继续对应的等待工作流，并将卡片更新为不可重复点击的处理结果',
 				hint: '仅处理由本插件发送的审批卡片，不影响其他模板卡片事件',
 			},
 		],
@@ -761,41 +777,16 @@ export class WeComTrigger implements INodeType {
 						responseCode: callbackContext.responseCode,
 					};
 
-					const isDefaultOption = !eventKeyResult.payload.isCustomOption;
-					const selectedLabel = (
-						eventKeyResult.payload.selectedLabel || eventKeyResult.payload.selectedOption
-					)?.replace(/]]>/g, ']]]]><![CDATA[>');
-					const resultTitle = isDefaultOption
-						? eventKeyResult.payload.approved
-							? '已提交：通过'
-							: '已提交：拒绝'
-						: `已提交：${selectedLabel}`;
-					const replaceText = isDefaultOption
-						? eventKeyResult.payload.approved
-							? '已提交：通过'
-							: '已提交：拒绝'
-						: `已提交：${selectedLabel}`;
-					const replyMessage = generateReplyMessageXML(
-						callbackContext.respondedBy,
-						messageData.ToUserName || corpId,
-						'update_template_card',
-						{
-							TemplateCard: {
-								CardType: 'button_interaction',
-								MainTitle: {
-									title: resultTitle,
-									desc: `由 ${callbackContext.respondedBy} 提交`,
-								},
-								SubTitleText: '你的选择已记录，无需重复操作',
-								TaskId: callbackContext.taskId,
-								ReplaceText: replaceText,
-							},
-						},
-					);
-					nativeHitlResponse = generateEncryptedResponseXML(
+					const selectedLabel =
+						eventKeyResult.payload.selectedLabel ||
+						eventKeyResult.payload.selectedOption ||
+						(eventKeyResult.payload.approved ? '通过' : '拒绝');
+					nativeHitlResponse = createNativeHitlButtonUpdateResponse(
 						crypto,
 						token,
-						replyMessage,
+						callbackContext.respondedBy,
+						messageData.ToUserName || corpId,
+						createNativeHitlStatusText(selectedLabel),
 						this.getNode(),
 					);
 				} catch {
@@ -804,6 +795,14 @@ export class WeComTrigger implements INodeType {
 						reason: '这条审批已处理或已过期，无需重复操作',
 						taskId: callbackContext.taskId,
 					};
+					nativeHitlResponse = createNativeHitlButtonUpdateResponse(
+						crypto,
+						token,
+						callbackContext.respondedBy,
+						messageData.ToUserName || corpId,
+						'已处理，请勿重复操作',
+						this.getNode(),
+					);
 				}
 			}
 		}

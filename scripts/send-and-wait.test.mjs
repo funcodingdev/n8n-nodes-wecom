@@ -25,6 +25,7 @@ const {
 	NATIVE_HITL_CONTEXT_SIGNATURE_HEADER,
 	createNativeHitlContextHeaders,
 	createNativeHitlEventKey,
+	createNativeHitlStatusText,
 	parseNativeHitlEventKey,
 } = nativeHitlModule;
 
@@ -376,6 +377,12 @@ test('creates a valid unique WeCom task id', () => {
 	assert.match(otherTaskId, /_21i3v9_deadbeef$/);
 });
 
+test('creates a concise disabled-button status for native approvals', () => {
+	assert.equal(createNativeHitlStatusText('转交主管'), '已提交：转交主管');
+	assert.equal(createNativeHitlStatusText('这是一个很长的审批选项'), '已提交：这是一个很长');
+	assert.equal(createNativeHitlStatusText(''), '已提交：已处理');
+});
+
 test('calculates a limited wait time', () => {
 	const now = new Date('2026-08-12T00:00:00.000Z');
 	const waitTill = calculateWaitTill(
@@ -470,15 +477,33 @@ test('relays an encrypted native callback and returns the verified approver', as
 
 	const encryptedReply = parseXML(result.webhookResponse).Encrypt;
 	const reply = parseXML(crypto.decrypt(encryptedReply, node));
-	assert.equal(reply.MsgType, 'update_template_card');
-	assert.equal(reply.ReplaceText, '已提交：通过');
+	assert.equal(reply.MsgType, 'update_button');
+	assert.equal(reply.ReplaceName, '已提交：通过');
 
+	const cardUpdateRequests = [];
 	const nativeResult = await sendAndWaitWebhook.call({
 		getQueryData: () => ({ approved: 'true', taskId }),
 		getNodeParameter: (name, fallback) => (name === 'approvalMode' ? 'native' : fallback),
-		getCredentials: async () => ({ token }),
+		getCredentials: async (name) =>
+			name === 'weComReceiveApi'
+				? { token }
+				: {
+						corpId,
+						corpSecret: 'native-corp-secret',
+						agentId: '1000002',
+						baseUrl: 'https://qyapi.weixin.qq.com',
+					},
 		getHeaderData: () => relayRequests[0].headers,
 		getNode: () => node,
+		helpers: {
+			httpRequest: async (options) => {
+				cardUpdateRequests.push(options);
+				if (options.url.endsWith('/cgi-bin/gettoken')) {
+					return { errcode: 0, access_token: 'native-access-token', expires_in: 7200 };
+				}
+				return { errcode: 0, errmsg: 'ok' };
+			},
+		},
 	});
 
 	assert.deepEqual(nativeResult.workflowData[0][0].json.data, {
@@ -490,6 +515,19 @@ test('relays an encrypted native callback and returns the verified approver', as
 		taskId,
 		responseCode: 'response-code-1',
 		respondedAt: nativeResult.workflowData[0][0].json.data.respondedAt,
+		cardUpdate: {
+			status: 'updated',
+			scope: 'allRecipients',
+		},
+	});
+	const updateRequest = cardUpdateRequests.find((request) =>
+		request.url.endsWith('/cgi-bin/message/update_template_card'),
+	);
+	assert.deepEqual(updateRequest.body, {
+		atall: 1,
+		agentid: '1000002',
+		response_code: 'response-code-1',
+		button: { replace_name: '已提交：通过' },
 	});
 	assert.match(nativeResult.workflowData[0][0].json.data.respondedAt, /^\d{4}-\d{2}-\d{2}T/);
 	assert.ok(relayRequests[0].headers[NATIVE_HITL_CONTEXT_HEADER]);
@@ -506,7 +544,8 @@ test('relays a native rejection and updates the card as rejected', async () => {
 	assert.equal(result.workflowData[0][0].json.hitlResume.approved, false);
 	assert.equal(result.workflowData[0][0].json.hitlResume.respondedBy, 'zhaoliu');
 	const reply = parseXML(crypto.decrypt(parseXML(result.webhookResponse).Encrypt, node));
-	assert.equal(reply.ReplaceText, '已提交：拒绝');
+	assert.equal(reply.MsgType, 'update_button');
+	assert.equal(reply.ReplaceName, '已提交：拒绝');
 });
 
 test('relays a custom native option and updates the card with its label', async () => {
@@ -521,7 +560,8 @@ test('relays a custom native option and updates the card with its label', async 
 	assert.equal(result.workflowData[0][0].json.hitlResume.selectedOption, 'transfer_to_manager');
 	assert.equal(result.workflowData[0][0].json.hitlResume.selectedLabel, '转交主管');
 	const reply = parseXML(crypto.decrypt(parseXML(result.webhookResponse).Encrypt, node));
-	assert.equal(reply.ReplaceText, '已提交：转交主管');
+	assert.equal(reply.MsgType, 'update_button');
+	assert.equal(reply.ReplaceName, '已提交：转交主管');
 
 	const context = JSON.parse(
 		Buffer.from(relayRequests[0].headers[NATIVE_HITL_CONTEXT_HEADER], 'base64url').toString(
@@ -600,12 +640,67 @@ test('does not resume a native callback twice', async () => {
 		},
 	});
 
-	assert.equal(result.webhookResponse, 'success');
+	assert.notEqual(result.webhookResponse, 'success');
 	assert.deepEqual(result.workflowData[0][0].json.hitlResume, {
 		status: 'failed',
 		reason: '这条审批已处理或已过期，无需重复操作',
 		taskId,
 	});
+	const duplicateReply = parseXML(
+		crypto.decrypt(parseXML(result.webhookResponse).Encrypt, node),
+	);
+	assert.equal(duplicateReply.MsgType, 'update_button');
+	assert.equal(duplicateReply.ReplaceName, '已处理，请勿重复操作');
+});
+
+test('keeps the approval result when syncing the card fails', async () => {
+	const token = 'native-card-update-failure-token';
+	const taskId = 'native-card-update-failure-task';
+	const headers = createNativeHitlContextHeaders(
+		{
+			approved: true,
+			selectedOption: 'approve',
+			selectedLabel: '通过',
+			respondedBy: 'wangwu',
+			responseCode: 'response-code-failure',
+			taskId,
+		},
+		token,
+	);
+
+	const result = await sendAndWaitWebhook.call({
+		getQueryData: () => ({
+			approved: 'true',
+			selectedOption: 'approve',
+			selectedLabel: '通过',
+			taskId,
+		}),
+		getNodeParameter: (name, fallback) => (name === 'approvalMode' ? 'native' : fallback),
+		getCredentials: async (name) =>
+			name === 'weComReceiveApi'
+				? { token }
+				: {
+						corpId: 'corp-card-update-failure',
+						corpSecret: 'secret-card-update-failure',
+						agentId: '1000002',
+						baseUrl: 'https://qyapi.weixin.qq.com',
+					},
+		getHeaderData: () => headers,
+		getNode: () => ({ id: 'node-failure', name: 'WeCom', type: 'weComBase', typeVersion: 1 }),
+		helpers: {
+			httpRequest: async (options) => {
+				if (options.url.endsWith('/cgi-bin/gettoken')) {
+					return { errcode: 0, access_token: 'access-token', expires_in: 7200 };
+				}
+				return { errcode: 40058, errmsg: 'invalid response_code' };
+			},
+		},
+	});
+
+	assert.equal(result.workflowData[0][0].json.data.approved, true);
+	assert.equal(result.workflowData[0][0].json.data.cardUpdate.status, 'failed');
+	assert.equal(result.workflowData[0][0].json.data.cardUpdate.scope, 'allRecipients');
+	assert.match(result.workflowData[0][0].json.data.cardUpdate.reason, /40058/);
 });
 
 test('requires a signed native callback context at the waiting webhook', async () => {

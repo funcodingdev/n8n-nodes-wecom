@@ -13,6 +13,7 @@ import { weComApiRequest } from '../../shared/transport';
 import {
 	NATIVE_HITL_CONTEXT_HEADER,
 	NATIVE_HITL_CONTEXT_SIGNATURE_HEADER,
+	createNativeHitlStatusText,
 	createNativeHitlEventKey,
 	parseNativeHitlContext,
 } from '../../shared/nativeHitl';
@@ -176,7 +177,7 @@ export const sendAndWaitDescription: INodeProperties[] = [
 	},
 	{
 		displayName:
-			'审批人可以直接在企业微信中完成选择，并记录其成员身份。使用前，请先激活“企业微信消息接收”触发器，并开启“自动处理企业微信内的审批选择”。',
+			'审批人可以直接在企业微信中完成选择，并记录其成员身份。提交后，同一张卡片会向所有接收人显示处理结果并停止重复点击。使用前，请先激活“企业微信消息接收”触发器，并开启“自动处理企业微信内的审批选择”。',
 		name: 'nativeApprovalNotice',
 		type: 'notice',
 		default: '',
@@ -500,6 +501,7 @@ export async function sendAndWaitWebhook(this: IWebhookFunctions): Promise<IWebh
 	const selectedLabel = query.selectedLabel || (approved ? '通过' : '拒绝');
 	const approvalMode = this.getNodeParameter('approvalMode', 'url') as ApprovalMode;
 	let nativeContext;
+	let cardUpdate: IDataObject | undefined;
 
 	if (approvalMode === 'native') {
 		const credentials = await this.getCredentials('weComReceiveApi');
@@ -525,6 +527,36 @@ export async function sendAndWaitWebhook(this: IWebhookFunctions): Promise<IWebh
 				'无法确认本次企业微信操作，请返回企业微信重新选择',
 			);
 		}
+
+		if (!nativeContext.responseCode) {
+			cardUpdate = {
+				status: 'failed',
+				scope: 'allRecipients',
+				reason: '企业微信未返回卡片更新凭据',
+			};
+		} else {
+			try {
+				const sendCredentials = await this.getCredentials('weComApi');
+				await weComApiRequest.call(this, 'POST', '/cgi-bin/message/update_template_card', {
+					atall: 1,
+					agentid: sendCredentials.agentId as string,
+					response_code: nativeContext.responseCode,
+					button: {
+						replace_name: createNativeHitlStatusText(selectedLabel),
+					},
+				});
+				cardUpdate = {
+					status: 'updated',
+					scope: 'allRecipients',
+				};
+			} catch (error) {
+				cardUpdate = {
+					status: 'failed',
+					scope: 'allRecipients',
+					reason: (error as Error).message,
+				};
+			}
+		}
 	}
 
 	return {
@@ -546,6 +578,7 @@ export async function sendAndWaitWebhook(this: IWebhookFunctions): Promise<IWebh
 									}
 								: {}),
 							respondedAt: new Date().toISOString(),
+							...(cardUpdate ? { cardUpdate } : {}),
 						},
 					},
 				},

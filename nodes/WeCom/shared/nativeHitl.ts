@@ -3,6 +3,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 const NATIVE_HITL_EVENT_KEY_PREFIX = 'n8n_hitl_v1';
 export const NATIVE_HITL_CONTEXT_HEADER = 'x-n8n-wecom-hitl-context';
 export const NATIVE_HITL_CONTEXT_SIGNATURE_HEADER = 'x-n8n-wecom-hitl-signature';
+const NATIVE_HITL_STATUS_TEXT_MAX_LENGTH = 10;
 
 interface NativeHitlEventPayload {
 	resumeUrl: string;
@@ -43,6 +44,14 @@ function signaturesMatch(actual: string, expected: string): boolean {
 	return (
 		actualBuffer.length === expectedBuffer.length && timingSafeEqual(actualBuffer, expectedBuffer)
 	);
+}
+
+export function createNativeHitlStatusText(selectedLabel: string | undefined): string {
+	const prefix = '已提交：';
+	const label = selectedLabel?.trim() || '已处理';
+	const availableLength = NATIVE_HITL_STATUS_TEXT_MAX_LENGTH - Array.from(prefix).length;
+
+	return `${prefix}${Array.from(label).slice(0, availableLength).join('')}`;
 }
 
 export function createNativeHitlEventKey(resumeUrl: string, taskId: string, token: string): string {
