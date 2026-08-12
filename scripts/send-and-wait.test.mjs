@@ -12,6 +12,7 @@ const {
 	createApprovalTemplateCard,
 	createSendAndWaitTaskId,
 	executeSendAndWait,
+	resolveApprovalOptions,
 	sendAndWaitWebhook,
 } = sendAndWaitModule;
 const { WeComBase } = weComBaseModule;
@@ -25,14 +26,18 @@ const {
 	parseNativeHitlEventKey,
 } = nativeHitlModule;
 
-async function invokeNativeTriggerCallback({ approved, userId }) {
+async function invokeNativeTriggerCallback({ approved, userId, selectedOption, selectedLabel }) {
 	const token = `native-${approved}-token`;
 	const corpId = `ww-native-${approved}`;
 	const encodingAESKey = Buffer.alloc(32, approved ? 11 : 12)
 		.toString('base64')
 		.slice(0, 43);
 	const taskId = `n8n_hitl_${approved}_task`;
-	const resumeUrl = `https://n8n.example/webhook-waiting/execution/node?approved=${approved}&taskId=${taskId}&signature=signed`;
+	const resumeQuery = new URLSearchParams({ approved: String(approved), taskId, signature: 'signed' });
+	if (selectedOption) resumeQuery.set('selectedOption', selectedOption);
+	if (selectedLabel) resumeQuery.set('selectedLabel', selectedLabel);
+	if (selectedOption || selectedLabel) resumeQuery.set('optionMode', 'custom');
+	const resumeUrl = `https://n8n.example/webhook-waiting/execution/node?${resumeQuery.toString()}`;
 	const eventKey = createNativeHitlEventKey(resumeUrl, taskId, token);
 	const decryptedCallback = `<xml>
 		<ToUserName><![CDATA[${corpId}]]></ToUserName>
@@ -96,12 +101,23 @@ test('creates URL buttons for approve and reject', () => {
 	const card = createApprovalTemplateCard({
 		title: '工具调用审批',
 		message: '准备发送消息',
-		approvalType: 'double',
 		approvalMode: 'url',
-		approveLabel: '通过',
-		disapproveLabel: '拒绝',
-		approveAction: 'https://n8n.example/webhook-waiting?approved=true',
-		disapproveAction: 'https://n8n.example/webhook-waiting?approved=false',
+		options: [
+			{
+				label: '拒绝',
+				value: 'reject',
+				approved: false,
+				style: 2,
+				action: 'https://n8n.example/webhook-waiting?approved=false',
+			},
+			{
+				label: '通过',
+				value: 'approve',
+				approved: true,
+				style: 1,
+				action: 'https://n8n.example/webhook-waiting?approved=true',
+			},
+		],
 		taskId: 'n8n_hitl_test',
 	});
 
@@ -126,12 +142,16 @@ test('creates only an approve button for single approval', () => {
 	const card = createApprovalTemplateCard({
 		title: '审批',
 		message: '内容',
-		approvalType: 'single',
 		approvalMode: 'url',
-		approveLabel: '确认',
-		disapproveLabel: '拒绝',
-		approveAction: 'https://n8n.example/approve',
-		disapproveAction: 'https://n8n.example/reject',
+		options: [
+			{
+				label: '确认',
+				value: 'approve',
+				approved: true,
+				style: 1,
+				action: 'https://n8n.example/approve',
+			},
+		],
 		taskId: 'n8n_hitl_test',
 	});
 
@@ -143,12 +163,23 @@ test('creates native WeCom callback buttons', () => {
 	const card = createApprovalTemplateCard({
 		title: '审批',
 		message: '内容',
-		approvalType: 'double',
 		approvalMode: 'native',
-		approveLabel: '通过',
-		disapproveLabel: '拒绝',
-		approveAction: 'native-approve-key',
-		disapproveAction: 'native-reject-key',
+		options: [
+			{
+				label: '拒绝',
+				value: 'reject',
+				approved: false,
+				style: 2,
+				action: 'native-reject-key',
+			},
+			{
+				label: '通过',
+				value: 'approve',
+				approved: true,
+				style: 1,
+				action: 'native-approve-key',
+			},
+		],
 		taskId: 'n8n_hitl_test',
 	});
 
@@ -156,6 +187,104 @@ test('creates native WeCom callback buttons', () => {
 		{ type: 0, text: '拒绝', style: 2, key: 'native-reject-key' },
 		{ type: 0, text: '通过', style: 1, key: 'native-approve-key' },
 	]);
+});
+
+test('uses approve and reject as the default options', () => {
+	assert.deepEqual(resolveApprovalOptions('default', {}, {}), [
+		{ label: '拒绝', value: 'reject', approved: false, style: 2 },
+		{ label: '通过', value: 'approve', approved: true, style: 1 },
+	]);
+});
+
+test('supports up to six custom approval options with unique values', () => {
+	const options = resolveApprovalOptions(
+		'custom',
+		{},
+		{
+			options: [
+				{ label: '通过', value: 'approve_now', approved: true, style: 1 },
+				{ label: '拒绝', value: 'reject_now', approved: false, style: 2 },
+				{ label: '转交主管', value: 'transfer', approved: false, style: 3 },
+			],
+		},
+	);
+
+	assert.deepEqual(options[2], {
+		label: '转交主管',
+		value: 'transfer',
+		approved: false,
+		style: 3,
+	});
+	assert.throws(
+		() =>
+			resolveApprovalOptions('custom', {}, {
+				options: Array.from({ length: 7 }, (_, index) => ({
+					label: `选项${index}`,
+					value: `option_${index}`,
+				})),
+			}),
+		/最多支持 6 个按钮/,
+	);
+	assert.throws(
+		() =>
+			resolveApprovalOptions('custom', {}, {
+				options: [
+					{ label: '选项一', value: 'same' },
+					{ label: '选项二', value: 'same' },
+				],
+			}),
+		/返回值不可重复/,
+	);
+});
+
+test('creates URL buttons for custom approval options', () => {
+	const options = resolveApprovalOptions('custom', {}, {
+		options: [
+			{ label: '立即执行', value: 'run_now', approved: true, style: 1 },
+			{ label: '稍后处理', value: 'later', approved: false, style: 3 },
+			{ label: '转交主管', value: 'transfer', approved: false, style: 2 },
+		],
+	});
+	const card = createApprovalTemplateCard({
+		title: '工具调用审批',
+		message: '请选择处理方式',
+		approvalMode: 'url',
+		options: options.map((option) => ({
+			...option,
+				action: `https://n8n.example/wait?${new URLSearchParams({
+				approved: String(option.approved),
+				selectedOption: option.value,
+				selectedLabel: option.label,
+				optionMode: 'custom',
+			}).toString()}`,
+		})),
+		taskId: 'n8n_hitl_custom',
+	});
+
+	assert.equal(card.button_list.length, 3);
+	assert.deepEqual(
+		card.button_list.map((button) => Object.fromEntries(new URL(button.url).searchParams)),
+		[
+			{
+				approved: 'true',
+				selectedOption: 'run_now',
+				selectedLabel: '立即执行',
+				optionMode: 'custom',
+			},
+			{
+				approved: 'false',
+				selectedOption: 'later',
+				selectedLabel: '稍后处理',
+				optionMode: 'custom',
+			},
+			{
+				approved: 'false',
+				selectedOption: 'transfer',
+				selectedLabel: '转交主管',
+				optionMode: 'custom',
+			},
+		],
+	);
 });
 
 test('creates a valid unique WeCom task id', () => {
@@ -186,7 +315,11 @@ test('calculates a limited wait time', () => {
 
 test('returns the approval shape expected by n8n HITL', async () => {
 	const approvedResult = await sendAndWaitWebhook.call({
-		getQueryData: () => ({ approved: 'true' }),
+		getQueryData: () => ({
+			approved: 'true',
+			selectedOption: 'approve_later',
+			selectedLabel: '稍后通过',
+		}),
 		getNodeParameter: (_name, fallback) => fallback,
 	});
 	const rejectedResult = await sendAndWaitWebhook.call({
@@ -195,7 +328,11 @@ test('returns the approval shape expected by n8n HITL', async () => {
 	});
 
 	assert.equal(approvedResult.workflowData[0][0].json.data.approved, true);
+	assert.equal(approvedResult.workflowData[0][0].json.data.selectedOption, 'approve_later');
+	assert.equal(approvedResult.workflowData[0][0].json.data.selectedLabel, '稍后通过');
 	assert.equal(rejectedResult.workflowData[0][0].json.data.approved, false);
+	assert.equal(rejectedResult.workflowData[0][0].json.data.selectedOption, 'reject');
+	assert.equal(rejectedResult.workflowData[0][0].json.data.selectedLabel, '拒绝');
 	assert.equal(approvedResult.workflowData[0][0].json.data.approvalMode, 'url');
 	assert.match(approvedResult.workflowData[0][0].json.data.respondedAt, /^\d{4}-\d{2}-\d{2}T/);
 });
@@ -269,6 +406,8 @@ test('relays an encrypted native callback and returns the verified approver', as
 
 	assert.deepEqual(nativeResult.workflowData[0][0].json.data, {
 		approved: true,
+		selectedOption: 'approve',
+		selectedLabel: '通过',
 		approvalMode: 'native',
 		respondedBy: 'zhangsan',
 		taskId,
@@ -291,6 +430,29 @@ test('relays a native rejection and updates the card as rejected', async () => {
 	assert.equal(result.workflowData[0][0].json.hitlResume.respondedBy, 'zhaoliu');
 	const reply = parseXML(crypto.decrypt(parseXML(result.webhookResponse).Encrypt, node));
 	assert.equal(reply.ReplaceText, '已拒绝');
+});
+
+test('relays a custom native option and updates the card with its label', async () => {
+	const { crypto, node, relayRequests, result } = await invokeNativeTriggerCallback({
+		approved: false,
+		userId: 'sunqi',
+		selectedOption: 'transfer_to_manager',
+		selectedLabel: '转交主管',
+	});
+
+	assert.equal(result.workflowData[0][0].json.hitlResume.approved, false);
+	assert.equal(result.workflowData[0][0].json.hitlResume.selectedOption, 'transfer_to_manager');
+	assert.equal(result.workflowData[0][0].json.hitlResume.selectedLabel, '转交主管');
+	const reply = parseXML(crypto.decrypt(parseXML(result.webhookResponse).Encrypt, node));
+	assert.equal(reply.ReplaceText, '已选择：转交主管');
+
+	const context = JSON.parse(
+		Buffer.from(relayRequests[0].headers[NATIVE_HITL_CONTEXT_HEADER], 'base64url').toString(
+			'utf8',
+		),
+	);
+	assert.equal(context.selectedOption, 'transfer_to_manager');
+	assert.equal(context.selectedLabel, '转交主管');
 });
 
 test('rejects tampered native HITL keys and cross-origin resume URLs', () => {
@@ -383,11 +545,13 @@ test('requires a signed native callback context at the waiting webhook', async (
 	);
 });
 
-test('binds native callback context to the signed decision and task id', async () => {
+test('binds native callback context to the signed decision, option, and task id', async () => {
 	const token = 'native-context-token';
 	const headers = createNativeHitlContextHeaders(
 		{
-			approved: false,
+			approved: true,
+			selectedOption: 'transfer',
+			selectedLabel: '转交主管',
 			respondedBy: 'wangwu',
 			responseCode: 'response-code-3',
 			taskId: 'task-native-3',
@@ -398,7 +562,12 @@ test('binds native callback context to the signed decision and task id', async (
 	await assert.rejects(
 		() =>
 			sendAndWaitWebhook.call({
-				getQueryData: () => ({ approved: 'true', taskId: 'task-native-3' }),
+				getQueryData: () => ({
+					approved: 'true',
+					selectedOption: 'approve',
+					selectedLabel: '通过',
+					taskId: 'task-native-3',
+				}),
 				getNodeParameter: (name, fallback) => (name === 'approvalMode' ? 'native' : fallback),
 				getCredentials: async () => ({ token }),
 				getHeaderData: () => headers,
@@ -421,7 +590,14 @@ test('sends the signed URL card before putting execution to wait', async () => {
 		totag_manual: '',
 		subject: '工具调用审批',
 		message: '即将发送一条消息',
-		'approvalOptions.values': { approvalType: 'double' },
+		approvalOptionMode: 'custom',
+		customApprovalOptions: {
+			options: [
+				{ label: '立即执行', value: 'run_now', approved: true, style: 1 },
+				{ label: '稍后处理', value: 'later', approved: false, style: 3 },
+				{ label: '转交主管', value: 'transfer', approved: false, style: 2 },
+			],
+		},
 		'options.limitWaitTime.values': {},
 	};
 	const inputItems = [{ json: { tool: 'sendText' } }];
@@ -436,7 +612,8 @@ test('sends the signed URL card before putting execution to wait', async () => {
 		getExecutionId: () => 'execution-1',
 		getNode: () => ({ id: 'node-1', name: 'WeCom', type: 'weComBase', typeVersion: 1 }),
 		getNodeParameter: (name, _index, defaultValue) => parameters[name] ?? defaultValue,
-		getSignedResumeUrl: ({ approved }) => `https://n8n.example/wait?approved=${approved}`,
+		getSignedResumeUrl: (query) =>
+			`https://n8n.example/wait?${new URLSearchParams(query).toString()}`,
 		helpers: {
 			httpRequest: async (options) => {
 				requests.push(options);
@@ -458,8 +635,29 @@ test('sends the signed URL card before putting execution to wait', async () => {
 	assert.equal(requests[1].url, 'https://qyapi.weixin.qq.com/cgi-bin/message/send');
 	assert.equal(requests[1].body.touser, 'approver1');
 	assert.deepEqual(
-		requests[1].body.template_card.button_list.map((button) => button.url),
-		['https://n8n.example/wait?approved=false', 'https://n8n.example/wait?approved=true'],
+		requests[1].body.template_card.button_list.map((button) =>
+			Object.fromEntries(new URL(button.url).searchParams),
+		),
+		[
+			{
+				approved: 'true',
+				selectedOption: 'run_now',
+				selectedLabel: '立即执行',
+				optionMode: 'custom',
+			},
+			{
+				approved: 'false',
+				selectedOption: 'later',
+				selectedLabel: '稍后处理',
+				optionMode: 'custom',
+			},
+			{
+				approved: 'false',
+				selectedOption: 'transfer',
+				selectedLabel: '转交主管',
+				optionMode: 'custom',
+			},
+		],
 	);
 	assert.equal(waitTill.getUTCFullYear(), 3000);
 });
@@ -496,8 +694,8 @@ test('sends native callback buttons before putting execution to wait', async () 
 		getExecutionId: () => 'execution-native',
 		getNode: () => ({ id: 'node-native', name: 'WeCom', type: 'weComBase', typeVersion: 1 }),
 		getNodeParameter: (name, _index, defaultValue) => parameters[name] ?? defaultValue,
-		getSignedResumeUrl: ({ approved, taskId }) =>
-			`https://n8n.example/webhook-waiting/execution-native/node-native?approved=${approved}&taskId=${taskId}&signature=signed-${approved}`,
+		getSignedResumeUrl: (query) =>
+			`https://n8n.example/webhook-waiting/execution-native/node-native?${new URLSearchParams(query).toString()}&signature=signed-${query.approved}`,
 		helpers: {
 			httpRequest: async (options) => {
 				requests.push(options);
@@ -526,6 +724,15 @@ test('sends native callback buttons before putting execution to wait', async () 
 			'https://n8n.example/webhook/wecom-native',
 		).payload.approved,
 		false,
+	);
+	assert.equal(
+		parseNativeHitlEventKey(
+			card.button_list[0].key,
+			card.task_id,
+			token,
+			'https://n8n.example/webhook/wecom-native',
+		).payload.selectedOption,
+		'reject',
 	);
 	assert.equal(
 		parseNativeHitlEventKey(

@@ -731,6 +731,8 @@ export class WeComTrigger implements INodeType {
 			} else if (eventKeyResult.recognized && eventKeyResult.valid) {
 				const callbackContext = {
 					approved: eventKeyResult.payload.approved,
+					selectedOption: eventKeyResult.payload.selectedOption,
+					selectedLabel: eventKeyResult.payload.selectedLabel,
 					respondedBy: messageData.FromUserName || '',
 					responseCode: messageData.ResponseCode || '',
 					taskId: messageData.TaskId || '',
@@ -748,11 +750,31 @@ export class WeComTrigger implements INodeType {
 					nativeHitlResult = {
 						status: 'resumed',
 						approved: eventKeyResult.payload.approved,
+						...(eventKeyResult.payload.selectedOption
+							? { selectedOption: eventKeyResult.payload.selectedOption }
+							: {}),
+						...(eventKeyResult.payload.selectedLabel
+							? { selectedLabel: eventKeyResult.payload.selectedLabel }
+							: {}),
 						respondedBy: callbackContext.respondedBy,
 						taskId: callbackContext.taskId,
 						responseCode: callbackContext.responseCode,
 					};
 
+					const isDefaultOption = !eventKeyResult.payload.isCustomOption;
+					const selectedLabel = (
+						eventKeyResult.payload.selectedLabel || eventKeyResult.payload.selectedOption
+					)?.replace(/]]>/g, ']]]]><![CDATA[>');
+					const resultTitle = isDefaultOption
+						? eventKeyResult.payload.approved
+							? '审批已通过'
+							: '审批已拒绝'
+						: `已选择：${selectedLabel}`;
+					const replaceText = isDefaultOption
+						? eventKeyResult.payload.approved
+							? '已通过'
+							: '已拒绝'
+						: `已选择：${selectedLabel}`;
 					const replyMessage = generateReplyMessageXML(
 						callbackContext.respondedBy,
 						messageData.ToUserName || corpId,
@@ -761,12 +783,12 @@ export class WeComTrigger implements INodeType {
 							TemplateCard: {
 								CardType: 'button_interaction',
 								MainTitle: {
-									title: eventKeyResult.payload.approved ? '审批已通过' : '审批已拒绝',
+									title: resultTitle,
 									desc: `操作人：${callbackContext.respondedBy}`,
 								},
 								SubTitleText: 'n8n 工作流已恢复执行',
 								TaskId: callbackContext.taskId,
-								ReplaceText: eventKeyResult.payload.approved ? '已通过' : '已拒绝',
+								ReplaceText: replaceText,
 							},
 						},
 					);

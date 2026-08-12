@@ -11,6 +11,8 @@ interface NativeHitlEventPayload {
 
 export interface NativeHitlCallbackContext {
 	approved: boolean;
+	selectedOption?: string;
+	selectedLabel?: string;
 	respondedBy: string;
 	responseCode: string;
 	taskId: string;
@@ -22,7 +24,12 @@ export type NativeHitlEventKeyResult =
 	| {
 			recognized: true;
 			valid: true;
-			payload: NativeHitlEventPayload & { approved: boolean };
+			payload: NativeHitlEventPayload & {
+				approved: boolean;
+				selectedOption?: string;
+				selectedLabel?: string;
+				isCustomOption: boolean;
+			};
 	  };
 
 function sign(value: string, token: string): string {
@@ -45,7 +52,9 @@ export function createNativeHitlEventKey(resumeUrl: string, taskId: string, toke
 	const eventKey = `${NATIVE_HITL_EVENT_KEY_PREFIX}.${encodedPayload}.${sign(encodedPayload, token)}`;
 
 	if (Buffer.byteLength(eventKey, 'utf8') > 1024) {
-		throw new Error('原生审批按钮 key 超过企业微信 1024 字节限制，请缩短 n8n 公网地址');
+		throw new Error(
+			'原生审批按钮 key 超过企业微信 1024 字节限制，请缩短 n8n 公网地址或自定义选项内容',
+		);
 	}
 
 	return eventKey;
@@ -94,6 +103,9 @@ export function parseNativeHitlEventKey(
 	}
 
 	const approvedValue = resumeUrl.searchParams.get('approved');
+	const selectedOption = resumeUrl.searchParams.get('selectedOption') || undefined;
+	const selectedLabel = resumeUrl.searchParams.get('selectedLabel') || undefined;
+	const isCustomOption = resumeUrl.searchParams.get('optionMode') === 'custom';
 	if (
 		resumeUrl.origin !== triggerUrl.origin ||
 		!resumeUrl.searchParams.has('signature') ||
@@ -109,6 +121,9 @@ export function parseNativeHitlEventKey(
 		payload: {
 			...payload,
 			approved: approvedValue === 'true',
+			selectedOption,
+			selectedLabel,
+			isCustomOption,
 		},
 	};
 }
@@ -143,7 +158,13 @@ export function parseNativeHitlContext(
 			Buffer.from(encodedContext, 'base64url').toString('utf8'),
 		) as NativeHitlCallbackContext;
 
-		if (typeof context.approved !== 'boolean' || !context.respondedBy || !context.taskId) {
+		if (
+			typeof context.approved !== 'boolean' ||
+			!context.respondedBy ||
+			!context.taskId ||
+			(context.selectedOption !== undefined && typeof context.selectedOption !== 'string') ||
+			(context.selectedLabel !== undefined && typeof context.selectedLabel !== 'string')
+		) {
 			return undefined;
 		}
 

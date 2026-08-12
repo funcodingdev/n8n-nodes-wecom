@@ -20,6 +20,18 @@ import { getRecipientFields, getRecipientsFromNode } from './commonFields';
 
 type ApprovalType = 'single' | 'double';
 type ApprovalMode = 'url' | 'native';
+type ApprovalOptionMode = 'default' | 'custom';
+
+interface CustomApprovalOption {
+	label?: string;
+	value?: string;
+	approved?: boolean;
+	style?: number;
+}
+
+interface CustomApprovalOptions {
+	options?: CustomApprovalOption[];
+}
 
 interface ApprovalOptions {
 	approvalType?: ApprovalType;
@@ -37,13 +49,20 @@ interface LimitWaitTimeOptions {
 interface ApprovalCardInput {
 	title: string;
 	message: string;
-	approvalType: ApprovalType;
-	approveLabel: string;
-	disapproveLabel: string;
 	approvalMode: ApprovalMode;
-	approveAction: string;
-	disapproveAction: string;
+	options: ApprovalCardOption[];
 	taskId: string;
+}
+
+interface ApprovalOption {
+	label: string;
+	value: string;
+	approved: boolean;
+	style: number;
+}
+
+interface ApprovalCardOption extends ApprovalOption {
+	action: string;
 }
 
 const showOnlyForSendAndWait = {
@@ -156,12 +175,36 @@ export const sendAndWaitDescription: INodeProperties[] = [
 		},
 	},
 	{
+		displayName: '选项类型',
+		name: 'approvalOptionMode',
+		type: 'options',
+		default: 'default',
+		options: [
+			{
+				name: '默认（通过 / 拒绝）',
+				value: 'default',
+				description: '使用兼容现有工作流的通过、拒绝按钮',
+			},
+			{
+				name: '自定义选项',
+				value: 'custom',
+				description: '配置最多 6 个按钮，并指定每个选项是否允许工具执行',
+			},
+		],
+		displayOptions: { show: showOnlyForSendAndWait },
+	},
+	{
 		displayName: '审批选项',
 		name: 'approvalOptions',
 		type: 'fixedCollection',
 		default: {},
 		placeholder: '配置审批选项',
-		displayOptions: { show: showOnlyForSendAndWait },
+		displayOptions: {
+			show: {
+				...showOnlyForSendAndWait,
+				approvalOptionMode: ['default'],
+			},
+		},
 		options: [
 			{
 				displayName: '配置',
@@ -189,6 +232,66 @@ export const sendAndWaitDescription: INodeProperties[] = [
 						type: 'string',
 						default: '拒绝',
 						displayOptions: { show: { approvalType: ['double'] } },
+					},
+				],
+			},
+		],
+	},
+	{
+		displayName: '自定义选项',
+		name: 'customApprovalOptions',
+		type: 'fixedCollection',
+		typeOptions: { multipleValues: true },
+		default: {},
+		placeholder: '添加选项',
+		description: '至少添加 1 个、最多 6 个选项；返回值必须唯一。按钮文案建议不超过 10 个字。',
+		displayOptions: {
+			show: {
+				...showOnlyForSendAndWait,
+				approvalOptionMode: ['custom'],
+			},
+		},
+		options: [
+			{
+				displayName: '选项',
+				name: 'options',
+				values: [
+					{
+						displayName: '按钮文案',
+						name: 'label',
+						type: 'string',
+						default: '',
+						required: true,
+						placeholder: '例如：转交主管',
+						description: '企业微信建议不超过 10 个字',
+					},
+					{
+						displayName: '返回值',
+						name: 'value',
+						type: 'string',
+						default: '',
+						required: true,
+						placeholder: '例如：transfer_to_manager',
+						description: '工作流输出中的 selectedOption；同一张卡片内不可重复',
+					},
+					{
+						displayName: '允许工具执行',
+						name: 'approved',
+						type: 'boolean',
+						default: false,
+						description: '开启后该选项返回 approved=true，AI Agent 才会执行受控工具',
+					},
+					{
+						displayName: '按钮样式',
+						name: 'style',
+						type: 'options',
+						default: 1,
+						options: [
+							{ name: '样式 1', value: 1 },
+							{ name: '样式 2', value: 2 },
+							{ name: '样式 3', value: 3 },
+							{ name: '样式 4', value: 4 },
+						],
 					},
 				],
 			},
@@ -246,28 +349,56 @@ export function createSendAndWaitTaskId(
 	return `${prefix.slice(0, Math.max(0, 128 - suffix.length))}${suffix}`.slice(0, 128);
 }
 
-export function createApprovalTemplateCard(input: ApprovalCardInput): IDataObject {
-	const buttonList: IDataObject[] = [];
+export function resolveApprovalOptions(
+	optionMode: ApprovalOptionMode,
+	approvalOptions: ApprovalOptions,
+	customApprovalOptions: CustomApprovalOptions,
+): ApprovalOption[] {
+	if (optionMode !== 'custom') {
+		const approveLabel = approvalOptions.approveLabel?.trim() || '通过';
+		const disapproveLabel = approvalOptions.disapproveLabel?.trim() || '拒绝';
+		const options: ApprovalOption[] = [];
 
-	if (input.approvalType === 'double') {
-		buttonList.push({
-			type: input.approvalMode === 'native' ? 0 : 1,
-			text: input.disapproveLabel,
-			style: 2,
-			...(input.approvalMode === 'native'
-				? { key: input.disapproveAction }
-				: { url: input.disapproveAction }),
-		});
+		if ((approvalOptions.approvalType ?? 'double') === 'double') {
+			options.push({ label: disapproveLabel, value: 'reject', approved: false, style: 2 });
+		}
+
+		options.push({ label: approveLabel, value: 'approve', approved: true, style: 1 });
+		return options;
 	}
 
-	buttonList.push({
+	const options = (customApprovalOptions.options ?? []).map((option) => ({
+		label: option.label?.trim() ?? '',
+		value: option.value?.trim() ?? '',
+		approved: option.approved === true,
+		style: [1, 2, 3, 4].includes(option.style ?? 1) ? (option.style ?? 1) : 1,
+	}));
+
+	if (options.length === 0) {
+		throw new Error('自定义审批至少需要 1 个选项');
+	}
+	if (options.length > 6) {
+		throw new Error('企业微信模板卡片最多支持 6 个按钮');
+	}
+	if (options.some((option) => !option.label || !option.value)) {
+		throw new Error('每个自定义选项都必须填写按钮文案和返回值');
+	}
+	if (new Set(options.map((option) => option.value)).size !== options.length) {
+		throw new Error('自定义选项的返回值不可重复');
+	}
+
+	return options;
+}
+
+export function createApprovalTemplateCard(input: ApprovalCardInput): IDataObject {
+	const buttonList = input.options.map<IDataObject>((option) => ({
 		type: input.approvalMode === 'native' ? 0 : 1,
-		text: input.approveLabel,
-		style: 1,
+		text: option.label,
+		style: option.style,
 		...(input.approvalMode === 'native'
-			? { key: input.approveAction }
-			: { url: input.approveAction }),
-	});
+			? { key: option.action }
+			: { url: option.action }),
+	}));
 
 	return {
 		card_type: 'button_interaction',
@@ -323,17 +454,41 @@ export async function executeSendAndWait(
 		itemIndex,
 		{},
 	) as ApprovalOptions;
-	const approvalType = approvalOptions.approvalType ?? 'double';
+	const approvalOptionMode = this.getNodeParameter(
+		'approvalOptionMode',
+		itemIndex,
+		'default',
+	) as ApprovalOptionMode;
+	const customApprovalOptions = this.getNodeParameter(
+		'customApprovalOptions',
+		itemIndex,
+		{},
+	) as CustomApprovalOptions;
 	const approvalMode = this.getNodeParameter('approvalMode', itemIndex, 'url') as ApprovalMode;
-	const approveLabel = approvalOptions.approveLabel?.trim() || '通过';
-	const disapproveLabel = approvalOptions.disapproveLabel?.trim() || '拒绝';
+	let approvalOptionDefinitions: ApprovalOption[];
+	try {
+		approvalOptionDefinitions = resolveApprovalOptions(
+			approvalOptionMode,
+			approvalOptions,
+			customApprovalOptions,
+		);
+	} catch (error) {
+		throw new NodeOperationError(this.getNode(), '无法配置审批选项', {
+			description: (error as Error).message,
+			itemIndex,
+		});
+	}
 	const taskId = createSendAndWaitTaskId(this.getExecutionId(), this.getNode().id);
-	const approveUrl = this.getSignedResumeUrl(
-		approvalMode === 'native' ? { approved: 'true', taskId } : { approved: 'true' },
-	);
-	const disapproveUrl = this.getSignedResumeUrl(
-		approvalMode === 'native' ? { approved: 'false', taskId } : { approved: 'false' },
-	);
+	const approvalCardOptions: ApprovalCardOption[] = approvalOptionDefinitions.map((option) => ({
+		...option,
+		action: this.getSignedResumeUrl({
+			approved: String(option.approved),
+			selectedOption: option.value,
+			selectedLabel: option.label,
+			...(approvalOptionMode === 'custom' ? { optionMode: 'custom' } : {}),
+			...(approvalMode === 'native' ? { taskId } : {}),
+		}),
+	}));
 	const limitOptions = this.getNodeParameter(
 		'options.limitWaitTime.values',
 		itemIndex,
@@ -350,9 +505,6 @@ export async function executeSendAndWait(
 		});
 	}
 
-	let approveAction = approveUrl;
-	let disapproveAction = disapproveUrl;
-
 	if (approvalMode === 'native') {
 		const receiveCredentials = await this.getCredentials('weComReceiveApi');
 		if (receiveCredentials.corpId !== credentials.corpId) {
@@ -362,16 +514,13 @@ export async function executeSendAndWait(
 		}
 
 		try {
-			approveAction = createNativeHitlEventKey(
-				approveUrl,
-				taskId,
-				receiveCredentials.token as string,
-			);
-			disapproveAction = createNativeHitlEventKey(
-				disapproveUrl,
-				taskId,
-				receiveCredentials.token as string,
-			);
+			for (const option of approvalCardOptions) {
+				option.action = createNativeHitlEventKey(
+					option.action,
+					taskId,
+					receiveCredentials.token as string,
+				);
+			}
 		} catch (error) {
 			throw new NodeOperationError(this.getNode(), '无法生成企业微信原生审批按钮', {
 				description: (error as Error).message,
@@ -383,12 +532,8 @@ export async function executeSendAndWait(
 	const templateCard = createApprovalTemplateCard({
 		title: this.getNodeParameter('subject', itemIndex) as string,
 		message: this.getNodeParameter('message', itemIndex) as string,
-		approvalType,
 		approvalMode,
-		approveLabel,
-		disapproveLabel,
-		approveAction,
-		disapproveAction,
+		options: approvalCardOptions,
 		taskId,
 	});
 
@@ -411,8 +556,15 @@ export async function executeSendAndWait(
 }
 
 export async function sendAndWaitWebhook(this: IWebhookFunctions): Promise<IWebhookResponseData> {
-	const query = this.getQueryData() as { approved?: string; taskId?: string };
+	const query = this.getQueryData() as {
+		approved?: string;
+		taskId?: string;
+		selectedOption?: string;
+		selectedLabel?: string;
+	};
 	const approved = query.approved === 'true';
+	const selectedOption = query.selectedOption || (approved ? 'approve' : 'reject');
+	const selectedLabel = query.selectedLabel || (approved ? '通过' : '拒绝');
 	const approvalMode = this.getNodeParameter('approvalMode', 'url') as ApprovalMode;
 	let nativeContext;
 
@@ -430,7 +582,10 @@ export async function sendAndWaitWebhook(this: IWebhookFunctions): Promise<IWebh
 		if (
 			!nativeContext ||
 			nativeContext.approved !== approved ||
-			nativeContext.taskId !== query.taskId
+			nativeContext.taskId !== query.taskId ||
+			(nativeContext.selectedOption !== undefined &&
+				nativeContext.selectedOption !== selectedOption) ||
+			(nativeContext.selectedLabel !== undefined && nativeContext.selectedLabel !== selectedLabel)
 		) {
 			throw new NodeOperationError(this.getNode(), '企业微信原生审批回调上下文无效');
 		}
@@ -444,6 +599,8 @@ export async function sendAndWaitWebhook(this: IWebhookFunctions): Promise<IWebh
 					json: {
 						data: {
 							approved,
+							selectedOption,
+							selectedLabel,
 							approvalMode,
 							...(nativeContext
 								? {
