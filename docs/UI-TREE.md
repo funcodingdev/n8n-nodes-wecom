@@ -9,7 +9,7 @@
 ```
 n8n 节点面板
 │
-├─ 企业微信-基础 (WeCom)
+├─ 企业微信(WeCom)-基础
 │  type: weComBase
 │  配置顺序: Credential → Resource → Operation → Parameters
 │
@@ -367,7 +367,7 @@ n8n 节点面板
 │      └─ [基础]
 │          └─ 获取企业微信域名IP信息  (getServerDomainIp)
 │
-├─ 企业微信-办公 (WeCom)
+├─ 企业微信(WeCom)-办公
 │  type: weComOffice
 │  配置顺序: Credential → Resource → Operation → Parameters
 │
@@ -740,7 +740,7 @@ n8n 节点面板
 │      └─ [公费电话]
 │          └─ 获取公费电话拨打记录  (getDialRecord)
 │
-├─ 企业微信-连接微信 (WeCom)
+├─ 企业微信(WeCom)-连接微信
 │  type: weComWechat
 │  配置顺序: Credential → Resource → Operation → Parameters
 │
@@ -978,22 +978,22 @@ n8n 节点面板
 │          └─ 获取居民上报事件详情  (getResidentEventDetail)
 │
 └─ 触发器节点
-   ├─ 企业微信消息接收触发器 (WeCom)
+   ├─ 企业微信(WeCom)消息接收触发器
    │    type: weComTrigger
    │    ├─ 参数 · Path
    │    ├─ 参数 · 事件类型
    │    └─ 参数 · 返回原始数据
-   ├─ 企业微信消息接收（被动回复）触发器 (WeCom)
+   ├─ 企业微信(WeCom)消息接收（被动回复）触发器
    │    type: weComPassiveTrigger
    │    ├─ 参数 · Path
    │    ├─ 参数 · 消息类型
    │    └─ 参数 · 返回原始数据
-   ├─ 企业微信第三方应用指令回调触发器 (WeCom)
+   ├─ 企业微信(WeCom)第三方应用指令回调触发器
    │    type: weComSuiteTrigger
    │    ├─ 参数 · Path
    │    ├─ 参数 · 事件类型
    │    └─ 参数 · 返回原始数据
-   └─ 企业微信智能机器人消息接收触发器 (WeCom)
+   └─ 企业微信(WeCom)智能机器人消息接收触发器
         type: weComAiBotTrigger
         ├─ 参数 · Path
         ├─ 参数 · 消息类型

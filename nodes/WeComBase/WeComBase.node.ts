@@ -64,7 +64,7 @@ import {
 
 export class WeComBase implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: '企业微信-基础 (WeCom)',
+		displayName: '企业微信(WeCom)-基础',
 		name: 'weComBase',
 		// eslint-disable-next-line @n8n/community-nodes/icon-validation
 		icon: { light: 'file:../../icons/wecom.png', dark: 'file:../../icons/wecom.dark.png' },
@@ -112,17 +112,6 @@ export class WeComBase implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['pushMessage'],
-					},
-				},
-			},
-			{
-				name: 'weComReceiveApi',
-				required: true,
-				displayOptions: {
-					show: {
-						resource: ['message'],
-						operation: ['sendAndWait'],
-						approvalMode: ['native'],
 					},
 				},
 			},

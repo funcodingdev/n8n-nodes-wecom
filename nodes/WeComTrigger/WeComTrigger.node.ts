@@ -7,37 +7,12 @@ import type {
 	IDataObject,
 } from 'n8n-workflow';
 import { NodeOperationError, NodeConnectionTypes } from 'n8n-workflow';
-import {
-	WeComCrypto,
-	generateEncryptedResponseXML,
-	generateReplyMessageXML,
-	parseXML,
-} from '../WeCom/shared/crypto';
-import {
-	createNativeHitlContextHeaders,
-	createNativeHitlStatusText,
-	parseNativeHitlEventKey,
-} from '../WeCom/shared/nativeHitl';
-
-function createNativeHitlButtonUpdateResponse(
-	crypto: WeComCrypto,
-	token: string,
-	toUser: string,
-	fromUser: string,
-	replaceName: string,
-	node: Parameters<typeof generateEncryptedResponseXML>[3],
-): string {
-	const replyMessage = generateReplyMessageXML(toUser, fromUser, 'update_button', {
-		Button: { ReplaceName: replaceName },
-	});
-
-	return generateEncryptedResponseXML(crypto, token, replyMessage, node);
-}
+import { WeComCrypto, parseXML } from '../WeCom/shared/crypto';
 
 // eslint-disable-next-line @n8n/community-nodes/node-usable-as-tool
 export class WeComTrigger implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: '企业微信消息接收触发器 (WeCom)',
+		displayName: '企业微信(WeCom)消息接收触发器',
 		name: 'weComTrigger',
 		// eslint-disable-next-line @n8n/community-nodes/icon-validation
 		icon: { light: 'file:../../icons/wecom.png', dark: 'file:../../icons/wecom.dark.png' },
@@ -596,15 +571,6 @@ export class WeComTrigger implements INodeType {
 				description: '是否返回未解析的原始XML数据',
 				hint: '开启后会在输出中包含原始的 XML 字符串（解密后的XML）',
 			},
-			{
-				displayName: '自动处理企业微信内的审批选择',
-				name: 'autoResumeNativeHitl',
-				type: 'boolean',
-				default: true,
-				description:
-					'开启后，审批人在企业微信中选择操作时，会自动继续对应的等待工作流，并将卡片更新为不可重复点击的处理结果',
-				hint: '仅处理由本插件发送的审批卡片，不影响其他模板卡片事件',
-			},
 		],
 	};
 
@@ -726,87 +692,6 @@ export class WeComTrigger implements INodeType {
 		const events = this.getNodeParameter('events', []) as string[];
 		const msgType = messageData.MsgType || 'unknown';
 		const eventType = messageData.Event || 'unknown';
-		let nativeHitlResult: IDataObject | undefined;
-		let nativeHitlResponse = 'success';
-		const autoResumeNativeHitl = this.getNodeParameter('autoResumeNativeHitl', true) as boolean;
-
-		if (autoResumeNativeHitl && eventType === 'template_card_event') {
-			const callbackUrl = this.getNodeWebhookUrl('default') ?? this.getInstanceBaseUrl();
-			const eventKeyResult = parseNativeHitlEventKey(
-				messageData.EventKey || '',
-				messageData.TaskId || '',
-				token,
-				callbackUrl,
-			);
-
-			if (eventKeyResult.recognized && !eventKeyResult.valid) {
-				nativeHitlResult = {
-					status: 'invalid',
-					reason: eventKeyResult.reason,
-				};
-			} else if (eventKeyResult.recognized && eventKeyResult.valid) {
-				const callbackContext = {
-					approved: eventKeyResult.payload.approved,
-					selectedOption: eventKeyResult.payload.selectedOption,
-					selectedLabel: eventKeyResult.payload.selectedLabel,
-					respondedBy: messageData.FromUserName || '',
-					responseCode: messageData.ResponseCode || '',
-					taskId: messageData.TaskId || '',
-				};
-
-				try {
-					await this.helpers.httpRequest({
-						method: 'GET',
-						url: eventKeyResult.payload.resumeUrl,
-						headers: createNativeHitlContextHeaders(callbackContext, token),
-						disableFollowRedirect: true,
-						timeout: 3000,
-					});
-
-					nativeHitlResult = {
-						status: 'resumed',
-						approved: eventKeyResult.payload.approved,
-						...(eventKeyResult.payload.selectedOption
-							? { selectedOption: eventKeyResult.payload.selectedOption }
-							: {}),
-						...(eventKeyResult.payload.selectedLabel
-							? { selectedLabel: eventKeyResult.payload.selectedLabel }
-							: {}),
-						respondedBy: callbackContext.respondedBy,
-						taskId: callbackContext.taskId,
-						responseCode: callbackContext.responseCode,
-					};
-
-					const selectedLabel =
-						eventKeyResult.payload.selectedLabel ||
-						eventKeyResult.payload.selectedOption ||
-						(eventKeyResult.payload.approved ? '通过' : '拒绝');
-					nativeHitlResponse = createNativeHitlButtonUpdateResponse(
-						crypto,
-						token,
-						callbackContext.respondedBy,
-						messageData.ToUserName || corpId,
-						createNativeHitlStatusText(selectedLabel),
-						this.getNode(),
-					);
-				} catch {
-					nativeHitlResult = {
-						status: 'failed',
-						reason: '这条审批已处理或已过期，无需重复操作',
-						taskId: callbackContext.taskId,
-					};
-					nativeHitlResponse = createNativeHitlButtonUpdateResponse(
-						crypto,
-						token,
-						callbackContext.respondedBy,
-						messageData.ToUserName || corpId,
-						'已处理，请勿重复操作',
-						this.getNode(),
-					);
-				}
-			}
-		}
-
 		const changeType = messageData.ChangeType || '';
 		const jobType = messageData.JobType || '';
 		const specificChangeContactEvent =
@@ -870,7 +755,7 @@ export class WeComTrigger implements INodeType {
 		if (!shouldProcess) {
 			// 不处理此类型的消息，返回 success
 			return {
-				webhookResponse: nativeHitlResponse,
+				webhookResponse: 'success',
 			};
 		}
 
@@ -879,7 +764,6 @@ export class WeComTrigger implements INodeType {
 		const outputData: IDataObject = {
 			...messageData,
 			receivedAt: new Date().toISOString(),
-			...(nativeHitlResult ? { hitlResume: nativeHitlResult } : {}),
 		};
 
 		if (returnRawData) {
@@ -895,7 +779,7 @@ export class WeComTrigger implements INodeType {
 					},
 				],
 			],
-			webhookResponse: nativeHitlResponse,
+			webhookResponse: 'success',
 		};
 	}
 }

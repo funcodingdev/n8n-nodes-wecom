@@ -10,16 +10,7 @@ import type {
 } from 'n8n-workflow';
 import { NodeOperationError, SEND_AND_WAIT_OPERATION, WAIT_INDEFINITELY } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
-import {
-	NATIVE_HITL_CONTEXT_HEADER,
-	NATIVE_HITL_CONTEXT_SIGNATURE_HEADER,
-	createNativeHitlStatusText,
-	createNativeHitlEventKey,
-	parseNativeHitlContext,
-} from '../../shared/nativeHitl';
 import { getRecipientFields, getRecipientsFromNode } from './commonFields';
-
-type ApprovalMode = 'url' | 'native';
 
 interface CustomApprovalOption {
 	label?: string;
@@ -42,7 +33,6 @@ interface LimitWaitTimeOptions {
 interface ApprovalCardInput {
 	title: string;
 	message: string;
-	approvalMode: ApprovalMode;
 	options: ApprovalCardOption[];
 	taskId: string;
 }
@@ -123,25 +113,6 @@ export const sendAndWaitDescription: INodeProperties[] = [
 		displayOptions: { show: showOnlyForSendAndWait },
 	},
 	{
-		displayName: '审批人如何操作',
-		name: 'approvalMode',
-		type: 'options',
-		default: 'url',
-		options: [
-			{
-				name: '打开结果页（推荐）',
-				value: 'url',
-				description: '审批人选择卡片操作后，会打开结果页；设置简单，适合大多数场景',
-			},
-			{
-				name: '直接在企业微信中选择',
-				value: 'native',
-				description: '审批人无需离开企业微信，并可记录操作成员；使用前需要配置消息接收',
-			},
-		],
-		displayOptions: { show: showOnlyForSendAndWait },
-	},
-	{
 		displayName: '消息标题',
 		name: 'subject',
 		type: 'string',
@@ -169,23 +140,7 @@ export const sendAndWaitDescription: INodeProperties[] = [
 		type: 'notice',
 		default: '',
 		displayOptions: {
-			show: {
-				...showOnlyForSendAndWait,
-				approvalMode: ['url'],
-			},
-		},
-	},
-	{
-		displayName:
-			'审批人可以直接在企业微信中完成选择，并记录其成员身份。提交后，同一张卡片会向所有接收人显示处理结果并停止重复点击。使用前，请先激活“企业微信消息接收”触发器，并开启“自动处理企业微信内的审批选择”。',
-		name: 'nativeApprovalNotice',
-		type: 'notice',
-		default: '',
-		displayOptions: {
-			show: {
-				...showOnlyForSendAndWait,
-				approvalMode: ['native'],
-			},
+			show: showOnlyForSendAndWait,
 		},
 	},
 	{
@@ -339,12 +294,10 @@ export function resolveApprovalOptions(
 
 export function createApprovalTemplateCard(input: ApprovalCardInput): IDataObject {
 	const buttonList = input.options.map<IDataObject>((option) => ({
-		type: input.approvalMode === 'native' ? 0 : 1,
+		type: 1,
 		text: option.label,
 		style: option.style,
-		...(input.approvalMode === 'native'
-			? { key: option.action }
-			: { url: option.action }),
+		url: option.action,
 	}));
 
 	return {
@@ -401,7 +354,6 @@ export async function executeSendAndWait(
 		itemIndex,
 		{},
 	) as CustomApprovalOptions;
-	const approvalMode = this.getNodeParameter('approvalMode', itemIndex, 'url') as ApprovalMode;
 	let approvalOptionDefinitions: ApprovalOption[];
 	try {
 		approvalOptionDefinitions = resolveApprovalOptions(customApprovalOptions);
@@ -419,7 +371,6 @@ export async function executeSendAndWait(
 			selectedOption: option.value,
 			selectedLabel: option.label,
 			optionMode: 'custom',
-			...(approvalMode === 'native' ? { taskId } : {}),
 		}),
 	}));
 	const limitOptions = this.getNodeParameter(
@@ -438,35 +389,9 @@ export async function executeSendAndWait(
 		});
 	}
 
-	if (approvalMode === 'native') {
-		const receiveCredentials = await this.getCredentials('weComReceiveApi');
-		if (receiveCredentials.corpId !== credentials.corpId) {
-			throw new NodeOperationError(this.getNode(), '请选择属于同一个企业的发送和接收凭证', {
-				description: '直接在企业微信中选择时，发送消息和接收选择必须使用同一个企业 ID',
-				itemIndex,
-			});
-		}
-
-		try {
-			for (const option of approvalCardOptions) {
-				option.action = createNativeHitlEventKey(
-					option.action,
-					taskId,
-					receiveCredentials.token as string,
-				);
-			}
-		} catch (error) {
-			throw new NodeOperationError(this.getNode(), '无法创建企业微信内的操作按钮', {
-				description: (error as Error).message,
-				itemIndex,
-			});
-		}
-	}
-
 	const templateCard = createApprovalTemplateCard({
 		title: this.getNodeParameter('subject', itemIndex) as string,
 		message: this.getNodeParameter('message', itemIndex) as string,
-		approvalMode,
 		options: approvalCardOptions,
 		taskId,
 	});
@@ -492,72 +417,12 @@ export async function executeSendAndWait(
 export async function sendAndWaitWebhook(this: IWebhookFunctions): Promise<IWebhookResponseData> {
 	const query = this.getQueryData() as {
 		approved?: string;
-		taskId?: string;
 		selectedOption?: string;
 		selectedLabel?: string;
 	};
 	const approved = query.approved === 'true';
 	const selectedOption = query.selectedOption || (approved ? 'approve' : 'reject');
 	const selectedLabel = query.selectedLabel || (approved ? '通过' : '拒绝');
-	const approvalMode = this.getNodeParameter('approvalMode', 'url') as ApprovalMode;
-	let nativeContext;
-	let cardUpdate: IDataObject | undefined;
-
-	if (approvalMode === 'native') {
-		const credentials = await this.getCredentials('weComReceiveApi');
-		const headers = this.getHeaderData();
-		const contextHeader = headers[NATIVE_HITL_CONTEXT_HEADER];
-		const signatureHeader = headers[NATIVE_HITL_CONTEXT_SIGNATURE_HEADER];
-		nativeContext = parseNativeHitlContext(
-			typeof contextHeader === 'string' ? contextHeader : undefined,
-			typeof signatureHeader === 'string' ? signatureHeader : undefined,
-			credentials.token as string,
-		);
-
-		if (
-			!nativeContext ||
-			nativeContext.approved !== approved ||
-			nativeContext.taskId !== query.taskId ||
-			(nativeContext.selectedOption !== undefined &&
-				nativeContext.selectedOption !== selectedOption) ||
-			(nativeContext.selectedLabel !== undefined && nativeContext.selectedLabel !== selectedLabel)
-		) {
-			throw new NodeOperationError(
-				this.getNode(),
-				'无法确认本次企业微信操作，请返回企业微信重新选择',
-			);
-		}
-
-		if (!nativeContext.responseCode) {
-			cardUpdate = {
-				status: 'failed',
-				scope: 'allRecipients',
-				reason: '企业微信未返回卡片更新凭据',
-			};
-		} else {
-			try {
-				const sendCredentials = await this.getCredentials('weComApi');
-				await weComApiRequest.call(this, 'POST', '/cgi-bin/message/update_template_card', {
-					atall: 1,
-					agentid: sendCredentials.agentId as string,
-					response_code: nativeContext.responseCode,
-					button: {
-						replace_name: createNativeHitlStatusText(selectedLabel),
-					},
-				});
-				cardUpdate = {
-					status: 'updated',
-					scope: 'allRecipients',
-				};
-			} catch (error) {
-				cardUpdate = {
-					status: 'failed',
-					scope: 'allRecipients',
-					reason: (error as Error).message,
-				};
-			}
-		}
-	}
 
 	return {
 		webhookResponse: `已提交“${selectedLabel}”，无需再次操作。现在可以关闭此页面。`,
@@ -569,16 +434,7 @@ export async function sendAndWaitWebhook(this: IWebhookFunctions): Promise<IWebh
 							approved,
 							selectedOption,
 							selectedLabel,
-							approvalMode,
-							...(nativeContext
-								? {
-										respondedBy: nativeContext.respondedBy,
-										taskId: nativeContext.taskId,
-										responseCode: nativeContext.responseCode,
-									}
-								: {}),
 							respondedAt: new Date().toISOString(),
-							...(cardUpdate ? { cardUpdate } : {}),
 						},
 					},
 				},

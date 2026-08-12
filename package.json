@@ -42,7 +42,6 @@
 		"deploy:local:start": "bash scripts/deploy-community-node.sh --install-n8n --start",
 		"lint": "n8n-node lint",
 		"lint:fix": "n8n-node lint --fix",
-		"test:send-and-wait": "npm run build && node --test scripts/send-and-wait.test.mjs",
 		"release": "n8n-node release",
 		"release:beta": "npm run lint && npm run build && release-it --preRelease=beta",
 		"prepublishOnly": "npm run lint && npm run build"

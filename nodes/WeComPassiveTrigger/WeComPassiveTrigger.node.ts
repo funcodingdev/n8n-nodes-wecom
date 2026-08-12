@@ -21,7 +21,7 @@ import {
 // eslint-disable-next-line @n8n/community-nodes/node-usable-as-tool
 export class WeComPassiveTrigger implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: '企业微信消息接收（被动回复）触发器 (WeCom)',
+		displayName: '企业微信(WeCom)消息接收（被动回复）触发器',
 		name: 'weComPassiveTrigger',
 		// eslint-disable-next-line @n8n/community-nodes/icon-validation
 		icon: { light: 'file:../../icons/wecom.png', dark: 'file:../../icons/wecom.dark.png' },

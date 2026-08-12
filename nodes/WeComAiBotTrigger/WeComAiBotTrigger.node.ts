@@ -115,7 +115,7 @@ class WeComAIBotCrypto {
  */
 export class WeComAiBotTrigger implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: '企业微信智能机器人消息接收触发器 (WeCom)',
+		displayName: '企业微信(WeCom)智能机器人消息接收触发器',
 		name: 'weComAiBotTrigger',
 		usableAsTool: true,
 		// eslint-disable-next-line @n8n/community-nodes/icon-validation
