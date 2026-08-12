@@ -9,8 +9,14 @@ import type {
 import { NodeOperationError, NodeConnectionTypes } from 'n8n-workflow';
 import {
 	WeComCrypto,
+	generateEncryptedResponseXML,
+	generateReplyMessageXML,
 	parseXML,
 } from '../WeCom/shared/crypto';
+import {
+	createNativeHitlContextHeaders,
+	parseNativeHitlEventKey,
+} from '../WeCom/shared/nativeHitl';
 
 // eslint-disable-next-line @n8n/community-nodes/node-usable-as-tool
 export class WeComTrigger implements INodeType {
@@ -574,6 +580,15 @@ export class WeComTrigger implements INodeType {
 				description: '是否返回未解析的原始XML数据',
 				hint: '开启后会在输出中包含原始的 XML 字符串（解密后的XML）',
 			},
+			{
+				displayName: '自动恢复原生 HITL 审批',
+				name: 'autoResumeNativeHitl',
+				type: 'boolean',
+				default: true,
+				description:
+					'是否自动识别由本插件生成的原生审批按钮事件，并恢复对应的 n8n 等待执行',
+				hint: '仅处理带有有效签名的 n8n HITL EventKey；普通模板卡片事件不受影响',
+			},
 		],
 	};
 
@@ -695,6 +710,82 @@ export class WeComTrigger implements INodeType {
 		const events = this.getNodeParameter('events', []) as string[];
 		const msgType = messageData.MsgType || 'unknown';
 		const eventType = messageData.Event || 'unknown';
+		let nativeHitlResult: IDataObject | undefined;
+		let nativeHitlResponse = 'success';
+		const autoResumeNativeHitl = this.getNodeParameter('autoResumeNativeHitl', true) as boolean;
+
+		if (autoResumeNativeHitl && eventType === 'template_card_event') {
+			const callbackUrl = this.getNodeWebhookUrl('default') ?? this.getInstanceBaseUrl();
+			const eventKeyResult = parseNativeHitlEventKey(
+				messageData.EventKey || '',
+				messageData.TaskId || '',
+				token,
+				callbackUrl,
+			);
+
+			if (eventKeyResult.recognized && !eventKeyResult.valid) {
+				nativeHitlResult = {
+					status: 'invalid',
+					reason: eventKeyResult.reason,
+				};
+			} else if (eventKeyResult.recognized && eventKeyResult.valid) {
+				const callbackContext = {
+					approved: eventKeyResult.payload.approved,
+					respondedBy: messageData.FromUserName || '',
+					responseCode: messageData.ResponseCode || '',
+					taskId: messageData.TaskId || '',
+				};
+
+				try {
+					await this.helpers.httpRequest({
+						method: 'GET',
+						url: eventKeyResult.payload.resumeUrl,
+						headers: createNativeHitlContextHeaders(callbackContext, token),
+						disableFollowRedirect: true,
+						timeout: 3000,
+					});
+
+					nativeHitlResult = {
+						status: 'resumed',
+						approved: eventKeyResult.payload.approved,
+						respondedBy: callbackContext.respondedBy,
+						taskId: callbackContext.taskId,
+						responseCode: callbackContext.responseCode,
+					};
+
+					const replyMessage = generateReplyMessageXML(
+						callbackContext.respondedBy,
+						messageData.ToUserName || corpId,
+						'update_template_card',
+						{
+							TemplateCard: {
+								CardType: 'button_interaction',
+								MainTitle: {
+									title: eventKeyResult.payload.approved ? '审批已通过' : '审批已拒绝',
+									desc: `操作人：${callbackContext.respondedBy}`,
+								},
+								SubTitleText: 'n8n 工作流已恢复执行',
+								TaskId: callbackContext.taskId,
+								ReplaceText: eventKeyResult.payload.approved ? '已通过' : '已拒绝',
+							},
+						},
+					);
+					nativeHitlResponse = generateEncryptedResponseXML(
+						crypto,
+						token,
+						replyMessage,
+						this.getNode(),
+					);
+				} catch {
+					nativeHitlResult = {
+						status: 'failed',
+						reason: '等待执行不存在、已处理或已超时',
+						taskId: callbackContext.taskId,
+					};
+				}
+			}
+		}
+
 		const changeType = messageData.ChangeType || '';
 		const jobType = messageData.JobType || '';
 		const specificChangeContactEvent =
@@ -758,7 +849,7 @@ export class WeComTrigger implements INodeType {
 		if (!shouldProcess) {
 			// 不处理此类型的消息，返回 success
 			return {
-				webhookResponse: 'success',
+				webhookResponse: nativeHitlResponse,
 			};
 		}
 
@@ -767,6 +858,7 @@ export class WeComTrigger implements INodeType {
 		const outputData: IDataObject = {
 			...messageData,
 			receivedAt: new Date().toISOString(),
+			...(nativeHitlResult ? { hitlResume: nativeHitlResult } : {}),
 		};
 
 		if (returnRawData) {
@@ -782,7 +874,7 @@ export class WeComTrigger implements INodeType {
 					},
 				],
 			],
-			webhookResponse: 'success',
+			webhookResponse: nativeHitlResponse,
 		};
 	}
 }

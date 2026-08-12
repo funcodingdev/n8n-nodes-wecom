@@ -309,18 +309,28 @@ npm install n8n-nodes-wecom
 - ✅ 发送小程序通知消息
 - ✅ 发送任务卡片消息
 - ✅ 发送模板卡片消息
-- ✅ 发送并等待审批（n8n AI Tool Human Review，URL 按钮版）
+- ✅ 发送并等待审批（n8n AI Tool Human Review，支持 URL 按钮和企业微信原生回调）
 - ✅ [发送学校通知](https://developer.work.weixin.qq.com/document/path/91609)（家校应用）
 - ✅ [撤回应用消息](https://developer.work.weixin.qq.com/document/path/94867)
 - ✅ [更新模板卡片消息](https://developer.work.weixin.qq.com/document/path/94888)
 
-#### AI 工具人工审批（URL 版本）
+#### AI 工具人工审批
 
-在支持 Human Review for AI Tool Calls 的 n8n 版本中，将 WeCom 节点作为 AI Tool 连接到 Human Review 节点，选择“发送并等待审批”。节点会向企业微信发送含“通过/拒绝”URL 按钮的模板卡片，并暂停工作流，直到有人点击按钮或超过配置的等待时间。
+在支持 Human Review for AI Tool Calls 的 n8n 版本中，将 WeCom 节点作为 AI Tool 连接到 Human Review 节点，选择“发送并等待审批”。节点会向企业微信发送含“通过/拒绝”按钮的模板卡片，并暂停工作流，直到有人操作或超过配置的等待时间。
 
-- n8n 的等待 Webhook 地址必须是企业微信客户端可访问的公网 HTTPS 地址。
-- URL 版本不需要配置企业微信回调地址；审批按钮直接访问 n8n 生成并签名的恢复链接。
-- 审批链接等同于一次性授权链接，无法校验实际点击人。请只发送给可信接收人，不要转发；首次有效响应会恢复工作流。
+审批方式：
+
+- **URL 按钮**：按钮直接访问 n8n 生成并签名的恢复链接，不需要配置企业微信接收消息回调；无法校验实际点击人。
+- **企业微信原生回调**：用户直接在企业微信内操作，通过 [`template_card_event`](https://developer.work.weixin.qq.com/document/path/90240) 返回实际审批成员 `FromUserName`，并在成功恢复工作流后以[被动回复](https://developer.work.weixin.qq.com/document/path/90241)将当前卡片更新为“已通过”或“已拒绝”。
+
+原生回调配置：
+
+1. 创建“企业微信消息接收触发器”，填写企业微信应用后台“接收消息”中的 URL、Token 和 EncodingAESKey，并激活工作流。
+2. 保持触发器的“自动恢复原生 HITL 审批”开启。即使事件筛选未选择模板卡片事件，签名有效的 HITL 回调仍会自动恢复；选择“模板卡片事件-按钮点击”可同时在触发器输出中查看结果。
+3. 在 Human Review 企业微信节点选择“企业微信原生回调”，并选择与触发器相同的“企业微信消息接收 API”凭证。
+4. n8n 的 Trigger Webhook 与 waiting Webhook 必须使用同一个公网 HTTPS Origin；自托管实例应正确配置 `WEBHOOK_URL`。
+
+原生按钮的 EventKey 包含经过消息接收 Token 签名的 n8n 恢复载荷；Trigger 会再次校验 n8n Origin、TaskId 和 waiting URL 签名参数后才执行中继。首次有效响应决定审批结果，重复点击不会再次恢复工作流。
 
 ### 群聊会话
 

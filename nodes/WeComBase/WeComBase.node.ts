@@ -116,6 +116,17 @@ export class WeComBase implements INodeType {
 				},
 			},
 			{
+				name: 'weComReceiveApi',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['message'],
+						operation: ['sendAndWait'],
+						approvalMode: ['native'],
+					},
+				},
+			},
+			{
 				// 被动回复不需要凭证，因为加密信息从输入数据中获取
 				name: 'weComApi',
 				required: false,

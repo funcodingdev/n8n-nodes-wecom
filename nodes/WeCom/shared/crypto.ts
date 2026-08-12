@@ -464,6 +464,10 @@ export function generateReplyMessageXML(
 					xml += `<TaskId><![CDATA[${card.TaskId as string}]]></TaskId>`;
 				}
 
+				if (card.ReplaceText) {
+					xml += `<ReplaceText><![CDATA[${card.ReplaceText as string}]]></ReplaceText>`;
+				}
+
 				if (card.ButtonList) {
 					const buttonList = card.ButtonList as Array<Record<string, unknown>>;
 					xml += '<ButtonList>';

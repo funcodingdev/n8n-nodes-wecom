@@ -10,9 +10,16 @@ import type {
 } from 'n8n-workflow';
 import { NodeOperationError, SEND_AND_WAIT_OPERATION, WAIT_INDEFINITELY } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
+import {
+	NATIVE_HITL_CONTEXT_HEADER,
+	NATIVE_HITL_CONTEXT_SIGNATURE_HEADER,
+	createNativeHitlEventKey,
+	parseNativeHitlContext,
+} from '../../shared/nativeHitl';
 import { getRecipientFields, getRecipientsFromNode } from './commonFields';
 
 type ApprovalType = 'single' | 'double';
+type ApprovalMode = 'url' | 'native';
 
 interface ApprovalOptions {
 	approvalType?: ApprovalType;
@@ -33,8 +40,9 @@ interface ApprovalCardInput {
 	approvalType: ApprovalType;
 	approveLabel: string;
 	disapproveLabel: string;
-	approveUrl: string;
-	disapproveUrl: string;
+	approvalMode: ApprovalMode;
+	approveAction: string;
+	disapproveAction: string;
 	taskId: string;
 }
 
@@ -86,6 +94,25 @@ const limitWaitTimeProperties: INodeProperties[] = [
 export const sendAndWaitDescription: INodeProperties[] = [
 	...getRecipientFields(SEND_AND_WAIT_OPERATION),
 	{
+		displayName: '审批方式',
+		name: 'approvalMode',
+		type: 'options',
+		default: 'url',
+		options: [
+			{
+				name: 'URL 按钮',
+				value: 'url',
+				description: '点击按钮后打开 n8n 恢复地址，无需配置企业微信接收消息回调',
+			},
+			{
+				name: '企业微信原生回调',
+				value: 'native',
+				description: '在企业微信内完成操作，可返回实际审批成员，需要启用企业微信消息接收触发器',
+			},
+		],
+		displayOptions: { show: showOnlyForSendAndWait },
+	},
+	{
 		displayName: '审批标题',
 		name: 'subject',
 		type: 'string',
@@ -108,7 +135,25 @@ export const sendAndWaitDescription: INodeProperties[] = [
 		name: 'urlApprovalNotice',
 		type: 'notice',
 		default: '',
-		displayOptions: { show: showOnlyForSendAndWait },
+		displayOptions: {
+			show: {
+				...showOnlyForSendAndWait,
+				approvalMode: ['url'],
+			},
+		},
+	},
+	{
+		displayName:
+			'原生模式需要在企业微信后台配置接收消息回调，并保持一个启用了“自动恢复原生 HITL 审批”的企业微信消息接收触发器处于激活状态。',
+		name: 'nativeApprovalNotice',
+		type: 'notice',
+		default: '',
+		displayOptions: {
+			show: {
+				...showOnlyForSendAndWait,
+				approvalMode: ['native'],
+			},
+		},
 	},
 	{
 		displayName: '审批选项',
@@ -206,18 +251,22 @@ export function createApprovalTemplateCard(input: ApprovalCardInput): IDataObjec
 
 	if (input.approvalType === 'double') {
 		buttonList.push({
-			type: 1,
+			type: input.approvalMode === 'native' ? 0 : 1,
 			text: input.disapproveLabel,
 			style: 2,
-			url: input.disapproveUrl,
+			...(input.approvalMode === 'native'
+				? { key: input.disapproveAction }
+				: { url: input.disapproveAction }),
 		});
 	}
 
 	buttonList.push({
-		type: 1,
+		type: input.approvalMode === 'native' ? 0 : 1,
 		text: input.approveLabel,
 		style: 1,
-		url: input.approveUrl,
+		...(input.approvalMode === 'native'
+			? { key: input.approveAction }
+			: { url: input.approveAction }),
 	});
 
 	return {
@@ -275,10 +324,16 @@ export async function executeSendAndWait(
 		{},
 	) as ApprovalOptions;
 	const approvalType = approvalOptions.approvalType ?? 'double';
+	const approvalMode = this.getNodeParameter('approvalMode', itemIndex, 'url') as ApprovalMode;
 	const approveLabel = approvalOptions.approveLabel?.trim() || '通过';
 	const disapproveLabel = approvalOptions.disapproveLabel?.trim() || '拒绝';
-	const approveUrl = this.getSignedResumeUrl({ approved: 'true' });
-	const disapproveUrl = this.getSignedResumeUrl({ approved: 'false' });
+	const taskId = createSendAndWaitTaskId(this.getExecutionId(), this.getNode().id);
+	const approveUrl = this.getSignedResumeUrl(
+		approvalMode === 'native' ? { approved: 'true', taskId } : { approved: 'true' },
+	);
+	const disapproveUrl = this.getSignedResumeUrl(
+		approvalMode === 'native' ? { approved: 'false', taskId } : { approved: 'false' },
+	);
 	const limitOptions = this.getNodeParameter(
 		'options.limitWaitTime.values',
 		itemIndex,
@@ -295,15 +350,46 @@ export async function executeSendAndWait(
 		});
 	}
 
+	let approveAction = approveUrl;
+	let disapproveAction = disapproveUrl;
+
+	if (approvalMode === 'native') {
+		const receiveCredentials = await this.getCredentials('weComReceiveApi');
+		if (receiveCredentials.corpId !== credentials.corpId) {
+			throw new NodeOperationError(this.getNode(), '消息发送与消息接收凭证的企业 ID 不一致', {
+				itemIndex,
+			});
+		}
+
+		try {
+			approveAction = createNativeHitlEventKey(
+				approveUrl,
+				taskId,
+				receiveCredentials.token as string,
+			);
+			disapproveAction = createNativeHitlEventKey(
+				disapproveUrl,
+				taskId,
+				receiveCredentials.token as string,
+			);
+		} catch (error) {
+			throw new NodeOperationError(this.getNode(), '无法生成企业微信原生审批按钮', {
+				description: (error as Error).message,
+				itemIndex,
+			});
+		}
+	}
+
 	const templateCard = createApprovalTemplateCard({
 		title: this.getNodeParameter('subject', itemIndex) as string,
 		message: this.getNodeParameter('message', itemIndex) as string,
 		approvalType,
+		approvalMode,
 		approveLabel,
 		disapproveLabel,
-		approveUrl,
-		disapproveUrl,
-		taskId: createSendAndWaitTaskId(this.getExecutionId(), this.getNode().id),
+		approveAction,
+		disapproveAction,
+		taskId,
 	});
 
 	try {
@@ -325,8 +411,30 @@ export async function executeSendAndWait(
 }
 
 export async function sendAndWaitWebhook(this: IWebhookFunctions): Promise<IWebhookResponseData> {
-	const query = this.getQueryData() as { approved?: string };
+	const query = this.getQueryData() as { approved?: string; taskId?: string };
 	const approved = query.approved === 'true';
+	const approvalMode = this.getNodeParameter('approvalMode', 'url') as ApprovalMode;
+	let nativeContext;
+
+	if (approvalMode === 'native') {
+		const credentials = await this.getCredentials('weComReceiveApi');
+		const headers = this.getHeaderData();
+		const contextHeader = headers[NATIVE_HITL_CONTEXT_HEADER];
+		const signatureHeader = headers[NATIVE_HITL_CONTEXT_SIGNATURE_HEADER];
+		nativeContext = parseNativeHitlContext(
+			typeof contextHeader === 'string' ? contextHeader : undefined,
+			typeof signatureHeader === 'string' ? signatureHeader : undefined,
+			credentials.token as string,
+		);
+
+		if (
+			!nativeContext ||
+			nativeContext.approved !== approved ||
+			nativeContext.taskId !== query.taskId
+		) {
+			throw new NodeOperationError(this.getNode(), '企业微信原生审批回调上下文无效');
+		}
+	}
 
 	return {
 		webhookResponse: '审批结果已记录，可以关闭此页面。',
@@ -336,6 +444,14 @@ export async function sendAndWaitWebhook(this: IWebhookFunctions): Promise<IWebh
 					json: {
 						data: {
 							approved,
+							approvalMode,
+							...(nativeContext
+								? {
+										respondedBy: nativeContext.respondedBy,
+										taskId: nativeContext.taskId,
+										responseCode: nativeContext.responseCode,
+									}
+								: {}),
 							respondedAt: new Date().toISOString(),
 						},
 					},
