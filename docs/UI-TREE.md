@@ -978,22 +978,22 @@ n8n 节点面板
 │          └─ 获取居民上报事件详情  (getResidentEventDetail)
 │
 └─ 触发器节点
-   ├─ 企业微信(WeCom)消息接收触发器
+   ├─ 企业微信(WeCom)-消息接收触发器
    │    type: weComTrigger
    │    ├─ 参数 · Path
    │    ├─ 参数 · 事件类型
    │    └─ 参数 · 返回原始数据
-   ├─ 企业微信(WeCom)消息接收（被动回复）触发器
+   ├─ 企业微信(WeCom)-消息接收（被动回复）触发器
    │    type: weComPassiveTrigger
    │    ├─ 参数 · Path
    │    ├─ 参数 · 消息类型
    │    └─ 参数 · 返回原始数据
-   ├─ 企业微信(WeCom)第三方应用指令回调触发器
+   ├─ 企业微信(WeCom)-第三方应用指令回调触发器
    │    type: weComSuiteTrigger
    │    ├─ 参数 · Path
    │    ├─ 参数 · 事件类型
    │    └─ 参数 · 返回原始数据
-   └─ 企业微信(WeCom)智能机器人消息接收触发器
+   └─ 企业微信(WeCom)-智能机器人消息接收触发器
         type: weComAiBotTrigger
         ├─ 参数 · Path
         ├─ 参数 · 消息类型
