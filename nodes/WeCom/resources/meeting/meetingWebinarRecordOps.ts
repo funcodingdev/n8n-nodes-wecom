@@ -254,6 +254,7 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		displayName: '观众密码',
 		name: 'password',
 		type: 'string',
+		typeOptions: { password: true },
 		displayOptions: {
 			show: { resource: ['meeting'], operation: ['webinarCreate', 'webinarUpdate'] },
 		},
@@ -641,6 +642,7 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 						displayName: '邮箱',
 						name: 'email',
 						type: 'string',
+						placeholder: 'name@email.com',
 						default: '',
 					},
 				],
@@ -974,6 +976,7 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		displayName: '分享密码',
 		name: 'sharing_password',
 		type: 'string',
+		typeOptions: { password: true },
 		displayOptions: {
 			show: {
 				resource: ['meeting'],

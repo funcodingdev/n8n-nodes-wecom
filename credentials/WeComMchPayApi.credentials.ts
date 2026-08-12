@@ -4,6 +4,8 @@ import type { ICredentialType, INodeProperties, Icon } from 'n8n-workflow';
  * 企业微信企业支付（红包 / 向员工付款）
  * 走 api.mch.weixin.qq.com XML + 商户 API 证书双向 TLS
  */
+// 商户支付凭证无法通过无副作用请求验证，因此不提供凭证测试
+// eslint-disable-next-line @n8n/community-nodes/credential-test-required
 export class WeComMchPayApi implements ICredentialType {
 	name = 'weComMchPayApi';
 

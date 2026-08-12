@@ -67,6 +67,7 @@ export const updateMeetingDescription: INodeProperties[] = [
 		displayName: '入会密码',
 		name: 'settings_password',
 		type: 'string',
+		typeOptions: { password: true },
 		displayOptions: { show: showOnlyForUpdate },
 		default: '',
 		description: 'settings.password，4-6 位数字；空表示不修改',

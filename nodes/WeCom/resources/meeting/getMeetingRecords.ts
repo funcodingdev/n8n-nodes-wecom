@@ -39,6 +39,7 @@ export const getMeetingRecordsDescription: INodeProperties[] = [
 		displayName: '条数限制',
 		name: 'limit',
 		type: 'number',
+		typeOptions: { minValue: 1 },
 		displayOptions: { show: showOnly },
 		default: 200,
 		description: '默认 200，最大 1000',

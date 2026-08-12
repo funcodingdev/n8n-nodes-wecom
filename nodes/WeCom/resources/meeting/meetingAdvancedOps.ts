@@ -313,6 +313,7 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 		displayName: '条数限制',
 		name: 'limit',
 		type: 'number',
+		typeOptions: { minValue: 1 },
 		displayOptions: {
 			show: {
 				resource: ['meeting'],
@@ -320,6 +321,7 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: 20,
+		description: '返回结果的最大数量',
 	},
 	{
 		displayName: '报名ID列表',

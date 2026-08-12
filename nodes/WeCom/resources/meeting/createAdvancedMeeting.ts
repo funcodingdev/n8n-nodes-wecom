@@ -121,6 +121,7 @@ export const createAdvancedMeetingDescription: INodeProperties[] = [
 		displayName: '入会密码',
 		name: 'settings_password',
 		type: 'string',
+		typeOptions: { password: true },
 		displayOptions: { show: showOnly },
 		default: '',
 	},

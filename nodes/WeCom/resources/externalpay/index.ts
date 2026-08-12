@@ -148,6 +148,7 @@ export const externalpayDescription: INodeProperties[] = [
 		displayName: '条数限制',
 		name: 'limit',
 		type: 'number',
+		typeOptions: { minValue: 1 },
 		displayOptions: {
 			show: { ...showOnly, operation: ['getBillList', 'getFundFlow'] },
 		},
