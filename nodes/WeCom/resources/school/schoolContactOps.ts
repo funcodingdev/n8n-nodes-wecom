@@ -475,6 +475,15 @@ export const schoolContactOpsDescription: INodeProperties[] = [
 		options: [{ displayName: '孩子', name: 'children', values: childValues }],
 	},
 	{
+		displayName: '孩子列表 JSON',
+		name: 'childrenJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: show(['createParent']) },
+		description:
+			'可选。非空数组时覆盖上方孩子表单。支持 [{"student_userid":"...","relation":"爸爸"}]，1–10 条',
+	},
+	{
 		displayName: '发起邀请',
 		name: 'to_invite',
 		type: 'boolean',
@@ -574,6 +583,15 @@ export const schoolContactOpsDescription: INodeProperties[] = [
 		displayOptions: { show: { ...show(['updateParent']), update_children: [true] } },
 		description: '全量孩子列表，至少 1 个、最多 10 个',
 		options: [{ displayName: '孩子', name: 'children', values: childValues }],
+	},
+	{
+		displayName: '孩子列表 JSON',
+		name: 'childrenJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: { ...show(['updateParent']), update_children: [true] } },
+		description:
+			'可选。非空数组时覆盖上方孩子表单。支持 [{"student_userid":"...","relation":"爸爸"}]，1–10 条',
 	},
 	{
 		displayName: '家长列表输入方式',

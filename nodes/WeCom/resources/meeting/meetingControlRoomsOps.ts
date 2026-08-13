@@ -1074,6 +1074,17 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: '查询电话号码 JSON',
+		name: 'phoneNumbersJson',
+		type: 'json',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['phoneGetTmpOpenid'] },
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方号码表单。支持 [{"area":86,"phone":"13800138000","extension_number":""}]，1–20 条',
+	},
+	{
 		displayName: '开启视频',
 		name: 'rc_video_on',
 		type: 'boolean',

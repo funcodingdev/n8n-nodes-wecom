@@ -525,6 +525,15 @@ export const submitApprovalDescription: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: '摘要行 JSON',
+		name: 'summaryLinesJson',
+		type: 'json',
+		displayOptions: { show: showOnlyForSubmitApproval },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方摘要表单。支持 [{"text":"...","lang":"zh_CN"}]，1–3 行',
+	},
+	{
 		displayName: '审批流程节点',
 		name: 'processNodeCollection',
 		type: 'fixedCollection',

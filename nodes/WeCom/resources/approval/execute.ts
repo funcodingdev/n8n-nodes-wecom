@@ -873,8 +873,28 @@ export async function executeApproval(
 					body.apply_data = { contents };
 				}
 
-				const summaryCollection = this.getNodeParameter('summaryLines', i, {}) as IDataObject;
-				const rawLines = (summaryCollection.lines as IDataObject[]) || [];
+				const summaryLinesJsonRaw = this.getNodeParameter('summaryLinesJson', i, '[]');
+				let rawLines: IDataObject[] = [];
+				if (
+					summaryLinesJsonRaw !== undefined &&
+					summaryLinesJsonRaw !== null &&
+					String(summaryLinesJsonRaw).trim() !== ''
+				) {
+					let parsed: unknown = summaryLinesJsonRaw;
+					if (typeof summaryLinesJsonRaw === 'string') {
+						try {
+							parsed = JSON.parse(summaryLinesJsonRaw);
+						} catch {
+							fail(this, '摘要行 JSON 不是有效的 JSON', i);
+						}
+					}
+					if (!Array.isArray(parsed)) fail(this, '摘要行 JSON 必须是数组', i);
+					if (parsed.length > 0) rawLines = parsed as IDataObject[];
+				}
+				if (rawLines.length === 0) {
+					const summaryCollection = this.getNodeParameter('summaryLines', i, {}) as IDataObject;
+					rawLines = (summaryCollection.lines as IDataObject[]) || [];
+				}
 				if (rawLines.length < 1 || rawLines.length > 3) fail(this, '摘要必须填写 1–3 行', i);
 				body.summary_list = rawLines.map((line, index) => {
 					const lang = String(line.lang ?? 'zh_CN');

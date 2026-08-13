@@ -4363,12 +4363,32 @@ export async function executeMeeting(
 					).map((instanceId) => integer(this, instanceId, '设备类型', i, 0, MAX_UINT32));
 					if (instanceIds.length) body.instance_id_list = instanceIds;
 				} else if (operation === 'phoneGetTmpOpenid') {
-					const collection = this.getNodeParameter(
-						'phoneGetTmpOpenidCollection',
-						i,
-						{},
-					) as IDataObject;
-					const numbers = (collection.numbers as IDataObject[]) || [];
+					const phoneNumbersJsonRaw = this.getNodeParameter('phoneNumbersJson', i, '[]');
+					let numbers: IDataObject[] = [];
+					if (
+						phoneNumbersJsonRaw !== undefined &&
+						phoneNumbersJsonRaw !== null &&
+						String(phoneNumbersJsonRaw).trim() !== ''
+					) {
+						let parsed: unknown = phoneNumbersJsonRaw;
+						if (typeof phoneNumbersJsonRaw === 'string') {
+							try {
+								parsed = JSON.parse(phoneNumbersJsonRaw);
+							} catch {
+								fail(this, '查询电话号码 JSON 不是有效的 JSON', i);
+							}
+						}
+						if (!Array.isArray(parsed)) fail(this, '查询电话号码 JSON 必须是数组', i);
+						if (parsed.length > 0) numbers = parsed as IDataObject[];
+					}
+					if (numbers.length === 0) {
+						const collection = this.getNodeParameter(
+							'phoneGetTmpOpenidCollection',
+							i,
+							{},
+						) as IDataObject;
+						numbers = (collection.numbers as IDataObject[]) || [];
+					}
 					if (numbers.length < 1 || numbers.length > 20) {
 						fail(this, '查询电话号码数量必须为 1–20 个', i);
 					}

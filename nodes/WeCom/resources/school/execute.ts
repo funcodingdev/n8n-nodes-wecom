@@ -877,13 +877,32 @@ export async function executeSchool(
 					break;
 				}
 				case 'createParent': {
-					const childrenCollection = this.getNodeParameter('childrenCollection', i, {}) as IDataObject;
+					const childrenJsonRaw = this.getNodeParameter('childrenJson', i, '[]');
+					let childrenRaw: unknown = (
+						this.getNodeParameter('childrenCollection', i, {}) as IDataObject
+					).children;
+					if (
+						childrenJsonRaw !== undefined &&
+						childrenJsonRaw !== null &&
+						String(childrenJsonRaw).trim() !== ''
+					) {
+						let parsed: unknown = childrenJsonRaw;
+						if (typeof childrenJsonRaw === 'string') {
+							try {
+								parsed = JSON.parse(childrenJsonRaw);
+							} catch {
+								fail(this, '孩子列表 JSON 不是有效的 JSON', i);
+							}
+						}
+						if (!Array.isArray(parsed)) fail(this, '孩子列表 JSON 必须是数组', i);
+						if (parsed.length > 0) childrenRaw = parsed;
+					}
 					const body = buildParentForCreate(
 						this,
 						{
 							parent_userid: this.getNodeParameter('parent_userid', i),
 							mobile: this.getNodeParameter('mobile', i),
-							children: childrenCollection.children,
+							children: childrenRaw,
 							to_invite: this.getNodeParameter('to_invite', i, true),
 						},
 						'家长',
@@ -916,7 +935,26 @@ export async function executeSchool(
 					break;
 				}
 				case 'updateParent': {
-					const childrenCollection = this.getNodeParameter('childrenCollection', i, {}) as IDataObject;
+					const childrenJsonRaw = this.getNodeParameter('childrenJson', i, '[]');
+					let childrenRaw: unknown = (
+						this.getNodeParameter('childrenCollection', i, {}) as IDataObject
+					).children;
+					if (
+						childrenJsonRaw !== undefined &&
+						childrenJsonRaw !== null &&
+						String(childrenJsonRaw).trim() !== ''
+					) {
+						let parsed: unknown = childrenJsonRaw;
+						if (typeof childrenJsonRaw === 'string') {
+							try {
+								parsed = JSON.parse(childrenJsonRaw);
+							} catch {
+								fail(this, '孩子列表 JSON 不是有效的 JSON', i);
+							}
+						}
+						if (!Array.isArray(parsed)) fail(this, '孩子列表 JSON 必须是数组', i);
+						if (parsed.length > 0) childrenRaw = parsed;
+					}
 					const body = buildParentForUpdate(
 						this,
 						{
@@ -930,7 +968,7 @@ export async function executeSchool(
 							update_mobile: this.getNodeParameter('update_mobile', i, false),
 							mobile: this.getNodeParameter('mobile', i, ''),
 							update_children: this.getNodeParameter('update_children', i, false),
-							children: childrenCollection.children,
+							children: childrenRaw,
 						},
 						'家长',
 						i,
