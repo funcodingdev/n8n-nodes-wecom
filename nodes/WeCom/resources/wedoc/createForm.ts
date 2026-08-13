@@ -246,12 +246,12 @@ export const createFormDescription: INodeProperties[] = [
 				description: 'repeat_type',
 			},
 			{
-				displayName: '提醒时间戳',
+				displayName: '首次提醒时间',
 				name: 'timed_repeat_remind_time',
-				type: 'number',
+				type: 'dateTime',
 				displayOptions: { show: { timed_repeat_enable: [true] } },
-				default: 0,
-				description: 'remind_time，秒级时间戳',
+				default: '',
+				description: 'remind_time，首次提醒时间（Unix 秒）；留空表示不指定',
 			},
 			{
 				displayName: '定时重复扩展JSON',

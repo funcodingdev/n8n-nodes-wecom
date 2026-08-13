@@ -236,9 +236,143 @@ function dateTimeToUnixSeconds(
 	itemIndex: number,
 ): number {
 	const text = requiredText(context, value, label, itemIndex);
-	const milliseconds = Date.parse(text);
-	if (!Number.isFinite(milliseconds)) fail(context, `${label}不是有效的日期时间`, itemIndex);
-	return Math.floor(milliseconds / 1000);
+	const seconds = /^\d+$/.test(text) ? Number(text) : Math.floor(Date.parse(text) / 1000);
+	if (!Number.isSafeInteger(seconds) || seconds < 1 || seconds > 4294967295) {
+		fail(context, `${label}不是有效的日期时间`, itemIndex);
+	}
+	return seconds;
+}
+
+function processFormSetting(
+	context: IExecuteFunctions,
+	formSetting: IDataObject,
+	itemIndex: number,
+): IDataObject {
+	const processedSetting: IDataObject = {};
+
+	if (formSetting.fill_out_auth !== undefined) {
+		const fillOutAuth = integerInRange(
+			context,
+			formSetting.fill_out_auth,
+			'填写权限',
+			itemIndex,
+			0,
+			4,
+		);
+		if (![0, 1, 4].includes(fillOutAuth)) fail(context, '填写权限只能是 0、1 或 4', itemIndex);
+		processedSetting.fill_out_auth = fillOutAuth;
+	}
+
+	if (formSetting.fill_out_auth === 1) {
+		const fill_in_range: IDataObject = {};
+		if (formSetting.fill_in_range_userids) {
+			const userids = stringList(
+				context,
+				formSetting.fill_in_range_userids,
+				'指定填写成员',
+				itemIndex,
+				1,
+				1000,
+			);
+			if (userids.length > 0) fill_in_range.userids = userids;
+		}
+		if (formSetting.fill_in_range_departmentids) {
+			const departmentids = stringList(
+				context,
+				formSetting.fill_in_range_departmentids,
+				'指定填写部门',
+				itemIndex,
+				1,
+				1000,
+			).map((id) =>
+				integerInRange(context, id, '指定填写部门 ID', itemIndex, 1, Number.MAX_SAFE_INTEGER),
+			);
+			if (departmentids.length > 0) fill_in_range.departmentids = departmentids;
+		}
+		if (Object.keys(fill_in_range).length > 0) processedSetting.fill_in_range = fill_in_range;
+	}
+
+	if (formSetting.setting_manager_range) {
+		const userids = stringList(
+			context,
+			formSetting.setting_manager_range,
+			'收集表管理员',
+			itemIndex,
+			1,
+			1000,
+		);
+		if (userids.length > 0) processedSetting.setting_manager_range = { userids };
+	}
+
+	const timedRepeatInfo: IDataObject = {};
+	if (formSetting.timed_repeat_enable) {
+		timedRepeatInfo.enable = true;
+		if (formSetting.timed_repeat_type !== undefined) {
+			timedRepeatInfo.repeat_type = integerInRange(
+				context,
+				formSetting.timed_repeat_type,
+				'定时重复类型',
+				itemIndex,
+				1,
+				5,
+			);
+		}
+		if (
+			formSetting.timed_repeat_remind_time !== undefined &&
+			formSetting.timed_repeat_remind_time !== null &&
+			String(formSetting.timed_repeat_remind_time).trim() !== ''
+		) {
+			timedRepeatInfo.remind_time = dateTimeToUnixSeconds(
+				context,
+				formSetting.timed_repeat_remind_time,
+				'首次提醒时间',
+				itemIndex,
+			);
+		}
+	}
+	const rawTimedRepeatInfo = String(formSetting.timed_repeat_info ?? '').trim();
+	if (rawTimedRepeatInfo && rawTimedRepeatInfo !== '{}') {
+		let parsed: unknown;
+		try {
+			parsed =
+				typeof formSetting.timed_repeat_info === 'string'
+					? JSON.parse(rawTimedRepeatInfo)
+					: formSetting.timed_repeat_info;
+		} catch {
+			fail(context, '定时重复设置 JSON 必须是有效的 JSON', itemIndex);
+		}
+		if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+			fail(context, '定时重复设置 JSON 必须是 JSON 对象', itemIndex);
+		}
+		Object.assign(timedRepeatInfo, parsed as IDataObject);
+	}
+	if (formSetting.timed_repeat_enable) timedRepeatInfo.enable = true;
+	if (Object.keys(timedRepeatInfo).length > 0 && timedRepeatInfo.enable) {
+		processedSetting.timed_repeat_info = timedRepeatInfo;
+	}
+
+	if (formSetting.allow_multi_fill !== undefined) {
+		processedSetting.allow_multi_fill = formSetting.allow_multi_fill;
+	}
+	if (formSetting.timed_finish && !timedRepeatInfo.enable) {
+		const finishTime = dateTimeToUnixSeconds(
+			context,
+			formSetting.timed_finish,
+			'定时关闭时间',
+			itemIndex,
+		);
+		if (finishTime < Math.floor(Date.now() / 1000)) {
+			fail(context, '定时关闭时间不能早于当前时间', itemIndex);
+		}
+		processedSetting.timed_finish = finishTime;
+	}
+	if (formSetting.can_anonymous !== undefined) {
+		processedSetting.can_anonymous = formSetting.can_anonymous;
+	}
+	if (formSetting.can_notify_submit !== undefined) {
+		processedSetting.can_notify_submit = formSetting.can_notify_submit;
+	}
+	return processedSetting;
 }
 
 function normalizedBase64(
@@ -2990,145 +3124,7 @@ export async function executeWedoc(
 
 				// 构建设置
 				if (Object.keys(formSetting).length > 0) {
-					const processedSetting: IDataObject = {};
-
-					// 填写权限
-					if (formSetting.fill_out_auth !== undefined) {
-						const fillOutAuth = integerInRange(
-							this,
-							formSetting.fill_out_auth,
-							'填写权限',
-							i,
-							0,
-							4,
-						);
-						if (![0, 1, 4].includes(fillOutAuth)) fail(this, '填写权限只能是 0、1 或 4', i);
-						processedSetting.fill_out_auth = fillOutAuth;
-					}
-
-					// 处理指定填写范围
-					if (formSetting.fill_out_auth === 1) {
-						const fill_in_range: IDataObject = {};
-
-						// 指定填写人员 (multiOptions类型,返回string[])
-						if (formSetting.fill_in_range_userids) {
-							const userids = stringList(
-								this,
-								formSetting.fill_in_range_userids,
-								'指定填写成员',
-								i,
-								1,
-								1000,
-							);
-							if (userids.length > 0) {
-								fill_in_range.userids = userids;
-							}
-						}
-
-						// 指定填写部门 (multiOptions类型,返回string[],需要转换为number[])
-						if (formSetting.fill_in_range_departmentids) {
-							const departmentids = stringList(
-								this,
-								formSetting.fill_in_range_departmentids,
-								'指定填写部门',
-								i,
-								1,
-								1000,
-							).map((id) =>
-								integerInRange(this, id, '指定填写部门 ID', i, 1, Number.MAX_SAFE_INTEGER),
-							);
-							if (departmentids.length > 0) {
-								fill_in_range.departmentids = departmentids;
-							}
-						}
-
-						if (Object.keys(fill_in_range).length > 0) {
-							processedSetting.fill_in_range = fill_in_range;
-						}
-					}
-
-					// 处理收集表管理员 (multiOptions类型,返回string[])
-					if (formSetting.setting_manager_range) {
-						const userids = stringList(
-							this,
-							formSetting.setting_manager_range,
-							'收集表管理员',
-							i,
-							1,
-							1000,
-						);
-
-						if (userids.length > 0) {
-							processedSetting.setting_manager_range = { userids };
-						}
-					}
-
-					// 处理定时重复设置
-					const timedRepeatInfo: IDataObject = {};
-					if (formSetting.timed_repeat_enable) {
-						timedRepeatInfo.enable = true;
-						if (formSetting.timed_repeat_type !== undefined) {
-							timedRepeatInfo.repeat_type = integerInRange(
-								this,
-								formSetting.timed_repeat_type,
-								'定时重复类型',
-								i,
-								0,
-								2,
-							);
-						}
-						if (formSetting.timed_repeat_remind_time !== undefined) {
-							timedRepeatInfo.remind_time = integerInRange(
-								this,
-								formSetting.timed_repeat_remind_time,
-								'首次提醒时间戳',
-								i,
-								0,
-								4294967295,
-							);
-						}
-					}
-					const rawTimedRepeatInfo = String(formSetting.timed_repeat_info ?? '').trim();
-					if (rawTimedRepeatInfo && rawTimedRepeatInfo !== '{}') {
-						Object.assign(
-							timedRepeatInfo,
-							parseRequiredJsonObject(formSetting.timed_repeat_info, '定时重复设置 JSON', i),
-						);
-					}
-					if (formSetting.timed_repeat_enable) timedRepeatInfo.enable = true;
-					if (Object.keys(timedRepeatInfo).length > 0 && timedRepeatInfo.enable) {
-						processedSetting.timed_repeat_info = timedRepeatInfo;
-					}
-
-					// 处理 allow_multi_fill
-					if (formSetting.allow_multi_fill !== undefined) {
-						processedSetting.allow_multi_fill = formSetting.allow_multi_fill;
-					}
-
-					// 处理 timed_finish：将日期时间转换为时间戳并验证
-					if (formSetting.timed_finish && !timedRepeatInfo.enable) {
-						const finishTime = dateTimeToUnixSeconds(
-							this,
-							formSetting.timed_finish,
-							'定时关闭时间',
-							i,
-						);
-						if (finishTime < Math.floor(Date.now() / 1000)) {
-							fail(this, '定时关闭时间不能早于当前时间', i);
-						}
-						processedSetting.timed_finish = finishTime;
-					}
-
-					// 处理 can_anonymous
-					if (formSetting.can_anonymous !== undefined) {
-						processedSetting.can_anonymous = formSetting.can_anonymous;
-					}
-
-					// 处理 can_notify_submit
-					if (formSetting.can_notify_submit !== undefined) {
-						processedSetting.can_notify_submit = formSetting.can_notify_submit;
-					}
-
+					const processedSetting = processFormSetting(this, formSetting, i);
 					if (Object.keys(processedSetting).length > 0) {
 						form_info.form_setting = processedSetting;
 					}
@@ -3178,14 +3174,25 @@ export async function executeWedoc(
 						fail(this, '全量修改问题（oper=1）不能同时提交 form_setting', i);
 					}
 				} else {
-					if (
-						Object.keys(form_info).some((key) => key !== 'form_setting') ||
-						!form_info.form_setting ||
-						Array.isArray(form_info.form_setting) ||
-						typeof form_info.form_setting !== 'object'
-					) {
-						fail(this, '全量修改设置（oper=2）时 Form Info JSON 必须只包含 form_setting 对象', i);
+					const formSetting = this.getNodeParameter('formSetting', i, {}) as IDataObject;
+					const processedSetting = Object.keys(formSetting).length
+						? processFormSetting(this, formSetting, i)
+						: {};
+					const jsonSetting =
+						form_info.form_setting &&
+						typeof form_info.form_setting === 'object' &&
+						!Array.isArray(form_info.form_setting)
+							? (form_info.form_setting as IDataObject)
+							: {};
+					const extraKeys = Object.keys(form_info).filter((key) => key !== 'form_setting');
+					if (extraKeys.length) {
+						fail(this, '全量修改设置（oper=2）时 Form Info JSON 只能包含 form_setting', i);
 					}
+					const mergedSetting = { ...processedSetting, ...jsonSetting };
+					if (!Object.keys(mergedSetting).length) {
+						fail(this, '全量修改设置时请填写收集表设置表单或 form_setting JSON', i);
+					}
+					form_info.form_setting = mergedSetting;
 				}
 				if (!Object.keys(form_info).length) fail(this, '编辑收集表至少需要一项 form_info 内容', i);
 
