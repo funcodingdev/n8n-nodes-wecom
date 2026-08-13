@@ -37,7 +37,13 @@ function normalizeAgreeInfo(
 			fail(context, `单聊会话对第 ${index + 1} 项必须是对象`, itemIndex);
 		}
 		const pair = rawPair as IDataObject;
-		const userid = requireText(context, pair.userid, `第 ${index + 1} 项成员 UserID`, itemIndex, 64);
+		const userid = requireText(
+			context,
+			pair.userid || pair.userid_selected,
+			`第 ${index + 1} 项成员 UserID`,
+			itemIndex,
+			64,
+		);
 		const exteranalopenid = requireText(
 			context,
 			pair.exteranalopenid,
