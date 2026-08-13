@@ -2745,30 +2745,51 @@ export async function executeWedoc(
 
 				// 处理返回字段
 				const returnFields = this.getNodeParameter('returnFields', i, {}) as IDataObject;
-				if (returnFields.field_ids) {
+				const returnFieldIds = stringList(
+					this,
+					[
+						returnFields.field_ids,
+						...parseStringIdJson(
+							this,
+							returnFields.field_ids_json ?? '[]',
+							'返回字段ID列表 JSON',
+							i,
+							['field_id', 'fieldid', 'id'],
+						),
+					],
+					'返回字段 ID 列表',
+					i,
+					0,
+					1000,
+				);
+				if (returnFieldIds.length > 0) {
 					if (key_type !== 'CELL_VALUE_KEY_TYPE_FIELD_ID') {
 						fail(this, '返回字段 ID 仅在 Key 类型为“字段 ID”时有效', i);
 					}
-					const fieldIds = stringList(this, returnFields.field_ids, '返回字段 ID 列表', i, 1, 1000);
-					if (fieldIds.length > 0) {
-						body.field_ids = fieldIds;
-					}
+					body.field_ids = returnFieldIds;
 				}
-				if (returnFields.field_titles) {
+				const returnFieldTitles = stringList(
+					this,
+					[
+						returnFields.field_titles,
+						...parseStringIdJson(
+							this,
+							returnFields.field_titles_json ?? '[]',
+							'返回字段标题列表 JSON',
+							i,
+							['title', 'field_title', 'name'],
+						),
+					],
+					'返回字段标题列表',
+					i,
+					0,
+					1000,
+				);
+				if (returnFieldTitles.length > 0) {
 					if (key_type !== 'CELL_VALUE_KEY_TYPE_FIELD_TITLE') {
 						fail(this, '返回字段标题仅在 Key 类型为“字段标题”时有效', i);
 					}
-					const fieldTitles = stringList(
-						this,
-						returnFields.field_titles,
-						'返回字段标题列表',
-						i,
-						1,
-						1000,
-					);
-					if (fieldTitles.length > 0) {
-						body.field_titles = fieldTitles;
-					}
+					body.field_titles = returnFieldTitles;
 				}
 
 				response = await weComApiRequest.call(

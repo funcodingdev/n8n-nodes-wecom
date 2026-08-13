@@ -4148,7 +4148,16 @@ export async function executeMeeting(
 				} else if (operation === 'enrollDelete') {
 					const formIds = stringList(
 						this,
-						this.getNodeParameter('enroll_id_list_cr', i, ''),
+						[
+							this.getNodeParameter('enroll_id_list_cr', i, ''),
+							...parseStringIdJson(
+								this,
+								this.getNodeParameter('enrollIdListCrJson', i, '[]'),
+								'报名ID列表 JSON',
+								i,
+								['enroll_id', 'enrollid', 'id'],
+							),
+						],
 						'报名 ID',
 						i,
 						0,
@@ -4290,7 +4299,16 @@ export async function executeMeeting(
 					);
 					body.meetingid_list = stringList(
 						this,
-						this.getNodeParameter('device_meetingid_list', i, ''),
+						[
+							this.getNodeParameter('device_meetingid_list', i, ''),
+							...parseStringIdJson(
+								this,
+								this.getNodeParameter('deviceMeetingidListJson', i, '[]'),
+								'会议ID列表 JSON',
+								i,
+								['meetingid', 'meeting_id', 'id'],
+							),
+						],
 						'会议 ID',
 						i,
 						1,
@@ -4298,7 +4316,16 @@ export async function executeMeeting(
 					).map((meetingId) => text(this, meetingId, '会议 ID', i, 128));
 					const instanceIds = stringList(
 						this,
-						this.getNodeParameter('device_instance_id_list', i, ''),
+						[
+							this.getNodeParameter('device_instance_id_list', i, ''),
+							...parseStringIdJson(
+								this,
+								this.getNodeParameter('deviceInstanceIdListJson', i, '[]'),
+								'设备类型列表 JSON',
+								i,
+								['instance_id', 'instanceid', 'id'],
+							),
+						],
 						'设备类型',
 						i,
 						0,

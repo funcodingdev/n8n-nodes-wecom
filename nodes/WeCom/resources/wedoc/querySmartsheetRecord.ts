@@ -326,16 +326,33 @@ export const querySmartsheetRecordDescription: INodeProperties[] = [
 				name: 'field_ids',
 				type: 'string',
 				default: '',
-				description: '指定返回的字段ID列表，用逗号分隔',
+				description: '指定返回的字段ID列表，用逗号分隔；与下方 JSON 合并',
 				placeholder: '如: f53B4X,field_002',
+			},
+			{
+				displayName: '字段ID列表 JSON',
+				name: 'field_ids_json',
+				type: 'json',
+				default: '[]',
+				description:
+					'可选。非空数组时与上方列表合并去重。支持 ["id1"] 或 [{"field_id":"id1"}]',
 			},
 			{
 				displayName: '字段标题列表',
 				name: 'field_titles',
 				type: 'string',
 				default: '',
-				description: '指定返回的字段标题列表，用逗号分隔。当返回Key类型为字段标题时使用。',
+				description:
+					'指定返回的字段标题列表，用逗号分隔；与下方 JSON 合并。当返回Key类型为字段标题时使用。',
 				placeholder: '如: 姓名,年龄,部门',
+			},
+			{
+				displayName: '字段标题列表 JSON',
+				name: 'field_titles_json',
+				type: 'json',
+				default: '[]',
+				description:
+					'可选。非空数组时与上方列表合并去重。支持 ["姓名"] 或 [{"title":"姓名"}]',
 			},
 		],
 	},

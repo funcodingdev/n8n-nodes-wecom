@@ -210,7 +210,16 @@ export const submitApprovalDescription: INodeProperties[] = [
 						required: true,
 						displayOptions: { show: { control: ['Selector'] } },
 						placeholder: 'option-1,option-2',
-						description: 'Selector.options[].key，逗号分隔；key 来自模板详情',
+						description: 'Selector.options[].key，逗号分隔；与下方 JSON 合并；key 来自模板详情',
+					},
+					{
+						displayName: '选项Key列表 JSON',
+						name: 'selector_keys_json',
+						type: 'json',
+						default: '[]',
+						displayOptions: { show: { control: ['Selector'] } },
+						description:
+							'可选。非空数组时与上方列表合并去重。支持 ["option-1"] 或 [{"key":"option-1"}]',
 					},
 					{
 						displayName: '联系人类型',
@@ -298,7 +307,16 @@ export const submitApprovalDescription: INodeProperties[] = [
 						required: true,
 						displayOptions: { show: { control: ['File'] } },
 						placeholder: 'MEDIA_ID1,MEDIA_ID2',
-						description: 'File 控件 files[].file_id，逗号分隔',
+						description: 'File 控件 files[].file_id，逗号分隔；与下方 JSON 合并',
+					},
+					{
+						displayName: '附件MediaID列表 JSON',
+						name: 'file_mediaids_json',
+						type: 'json',
+						default: '[]',
+						displayOptions: { show: { control: ['File'] } },
+						description:
+							'可选。非空数组时与上方列表合并去重。支持 ["media1"] 或 [{"file_id":"media1"}]',
 					},
 					{
 						displayName: '关联审批单号',

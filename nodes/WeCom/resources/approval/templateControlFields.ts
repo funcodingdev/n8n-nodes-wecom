@@ -168,7 +168,16 @@ export const templateControlFields: INodeProperties[] = [
 		type: 'string',
 		displayOptions: { show: { control: ['RelatedApproval'] } },
 		default: '',
-		description: '留空表示可关联所有模板；支持逗号、中文逗号、竖线或换行分隔',
+		description: '留空表示可关联所有模板；与下方 JSON 合并；支持逗号、中文逗号、竖线或换行分隔',
+	},
+	{
+		displayName: '可关联模板ID列表 JSON',
+		name: 'related_template_ids_json',
+		type: 'json',
+		displayOptions: { show: { control: ['RelatedApproval'] } },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["tpl1"] 或 [{"template_id":"tpl1"}]',
 	},
 	{
 		displayName: '控件配置JSON',

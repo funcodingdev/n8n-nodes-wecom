@@ -167,6 +167,40 @@ function parseUserIdJson(
 	);
 }
 
+function parseStringIdJson(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	keys: string[],
+): string[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	if (parsed.length === 0) return [];
+	return listValues(
+		parsed.map((entry) => {
+			if (typeof entry === 'string' || typeof entry === 'number') return entry;
+			if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+				const row = entry as IDataObject;
+				for (const key of keys) {
+					if (row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== '') {
+						return row[key];
+					}
+				}
+			}
+			return '';
+		}),
+	);
+}
+
 function jsonValue(
 	context: IExecuteFunctions,
 	value: unknown,
@@ -319,7 +353,16 @@ function buildApplicationContents(
 				fail(context, '选择控件类型只能是 single 或 multi', itemIndex);
 			const keys = stringList(
 				context,
-				raw.selector_keys,
+				[
+					raw.selector_keys,
+					...parseStringIdJson(
+						context,
+						raw.selector_keys_json ?? '[]',
+						`第 ${index + 1} 个选择控件选项 JSON`,
+						itemIndex,
+						['key', 'option_key', 'id'],
+					),
+				],
 				`第 ${index + 1} 个选择控件选项`,
 				itemIndex,
 				1,
@@ -372,7 +415,16 @@ function buildApplicationContents(
 		} else if (control === 'File') {
 			const files = stringList(
 				context,
-				raw.file_mediaids,
+				[
+					raw.file_mediaids,
+					...parseStringIdJson(
+						context,
+						raw.file_mediaids_json ?? '[]',
+						`第 ${index + 1} 个附件控件 JSON`,
+						itemIndex,
+						['file_id', 'media_id', 'mediaid', 'id'],
+					),
+				],
 				`第 ${index + 1} 个附件控件`,
 				itemIndex,
 				1,
@@ -625,7 +677,16 @@ function buildTemplateControls(
 			config.related_approval = {
 				template_id: stringList(
 					context,
-					raw.related_template_ids,
+					[
+						raw.related_template_ids,
+						...parseStringIdJson(
+							context,
+							raw.related_template_ids_json ?? '[]',
+							'可关联模板 ID JSON',
+							itemIndex,
+							['template_id', 'templateid', 'id'],
+						),
+					],
 					'可关联模板 ID',
 					itemIndex,
 					0,

@@ -636,7 +636,19 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'id1,id2',
-		description: '报名 ID，支持逗号、中文逗号、竖线或换行分隔',
+		description:
+			'报名 ID，支持逗号、中文逗号、竖线或换行分隔；与下方 JSON 合并；列表数据扩展JSON 非空时仍优先覆盖',
+	},
+	{
+		displayName: '报名ID列表 JSON',
+		name: 'enrollIdListCrJson',
+		type: 'json',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['enrollDelete'] },
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["id1"] 或 [{"enroll_id":"id1"}]',
 	},
 	{
 		displayName: '导入报名列表',
@@ -996,7 +1008,18 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'meeting1,meeting2',
-		description: 'meetingid_list，逗号分隔；须为本企业创建的会议',
+		description: 'meetingid_list，逗号分隔；与下方 JSON 合并；须为本企业创建的会议',
+	},
+	{
+		displayName: '会议ID列表 JSON',
+		name: 'deviceMeetingidListJson',
+		type: 'json',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['checkDeviceInMeeting'] },
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["id1"] 或 [{"meetingid":"id1"}]',
 	},
 	{
 		displayName: '设备类型列表',
@@ -1007,7 +1030,18 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: '1,2,3',
-		description: 'instance_id_list；空表示查询全部设备（1 PC / 2 Mac / 3 Android…）',
+		description: 'instance_id_list；与下方 JSON 合并；空表示查询全部设备（1 PC / 2 Mac / 3 Android…）',
+	},
+	{
+		displayName: '设备类型列表 JSON',
+		name: 'deviceInstanceIdListJson',
+		type: 'json',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['checkDeviceInMeeting'] },
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 [1,2] 或 [{"instance_id":1}]',
 	},
 	{
 		displayName: '查询电话号码',
