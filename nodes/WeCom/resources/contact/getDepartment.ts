@@ -7,8 +7,20 @@ const showOnlyGetDepartment = {
 
 export const getDepartmentDescription: INodeProperties[] = [
 	{
-		displayName: '部门',
+		displayName: '部门ID',
 		name: 'id',
+		type: 'string',
+		default: '',
+		placeholder: '1',
+		displayOptions: {
+			show: showOnlyGetDepartment,
+		},
+		description:
+			'可选。部门 ID；可与下方选择二选一。不填则默认获取全量组织架构。接口性能较低，建议改用子部门 ID 列表与部门详情。<a href="https://developer.work.weixin.qq.com/document/path/90208" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '部门(选择)',
+		name: 'id_selected',
 		type: 'options',
 		typeOptions: {
 			loadOptionsMethod: 'getDepartments',
@@ -17,7 +29,7 @@ export const getDepartmentDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyGetDepartment,
 		},
-		description: '可选。从列表中选择部门，或使用表达式指定部门 ID。获取指定部门及其下的子部门（以及子部门的子部门等等，递归）。如果不填，默认获取全量组织架构。从2022年8月15日10点开始，"企业管理后台 - 管理工具 - 通讯录同步"的新增IP将不能再调用此接口，企业可通过「获取部门ID列表」接口获取部门ID列表。由于该接口性能较低，建议换用获取子部门ID列表与获取单个部门详情。只能拉取token对应的应用的权限范围内的部门列表。<a href="https://developer.work.weixin.qq.com/document/path/90208" target="_blank">官方文档</a>。Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 ];
 

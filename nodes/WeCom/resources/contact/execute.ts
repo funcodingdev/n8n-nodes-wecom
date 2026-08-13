@@ -70,7 +70,11 @@ export async function executeContact(
 					(this.getNodeParameter('userid_selected', i, '') as string);
 				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/user/get', {}, { userid });
 			} else if (operation === 'listUsers') {
-				const department_id = this.getNodeParameter('department_id', i, '1') as string;
+				const department_id = String(
+					this.getNodeParameter('department_id', i, '1') ||
+						this.getNodeParameter('department_id_selected', i, '') ||
+						'1',
+				).trim();
 				const fetch_child = this.getNodeParameter('fetch_child', i, false) as boolean;
 
 				response = await weComApiRequest.call(
@@ -84,7 +88,11 @@ export async function executeContact(
 					},
 				);
 			} else if (operation === 'listUsersDetail') {
-				const department_id = this.getNodeParameter('department_id', i, '1') as string;
+				const department_id = String(
+					this.getNodeParameter('department_id', i, '1') ||
+						this.getNodeParameter('department_id_selected', i, '') ||
+						'1',
+				).trim();
 				const fetch_child = this.getNodeParameter('fetch_child', i, false) as boolean;
 
 				response = await weComApiRequest.call(
@@ -111,7 +119,9 @@ export async function executeContact(
 					},
 				);
 			} else if (operation === 'getDepartment') {
-				const id = this.getNodeParameter('id', i, '') as string;
+				const id = String(
+					this.getNodeParameter('id', i, '') || this.getNodeParameter('id_selected', i, ''),
+				).trim();
 				const qs: IDataObject = {};
 				if (id) {
 					qs.id = id;

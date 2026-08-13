@@ -7,18 +7,29 @@ const showOnlyListUsers = {
 
 export const listUsersDescription: INodeProperties[] = [
 	{
-		displayName: '部门',
+		displayName: '部门ID',
 		name: 'department_id',
+		type: 'string',
+		displayOptions: {
+			show: showOnlyListUsers,
+		},
+		default: '1',
+		placeholder: '1',
+		description:
+			'部门 ID；可与下方选择二选一。从 2022-08-15 起通讯录同步新增 IP 不宜再调此接口，可改用「获取成员 ID 列表」等。<a href="https://developer.work.weixin.qq.com/document/path/90200" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '部门(选择)',
+		name: 'department_id_selected',
 		type: 'options',
 		typeOptions: {
 			loadOptionsMethod: 'getDepartments',
 		},
-		required: true,
 		default: '',
 		displayOptions: {
 			show: showOnlyListUsers,
 		},
-		description: '从列表中选择部门，或使用表达式指定部门 ID。从2022年8月15日10点开始，"企业管理后台 - 管理工具 - 通讯录同步"的新增IP将不能再调用此接口，企业可通过「获取成员ID列表」和「获取部门ID列表」接口获取userid和部门ID列表。<a href="https://developer.work.weixin.qq.com/document/path/90200" target="_blank">官方文档</a>。Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '是否递归获取',
@@ -28,6 +39,7 @@ export const listUsersDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyListUsers,
 		},
-		description: '是否递归获取子部门的成员。true表示递归获取所有子部门成员，false表示仅获取当前部门成员。如需获取该部门及其子部门的所有成员，需先获取该部门下的子部门，然后再获取子部门下的部门成员，逐层递归获取。<a href="https://developer.work.weixin.qq.com/document/path/90200" target="_blank">官方文档</a>',
+		description:
+			'是否递归获取子部门的成员。true 表示递归获取所有子部门成员，false 表示仅获取当前部门成员。<a href="https://developer.work.weixin.qq.com/document/path/90200" target="_blank">官方文档</a>',
 	},
 ];
