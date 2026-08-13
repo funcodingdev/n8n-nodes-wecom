@@ -85,6 +85,22 @@ export async function executeAIBotPassiveReply(
 		const id = validateByteLength(value, label, 256);
 		return id ? { id } : undefined;
 	};
+	const resolveStreamImageSource = (itemIndex: number): unknown => {
+		const jsonRaw = this.getNodeParameter('msgItemJson', itemIndex, '[]');
+		if (jsonRaw !== undefined && jsonRaw !== null && String(jsonRaw).trim() !== '') {
+			let parsed: unknown = jsonRaw;
+			if (typeof jsonRaw === 'string') {
+				try {
+					parsed = JSON.parse(jsonRaw);
+				} catch {
+					fail('图片列表 JSON 不是有效的 JSON');
+				}
+			}
+			if (!Array.isArray(parsed)) fail('图片列表 JSON 必须是数组');
+			if ((parsed as unknown[]).length > 0) return { image: parsed };
+		}
+		return this.getNodeParameter('msg_item', itemIndex, {});
+	};
 	const streamImages = (value: unknown, finish: boolean): IDataObject[] => {
 		const container = value && typeof value === 'object' && !Array.isArray(value)
 			? value as IDataObject
@@ -93,7 +109,14 @@ export async function executeAIBotPassiveReply(
 		if (images.length > 10) fail('流式消息最多支持 10 张图片');
 		if (images.length && !finish) fail('流式消息图片只能在 finish=true 的最后一次回复中发送');
 		return images.map((image, index) => {
-			const base64 = requiredText(image.base64, `第 ${index + 1} 张图片 Base64`).replace(/\s+/g, '');
+			const nested =
+				image.image && typeof image.image === 'object' && !Array.isArray(image.image)
+					? (image.image as IDataObject)
+					: undefined;
+			const base64 = requiredText(
+				nested?.base64 ?? image.base64,
+				`第 ${index + 1} 张图片 Base64`,
+			).replace(/\s+/g, '');
 			if (!/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(base64)) {
 				fail(`第 ${index + 1} 张图片 Base64 格式无效`);
 			}
@@ -105,7 +128,10 @@ export async function executeAIBotPassiveReply(
 			const isJpeg = imageBuffer.length >= 3 &&
 				imageBuffer[0] === 0xff && imageBuffer[1] === 0xd8 && imageBuffer[2] === 0xff;
 			if (!isPng && !isJpeg) fail(`第 ${index + 1} 张图片仅支持 JPG 或 PNG 格式`);
-			const md5 = requiredText(image.md5, `第 ${index + 1} 张图片 MD5`).toLowerCase();
+			const md5 = requiredText(
+				nested?.md5 ?? image.md5,
+				`第 ${index + 1} 张图片 MD5`,
+			).toLowerCase();
 			if (!/^[a-f0-9]{32}$/.test(md5)) fail(`第 ${index + 1} 张图片 MD5 必须是 32 位十六进制字符串`);
 			if (createHash('md5').update(imageBuffer).digest('hex') !== md5) {
 				fail(`第 ${index + 1} 张图片 MD5 与图片内容不匹配`);
@@ -191,10 +217,7 @@ export async function executeAIBotPassiveReply(
 					'流式消息内容',
 					20480,
 				);
-				const msgItems = streamImages(
-					this.getNodeParameter('msg_item', itemIndex, {}),
-					finish,
-				);
+				const msgItems = streamImages(resolveStreamImageSource(itemIndex), finish);
 
 				const streamData: IDataObject = {
 					finish,
@@ -255,10 +278,7 @@ export async function executeAIBotPassiveReply(
 					finish,
 				};
 				if (content) streamData.content = content;
-				const msgItems = streamImages(
-					this.getNodeParameter('msg_item', itemIndex, {}),
-					finish,
-				);
+				const msgItems = streamImages(resolveStreamImageSource(itemIndex), finish);
 				if (msgItems.length) streamData.msg_item = msgItems;
 				const streamFeedback = feedback(
 					this.getNodeParameter('stream_feedback_id', itemIndex, ''),

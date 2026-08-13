@@ -98,4 +98,13 @@ export const addSmartsheetFieldDescription: INodeProperties[] = [
 			},
 		],
 	},
+	{
+		displayName: '字段列表 JSON',
+		name: 'fieldsJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方字段表单。支持 [{"field_title":"...","field_type":"FIELD_TYPE_TEXT",...}]，1–150 条',
+	},
 ];

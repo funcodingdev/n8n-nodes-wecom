@@ -144,6 +144,15 @@ export const addMomentTaskDescription: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: '图片列表 JSON',
+		name: 'imagesJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: { ...showOnly, contentType: ['image'] } },
+		description:
+			'可选。非空数组时覆盖上方图片表单。支持 ["media_id"] 或 [{"media_id":"..."}]，1–9 张',
+	},
+	{
 		displayName: '视频Media ID',
 		name: 'video_media_id',
 		type: 'string',

@@ -536,12 +536,28 @@ function buildRuleGroup(
 			];
 		}
 
-		const locCollection = context.getNodeParameter(
-			'locInfosCollection',
-			itemIndex,
-			{},
-		) as IDataObject;
-		const rawLocations = (locCollection.locs as IDataObject[]) || [];
+		const locJsonRaw = context.getNodeParameter('locInfosJson', itemIndex, '[]');
+		let rawLocations: IDataObject[] = [];
+		if (locJsonRaw !== undefined && locJsonRaw !== null && String(locJsonRaw).trim() !== '') {
+			let parsed: unknown = locJsonRaw;
+			if (typeof locJsonRaw === 'string') {
+				try {
+					parsed = JSON.parse(locJsonRaw);
+				} catch {
+					fail(context, '位置打卡点 JSON 不是有效的 JSON', itemIndex);
+				}
+			}
+			if (!Array.isArray(parsed)) fail(context, '位置打卡点 JSON 必须是数组', itemIndex);
+			if (parsed.length > 0) rawLocations = parsed as IDataObject[];
+		}
+		if (rawLocations.length === 0) {
+			const locCollection = context.getNodeParameter(
+				'locInfosCollection',
+				itemIndex,
+				{},
+			) as IDataObject;
+			rawLocations = (locCollection.locs as IDataObject[]) || [];
+		}
 		if (rawLocations.length) {
 			group.loc_infos = rawLocations.map((location, index) => ({
 				lat: integer(
@@ -586,12 +602,28 @@ function buildRuleGroup(
 				),
 			}));
 		}
-		const wifiCollection = context.getNodeParameter(
-			'wifiInfosCollection',
-			itemIndex,
-			{},
-		) as IDataObject;
-		const rawWifis = (wifiCollection.wifis as IDataObject[]) || [];
+		const wifiJsonRaw = context.getNodeParameter('wifiInfosJson', itemIndex, '[]');
+		let rawWifis: IDataObject[] = [];
+		if (wifiJsonRaw !== undefined && wifiJsonRaw !== null && String(wifiJsonRaw).trim() !== '') {
+			let parsed: unknown = wifiJsonRaw;
+			if (typeof wifiJsonRaw === 'string') {
+				try {
+					parsed = JSON.parse(wifiJsonRaw);
+				} catch {
+					fail(context, 'WiFi打卡点 JSON 不是有效的 JSON', itemIndex);
+				}
+			}
+			if (!Array.isArray(parsed)) fail(context, 'WiFi打卡点 JSON 必须是数组', itemIndex);
+			if (parsed.length > 0) rawWifis = parsed as IDataObject[];
+		}
+		if (rawWifis.length === 0) {
+			const wifiCollection = context.getNodeParameter(
+				'wifiInfosCollection',
+				itemIndex,
+				{},
+			) as IDataObject;
+			rawWifis = (wifiCollection.wifis as IDataObject[]) || [];
+		}
 		if (rawWifis.length) {
 			group.wifimac_infos = rawWifis.map((wifi, index) => {
 				const mac = text(context, wifi.wifimac, `第 ${index + 1} 个 WiFi MAC`, itemIndex, 17);

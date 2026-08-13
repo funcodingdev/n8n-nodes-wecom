@@ -292,4 +292,13 @@ export const addMsgTemplateDescription: INodeProperties[] = [
 			},
 		],
 	},
+	{
+		displayName: '附件列表 JSON',
+		name: 'attachmentsJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: { ...showOnly, enableAttachments: [true] } },
+		description:
+			'可选。非空数组时覆盖上方附件表单。支持官方 attachments 数组，例如 [{"msgtype":"image","image":{"media_id":"..."}}]，最多 9 个',
+	},
 ];

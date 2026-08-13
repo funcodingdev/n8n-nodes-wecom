@@ -89,6 +89,20 @@ export const replyStreamDescription: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: '图片列表 JSON',
+		name: 'msgItemJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: {
+			show: {
+				...showOnlyForReplyStream,
+				finish: [true],
+			},
+		},
+		description:
+			'可选。非空数组时覆盖上方图片表单。支持 [{"base64":"...","md5":"..."}] 或官方结构 [{"msgtype":"image","image":{"base64":"...","md5":"..."}}]，最多 10 张',
+	},
+	{
 		displayName: '反馈 ID',
 		name: 'feedback_id',
 		type: 'string',

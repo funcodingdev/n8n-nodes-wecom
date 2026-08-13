@@ -415,6 +415,15 @@ export const manageRulesDescription: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: '位置打卡点 JSON',
+		name: 'locInfosJson',
+		type: 'json',
+		displayOptions: { show: { ...showOnly, action: ['create', 'update'] } },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方位置表单。支持 [{"lat":23000000,"lng":113000000,"loc_title":"...","loc_detail":"...","distance":300}]',
+	},
+	{
 		displayName: 'WiFi打卡点',
 		name: 'wifiInfosCollection',
 		type: 'fixedCollection',
@@ -444,6 +453,15 @@ export const manageRulesDescription: INodeProperties[] = [
 				],
 			},
 		],
+	},
+	{
+		displayName: 'WiFi打卡点 JSON',
+		name: 'wifiInfosJson',
+		type: 'json',
+		displayOptions: { show: { ...showOnly, action: ['create', 'update'] } },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方 WiFi 表单。支持 [{"wifiname":"...","wifimac":"c0:7b:bc:37:f8:d3"}]',
 	},
 	{
 		displayName: '使用高级配置(JSON)',

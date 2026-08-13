@@ -1316,8 +1316,37 @@ export async function executeExternalContact(
 
 				// 附件内容
 				if (contentType === 'image') {
-					const imageCollection = this.getNodeParameter('imageCollection', i, {}) as IDataObject;
-					const imagesList = collectionRows(imageCollection, 'images');
+					const imagesJsonRaw = this.getNodeParameter('imagesJson', i, '[]');
+					let imagesList: IDataObject[] = [];
+					if (
+						imagesJsonRaw !== undefined &&
+						imagesJsonRaw !== null &&
+						String(imagesJsonRaw).trim() !== ''
+					) {
+						let parsed: unknown = imagesJsonRaw;
+						if (typeof imagesJsonRaw === 'string') {
+							try {
+								parsed = JSON.parse(imagesJsonRaw);
+							} catch {
+								fail(this, '图片列表 JSON 不是有效的 JSON', i);
+							}
+						}
+						if (!Array.isArray(parsed)) fail(this, '图片列表 JSON 必须是数组', i);
+						if (parsed.length > 0) {
+							imagesList = (parsed as unknown[]).map((item) => {
+								if (typeof item === 'string') return { media_id: item };
+								if (item && typeof item === 'object' && !Array.isArray(item)) {
+									return item as IDataObject;
+								}
+								fail(this, '图片列表 JSON 每项必须是 media_id 字符串或对象', i);
+								return {};
+							});
+						}
+					}
+					if (imagesList.length === 0) {
+						const imageCollection = this.getNodeParameter('imageCollection', i, {}) as IDataObject;
+						imagesList = collectionRows(imageCollection, 'images');
+					}
 					if (imagesList.length < 1 || imagesList.length > 9) {
 						fail(this, '图片附件数量必须为 1–9 张', i);
 					}
@@ -1917,11 +1946,34 @@ export async function executeExternalContact(
 
 				// 附件列表
 				if (enableAttachments) {
-					body.attachments = buildMessageAttachments(
-						this,
-						i,
-						this.getNodeParameter('attachments', i, {}),
-					);
+					const attachmentsJsonRaw = this.getNodeParameter('attachmentsJson', i, '[]');
+					let usedJson = false;
+					if (
+						attachmentsJsonRaw !== undefined &&
+						attachmentsJsonRaw !== null &&
+						String(attachmentsJsonRaw).trim() !== ''
+					) {
+						let parsed: unknown = attachmentsJsonRaw;
+						if (typeof attachmentsJsonRaw === 'string') {
+							try {
+								parsed = JSON.parse(attachmentsJsonRaw);
+							} catch {
+								fail(this, '附件列表 JSON 不是有效的 JSON', i);
+							}
+						}
+						if (!Array.isArray(parsed)) fail(this, '附件列表 JSON 必须是数组', i);
+						if (parsed.length > 0) {
+							body.attachments = parsed as IDataObject[];
+							usedJson = true;
+						}
+					}
+					if (!usedJson) {
+						body.attachments = buildMessageAttachments(
+							this,
+							i,
+							this.getNodeParameter('attachments', i, {}),
+						);
+					}
 				}
 				if (!body.text && !body.attachments) fail(this, '群发文本和附件不能同时为空', i);
 

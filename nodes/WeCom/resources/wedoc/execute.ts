@@ -1957,11 +1957,34 @@ export async function executeWedoc(
 			else if (operation === 'addSmartsheetField') {
 				const docid = requiredText(this, this.getNodeParameter('docid', i), '文档 ID', i);
 				const sheet_id = requiredText(this, this.getNodeParameter('sheet_id', i), '子表 ID', i);
-				const fieldsCollection = this.getNodeParameter('fieldsCollection', i, {}) as IDataObject;
+				const fieldsJsonRaw = this.getNodeParameter('fieldsJson', i, '[]');
+				let fieldsSource: IDataObject[] = [];
+				if (
+					fieldsJsonRaw !== undefined &&
+					fieldsJsonRaw !== null &&
+					String(fieldsJsonRaw).trim() !== ''
+				) {
+					let parsed: unknown = fieldsJsonRaw;
+					if (typeof fieldsJsonRaw === 'string') {
+						try {
+							parsed = JSON.parse(fieldsJsonRaw);
+						} catch {
+							fail(this, '字段列表 JSON 不是有效的 JSON', i);
+						}
+					}
+					if (!Array.isArray(parsed)) fail(this, '字段列表 JSON 必须是数组', i);
+					if (parsed.length > 0) fieldsSource = parsed as IDataObject[];
+				}
+				if (fieldsSource.length === 0) {
+					const fieldsCollection = this.getNodeParameter('fieldsCollection', i, {}) as IDataObject;
+					fieldsSource = Array.isArray(fieldsCollection.fields)
+						? (fieldsCollection.fields as IDataObject[])
+						: [];
+				}
 
 				const fields: IDataObject[] = [];
-				if (fieldsCollection.fields && Array.isArray(fieldsCollection.fields)) {
-					for (const field of fieldsCollection.fields as IDataObject[]) {
+				if (fieldsSource.length) {
+					for (const field of fieldsSource) {
 						const fieldType = requiredText(this, field.field_type, '字段类型', i, 64);
 						if (!SMARTSHEET_FIELD_TYPES.has(fieldType)) {
 							fail(this, `不支持的智能表格字段类型: ${fieldType}`, i);
@@ -2058,11 +2081,34 @@ export async function executeWedoc(
 			} else if (operation === 'updateSmartsheetField') {
 				const docid = requiredText(this, this.getNodeParameter('docid', i), '文档 ID', i);
 				const sheet_id = requiredText(this, this.getNodeParameter('sheet_id', i), '子表 ID', i);
-				const fieldsCollection = this.getNodeParameter('fieldsCollection', i, {}) as IDataObject;
+				const fieldsJsonRaw = this.getNodeParameter('fieldsJson', i, '[]');
+				let fieldsSource: IDataObject[] = [];
+				if (
+					fieldsJsonRaw !== undefined &&
+					fieldsJsonRaw !== null &&
+					String(fieldsJsonRaw).trim() !== ''
+				) {
+					let parsed: unknown = fieldsJsonRaw;
+					if (typeof fieldsJsonRaw === 'string') {
+						try {
+							parsed = JSON.parse(fieldsJsonRaw);
+						} catch {
+							fail(this, '字段列表 JSON 不是有效的 JSON', i);
+						}
+					}
+					if (!Array.isArray(parsed)) fail(this, '字段列表 JSON 必须是数组', i);
+					if (parsed.length > 0) fieldsSource = parsed as IDataObject[];
+				}
+				if (fieldsSource.length === 0) {
+					const fieldsCollection = this.getNodeParameter('fieldsCollection', i, {}) as IDataObject;
+					fieldsSource = Array.isArray(fieldsCollection.fields)
+						? (fieldsCollection.fields as IDataObject[])
+						: [];
+				}
 
 				const fields: IDataObject[] = [];
-				if (fieldsCollection.fields && Array.isArray(fieldsCollection.fields)) {
-					for (const field of fieldsCollection.fields as IDataObject[]) {
+				if (fieldsSource.length) {
+					for (const field of fieldsSource) {
 						const fieldType = requiredText(this, field.field_type, '字段类型', i, 64);
 						if (!SMARTSHEET_FIELD_TYPES.has(fieldType)) {
 							fail(this, `不支持的智能表格字段类型: ${fieldType}`, i);
