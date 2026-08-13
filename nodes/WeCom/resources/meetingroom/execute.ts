@@ -71,6 +71,16 @@ function unixTimestamp(
 	return normalized;
 }
 
+function listValues(value: unknown): string[] {
+	if (Array.isArray(value)) {
+		return value.flatMap((entry) => listValues(entry));
+	}
+	return String(value ?? '')
+		.split(LIST_SEPARATOR)
+		.map((entry) => entry.trim())
+		.filter(Boolean);
+}
+
 function stringList(
 	context: IExecuteFunctions,
 	value: unknown,
@@ -78,12 +88,7 @@ function stringList(
 	itemIndex: number,
 	max: number,
 ): string[] {
-	const source = Array.isArray(value) ? value : [value];
-	const values = source
-		.flatMap((entry) => String(entry ?? '').split(LIST_SEPARATOR))
-		.map((entry) => entry.trim())
-		.filter(Boolean);
-	const unique = [...new Set(values)];
+	const unique = [...new Set(listValues(value))];
 	if (unique.length > max) fail(context, `${label}最多支持 ${max} 个`, itemIndex);
 	return unique;
 }
@@ -419,7 +424,14 @@ export async function executeMeetingroom(
 						),
 						start_time: startTime,
 						end_time: endTime,
-						booker: text(this, this.getNodeParameter('booker', i), '预定人 UserID', i, 64),
+						booker: text(
+							this,
+							this.getNodeParameter('booker', i, '') ||
+								this.getNodeParameter('booker_selected', i, ''),
+							'预定人 UserID',
+							i,
+							64,
+						),
 					};
 					const subject = text(
 						this,
@@ -432,7 +444,10 @@ export async function executeMeetingroom(
 					if (subject) body.subject = subject;
 					const attendees = stringList(
 						this,
-						this.getNodeParameter('attendees', i, ''),
+						[
+							this.getNodeParameter('attendees', i, ''),
+							this.getNodeParameter('attendees_selected', i, []),
+						],
 						'参会人员',
 						i,
 						1000,
@@ -450,7 +465,14 @@ export async function executeMeetingroom(
 							MAX_UINT32,
 						),
 						schedule_id: text(this, this.getNodeParameter('schedule_id', i), '日程 ID', i, 128),
-						booker: text(this, this.getNodeParameter('booker', i), '预定人 UserID', i, 64),
+						booker: text(
+							this,
+							this.getNodeParameter('booker', i, '') ||
+								this.getNodeParameter('booker_selected', i, ''),
+							'预定人 UserID',
+							i,
+							64,
+						),
 					};
 				} else if (action === 'bookByMeeting') {
 					endpoint = '/cgi-bin/oa/meetingroom/book_by_meeting';
@@ -464,7 +486,14 @@ export async function executeMeetingroom(
 							MAX_UINT32,
 						),
 						meetingid: text(this, this.getNodeParameter('meetingid', i), '会议 ID', i, 128),
-						booker: text(this, this.getNodeParameter('booker', i), '预定人 UserID', i, 64),
+						booker: text(
+							this,
+							this.getNodeParameter('booker', i, '') ||
+								this.getNodeParameter('booker_selected', i, ''),
+							'预定人 UserID',
+							i,
+							64,
+						),
 					};
 				} else if (action === 'cancel') {
 					endpoint = '/cgi-bin/oa/meetingroom/cancel_book';

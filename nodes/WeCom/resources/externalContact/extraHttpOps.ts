@@ -718,7 +718,21 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '发送企业群发消息的成员；与客户列表不能同时为空',
+		description: '发送企业群发消息的成员；与客户列表不能同时为空；可与下方选择二选一',
+	},
+	{
+		displayName: '群发发送成员(选择)',
+		name: 'crm_sender_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['crmAddMsgTemplate'],
+			},
+		},
+		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '群发附件',

@@ -2903,7 +2903,9 @@ export async function executeExternalContact(
 					const crmMsgText = optionalByteText(this, this.getNodeParameter('crm_msg_text', i, ''), '群发文本内容', i, 4000);
 					if (crmMsgText) bodyDefaults.text = { content: crmMsgText };
 					bodyDefaults.external_userid = this.getNodeParameter('crm_external_userid_list', i, '') as string;
-					bodyDefaults.sender = this.getNodeParameter('crm_sender', i, '') as string;
+					bodyDefaults.sender =
+						(this.getNodeParameter('crm_sender', i, '') as string) ||
+						(this.getNodeParameter('crm_sender_selected', i, '') as string);
 					const crm_attachments_json = this.getNodeParameter('crm_attachments_json', i, '[]') as string;
 					const formAttachments = collectionRows(
 						this.getNodeParameter('crmAttachmentsCollection', i, {}),

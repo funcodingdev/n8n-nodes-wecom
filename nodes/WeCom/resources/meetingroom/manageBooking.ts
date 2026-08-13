@@ -143,12 +143,22 @@ export const manageBookingDescription: INodeProperties[] = [
 		displayName: '预定人UserID',
 		name: 'booker',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: { ...showOnly, action: ['book', 'bookBySchedule', 'bookByMeeting'] },
 		},
 		default: '',
-		description: '预定人的 UserID',
+		description: '预定人的 UserID；可与下方选择二选一',
+	},
+	{
+		displayName: '预定人(选择)',
+		name: 'booker_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: { ...showOnly, action: ['book', 'bookBySchedule', 'bookByMeeting'] },
+		},
+		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '参会人员UserID',
@@ -156,7 +166,16 @@ export const manageBookingDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: { show: { ...showOnly, action: ['book'] } },
 		default: '',
-		description: '支持逗号、中文逗号、竖线或换行分隔，将自动去空和去重',
+		description: '支持逗号、中文逗号、竖线或换行分隔；与下方选择合并，将自动去空和去重',
+	},
+	{
+		displayName: '参会人员(选择)',
+		name: 'attendees_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: { show: { ...showOnly, action: ['book'] } },
+		default: [],
+		description: '与上方列表合并去重',
 	},
 	{
 		displayName: '日程ID',
