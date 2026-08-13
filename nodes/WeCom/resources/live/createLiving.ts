@@ -7,12 +7,20 @@ export const createLivingDescription: INodeProperties[] = [
 		displayName: '主播UserID',
 		name: 'anchor_userid',
 		type: 'string',
-		required: true,
 		displayOptions: { show: showOnly },
 		default: '',
 		description:
-			'直播发起者的 UserID。<a href="https://developer.work.weixin.qq.com/document/path/93637" target="_blank">官方文档</a>',
+			'直播发起者的 UserID；可与下方选择二选一。<a href="https://developer.work.weixin.qq.com/document/path/93637" target="_blank">官方文档</a>',
 		placeholder: 'zhangsan',
+	},
+	{
+		displayName: '主播(选择)',
+		name: 'anchor_userid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: { show: showOnly },
+		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '直播主题',

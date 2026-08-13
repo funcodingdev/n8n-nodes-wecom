@@ -289,7 +289,14 @@ export async function executeHr(
 			} else if (operation === 'getStaffInfo') {
 				const getAll = this.getNodeParameter('get_all', i, true) as boolean;
 				const body: IDataObject = {
-					userid: text(this, this.getNodeParameter('userid', i), '成员 UserID', i, 64),
+					userid: text(
+						this,
+						this.getNodeParameter('userid', i, '') ||
+							this.getNodeParameter('userid_selected', i, ''),
+						'成员 UserID',
+						i,
+						64,
+					),
 					get_all: getAll,
 				};
 				if (!getAll) {
@@ -339,7 +346,14 @@ export async function executeHr(
 				}
 				const body: IDataObject = {
 					...extra,
-					userid: text(this, this.getNodeParameter('userid', i), '成员 UserID', i, 64),
+					userid: text(
+						this,
+						this.getNodeParameter('userid', i, '') ||
+							this.getNodeParameter('userid_selected', i, ''),
+						'成员 UserID',
+						i,
+						64,
+					),
 				};
 				if (updateItems.length) body.update_items = updateItems;
 				else delete body.update_items;

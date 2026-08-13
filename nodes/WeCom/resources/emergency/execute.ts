@@ -23,13 +23,18 @@ function requiredText(
 	return normalized;
 }
 
-function useridList(context: IExecuteFunctions, value: unknown, itemIndex: number): string[] {
-	const source = Array.isArray(value) ? value : [value];
-	const values = source
-		.flatMap((entry) => String(entry ?? '').split(LIST_SEPARATOR))
+function listValues(value: unknown): string[] {
+	if (Array.isArray(value)) {
+		return value.flatMap((entry) => listValues(entry));
+	}
+	return String(value ?? '')
+		.split(LIST_SEPARATOR)
 		.map((entry) => entry.trim())
 		.filter(Boolean);
-	const unique = [...new Set(values)].map((userid) =>
+}
+
+function useridList(context: IExecuteFunctions, value: unknown, itemIndex: number): string[] {
+	const unique = [...new Set(listValues(value))].map((userid) =>
 		requiredText(context, userid, '被叫成员 UserID', itemIndex, 64),
 	);
 	if (!unique.length) fail(context, '被叫成员 UserID 列表不能为空', itemIndex);
@@ -50,14 +55,22 @@ export async function executeEmergency(
 			if (operation === 'makeVoiceCall') {
 				endpoint = '/cgi-bin/pstncc/call';
 				body = {
-					callee_userid: useridList(this, this.getNodeParameter('callee_userid', i), i),
+					callee_userid: useridList(
+						this,
+						[
+							this.getNodeParameter('callee_userid', i, ''),
+							this.getNodeParameter('callee_userid_selected', i, []),
+						],
+						i,
+					),
 				};
 			} else if (operation === 'getCallStatus') {
 				endpoint = '/cgi-bin/pstncc/getstates';
 				body = {
 					callee_userid: requiredText(
 						this,
-						this.getNodeParameter('callee_userid', i),
+						this.getNodeParameter('callee_userid', i, '') ||
+							this.getNodeParameter('callee_userid_selected', i, ''),
 						'被叫成员 UserID',
 						i,
 						64,

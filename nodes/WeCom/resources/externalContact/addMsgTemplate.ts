@@ -29,8 +29,17 @@ export const addMsgTemplateDescription: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		displayOptions: { show: showOnly },
-		description: '发送企业群发消息的成员 UserID；客户群群发时必填',
+		description: '发送企业群发消息的成员 UserID；客户群群发时必填；可与下方选择二选一',
 		placeholder: 'zhangsan',
+	},
+	{
+		displayName: '发送成员(选择)',
+		name: 'sender_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: { show: showOnly },
+		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	// 客户列表（单聊时使用）
 	{

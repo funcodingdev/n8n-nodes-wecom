@@ -1477,7 +1477,13 @@ export async function executeExternalContact(
 			else if (operation === 'addMsgTemplate') {
 				const chat_type = String(this.getNodeParameter('chat_type', i, 'single'));
 				if (!['single', 'group'].includes(chat_type)) fail(this, '群发任务类型无效', i);
-				const sender = optionalText(this, this.getNodeParameter('sender', i, ''), '发送成员 UserID', i);
+				const sender = optionalText(
+					this,
+					this.getNodeParameter('sender', i, '') ||
+						this.getNodeParameter('sender_selected', i, ''),
+					'发送成员 UserID',
+					i,
+				);
 				const text_content = optionalByteText(
 					this,
 					this.getNodeParameter('text_content', i, ''),

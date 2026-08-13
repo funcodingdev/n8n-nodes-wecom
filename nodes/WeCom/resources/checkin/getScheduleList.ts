@@ -33,12 +33,23 @@ export const getScheduleListDescription: INodeProperties[] = [
 		displayName: '成员UserID列表',
 		name: 'useridlist',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: showOnlyForGetScheduleList,
 		},
 		default: '',
+		placeholder: 'zhangsan,lisi',
 		description:
-			'需要获取排班信息的成员 UserID 列表，支持逗号、中文逗号、竖线或换行分隔，最多 100 个',
+			'需要获取排班信息的成员 UserID 列表；与下方选择合并；支持逗号、中文逗号、竖线或换行分隔，最多 100 个',
+	},
+	{
+		displayName: '成员(选择)',
+		name: 'useridlist_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: showOnlyForGetScheduleList,
+		},
+		default: [],
+		description: '与上方列表合并去重，合计最多 100 个',
 	},
 ];

@@ -113,6 +113,16 @@ function timestamp(
 	return normalized;
 }
 
+function listValues(value: unknown): string[] {
+	if (Array.isArray(value)) {
+		return value.flatMap((entry) => listValues(entry));
+	}
+	return String(value ?? '')
+		.split(LIST_SEPARATOR)
+		.map((entry) => entry.trim())
+		.filter(Boolean);
+}
+
 function stringList(
 	context: IExecuteFunctions,
 	value: unknown,
@@ -121,12 +131,7 @@ function stringList(
 	min: number,
 	max: number,
 ): string[] {
-	const source = Array.isArray(value) ? value : [value];
-	const values = source
-		.flatMap((entry) => String(entry ?? '').split(LIST_SEPARATOR))
-		.map((entry) => entry.trim())
-		.filter(Boolean);
-	const unique = [...new Set(values)];
+	const unique = [...new Set(listValues(value))];
 	if (unique.length < min || unique.length > max) {
 		fail(context, `${label}数量必须为 ${min}–${max} 个`, itemIndex);
 	}
@@ -299,7 +304,7 @@ function buildApplicationContents(
 			if (kind === 'members') {
 				value.members = stringList(
 					context,
-					raw.contact_userids,
+					[raw.contact_userids, raw.contact_userids_selected],
 					`第 ${index + 1} 个成员控件`,
 					itemIndex,
 					1,
@@ -308,7 +313,7 @@ function buildApplicationContents(
 			} else if (kind === 'departments') {
 				value.departments = stringList(
 					context,
-					raw.contact_partyids,
+					[raw.contact_partyids, raw.contact_partyids_selected],
 					`第 ${index + 1} 个部门控件`,
 					itemIndex,
 					1,
@@ -753,7 +758,7 @@ export async function executeApproval(
 								type,
 								userid: stringList(
 									this,
-									raw.userid_list,
+									[raw.userid_list, raw.userid_list_selected],
 									`第 ${index + 1} 个节点成员`,
 									i,
 									1,

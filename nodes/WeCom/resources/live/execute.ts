@@ -150,7 +150,8 @@ export async function executeLive(
 				const body: IDataObject = {
 					anchor_userid: text(
 						this,
-						this.getNodeParameter('anchor_userid', i),
+						this.getNodeParameter('anchor_userid', i, '') ||
+							this.getNodeParameter('anchor_userid_selected', i, ''),
 						'主播 UserID',
 						i,
 						64,
