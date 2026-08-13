@@ -78,6 +78,16 @@ function unixTimestamp(
 	return timestamp;
 }
 
+function listValues(value: unknown): string[] {
+	if (Array.isArray(value)) {
+		return value.flatMap((entry) => listValues(entry));
+	}
+	return String(value ?? '')
+		.split(LIST_SEPARATOR)
+		.map((entry) => entry.trim())
+		.filter(Boolean);
+}
+
 function stringList(
 	context: IExecuteFunctions,
 	value: unknown,
@@ -86,12 +96,7 @@ function stringList(
 	min: number,
 	max: number,
 ): string[] {
-	const source = Array.isArray(value) ? value : [value];
-	const values = source
-		.flatMap((entry) => String(entry ?? '').split(LIST_SEPARATOR))
-		.map((entry) => entry.trim())
-		.filter(Boolean);
-	const unique = [...new Set(values)];
+	const unique = [...new Set(listValues(value))];
 	if (unique.length < min || unique.length > max) {
 		fail(context, `${label}数量必须为 ${min}–${max} 个`, itemIndex);
 	}
@@ -728,6 +733,7 @@ export async function executeCalendar(
 					this,
 					[
 						this.getNodeParameter('attendee_userids', i, ''),
+						this.getNodeParameter('attendee_userids_selected', i, []),
 						...rawAttendees.map((attendee) => attendee.userid),
 					],
 					'日程参与者',

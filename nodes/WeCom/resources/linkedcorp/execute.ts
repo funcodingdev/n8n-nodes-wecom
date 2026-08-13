@@ -2,9 +2,17 @@ import type { IDataObject, IExecuteFunctions, INodeExecutionData } from 'n8n-wor
 import { NodeOperationError } from 'n8n-workflow';
 import { getWeComBaseUrl, weComApiRequest } from '../../shared/transport';
 
-const splitList = (value: unknown): string[] => [...new Set(
-	String(value ?? '').split(/[,|\n]/).map((entry) => entry.trim()).filter(Boolean),
-)];
+const flattenListValues = (value: unknown): string[] => {
+	if (Array.isArray(value)) {
+		return value.flatMap((entry) => flattenListValues(entry));
+	}
+	return String(value ?? '')
+		.split(/[,|\n，]+/)
+		.map((entry) => entry.trim())
+		.filter(Boolean);
+};
+
+const splitList = (value: unknown): string[] => [...new Set(flattenListValues(value))];
 
 const asObject = (value: unknown): IDataObject | undefined =>
 	value && typeof value === 'object' && !Array.isArray(value) ? value as IDataObject : undefined;
@@ -95,7 +103,10 @@ export async function executeLinkedcorp(
 			return validateRuleInfo({
 				owner_corp_range: {
 					departmentids: splitList(this.getNodeParameter('owner_departmentids', itemIndex, '')),
-					userids: splitList(this.getNodeParameter('owner_userids', itemIndex, '')),
+					userids: splitList([
+						this.getNodeParameter('owner_userids', itemIndex, ''),
+						this.getNodeParameter('owner_userids_selected', itemIndex, []),
+					]),
 				},
 				member_corp_range: {
 					groupids: splitList(this.getNodeParameter('member_groupids', itemIndex, '')),

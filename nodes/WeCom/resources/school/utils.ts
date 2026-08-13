@@ -115,6 +115,16 @@ export function requireDepartmentIds(
 	return departmentIds;
 }
 
+function flattenSchoolListValues(value: unknown): string[] {
+	if (Array.isArray(value)) {
+		return value.flatMap((entry) => flattenSchoolListValues(entry));
+	}
+	return String(value ?? '')
+		.split(/[,，|\n\r]+/)
+		.map((entry) => entry.trim())
+		.filter(Boolean);
+}
+
 export function requireSchoolUserIdList(
 	context: IExecuteFunctions,
 	value: unknown,
@@ -122,12 +132,7 @@ export function requireSchoolUserIdList(
 	itemIndex: number,
 	maximumItems = 100,
 ): string[] {
-	const rawValues = Array.isArray(value)
-		? value
-		: String(value ?? '')
-				.split(/[,，|\n\r]+/)
-				.map((entry) => entry.trim())
-				.filter(Boolean);
+	const rawValues = flattenSchoolListValues(value);
 	if (rawValues.length === 0) fail(context, `${label}不能为空`, itemIndex);
 
 	const userids: string[] = [];

@@ -595,7 +595,16 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		displayOptions: { show: { resource: ['meeting'], operation: ['setInvitees'] } },
 		default: '',
 		placeholder: 'zhangsan,lisi',
-		description: 'invitees userid 列表，逗号分隔',
+		description: 'invitees userid 列表，逗号分隔；与下方选择合并，最多 2000',
+	},
+	{
+		displayName: '邀请成员(选择)',
+		name: 'invitee_userids_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: { show: { resource: ['meeting'], operation: ['setInvitees'] } },
+		default: [],
+		description: '与上方列表合并去重',
 	},
 	{
 		displayName: '临时OpenID',

@@ -1,5 +1,10 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { composeFields, scheduleAdminField, scheduleFields } from './composeFields';
+import {
+	composeFields,
+	scheduleAdminField,
+	scheduleAdminSelectedField,
+	scheduleFields,
+} from './composeFields';
 
 const showOnly = { resource: ['mail'], operation: ['sendScheduleMail'] };
 
@@ -14,4 +19,5 @@ export const sendScheduleMailDescription: INodeProperties[] = [
 	...composeFields('sendScheduleMail'),
 	...scheduleFields('sendScheduleMail', '日程'),
 	scheduleAdminField('sendScheduleMail'),
+	scheduleAdminSelectedField('sendScheduleMail'),
 ];

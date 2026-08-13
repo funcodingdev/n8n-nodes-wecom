@@ -86,6 +86,16 @@ function integer(
 	return normalized;
 }
 
+function listValues(value: unknown): string[] {
+	if (Array.isArray(value)) {
+		return value.flatMap((entry) => listValues(entry));
+	}
+	return String(value ?? '')
+		.split(LIST_SEPARATOR)
+		.map((entry) => entry.trim())
+		.filter(Boolean);
+}
+
 function stringList(
 	context: IExecuteFunctions,
 	value: unknown,
@@ -94,12 +104,7 @@ function stringList(
 	min = 0,
 	max = 1000,
 ): string[] {
-	const source = Array.isArray(value) ? value : [value];
-	const normalized = source
-		.flatMap((entry) => String(entry ?? '').split(LIST_SEPARATOR))
-		.map((entry) => entry.trim())
-		.filter(Boolean);
-	const unique = [...new Set(normalized)];
+	const unique = [...new Set(listValues(value))];
 	if (unique.length < min || unique.length > max) {
 		fail(context, `${label}数量必须为 ${min}–${max} 个`, itemIndex);
 	}
@@ -253,7 +258,10 @@ function composeBody(
 	const to = recipients(
 		context,
 		context.getNodeParameter('toListCollection', itemIndex, {}) as IDataObject,
-		context.getNodeParameter('to_userids', itemIndex, ''),
+		[
+			context.getNodeParameter('to_userids', itemIndex, ''),
+			context.getNodeParameter('to_userids_selected', itemIndex, []),
+		],
 		'收件人',
 		itemIndex,
 		true,
@@ -261,7 +269,10 @@ function composeBody(
 	const cc = recipients(
 		context,
 		context.getNodeParameter('ccListCollection', itemIndex, {}) as IDataObject,
-		context.getNodeParameter('cc_userids', itemIndex, ''),
+		[
+			context.getNodeParameter('cc_userids', itemIndex, ''),
+			context.getNodeParameter('cc_userids_selected', itemIndex, []),
+		],
 		'抄送人',
 		itemIndex,
 		false,
@@ -269,7 +280,10 @@ function composeBody(
 	const bcc = recipients(
 		context,
 		context.getNodeParameter('bccListCollection', itemIndex, {}) as IDataObject,
-		context.getNodeParameter('bcc_userids', itemIndex, ''),
+		[
+			context.getNodeParameter('bcc_userids', itemIndex, ''),
+			context.getNodeParameter('bcc_userids_selected', itemIndex, []),
+		],
 		'密送人',
 		itemIndex,
 		false,
@@ -449,7 +463,17 @@ export async function executeMail(
 				const { body, toUserids } = composeBody(this, i, 'calDescription');
 				const built = schedule(this, i, 'cal');
 				if (built.method === 'request') {
-					const admins = stringList(this, this.getNodeParameter('schedule_admin_userids', i, ''), '日程管理员', i, 0, 3);
+					const admins = stringList(
+						this,
+						[
+							this.getNodeParameter('schedule_admin_userids', i, ''),
+							this.getNodeParameter('schedule_admin_userids_selected', i, []),
+						],
+						'日程管理员',
+						i,
+						0,
+						3,
+					);
 					if (admins.length) {
 						requireParticipants(this, admins, toUserids, '日程管理员', i);
 						built.schedule.schedule_admins = { userids: admins };
@@ -462,7 +486,17 @@ export async function executeMail(
 				const built = schedule(this, i, 'meeting');
 				const meeting: IDataObject = {};
 				if (built.method === 'request') {
-					const hosts = stringList(this, this.getNodeParameter('meeting_host_userids', i, ''), '会议主持人', i, 0, 10);
+					const hosts = stringList(
+						this,
+						[
+							this.getNodeParameter('meeting_host_userids', i, ''),
+							this.getNodeParameter('meeting_host_userids_selected', i, []),
+						],
+						'会议主持人',
+						i,
+						0,
+						10,
+					);
 					const admin = text(this, this.getNodeParameter('meeting_admin_userid', i), '会议管理员', i);
 					requireParticipants(this, hosts, toUserids, '会议主持人', i);
 					requireParticipants(this, [admin], toUserids, '会议管理员', i);

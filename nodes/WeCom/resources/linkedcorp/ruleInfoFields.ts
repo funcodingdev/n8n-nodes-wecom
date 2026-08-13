@@ -30,7 +30,16 @@ export function ruleInfoFields(
 			type: 'string',
 			displayOptions: { show: { ...showOnly, rule_info_input_mode: ['form'] } },
 			default: '',
-			description: '与上游部门 ID 列表至少填写一项；支持逗号、竖线或换行分隔',
+			description: '与上游部门 ID 列表至少填写一项；与下方选择合并；支持逗号、竖线或换行分隔',
+		},
+		{
+			displayName: '上游成员(选择)',
+			name: 'owner_userids_selected',
+			type: 'multiOptions',
+			typeOptions: { loadOptionsMethod: 'getAllUsers' },
+			displayOptions: { show: { ...showOnly, rule_info_input_mode: ['form'] } },
+			default: [],
+			description: '与上方上游成员列表合并去重',
 		},
 		{
 			displayName: '下游分组 ID 列表',

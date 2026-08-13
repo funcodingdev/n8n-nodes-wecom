@@ -14,7 +14,16 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 		displayOptions: { show: showOnlyForUpdateTemplateCard },
 		default: '',
 		placeholder: 'USERID1,USERID2',
-		description: '要替换的 userid 列表，支持逗号、竖线或换行分隔；不填表示当前消息涉及的全部用户',
+		description: '要替换的 userid 列表；与下方选择合并；支持逗号、竖线或换行分隔；不填表示当前消息涉及的全部用户',
+	},
+	{
+		displayName: '用户(选择)',
+		name: 'userids_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: { show: showOnlyForUpdateTemplateCard },
+		default: [],
+		description: '与上方列表合并去重',
 	},
 	...templateCardFormProperties(showOnlyForUpdateTemplateCard),
 	{

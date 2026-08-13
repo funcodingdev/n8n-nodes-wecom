@@ -25,7 +25,16 @@ export const updateMeetingInviteesDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly },
 		default: '',
 		placeholder: 'admin,lisi,wangwu',
-		description: 'invitees 完整列表，逗号分隔，最多 2000',
+		description: 'invitees 完整列表，逗号分隔；与下方选择/集合合并，最多 2000',
+	},
+	{
+		displayName: '受邀成员(选择)',
+		name: 'invitee_userids_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: { show: showOnly },
+		default: [],
+		description: '与上方列表合并去重',
 	},
 	{
 		displayName: '受邀成员',
@@ -35,7 +44,7 @@ export const updateMeetingInviteesDescription: INodeProperties[] = [
 		default: {},
 		placeholder: '添加成员',
 		typeOptions: { multipleValues: true },
-		description: '与上方列表合并去重',
+		description: '与上方列表/选择合并去重；推荐直接用逗号列表或选择器',
 		options: [
 			{
 				displayName: '成员',

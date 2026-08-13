@@ -124,6 +124,16 @@ function optionalText(
 	return text;
 }
 
+function listValues(value: unknown): string[] {
+	if (Array.isArray(value)) {
+		return value.flatMap((entry) => listValues(entry));
+	}
+	return String(value ?? '')
+		.split(LIST_SEPARATOR)
+		.map((entry) => entry.trim())
+		.filter(Boolean);
+}
+
 function stringList(
 	context: IExecuteFunctions,
 	value: unknown,
@@ -132,12 +142,7 @@ function stringList(
 	min: number,
 	max: number,
 ): string[] {
-	const source = Array.isArray(value) ? value : [value];
-	const list = source
-		.flatMap((entry) => String(entry ?? '').split(LIST_SEPARATOR))
-		.map((entry) => entry.trim())
-		.filter(Boolean);
-	const unique = [...new Set(list)];
+	const unique = [...new Set(listValues(value))];
 	if (unique.length < min || unique.length > max) {
 		fail(context, `${label}数量必须为 ${min}–${max} 个`, itemIndex);
 	}
@@ -3365,7 +3370,10 @@ export async function executeWedoc(
 			else if (operation === 'allocateAdvancedAccount') {
 				const userid_list = stringList(
 					this,
-					this.getNodeParameter('userid_list', i),
+					[
+						this.getNodeParameter('userid_list', i, ''),
+						this.getNodeParameter('userid_list_selected', i, []),
+					],
 					'成员 UserID 列表',
 					i,
 					1,
@@ -3378,7 +3386,10 @@ export async function executeWedoc(
 			} else if (operation === 'deallocateAdvancedAccount') {
 				const userid_list = stringList(
 					this,
-					this.getNodeParameter('userid_list', i),
+					[
+						this.getNodeParameter('userid_list', i, ''),
+						this.getNodeParameter('userid_list_selected', i, []),
+					],
 					'成员 UserID 列表',
 					i,
 					1,
@@ -3562,8 +3573,28 @@ export async function executeWedoc(
 					docid,
 					rule_id: integerInRange(this, priv_rule_id, '规则 ID', i, 1, 4294967295),
 				};
-				const addUsers = stringList(this, add_member_userids, '添加成员 UserID 列表', i, 0, 50);
-				const delUsers = stringList(this, del_member_userids, '删除成员 UserID 列表', i, 0, 50);
+				const addUsers = stringList(
+					this,
+					[
+						add_member_userids,
+						this.getNodeParameter('add_member_userids_selected', i, []),
+					],
+					'添加成员 UserID 列表',
+					i,
+					0,
+					50,
+				);
+				const delUsers = stringList(
+					this,
+					[
+						del_member_userids,
+						this.getNodeParameter('del_member_userids_selected', i, []),
+					],
+					'删除成员 UserID 列表',
+					i,
+					0,
+					50,
+				);
 				if (new Set([...addUsers, ...delUsers]).size > 50) {
 					fail(this, '一条额外权限规则的成员变更最多涉及 50 人', i);
 				}

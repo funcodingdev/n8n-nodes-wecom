@@ -60,6 +60,16 @@ function integer(
 	return normalized;
 }
 
+function listValues(value: unknown): string[] {
+	if (Array.isArray(value)) {
+		return value.flatMap((entry) => listValues(entry));
+	}
+	return String(value ?? '')
+		.split(LIST_SEPARATOR)
+		.map((entry) => entry.trim())
+		.filter(Boolean);
+}
+
 function stringList(
 	context: IExecuteFunctions,
 	value: unknown,
@@ -68,12 +78,7 @@ function stringList(
 	min = 0,
 	max = 1000,
 ): string[] {
-	const source = Array.isArray(value) ? value : [value];
-	const normalized = source
-		.flatMap((entry) => String(entry ?? '').split(LIST_SEPARATOR))
-		.map((entry) => entry.trim())
-		.filter(Boolean);
-	const unique = [...new Set(normalized)];
+	const unique = [...new Set(listValues(value))];
 	if (unique.length < min || unique.length > max) {
 		fail(context, `${label}数量必须为 ${min}–${max} 个`, itemIndex);
 	}
@@ -746,10 +751,13 @@ export async function executeMeeting(
 				if (cal_id) body.cal_id = cal_id;
 				if (agentid) body.agentid = integer(this, agentid, '应用 AgentID', i, 1, MAX_UINT32);
 
-				// invitees
+				// invitees：文本 + 选择器 + 兼容旧 collection
 				let inviteeIds = stringList(
 					this,
-					this.getNodeParameter('invitee_userids', i, ''),
+					[
+						this.getNodeParameter('invitee_userids', i, ''),
+						this.getNodeParameter('invitee_userids_selected', i, []),
+					],
 					'受邀成员',
 					i,
 					0,
@@ -830,12 +838,25 @@ export async function executeMeeting(
 					false,
 				) as boolean;
 				settings.enable_screen_watermark = settings_enable_screen_watermark;
-				const hostIds = stringList(this, settings_host_userids, '主持人', i, 0, 10);
+				const hostIds = stringList(
+					this,
+					[
+						settings_host_userids,
+						this.getNodeParameter('settings_host_userids_selected', i, []),
+					],
+					'主持人',
+					i,
+					0,
+					10,
+				);
 				if (hostIds.length) settings.hosts = { userid: hostIds };
 				if (settings_remind_scope === 4) {
 					const ringIds = stringList(
 						this,
-						this.getNodeParameter('settings_ring_userids', i, ''),
+						[
+							this.getNodeParameter('settings_ring_userids', i, ''),
+							this.getNodeParameter('settings_ring_userids_selected', i, []),
+						],
 						'指定响铃成员',
 						i,
 						0,
@@ -977,6 +998,11 @@ export async function executeMeeting(
 				const description = this.getNodeParameter('description', i, '') as string;
 				const location = this.getNodeParameter('location', i, '') as string;
 				const invitee_userids = this.getNodeParameter('invitee_userids', i, '') as string;
+				const invitee_userids_selected = this.getNodeParameter(
+					'invitee_userids_selected',
+					i,
+					[],
+				);
 				const settings_password = this.getNodeParameter('settings_password', i, '') as string;
 				const settings_enable_enter_mute = this.getNodeParameter(
 					'settings_enable_enter_mute',
@@ -993,6 +1019,11 @@ export async function executeMeeting(
 					i,
 					'',
 				) as string;
+				const settings_host_userids_selected = this.getNodeParameter(
+					'settings_host_userids_selected',
+					i,
+					[],
+				);
 				const settings_auto_record_type = this.getNodeParameter(
 					'settings_auto_record_type',
 					i,
@@ -1040,8 +1071,15 @@ export async function executeMeeting(
 				if (updateLocation || location) {
 					body.location = textWithLimits(this, location, '会议地点', i, 128, 512, false);
 				}
-				if (updateInvitees || invitee_userids) {
-					const inviteeIds = stringList(this, invitee_userids, '受邀成员', i, 0, 300);
+				const inviteeIds = stringList(
+					this,
+					[invitee_userids, invitee_userids_selected],
+					'受邀成员',
+					i,
+					0,
+					300,
+				);
+				if (updateInvitees || inviteeIds.length) {
 					body.invitees = { userid: inviteeIds };
 				}
 
@@ -1065,13 +1103,24 @@ export async function executeMeeting(
 				if (settings_remind_scope > 0) {
 					settings.remind_scope = integer(this, settings_remind_scope, '来电提醒范围', i, 1, 4);
 				}
-				if (updateHosts || settings_host_userids) {
-					settings.hosts = { userid: stringList(this, settings_host_userids, '主持人', i, 0, 10) };
+				const hostIds = stringList(
+					this,
+					[settings_host_userids, settings_host_userids_selected],
+					'主持人',
+					i,
+					0,
+					10,
+				);
+				if (updateHosts || hostIds.length || settings_host_userids) {
+					settings.hosts = { userid: hostIds };
 				}
 				if (settings_remind_scope === 4) {
 					const ringIds = stringList(
 						this,
-						this.getNodeParameter('settings_ring_userids', i, ''),
+						[
+							this.getNodeParameter('settings_ring_userids', i, ''),
+							this.getNodeParameter('settings_ring_userids_selected', i, []),
+						],
 						'指定响铃成员',
 						i,
 						0,
@@ -1274,6 +1323,11 @@ export async function executeMeeting(
 				const description = this.getNodeParameter('description', i, '') as string;
 				const location = this.getNodeParameter('location', i, '') as string;
 				const invitee_userids = this.getNodeParameter('invitee_userids', i, '') as string;
+				const invitee_userids_selected = this.getNodeParameter(
+					'invitee_userids_selected',
+					i,
+					[],
+				);
 				const advancedSettings = this.getNodeParameter('advancedSettings', i, {}) as IDataObject;
 				const settings_password = this.getNodeParameter('settings_password', i, '') as string;
 				const settings_enable_enter_mute = this.getNodeParameter(
@@ -1291,6 +1345,11 @@ export async function executeMeeting(
 					i,
 					'',
 				) as string;
+				const settings_host_userids_selected = this.getNodeParameter(
+					'settings_host_userids_selected',
+					i,
+					[],
+				);
 				const settings_auto_record_type = this.getNodeParameter(
 					'settings_auto_record_type',
 					i,
@@ -1334,8 +1393,16 @@ export async function executeMeeting(
 				if (updateLocation || location) {
 					body.location = textWithLimits(this, location, '会议地点', i, 128, 512, false);
 				}
-				if (updateInvitees || invitee_userids) {
-					body.invitees = { userid: stringList(this, invitee_userids, '受邀成员', i, 0, 300) };
+				const inviteeIds = stringList(
+					this,
+					[invitee_userids, invitee_userids_selected],
+					'受邀成员',
+					i,
+					0,
+					300,
+				);
+				if (updateInvitees || inviteeIds.length) {
+					body.invitees = { userid: inviteeIds };
 				}
 
 				const guestsCollection = this.getNodeParameter('guestsCollection', i, {}) as IDataObject;
@@ -1362,13 +1429,24 @@ export async function executeMeeting(
 				if (settings_remind_scope > 0) {
 					settings.remind_scope = integer(this, settings_remind_scope, '来电提醒范围', i, 1, 4);
 				}
-				if (updateHosts || settings_host_userids) {
-					settings.hosts = { userid: stringList(this, settings_host_userids, '主持人', i, 0, 10) };
+				const hostIds = stringList(
+					this,
+					[settings_host_userids, settings_host_userids_selected],
+					'主持人',
+					i,
+					0,
+					10,
+				);
+				if (updateHosts || hostIds.length || settings_host_userids) {
+					settings.hosts = { userid: hostIds };
 				}
 				if (settings_remind_scope === 4) {
 					const ringIds = stringList(
 						this,
-						this.getNodeParameter('settings_ring_userids', i, ''),
+						[
+							this.getNodeParameter('settings_ring_userids', i, ''),
+							this.getNodeParameter('settings_ring_userids_selected', i, []),
+						],
 						'指定响铃成员',
 						i,
 						0,
@@ -1484,7 +1562,10 @@ export async function executeMeeting(
 					{},
 				) as IDataObject;
 
-				const rawIds: unknown[] = [invitee_userids];
+				const rawIds: unknown[] = [
+					invitee_userids,
+					this.getNodeParameter('invitee_userids_selected', i, []),
+				];
 				((inviteesCollection?.invitees as IDataObject[]) || []).forEach((inv) => {
 					if (inv.userid) rawIds.push(inv.userid);
 				});
@@ -1779,7 +1860,10 @@ export async function executeMeeting(
 				const vip_userids = this.getNodeParameter('vip_userids', i, '') as string;
 				const useridCollection = this.getNodeParameter('useridCollection', i, {}) as IDataObject;
 
-				const rawUserids: unknown[] = [vip_userids];
+				const rawUserids: unknown[] = [
+					vip_userids,
+					this.getNodeParameter('vip_userids_selected', i, []),
+				];
 				if (useridCollection.users) {
 					const usersList = useridCollection.users as IDataObject[];
 					usersList.forEach((u) => {
@@ -1798,7 +1882,10 @@ export async function executeMeeting(
 				const vip_userids = this.getNodeParameter('vip_userids', i, '') as string;
 				const useridCollection = this.getNodeParameter('useridCollection', i, {}) as IDataObject;
 
-				const rawUserids: unknown[] = [vip_userids];
+				const rawUserids: unknown[] = [
+					vip_userids,
+					this.getNodeParameter('vip_userids_selected', i, []),
+				];
 				if (useridCollection.users) {
 					const usersList = useridCollection.users as IDataObject[];
 					usersList.forEach((u) => {
@@ -2296,6 +2383,7 @@ export async function executeMeeting(
 					false,
 				);
 				const host_userids = this.getNodeParameter('host_userids', i, '') as string;
+				const host_userids_selected = this.getNodeParameter('host_userids_selected', i, []);
 				const webinarExtraJson = this.getNodeParameter('webinarExtraJson', i, '{}') as string;
 
 				const body: IDataObject = {
@@ -2329,10 +2417,16 @@ export async function executeMeeting(
 						20000,
 					);
 				}
-				if (host_userids) {
-					body.hosts = stringList(this, host_userids, '主持人', i, 1, 100).map((userid) => ({
-						userid,
-					}));
+				const webinarHostIds = stringList(
+					this,
+					[host_userids, host_userids_selected],
+					'主持人',
+					i,
+					0,
+					100,
+				);
+				if (webinarHostIds.length) {
+					body.hosts = webinarHostIds.map((userid) => ({ userid }));
 				}
 				// 活动页 / 互动
 				body.enable_guest_invite_link = this.getNodeParameter(
@@ -2551,6 +2645,7 @@ export async function executeMeeting(
 				);
 				const webinar_description = this.getNodeParameter('webinar_description', i, '') as string;
 				const host_userids = this.getNodeParameter('host_userids', i, '') as string;
+				const host_userids_selected = this.getNodeParameter('host_userids_selected', i, []);
 				const webinarExtraJson = this.getNodeParameter('webinarExtraJson', i, '{}') as string;
 				const updateSponsor = this.getNodeParameter('webinar_update_sponsor', i, false) as boolean;
 				const updatePassword = this.getNodeParameter(
@@ -2591,10 +2686,16 @@ export async function executeMeeting(
 						false,
 					);
 				}
-				if (updateHosts || host_userids) {
-					body.hosts = stringList(this, host_userids, '主持人', i, 0, 100).map((userid) => ({
-						userid,
-					}));
+				const webinarHostIds = stringList(
+					this,
+					[host_userids, host_userids_selected],
+					'主持人',
+					i,
+					0,
+					100,
+				);
+				if (updateHosts || webinarHostIds.length) {
+					body.hosts = webinarHostIds.map((userid) => ({ userid }));
 				}
 				body.enable_guest_invite_link = this.getNodeParameter(
 					'enable_guest_invite_link',
@@ -3734,7 +3835,10 @@ export async function executeMeeting(
 						? jsonInvitees
 						: stringList(
 								this,
-								this.getNodeParameter('invitee_userids', i, ''),
+								[
+									this.getNodeParameter('invitee_userids', i, ''),
+									this.getNodeParameter('invitee_userids_selected', i, []),
+								],
 								'受邀成员 UserID',
 								i,
 								0,

@@ -330,6 +330,7 @@ export async function executeAIBotPassiveReply(
 				fail('更新模板卡片仅适用于包含 task_id 的 template_card_event 回调');
 			}
 			const useridsStr = this.getNodeParameter('userids', itemIndex, '') as string;
+			const useridsSelected = this.getNodeParameter('userids_selected', itemIndex, []) as string[];
 			const templateCard = resolveTemplateCard.call(this, itemIndex, true);
 			const configuredTaskId = String(templateCard.task_id ?? '').trim();
 			if (configuredTaskId && configuredTaskId !== incomingTaskId) {
@@ -347,10 +348,12 @@ export async function executeAIBotPassiveReply(
 				template_card: templateCard,
 			};
 
-			if (useridsStr) {
-				replyBody.userids = [...new Set(
-					useridsStr.split(/[,|\n]/).map((id) => id.trim()).filter(Boolean),
-				)];
+			const mergedUserids = [
+				...useridsStr.split(/[,|\n，]+/).map((id) => id.trim()).filter(Boolean),
+				...useridsSelected.map((id) => String(id ?? '').trim()).filter(Boolean),
+			];
+			if (mergedUserids.length) {
+				replyBody.userids = [...new Set(mergedUserids)];
 			}
 		} else {
 			fail(`不支持的操作类型：${operation}`);

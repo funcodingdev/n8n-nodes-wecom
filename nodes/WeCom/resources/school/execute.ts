@@ -783,7 +783,10 @@ export async function executeSchool(
 				case 'batchDeleteStudent': {
 					const useridlist = requireSchoolUserIdList(
 						this,
-						this.getNodeParameter('userid_list', i),
+						[
+							this.getNodeParameter('userid_list', i, ''),
+							this.getNodeParameter('userid_list_selected', i, []),
+						],
 						'学生 UserID 列表',
 						i,
 					);
@@ -918,7 +921,10 @@ export async function executeSchool(
 				case 'batchDeleteParent': {
 					const useridlist = requireSchoolUserIdList(
 						this,
-						this.getNodeParameter('userid_list', i),
+						[
+							this.getNodeParameter('userid_list', i, ''),
+							this.getNodeParameter('userid_list_selected', i, []),
+						],
 						'家长 UserID 列表',
 						i,
 					);

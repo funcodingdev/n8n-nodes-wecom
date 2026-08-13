@@ -280,7 +280,17 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: { show: { resource: ['meeting'], operation: ['webinarCreate', 'webinarUpdate'] } },
 		default: '',
-		description: '主持人 userid，逗号分隔；默认管理员',
+		placeholder: 'zhangsan,lisi',
+		description: '主持人 userid，逗号分隔；与下方选择合并；默认管理员',
+	},
+	{
+		displayName: '主持人(选择)',
+		name: 'host_userids_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: { show: { resource: ['meeting'], operation: ['webinarCreate', 'webinarUpdate'] } },
+		default: [],
+		description: '与上方列表合并去重',
 	},
 	{
 		displayName: '开启嘉宾邀请链接',

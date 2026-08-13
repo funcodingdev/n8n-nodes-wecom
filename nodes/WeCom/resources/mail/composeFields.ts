@@ -50,7 +50,16 @@ export function composeFields(operation: string): INodeProperties[] {
 			displayOptions: { show: show(operation) },
 			default: '',
 			placeholder: 'zhangsan,lisi',
-			description: '与收件人邮箱至少填一类；可用逗号、中文逗号、竖线或换行分隔',
+			description: '与收件人邮箱至少填一类；与下方选择合并；可用逗号、中文逗号、竖线或换行分隔',
+		},
+		{
+			displayName: '收件人(选择)',
+			name: 'to_userids_selected',
+			type: 'multiOptions',
+			typeOptions: { loadOptionsMethod: 'getAllUsers' },
+			displayOptions: { show: show(operation) },
+			default: [],
+			description: '与上方收件人 UserID 列表合并去重',
 		},
 		recipientCollection(operation, '抄送邮箱', 'ccListCollection'),
 		{
@@ -59,6 +68,16 @@ export function composeFields(operation: string): INodeProperties[] {
 			type: 'string',
 			displayOptions: { show: show(operation) },
 			default: '',
+			description: '与下方选择合并',
+		},
+		{
+			displayName: '抄送人(选择)',
+			name: 'cc_userids_selected',
+			type: 'multiOptions',
+			typeOptions: { loadOptionsMethod: 'getAllUsers' },
+			displayOptions: { show: show(operation) },
+			default: [],
+			description: '与上方抄送 UserID 列表合并去重',
 		},
 		recipientCollection(operation, '密送邮箱', 'bccListCollection'),
 		{
@@ -67,6 +86,16 @@ export function composeFields(operation: string): INodeProperties[] {
 			type: 'string',
 			displayOptions: { show: show(operation) },
 			default: '',
+			description: '与下方选择合并',
+		},
+		{
+			displayName: '密送人(选择)',
+			name: 'bcc_userids_selected',
+			type: 'multiOptions',
+			typeOptions: { loadOptionsMethod: 'getAllUsers' },
+			displayOptions: { show: show(operation) },
+			default: [],
+			description: '与上方密送 UserID 列表合并去重',
 		},
 		{
 			displayName: '正文格式',
@@ -207,7 +236,19 @@ export function scheduleAdminField(operation: string): INodeProperties {
 		type: 'string',
 		displayOptions: { show: show(operation, { scheduleMethod: ['request'] }) },
 		default: '',
-		description: '最多 3 人，必须同时在收件人 UserID 中',
+		description: '最多 3 人，必须同时在收件人 UserID 中；与下方选择合并',
+	};
+}
+
+export function scheduleAdminSelectedField(operation: string): INodeProperties {
+	return {
+		displayName: '日程管理员(选择)',
+		name: 'schedule_admin_userids_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: { show: show(operation, { scheduleMethod: ['request'] }) },
+		default: [],
+		description: '与上方列表合并去重，合计最多 3 人',
 	};
 }
 
@@ -219,7 +260,16 @@ export function meetingFields(operation: string): INodeProperties[] {
 			type: 'string',
 			displayOptions: { show: show(operation, { scheduleMethod: ['request'] }) },
 			default: '',
-			description: '最多 10 人，必须同时在收件人 UserID 中',
+			description: '最多 10 人，必须同时在收件人 UserID 中；与下方选择合并',
+		},
+		{
+			displayName: '主持人(选择)',
+			name: 'meeting_host_userids_selected',
+			type: 'multiOptions',
+			typeOptions: { loadOptionsMethod: 'getAllUsers' },
+			displayOptions: { show: show(operation, { scheduleMethod: ['request'] }) },
+			default: [],
+			description: '与上方列表合并去重，合计最多 10 人',
 		},
 		{
 			displayName: '会议管理员UserID',

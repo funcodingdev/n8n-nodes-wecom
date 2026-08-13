@@ -20,17 +20,26 @@ export const deleteScheduleAttendeesDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly },
 		default: '',
 		placeholder: 'zhangsan,lisi',
-		description: '要删除的参与者 userid，逗号分隔；与下方选择合并，最多 1000 人',
+		description: '要删除的参与者 userid，逗号分隔；与下方选择/集合合并，最多 1000 人',
 	},
 	{
 		displayName: '参与者(选择)',
+		name: 'attendee_userids_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: { show: showOnly },
+		default: [],
+		description: '与上方列表合并去重',
+	},
+	{
+		displayName: '参与者(兼容集合)',
 		name: 'attendeesCollection',
 		type: 'fixedCollection',
 		displayOptions: { show: showOnly },
 		default: {},
 		placeholder: '添加要删除的参与者',
 		typeOptions: { multipleValues: true },
-		description: '要删除的参与者列表。该接口是增量式；可与上方 UserID 列表合并',
+		description: '兼容旧表单；推荐用逗号列表或上方选择器。接口为增量式',
 		options: [
 			{
 				displayName: '参与者',
