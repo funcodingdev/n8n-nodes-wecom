@@ -27,6 +27,11 @@ export const createMailGroupDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly }, default: '', description: separators,
 	},
 	{
+		displayName: '部门(选择)', name: 'department_list_selected', type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getDepartments' },
+		displayOptions: { show: showOnly }, default: [], description: '与上方部门列表合并去重',
+	},
+	{
 		displayName: '标签ID列表', name: 'tag_list', type: 'string',
 		displayOptions: { show: showOnly }, default: '', description: `四类群成员至少填一类；${separators}`,
 	},
@@ -47,7 +52,13 @@ export const createMailGroupDescription: INodeProperties[] = [
 		displayOptions: { show: custom }, default: '', description: separators,
 	},
 	{
+		displayName: '允许使用的部门(选择)', name: 'allow_departmentlist_selected', type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getDepartments' },
+		displayOptions: { show: custom }, default: [], description: '与上方部门列表合并去重',
+	},
+	{
 		displayName: '允许使用的标签ID', name: 'allow_taglist', type: 'string',
 		displayOptions: { show: custom }, default: '', description: `自定义权限时三类范围至少填一类；${separators}`,
 	},
 ];
+

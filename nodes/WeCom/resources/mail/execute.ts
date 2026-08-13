@@ -501,7 +501,15 @@ export async function executeMail(
 				};
 				const emailValues = emailList(this, this.getNodeParameter('email_list', i, this.getNodeParameter('userlist', i, '')), '成员邮箱', i);
 				const groupValues = emailList(this, this.getNodeParameter('group_list', i, ''), '群组邮箱', i);
-				const departmentValues = numberList(this, this.getNodeParameter('department_list', i, ''), '部门 ID', i);
+				const departmentValues = numberList(
+					this,
+					[
+						this.getNodeParameter('department_list', i, ''),
+						this.getNodeParameter('department_list_selected', i, []),
+					],
+					'部门 ID',
+					i,
+				);
 				const tagValues = numberList(this, this.getNodeParameter('tag_list', i, ''), '标签 ID', i);
 				if (!emailValues.length && !groupValues.length && !departmentValues.length && !tagValues.length) {
 					fail(this, '成员邮箱、群组邮箱、部门和标签至少填一类', i);
@@ -514,7 +522,15 @@ export async function executeMail(
 				body.allow_type = allowType;
 				if (allowType === 3) {
 					const allowEmails = emailList(this, this.getNodeParameter('allow_emaillist', i, ''), '允许使用的成员邮箱', i);
-					const allowDepartments = numberList(this, this.getNodeParameter('allow_departmentlist', i, ''), '允许使用的部门 ID', i);
+					const allowDepartments = numberList(
+						this,
+						[
+							this.getNodeParameter('allow_departmentlist', i, ''),
+							this.getNodeParameter('allow_departmentlist_selected', i, []),
+						],
+						'允许使用的部门 ID',
+						i,
+					);
 					const allowTags = numberList(this, this.getNodeParameter('allow_taglist', i, ''), '允许使用的标签 ID', i);
 					if (!allowEmails.length && !allowDepartments.length && !allowTags.length) fail(this, '自定义群组权限至少需要一类允许范围', i);
 					setWrappedList(body, 'allow_emaillist', allowEmails);
