@@ -150,7 +150,16 @@ export async function executeExternalContact(
 					? ['']
 					: stringList(
 							this,
-							this.getNodeParameter('remark_mobiles', i, ''),
+							[
+								this.getNodeParameter('remark_mobiles', i, ''),
+								...parseStringIdJson(
+									this,
+									this.getNodeParameter('remarkMobilesJson', i, '[]'),
+									'备注手机号 JSON',
+									i,
+									['mobile', 'phone', 'tel', 'number'],
+								),
+							],
 							'备注手机号',
 							i,
 							{ maximum: 5 },

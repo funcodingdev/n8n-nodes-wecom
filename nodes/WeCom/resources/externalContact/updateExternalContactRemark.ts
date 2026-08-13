@@ -98,8 +98,23 @@ export const updateExternalContactRemarkDescription: INodeProperties[] = [
 				clearRemarkMobiles: [false],
 			},
 		},
-		description: '此客户的手机号列表，多个号码用英文逗号分隔。<a href="https://developer.work.weixin.qq.com/document/path/92115" target="_blank">官方文档</a>。可选。多个手机号用逗号分隔，最多5个',
+		description:
+			'此客户的手机号列表，多个号码用英文逗号分隔；与下方 JSON 合并，最多5个。<a href="https://developer.work.weixin.qq.com/document/path/92115" target="_blank">官方文档</a>',
 		placeholder: '13800138000,13900139000',
+	},
+	{
+		displayName: '备注手机号 JSON',
+		name: 'remarkMobilesJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: {
+			show: {
+				...showOnly,
+				clearRemarkMobiles: [false],
+			},
+		},
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["13800138000"] 或 [{"mobile":"13800138000"}]',
 	},
 	{
 		displayName: '备注图片MediaID',
