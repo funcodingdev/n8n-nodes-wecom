@@ -10,7 +10,7 @@ export const batchUpdateInvoiceStatusDescription: INodeProperties[] = [
 		required: true,
 		default: '',
 		displayOptions: { show: showOnly },
-		description: '用户openid。可用"userid与openid互换接口"获取。发票列表必须全部属于同一个openid。<a href="https://developer.work.weixin.qq.com/document/path/90285" target="_blank">官方文档</a>',
+		description: '用户 OpenID，可通过 UserID 与 OpenID 互换接口获取。列表中的发票必须全部属于该用户。<a href="https://developer.work.weixin.qq.com/document/path/90286" target="_blank">官方文档</a>',
 		placeholder: 'oxxxxxxxxxxxxxxxxxxxx',
 	},
 	{
@@ -18,6 +18,10 @@ export const batchUpdateInvoiceStatusDescription: INodeProperties[] = [
 		name: 'reimburse_status',
 		type: 'options',
 		options: [
+			{
+				name: '请选择发票状态',
+				value: '',
+			},
 			{
 				name: '发票初始状态（未锁定）',
 				value: 'INVOICE_REIMBURSE_INIT',
@@ -35,27 +39,57 @@ export const batchUpdateInvoiceStatusDescription: INodeProperties[] = [
 			},
 		],
 		required: true,
-		default: 'INVOICE_REIMBURSE_INIT',
+		default: '',
 		displayOptions: { show: showOnly },
-		description: '发票报销状态。发票平台可以通过该接口对某个成员的一批发票进行锁定、解锁和报销操作。注意，报销状态为不可逆状态，请开发者慎重调用。批量更新发票状态接口为事务性操作，如果其中一张发票更新失败，列表中的其它发票状态更新也会无法执行，恢复到接口调用前的状态。<a href="https://developer.work.weixin.qq.com/document/path/90285" target="_blank">官方文档</a>',
+		description: '选择整批发票的锁定、解锁或核销状态。此接口是事务性操作，任一发票失败时整批回滚。<a href="https://developer.work.weixin.qq.com/document/path/90286" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '不可逆操作提示',
+		name: 'closureWarning',
+		type: 'notice',
+		default: '',
+		displayOptions: {
+			show: {
+				...showOnly,
+				reimburse_status: ['INVOICE_REIMBURSE_CLOSURE'],
+			},
+		},
+		description: '核销是不可逆操作，成功后所有发票将从对应用户卡包中移除。批量接口具有事务性，任一发票失败时整批回滚。',
+	},
+	{
+		displayName: '发票列表输入方式',
+		name: 'invoiceInputMode',
+		type: 'options',
+		options: [
+			{ name: '表单', value: 'form' },
+			{ name: 'JSON', value: 'json' },
+		],
+		default: 'form',
+		displayOptions: { show: showOnly },
+		description: '使用结构化表单添加发票，或直接提供企业微信 invoice_list JSON 数组',
 	},
 	{
 		displayName: '发票列表',
 		name: 'invoiceCollection',
 		type: 'fixedCollection',
 		required: true,
-		displayOptions: { show: showOnly },
+		displayOptions: {
+			show: {
+				...showOnly,
+				invoiceInputMode: ['form'],
+			},
+		},
 		default: {},
 		placeholder: '添加发票',
 		typeOptions: { multipleValues: true },
-		description: '发票列表。必须全部属于同一个openid。批量更新发票状态接口为事务性操作，如果其中一张发票更新失败，列表中的其它发票状态更新也会无法执行，恢复到接口调用前的状态',
+		description: '至少添加一张发票，且全部发票必须属于上方 OpenID',
 		options: [
 			{
 				displayName: '发票',
 				name: 'invoices',
 				values: [
 					{
-						displayName: '发票卡券ID',
+						displayName: '发票卡券 ID',
 						name: 'card_id',
 						type: 'string',
 						default: '',
@@ -64,7 +98,7 @@ export const batchUpdateInvoiceStatusDescription: INodeProperties[] = [
 						placeholder: 'pXXXXXXXXXXXXXXXX',
 					},
 					{
-						displayName: '加密Code',
+						displayName: '加密 Code',
 						name: 'encrypt_code',
 						type: 'string',
 						default: '',
@@ -75,5 +109,19 @@ export const batchUpdateInvoiceStatusDescription: INodeProperties[] = [
 				],
 			},
 		],
+	},
+	{
+		displayName: '发票列表 JSON',
+		name: 'invoiceListJson',
+		type: 'json',
+		required: true,
+		default: '[]',
+		displayOptions: {
+			show: {
+				...showOnly,
+				invoiceInputMode: ['json'],
+			},
+		},
+		description: 'invoice_list 数组；每项必须包含非空 card_id 与 encrypt_code，且所有发票属于上方 OpenID',
 	},
 ];

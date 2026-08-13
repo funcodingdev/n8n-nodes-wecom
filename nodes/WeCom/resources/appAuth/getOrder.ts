@@ -4,7 +4,7 @@ import { getWeComBaseUrl } from '../../shared/transport';
 
 /**
  * 获取订单详情
- * 官方文档：https://developer.work.weixin.qq.com/document/path/90600
+ * 官方文档：https://developer.work.weixin.qq.com/document/path/91909
  *
  * 用途：
  * - 服务商可以使用该接口查询指定订单的详情
@@ -20,8 +20,10 @@ export async function getOrder(
 	this: IExecuteFunctions,
 	index: number,
 ): Promise<IDataObject> {
-	const suiteAccessToken = this.getNodeParameter('suiteAccessToken', index) as string;
-	const orderid = this.getNodeParameter('orderid', index) as string;
+	const suiteAccessToken = String(
+		this.getNodeParameter('suiteAccessToken', index) ?? '',
+	).trim();
+	const orderid = String(this.getNodeParameter('orderid', index) ?? '').trim();
 
 	if (!suiteAccessToken) {
 		throw new NodeOperationError(
@@ -66,6 +68,7 @@ export async function getOrder(
 
 		return response;
 	} catch (error) {
+		if (error instanceof NodeOperationError) throw error;
 		const err = error as Error;
 		throw new NodeOperationError(
 			this.getNode(),

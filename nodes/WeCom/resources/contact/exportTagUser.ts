@@ -37,12 +37,11 @@ export const exportTagUserDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForExportTag,
 		},
-		default: 106,
+		default: 1000000,
 		typeOptions: {
-			minValue: 104,
-			maxValue: 106,
+			minValue: 10000,
+			maxValue: 1000000,
 		},
-		description: '可选。每块数据的人员数和部门数之和，支持范围[104,106]，默认值为106。<a href="https://developer.work.weixin.qq.com/document/path/94853" target="_blank">官方文档</a>',
+		description: '可选。每块数据的人员数和部门数之和，支持范围 10⁴～10⁶，默认值为 10⁶。<a href="https://developer.work.weixin.qq.com/document/path/94853" target="_blank">官方文档</a>',
 	},
 ];
-

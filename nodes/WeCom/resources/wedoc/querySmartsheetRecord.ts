@@ -248,43 +248,13 @@ export const querySmartsheetRecordDescription: INodeProperties[] = [
 				name: 'rules',
 				values: [
 					{
-						displayName: '排序字段类型',
-						name: 'sort_key_type',
-						type: 'options',
-						default: 'field_title',
-						options: [
-							{ name: '使用字段标题', value: 'field_title' },
-							{ name: '使用字段ID', value: 'field_id' },
-						],
-						description: '选择使用字段ID还是字段标题进行排序',
-					},
-					{
 						displayName: '字段标题',
 						name: 'field_title',
 						type: 'string',
 						default: '',
-						displayOptions: {
-							show: {
-								sort_key_type: ['field_title'],
-							},
-						},
 						required: true,
-						description: '要排序的字段标题',
+						description: '要排序的字段标题；官方接口仅支持按字段标题排序',
 						placeholder: '如: 创建时间',
-					},
-					{
-						displayName: '字段ID',
-						name: 'field_id',
-						type: 'string',
-						default: '',
-						displayOptions: {
-							show: {
-								sort_key_type: ['field_id'],
-							},
-						},
-						required: true,
-						description: '要排序的字段ID',
-						placeholder: '如: field_001',
 					},
 					{
 						displayName: '排序方向',
@@ -315,7 +285,7 @@ export const querySmartsheetRecordDescription: INodeProperties[] = [
 				type: 'number',
 				default: 50,
 				typeOptions: {
-					minValue: 1,
+					minValue: 0,
 					maxValue: 1000,
 				},
 				description: '每页返回多少条数据，最大值 1000。默认50条',

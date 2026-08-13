@@ -37,6 +37,8 @@ export const listContactWayDescription: INodeProperties[] = [
 		type: 'number',
 		typeOptions: {
 			minValue: 1,
+			maxValue: 1000,
+			numberStepSize: 1,
 		},
 		default: 100,
 		displayOptions: { show: showOnly },

@@ -1,37 +1,18 @@
 import type { IExecuteFunctions, IDataObject, IHttpRequestOptions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { getWeComBaseUrl } from '../../shared/transport';
+import { requireStringList, requireText } from './utils';
 
 export async function finishOpenidMigration(
 	this: IExecuteFunctions,
 	index: number,
 ): Promise<IDataObject> {
-	const providerAccessToken = this.getNodeParameter('providerAccessToken', index) as string;
-	const corpid = this.getNodeParameter('corpid', index) as string;
-	const openidType = this.getNodeParameter('openidType', index) as number[];
-
-	if (!providerAccessToken) {
-		throw new NodeOperationError(
-			this.getNode(),
-			'Provider Access Token不能为空',
-			{ itemIndex: index },
-		);
-	}
-
-	if (!corpid) {
-		throw new NodeOperationError(
-			this.getNode(),
-			'企业ID不能为空',
-			{ itemIndex: index },
-		);
-	}
-
-	if (!openidType || openidType.length === 0) {
-		throw new NodeOperationError(
-			this.getNode(),
-			'ID类型不能为空',
-			{ itemIndex: index },
-		);
+	const providerAccessToken = requireText(this, this.getNodeParameter('providerAccessToken', index), 'Provider Access Token', index, 2048);
+	const corpid = requireText(this, this.getNodeParameter('corpid', index), '企业 ID', index);
+	const rawOpenidType = requireStringList(this, this.getNodeParameter('openidType', index), 'ID 类型', index, 2);
+	const openidType = [...new Set(rawOpenidType.map(Number))];
+	if (openidType.some((value) => ![1, 3].includes(value))) {
+		throw new NodeOperationError(this.getNode(), 'ID 类型只能是 1 或 3', { itemIndex: index });
 	}
 
 	const options: IHttpRequestOptions = {
@@ -60,6 +41,7 @@ export async function finishOpenidMigration(
 
 		return response;
 	} catch (error) {
+		if (error instanceof NodeOperationError) throw error;
 		const err = error as Error;
 		throw new NodeOperationError(
 			this.getNode(),

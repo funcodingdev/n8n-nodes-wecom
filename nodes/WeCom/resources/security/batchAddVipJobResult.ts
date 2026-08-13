@@ -13,6 +13,7 @@ export const batchAddVipJobResultDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
+		typeOptions: { maxLength: 256 },
 		description: '批量分配高级功能的任务ID',
 	},
 ];

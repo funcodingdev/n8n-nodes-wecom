@@ -21,7 +21,7 @@ export const sendFileDescription: INodeProperties[] = [
 	},
 	{
 		displayName: 'Media ID',
-		name: 'media_ID',
+		name: 'media_id',
 		type: 'string',
 		displayOptions: {
 			show: showOnlyForSendFile,
@@ -30,7 +30,7 @@ export const sendFileDescription: INodeProperties[] = [
 		placeholder: 'MEDIA_ID',
 		required: true,
 		description:
-			'文件的 media_ID，可以调用上传临时素材接口获取。<a href="https://developer.work.weixin.qq.com/document/path/90248" target="_blank">官方文档</a>',
+			'文件的 media_id，可以调用上传临时素材接口获取。<a href="https://developer.work.weixin.qq.com/document/path/90248" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '保密消息',

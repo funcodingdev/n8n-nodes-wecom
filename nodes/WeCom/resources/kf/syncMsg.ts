@@ -18,7 +18,7 @@ export const syncMsgDescription: INodeProperties[] = [
 			show: showOnlyForSyncMsg,
 		},
 		default: '',
-		description: '客服账号的唯一标识ID。<a href="https://developer.work.weixin.qq.com/document/path/94670" target="_blank">官方文档</a>.',
+		description: '指定拉取消息的客服账号。接口仅可读取最近 3 天内的消息和事件。<a href="https://developer.work.weixin.qq.com/document/path/94670" target="_blank">官方文档</a>',
 		placeholder: 'wkxxxxxxxxxxxxxxxxxx',
 	},
 	{
@@ -29,7 +29,7 @@ export const syncMsgDescription: INodeProperties[] = [
 			show: showOnlyForSyncMsg,
 		},
 		default: '',
-		description: '可选。上一次调用返回的next_cursor，第一次拉取可以不填。持久化保存游标可以实现增量拉取。<a href="https://developer.work.weixin.qq.com/document/path/94670" target="_blank">官方文档</a>',
+		description: '上一次调用返回的 next_cursor，最多 64 字节。首次可留空；建议持久化保存并结合 has_more 判断是否继续拉取。<a href="https://developer.work.weixin.qq.com/document/path/94670" target="_blank">官方文档</a>',
 		placeholder: '',
 	},
 	{
@@ -41,7 +41,7 @@ export const syncMsgDescription: INodeProperties[] = [
 			show: showOnlyForSyncMsg,
 		},
 		default: '',
-		description: '可选。回调事件返回的token字段，10分钟内有效。如果不填接口有严格的频率限制。<a href="https://developer.work.weixin.qq.com/document/path/94670" target="_blank">官方文档</a>',
+		description: '回调事件返回的 token，最多 128 字节且 10 分钟内有效。不填写时接口有严格频率限制。<a href="https://developer.work.weixin.qq.com/document/path/94670" target="_blank">官方文档</a>',
 		placeholder: '',
 	},
 	{
@@ -51,12 +51,13 @@ export const syncMsgDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForSyncMsg,
 		},
-		default: 50,
+		default: 1000,
 		typeOptions: {
 			minValue: 1,
 			maxValue: 1000,
+			numberStepSize: 1,
 		},
-		description: '可选。期望拉取的消息数量，取值范围1~1000，默认50。<a href="https://developer.work.weixin.qq.com/document/path/94670" target="_blank">官方文档</a>',
+		description: '期望拉取的消息数量，默认及最大均为 1000；返回条数可能更少，必须结合 has_more 判断。<a href="https://developer.work.weixin.qq.com/document/path/94670" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '语音格式',
@@ -86,6 +87,6 @@ export const syncMsgDescription: INodeProperties[] = [
 			show: showOnlyForSyncMsg,
 		},
 		default: false,
-		description: '是否自动解析消息类型，方便在n8n中处理不同类型的消息。<a href="https://developer.work.weixin.qq.com/document/path/94670" target="_blank">官方文档</a>',
+		description: '是否额外添加 parsed_content 和 event_type 辅助字段；原始消息字段始终保留',
 	},
 ];

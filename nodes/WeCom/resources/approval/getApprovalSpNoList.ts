@@ -22,12 +22,12 @@ export const getApprovalSpNoListDescription: INodeProperties[] = [
 		description: '查询结束时间 endtime（Unix 秒）',
 	},
 	{
-		displayName: '游标',
-		name: 'cursor',
-		type: 'number',
+		displayName: '新游标',
+		name: 'new_cursor',
+		type: 'string',
 		displayOptions: { show: showOnly },
-		default: 0,
-		description: '分页游标，从0开始',
+		default: '',
+		description: 'new_cursor，首次请求传空字符串，后续使用上次返回的 new_next_cursor',
 	},
 	{
 		displayName: '每次拉取数量',
@@ -35,6 +35,7 @@ export const getApprovalSpNoListDescription: INodeProperties[] = [
 		type: 'number',
 		displayOptions: { show: showOnly },
 		default: 100,
+		typeOptions: { minValue: 1, maxValue: 100 },
 		description: '单次拉取的审批单号数量，最大100',
 	},
 	{
@@ -69,15 +70,14 @@ export const getApprovalSpNoListDescription: INodeProperties[] = [
 							{ name: '申请人UserID', value: 'creator' },
 							{ name: '部门ID', value: 'department' },
 							{ name: '审批单状态', value: 'sp_status' },
+							{ name: '审批单类型', value: 'record_type' },
 						],
-
 					},
 					{
 						displayName: '筛选值',
 						name: 'value',
 						type: 'string',
 						default: '',
-
 					},
 				],
 			},

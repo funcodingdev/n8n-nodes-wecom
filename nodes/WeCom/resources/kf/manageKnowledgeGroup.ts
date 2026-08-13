@@ -4,6 +4,14 @@ const showOnly = { resource: ['kf'], operation: ['manageKnowledgeGroup'] };
 
 export const manageKnowledgeGroupDescription: INodeProperties[] = [
 	{
+		displayName: '权限与数量限制',
+		name: 'knowledgeGroupNotice',
+		type: 'notice',
+		displayOptions: { show: showOnly },
+		default: '',
+		description: '仅企业内部开发支持知识库管理；第三方及代开发应用暂不支持。分组名不可重复，全部分组最多 100 个。<a href="https://developer.work.weixin.qq.com/document/path/95971" target="_blank">官方文档</a>',
+	},
+	{
 		displayName: '操作类型',
 		name: 'action_type',
 		type: 'options',
@@ -26,18 +34,27 @@ export const manageKnowledgeGroupDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { ...showOnly, action_type: ['add'] } },
 		default: '',
-		description: '知识库分组的名称',
+		typeOptions: { maxLength: 12 },
+		description: '知识库分组名称，不超过 12 个字且不可与现有分组重复',
 		placeholder: '产品问题',
 	},
 	// 删除/修改分组参数
 	{
-		displayName: '分组ID',
+		displayName: '分组 ID',
 		name: 'group_id',
 		type: 'string',
 		required: true,
 		displayOptions: { show: { ...showOnly, action_type: ['del', 'mod'] } },
 		default: '',
 		description: '知识库分组的唯一ID',
+	},
+	{
+		displayName: '默认分组限制',
+		name: 'defaultGroupMutationNotice',
+		type: 'notice',
+		displayOptions: { show: { ...showOnly, action_type: ['del', 'mod'] } },
+		default: '',
+		description: '系统自动创建的默认分组不可修改或删除；请先通过列表响应中的 is_default 判断。',
 	},
 	// 修改分组参数
 	{
@@ -47,7 +64,16 @@ export const manageKnowledgeGroupDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { ...showOnly, action_type: ['mod'] } },
 		default: '',
-		description: '新的知识库分组名称',
+		typeOptions: { maxLength: 12 },
+		description: '新的分组名称，不超过 12 个字且不可与现有分组重复',
+	},
+	{
+		displayName: '分组 ID 筛选',
+		name: 'list_group_id',
+		type: 'string',
+		displayOptions: { show: { ...showOnly, action_type: ['list'] } },
+		default: '',
+		description: '可选，指定后仅拉取该知识库分组',
 	},
 	// 列表查询参数
 	{
@@ -63,8 +89,8 @@ export const manageKnowledgeGroupDescription: INodeProperties[] = [
 		name: 'limit',
 		type: 'number',
 		displayOptions: { show: { ...showOnly, action_type: ['list'] } },
-		default: 50,
-		description: '每页返回的分组数量',
-		typeOptions: { minValue: 1, maxValue: 1000 },
+		default: 500,
+		description: '每次拉取的数据量，默认 500，最大 1000',
+		typeOptions: { minValue: 1, maxValue: 1000, numberStepSize: 1 },
 	},
 ];

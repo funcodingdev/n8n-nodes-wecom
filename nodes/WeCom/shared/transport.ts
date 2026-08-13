@@ -376,6 +376,7 @@ export async function weComApiRequest(
 
 		return jsonResponse;
 	} catch (error) {
+		if (error instanceof NodeOperationError) throw error;
 		const err = error as Error;
 		throw new NodeOperationError(this.getNode(), `API 请求失败: ${err.message}`);
 	}

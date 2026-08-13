@@ -49,24 +49,59 @@ export async function executeAppChat(
 		}
 		return undefined;
 	};
-	const parseCommaSeparatedList = (value: string): string[] => {
+	const parseDelimitedList = (
+		value: string,
+		label: string,
+		limit: number,
+		itemIndex: number,
+	): string[] => {
 		if (!value.trim()) {
 			return [];
 		}
 
-		return value
-			.split(',')
-			.map((item) => item.trim())
-			.filter((item) => item);
-	};
-	const normalizeMentionedUsers = (value: unknown): string[] => {
-		if (Array.isArray(value)) {
-			return value
-				.map((item) => String(item).trim())
-				.filter((item) => item);
+		const values = [
+			...new Set(
+				value
+					.split(/[|,]/)
+					.map((item) => item.trim())
+					.filter(Boolean),
+			),
+		];
+		if (values.length > limit) {
+			throw new NodeOperationError(this.getNode(), `${label}最多支持 ${limit} 个`, {
+				itemIndex,
+			});
 		}
-
-		if (typeof value === 'string') {
+		return values;
+	};
+	const mergeIdLists = (
+		selected: string[],
+		manual: string[],
+		label: string,
+		limit: number,
+		itemIndex: number,
+	): string[] => {
+		const values = [
+			...new Set(
+				[...selected, ...manual]
+					.map((entry) => String(entry).trim())
+					.filter(Boolean),
+			),
+		];
+		if (values.length > limit) {
+			throw new NodeOperationError(this.getNode(), `${label}最多支持 ${limit} 个`, {
+				itemIndex,
+			});
+		}
+		return values;
+	};
+	const normalizeMentionedUsers = (value: unknown, itemIndex: number): string[] => {
+		let values: string[] = [];
+		if (Array.isArray(value)) {
+			values = value
+				.map((item) => String(item).trim())
+				.filter(Boolean);
+		} else if (typeof value === 'string') {
 			const trimmed = value.trim();
 			if (!trimmed) {
 				return [];
@@ -76,30 +111,26 @@ export async function executeAppChat(
 				try {
 					const parsed = JSON.parse(trimmed) as unknown;
 					if (Array.isArray(parsed)) {
-						return parsed
+						values = parsed
 							.map((item) => String(item).trim())
-							.filter((item) => item);
+							.filter(Boolean);
 					}
 				} catch (error) {
 					void error;
 				}
 			}
 
-			if (trimmed.includes(',')) {
-				return parseCommaSeparatedList(trimmed);
+			if (values.length === 0) {
+				values = parseDelimitedList(trimmed, '@提醒成员', 2000, itemIndex);
 			}
-
-			if (trimmed.includes('|')) {
-				return trimmed
-					.split('|')
-					.map((item) => item.trim())
-					.filter((item) => item);
-			}
-
-			return [trimmed];
 		}
 
-		return [];
+		const normalized = [...new Set(values)];
+		if (normalized.includes('@all')) return ['@all'];
+		if (normalized.length > 2000) {
+			throw new NodeOperationError(this.getNode(), '@提醒成员最多支持 2000 个', { itemIndex });
+		}
+		return normalized;
 	};
 
 	for (let i = 0; i < items.length; i++) {
@@ -108,12 +139,36 @@ export async function executeAppChat(
 				// 创建群聊会话
 				const name = this.getNodeParameter('name', i, '') as string;
 				const owner = this.getNodeParameter('owner', i, '') as string;
-				const userlist = this.getNodeParameter('userlist', i) as string;
+				const userlist = this.getNodeParameter('userlist', i, '') as string;
+				const selectedUsers = this.getNodeParameter('userlist_selected', i, []) as string[];
 				const chatid = this.getNodeParameter('chatid', i, '') as string;
 
-				const body: IDataObject = {
-					userlist: userlist.split(',').map((id) => id.trim()),
-				};
+				const userList = mergeIdLists(
+					selectedUsers,
+					parseDelimitedList(userlist, '群成员列表', 2000, i),
+					'群成员列表',
+					2000,
+					i,
+				);
+				if (userList.length < 2) {
+					throw new NodeOperationError(this.getNode(), '创建群聊至少需要 2 位成员', {
+						itemIndex: i,
+					});
+				}
+				if (owner && !userList.includes(owner)) {
+					throw new NodeOperationError(this.getNode(), '群主必须包含在群成员列表中', {
+						itemIndex: i,
+					});
+				}
+				if (chatid && !/^[A-Za-z0-9]{1,32}$/.test(chatid)) {
+					throw new NodeOperationError(
+						this.getNode(),
+						'指定群聊 ID 只能包含数字和英文字母，且最长 32 个字符',
+						{ itemIndex: i },
+					);
+				}
+
+				const body: IDataObject = { userlist: userList };
 
 				if (name) {
 					body.name = name;
@@ -146,11 +201,17 @@ export async function executeAppChat(
 				const body: IDataObject = {
 					chatid,
 				};
+				let updated = false;
 
 				if (updateType === 'name' || updateType === 'combined') {
 					const name = this.getNodeParameter('name', i, '') as string;
 					if (name) {
 						body.name = name;
+						updated = true;
+					} else if (updateType === 'name') {
+						throw new NodeOperationError(this.getNode(), '修改群名称时必须填写新的群聊名称', {
+							itemIndex: i,
+						});
 					}
 				}
 
@@ -158,21 +219,73 @@ export async function executeAppChat(
 					const owner = this.getNodeParameter('owner', i, '') as string;
 					if (owner) {
 						body.owner = owner;
+						updated = true;
+					} else if (updateType === 'owner') {
+						throw new NodeOperationError(this.getNode(), '修改群主时必须填写新群主 ID', {
+							itemIndex: i,
+						});
 					}
 				}
 
+				let addUsers: string[] = [];
 				if (updateType === 'addUsers' || updateType === 'combined') {
 					const add_user_list = this.getNodeParameter('add_user_list', i, '') as string;
-					if (add_user_list) {
-						body.add_user_list = add_user_list.split(',').map((id) => id.trim());
+					const selectedAddUsers = this.getNodeParameter(
+						'add_user_list_selected',
+						i,
+						[],
+					) as string[];
+					addUsers = mergeIdLists(
+						selectedAddUsers,
+						parseDelimitedList(add_user_list, '添加成员列表', 2000, i),
+						'添加成员列表',
+						2000,
+						i,
+					);
+					if (addUsers.length) {
+						body.add_user_list = addUsers;
+						updated = true;
+					} else if (updateType === 'addUsers') {
+						throw new NodeOperationError(this.getNode(), '添加成员时必须填写成员列表', {
+							itemIndex: i,
+						});
 					}
 				}
 
+				let delUsers: string[] = [];
 				if (updateType === 'delUsers' || updateType === 'combined') {
 					const del_user_list = this.getNodeParameter('del_user_list', i, '') as string;
-					if (del_user_list) {
-						body.del_user_list = del_user_list.split(',').map((id) => id.trim());
+					const selectedDelUsers = this.getNodeParameter(
+						'del_user_list_selected',
+						i,
+						[],
+					) as string[];
+					delUsers = mergeIdLists(
+						selectedDelUsers,
+						parseDelimitedList(del_user_list, '删除成员列表', 2000, i),
+						'删除成员列表',
+						2000,
+						i,
+					);
+					if (delUsers.length) {
+						body.del_user_list = delUsers;
+						updated = true;
+					} else if (updateType === 'delUsers') {
+						throw new NodeOperationError(this.getNode(), '删除成员时必须填写成员列表', {
+							itemIndex: i,
+						});
 					}
+				}
+
+				if (addUsers.some((userId) => delUsers.includes(userId))) {
+					throw new NodeOperationError(this.getNode(), '同一成员不能同时出现在添加和删除列表中', {
+						itemIndex: i,
+					});
+				}
+				if (!updated) {
+					throw new NodeOperationError(this.getNode(), '组合更新至少需要填写一项变更内容', {
+						itemIndex: i,
+					});
 				}
 
 				const response = await weComApiRequest.call(
@@ -220,7 +333,7 @@ export async function executeAppChat(
 					const text: IDataObject = {
 						content,
 					};
-					const mentionedUsers = normalizeMentionedUsers(mentionedList);
+					const mentionedUsers = normalizeMentionedUsers(mentionedList, i);
 
 					if (mentionedUsers.length > 0) {
 						text.mentioned_list = mentionedUsers;
@@ -233,7 +346,9 @@ export async function executeAppChat(
 						safe: safe ? 1 : 0,
 					};
 				} else if (operation === 'sendImage') {
-					const mediaId = this.getNodeParameter('media_ID', i) as string;
+					const mediaId =
+						(this.getNodeParameter('media_id', i, '') as string) ||
+						(this.getNodeParameter('media_ID', i, '') as string);
 					const safe = this.getNodeParameter('safe', i, false) as boolean;
 
 					body = {
@@ -245,7 +360,9 @@ export async function executeAppChat(
 						safe: safe ? 1 : 0,
 					};
 				} else if (operation === 'sendFile') {
-					const mediaId = this.getNodeParameter('media_ID', i) as string;
+					const mediaId =
+						(this.getNodeParameter('media_id', i, '') as string) ||
+						(this.getNodeParameter('media_ID', i, '') as string);
 					const safe = this.getNodeParameter('safe', i, false) as boolean;
 
 					body = {
@@ -316,7 +433,30 @@ export async function executeAppChat(
 							safeValue = safeFromJson;
 						}
 					} else {
-						articleList = (articles.article as IDataObject[]) || [];
+						articleList = ((articles.article as IDataObject[]) || []).map((article) => {
+							const normalized: IDataObject = {
+								title: article.title,
+								url: article.url,
+							};
+							if (article.description) normalized.description = article.description;
+							if (article.picurl) normalized.picurl = article.picurl;
+							return normalized;
+						});
+					}
+					if (articleList.length < 1 || articleList.length > 8) {
+						throw new NodeOperationError(this.getNode(), '群聊图文列表必须包含 1～8 条', {
+							itemIndex: i,
+						});
+					}
+					if (articleList.some((article) => !article.title || !article.url)) {
+						throw new NodeOperationError(this.getNode(), '群聊每条图文的标题和跳转链接必填', {
+							itemIndex: i,
+						});
+					}
+					if (safeValue !== 0 && safeValue !== 1) {
+						throw new NodeOperationError(this.getNode(), '保密消息只能设置为 0 或 1', {
+							itemIndex: i,
+						});
 					}
 
 					body = {
@@ -331,7 +471,9 @@ export async function executeAppChat(
 						body.safe = safeValue;
 					}
 				} else if (operation === 'sendVoice') {
-					const mediaId = this.getNodeParameter('media_ID', i) as string;
+					const mediaId =
+						(this.getNodeParameter('media_id', i, '') as string) ||
+						(this.getNodeParameter('media_ID', i, '') as string);
 
 					body = {
 						...body,
@@ -341,7 +483,9 @@ export async function executeAppChat(
 						},
 					};
 				} else if (operation === 'sendVideo') {
-					const mediaId = this.getNodeParameter('media_ID', i) as string;
+					const mediaId =
+						(this.getNodeParameter('media_id', i, '') as string) ||
+						(this.getNodeParameter('media_ID', i, '') as string);
 					const title = this.getNodeParameter('title', i, '') as string;
 					const description = this.getNodeParameter('description', i, '') as string;
 					const safe = this.getNodeParameter('safe', i, false) as boolean;
@@ -377,9 +521,9 @@ export async function executeAppChat(
 							i,
 						)
 						: undefined;
-					const title = this.getNodeParameter('title', i) as string;
-					const description = this.getNodeParameter('description', i) as string;
-					const url = this.getNodeParameter('url', i) as string;
+					const title = this.getNodeParameter('title', i, '') as string;
+					const description = this.getNodeParameter('description', i, '') as string;
+					const url = this.getNodeParameter('url', i, '') as string;
 					const btntxt = this.getNodeParameter('btntxt', i, '详情') as string;
 					const safe = this.getNodeParameter('safe', i, false) as boolean;
 
@@ -401,9 +545,20 @@ export async function executeAppChat(
 								{ itemIndex: i },
 							);
 						}
-						const textcardPayload = (textcardJson as IDataObject).textcard as IDataObject | undefined;
-						textcard = textcardPayload ?? (textcardJson as IDataObject);
-						const safeFromJson = resolveSafeValue((textcardJson as IDataObject).safe);
+						const rawPayload = { ...(textcardJson as IDataObject) };
+						const textcardPayload = rawPayload.textcard;
+						if (
+							textcardPayload !== undefined &&
+							(!textcardPayload || typeof textcardPayload !== 'object' || Array.isArray(textcardPayload))
+						) {
+							throw new NodeOperationError(this.getNode(), 'textcard_json.textcard 必须是对象', {
+								itemIndex: i,
+							});
+						}
+						const safeFromJson = resolveSafeValue(rawPayload.safe);
+						delete rawPayload.safe;
+						delete rawPayload.textcard;
+						textcard = (textcardPayload as IDataObject | undefined) ?? rawPayload;
 						if (safeFromJson !== undefined) {
 							safeValue = safeFromJson;
 						}
@@ -414,6 +569,18 @@ export async function executeAppChat(
 							url,
 							btntxt,
 						};
+					}
+					if (!textcard.title || !textcard.description || !textcard.url) {
+						throw new NodeOperationError(
+							this.getNode(),
+							'文本卡片的 title、description 和 url 必填',
+							{ itemIndex: i },
+						);
+					}
+					if (safeValue !== 0 && safeValue !== 1) {
+						throw new NodeOperationError(this.getNode(), '保密消息只能设置为 0 或 1', {
+							itemIndex: i,
+						});
 					}
 
 					body = {
@@ -475,7 +642,40 @@ export async function executeAppChat(
 							safeValue = safeFromJson;
 						}
 					} else {
-						articleList = (articles.article as IDataObject[]) || [];
+						articleList = ((articles.article as IDataObject[]) || []).map((article) => {
+							const normalized: IDataObject = {
+								title: article.title,
+								thumb_media_id: article.thumb_media_id,
+								content: article.content,
+							};
+							if (article.author) normalized.author = article.author;
+							if (article.content_source_url) {
+								normalized.content_source_url = article.content_source_url;
+							}
+							if (article.digest) normalized.digest = article.digest;
+							return normalized;
+						});
+					}
+					if (articleList.length < 1 || articleList.length > 8) {
+						throw new NodeOperationError(this.getNode(), '群聊 Mpnews 列表必须包含 1～8 条', {
+							itemIndex: i,
+						});
+					}
+					if (
+						articleList.some(
+							(article) => !article.title || !article.thumb_media_id || !article.content,
+						)
+					) {
+						throw new NodeOperationError(
+							this.getNode(),
+							'群聊每条 Mpnews 的标题、缩略图 Media ID 和内容必填',
+							{ itemIndex: i },
+						);
+					}
+					if (safeValue !== 0 && safeValue !== 1) {
+						throw new NodeOperationError(this.getNode(), '保密消息只能设置为 0 或 1', {
+							itemIndex: i,
+						});
 					}
 
 					body = {

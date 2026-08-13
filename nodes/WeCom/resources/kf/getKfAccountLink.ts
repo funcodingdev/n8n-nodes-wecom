@@ -18,7 +18,7 @@ export const getKfAccountLinkDescription: INodeProperties[] = [
 			show: showOnlyForGetKfAccountLink,
 		},
 		default: '',
-		description: '客服账号的唯一标识ID。<a href="https://developer.work.weixin.qq.com/document/path/94665" target="_blank">官方文档</a>.',
+		description: '要生成会话链接的客服账号。<a href="https://developer.work.weixin.qq.com/document/path/94665" target="_blank">官方文档</a>',
 		placeholder: 'wkxxxxxxxxxxxxxxxxxx',
 	},
 	{
@@ -29,8 +29,8 @@ export const getKfAccountLinkDescription: INodeProperties[] = [
 			show: showOnlyForGetKfAccountLink,
 		},
 		default: '',
-		description: '场景值，字符串类型，由开发者自定义，用于区分不同的链接来源。<a href="https://developer.work.weixin.qq.com/document/path/94665" target="_blank">官方文档</a>',
+		typeOptions: { maxLength: 32 },
+		description: '可选场景值，最多 32 字节，仅支持数字、大小写字母、下划线和连字符。返回链接中的参数不可复制或修改。<a href="https://developer.work.weixin.qq.com/document/path/94665" target="_blank">官方文档</a>',
 		placeholder: 'from_website',
 	},
 ];
-

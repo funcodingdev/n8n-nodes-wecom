@@ -1,6 +1,7 @@
 import type { IExecuteFunctions, IDataObject, IHttpRequestOptions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { getWeComBaseUrl } from '../../shared/transport';
+import { parseIdList, parseTextList, requirePositiveInteger, requireText } from './utils';
 
 /**
  * 设置授权应用可见范围
@@ -22,49 +23,31 @@ export async function setAgentScope(
 	this: IExecuteFunctions,
 	index: number,
 ): Promise<IDataObject> {
-	const accessToken = this.getNodeParameter('accessToken', index) as string;
-	const agentid = this.getNodeParameter('agentid', index) as number;
-	const allowUser = this.getNodeParameter('allowUser', index) as string | undefined;
-	const allowParty = this.getNodeParameter('allowParty', index) as string | undefined;
-	const allowTag = this.getNodeParameter('allowTag', index) as string | undefined;
-
-	if (!accessToken) {
-		throw new NodeOperationError(
-			this.getNode(),
-			'Access Token不能为空',
-			{ itemIndex: index },
-		);
-	}
-
-	if (!agentid) {
-		throw new NodeOperationError(
-			this.getNode(),
-			'授权方应用id不能为空',
-			{ itemIndex: index },
-		);
-	}
+	const accessToken = requireText(
+		this,
+		this.getNodeParameter('accessToken', index),
+		'Access Token',
+		index,
+		2048,
+	);
+	const agentid = requirePositiveInteger(
+		this,
+		this.getNodeParameter('agentid', index),
+		'授权方应用 ID',
+		index,
+	);
+	const allowUser = parseTextList(this, this.getNodeParameter('allowUser', index, ''), '成员列表', index);
+	const allowParty = parseIdList(this, this.getNodeParameter('allowParty', index, ''), '部门 ID 列表', index);
+	const allowTag = parseIdList(this, this.getNodeParameter('allowTag', index, ''), '标签 ID 列表', index);
 
 	const body: IDataObject = {
 		agentid,
 	};
 
-	if (allowUser) {
-		body.allow_user = allowUser.split(',').map((id) => id.trim()).filter((id) => id.length > 0);
-	}
 
-	if (allowParty) {
-		body.allow_party = allowParty.split(',').map((id) => {
-			const numId = parseInt(id.trim(), 10);
-			return isNaN(numId) ? null : numId;
-		}).filter((id) => id !== null) as number[];
-	}
-
-	if (allowTag) {
-		body.allow_tag = allowTag.split(',').map((id) => {
-			const numId = parseInt(id.trim(), 10);
-			return isNaN(numId) ? null : numId;
-		}).filter((id) => id !== null) as number[];
-	}
+	if (allowUser.length) body.allow_user = allowUser;
+	if (allowParty.length) body.allow_party = allowParty;
+	if (allowTag.length) body.allow_tag = allowTag;
 
 	const options: IHttpRequestOptions = {
 		method: 'POST',
@@ -89,6 +72,7 @@ export async function setAgentScope(
 
 		return response;
 	} catch (error) {
+		if (error instanceof NodeOperationError) throw error;
 		const err = error as Error;
 		throw new NodeOperationError(
 			this.getNode(),

@@ -4,6 +4,14 @@ const showOnly = { resource: ['externalContact'], operation: ['addMsgTemplate'] 
 
 export const addMsgTemplateDescription: INodeProperties[] = [
 	{
+		displayName: '发送机制说明',
+		name: 'groupMessageConfirmationNotice',
+		type: 'notice',
+		default: '',
+		displayOptions: { show: showOnly },
+		description: '此接口只创建群发任务，不会直接发送；成员需在企业微信中确认后才会触达客户或客户群',
+	},
+	{
 		displayName: '群发任务类型',
 		name: 'chat_type',
 		type: 'options',
@@ -52,7 +60,7 @@ export const addMsgTemplateDescription: INodeProperties[] = [
 		type: 'boolean',
 		default: false,
 		displayOptions: { show: { ...showOnly, chat_type: ['single'] } },
-		description: '是否启用客户标签过滤，同组标签之间按或关系筛选，不同组标签按且关系筛选',
+		description: '同组标签按“或”、不同组按“且”；若同时填写客户 ExternalUserID，接口会忽略标签过滤，本节点也不会发送标签过滤',
 	},
 	{
 		displayName: '标签组',

@@ -16,7 +16,7 @@ export const getCustomerInfoDescription: INodeProperties[] = [
 		},
 		default: '',
 		description:
-			'客户 external_userid 列表，多个用逗号分隔，单次 1~100 个。<a href="https://developer.work.weixin.qq.com/document/path/95159" target="_blank">官方文档</a>',
+			'客户 external_userid 列表，支持逗号、中文逗号、竖线或换行分隔，自动去重，单次 1–100 个。<a href="https://developer.work.weixin.qq.com/document/path/95159" target="_blank">官方文档</a>',
 		placeholder: 'wmxxxxxxxxxxxxxxxxxxxxxx,wmxxxxxxxxxxxxxxxxxxxxxx',
 	},
 	{

@@ -27,6 +27,10 @@ export const createDocDescription: INodeProperties[] = [
 				name: '智能表格',
 				value: 10,
 			},
+			{
+				name: '智能文档',
+				value: 11,
+			},
 		],
 		default: 3,
 	},
@@ -39,7 +43,8 @@ export const createDocDescription: INodeProperties[] = [
 			show: showOnlyForCreate,
 		},
 		default: '',
-		description: '文件名最多填255个字符, 超过255个字符会被截断',
+		description: '文件名换算长度最多 255（英文计 1，汉字计 2），节点会在超限时报错',
+		typeOptions: { maxLength: 255 },
 	},
 	{
 		displayName: '管理员UserID列表',
@@ -52,7 +57,7 @@ export const createDocDescription: INodeProperties[] = [
 			show: showOnlyForCreate,
 		},
 		default: [],
-		description: '文档管理员userid列表,可选择多个成员。创建者默认为管理员',
+		description: '文档管理员 userid 列表，最多 3 人。创建者默认为管理员',
 	},
 	{
 		displayName: '指定空间位置',

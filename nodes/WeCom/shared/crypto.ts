@@ -316,230 +316,226 @@ export function generateReplyMessageXML(
 	msgType: 'text' | 'image' | 'voice' | 'video' | 'news' | 'update_button' | 'update_template_card',
 	content: Record<string, unknown>,
 ): string {
+	const cdata = (value: unknown): string =>
+		`<![CDATA[${String(value ?? '').replace(/]]>/g, ']]]]><![CDATA[>')}]]>`;
+	const cdataTag = (tag: string, value: unknown): string =>
+		value === undefined || value === null || value === ''
+			? ''
+			: `<${tag}>${cdata(value)}</${tag}>`;
+	const xmlText = (value: unknown): string => String(value ?? '')
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&apos;');
+	const textTag = (tag: string, value: unknown): string =>
+		value === undefined || value === null || value === ''
+			? ''
+			: `<${tag}>${xmlText(value)}</${tag}>`;
+	const asRecord = (value: unknown): Record<string, unknown> | undefined =>
+		value && typeof value === 'object' && !Array.isArray(value)
+			? value as Record<string, unknown>
+			: undefined;
+	const asRecords = (value: unknown): Array<Record<string, unknown>> =>
+		Array.isArray(value)
+			? value.filter((entry) => entry && typeof entry === 'object' && !Array.isArray(entry)) as Array<Record<string, unknown>>
+			: [];
+	const linkFields = (value: Record<string, unknown>): string =>
+		textTag('Type', value.type) +
+		cdataTag('Url', value.url) +
+		cdataTag('AppId', value.appid) +
+		cdataTag('PagePath', value.pagepath);
+	const optionListXml = (options: unknown, includeChecked: boolean): string =>
+		asRecords(options).map((option) =>
+			'<OptionList>' +
+			cdataTag('Id', option.id) +
+			cdataTag('Text', option.text) +
+			(includeChecked ? textTag('IsChecked', option.is_checked ?? false) : '') +
+			'</OptionList>',
+		).join('');
+
 	const createTime = Math.floor(Date.now() / 1000);
 	let xml = '<xml>';
-	xml += `<ToUserName><![CDATA[${toUser}]]></ToUserName>`;
-	xml += `<FromUserName><![CDATA[${fromUser}]]></FromUserName>`;
-	xml += `<CreateTime>${createTime}</CreateTime>`;
-	xml += `<MsgType><![CDATA[${msgType}]]></MsgType>`;
+	xml += cdataTag('ToUserName', toUser);
+	xml += cdataTag('FromUserName', fromUser);
+	xml += textTag('CreateTime', createTime);
+	xml += cdataTag('MsgType', msgType);
 
 	switch (msgType) {
 		case 'text':
-			xml += `<Content><![CDATA[${content.Content as string}]]></Content>`;
+			xml += cdataTag('Content', content.Content);
 			break;
 		case 'image':
-			xml += '<Image>';
-			xml += `<MediaId><![CDATA[${content.MediaId as string}]]></MediaId>`;
-			xml += '</Image>';
+			xml += `<Image>${cdataTag('MediaId', content.MediaId)}</Image>`;
 			break;
 		case 'voice':
-			xml += '<Voice>';
-			xml += `<MediaId><![CDATA[${content.MediaId as string}]]></MediaId>`;
-			xml += '</Voice>';
+			xml += `<Voice>${cdataTag('MediaId', content.MediaId)}</Voice>`;
 			break;
 		case 'video':
-			xml += '<Video>';
-			xml += `<MediaId><![CDATA[${content.MediaId as string}]]></MediaId>`;
-			if (content.Title) {
-				xml += `<Title><![CDATA[${content.Title as string}]]></Title>`;
-			}
-			if (content.Description) {
-				xml += `<Description><![CDATA[${content.Description as string}]]></Description>`;
-			}
-			xml += '</Video>';
+			xml += '<Video>' +
+				cdataTag('MediaId', content.MediaId) +
+				cdataTag('Title', content.Title) +
+				cdataTag('Description', content.Description) +
+				'</Video>';
 			break;
 		case 'news': {
-			const articles = content.Articles as Array<{
-				Title: string;
-				Description?: string;
-				Url: string;
-				PicUrl?: string;
-			}>;
-			xml += `<ArticleCount>${articles.length}</ArticleCount>`;
+			const articles = asRecords(content.Articles);
+			xml += textTag('ArticleCount', articles.length);
 			xml += '<Articles>';
 			for (const article of articles) {
-				xml += '<item>';
-				xml += `<Title><![CDATA[${article.Title}]]></Title>`;
-				if (article.Description) {
-					xml += `<Description><![CDATA[${article.Description}]]></Description>`;
-				}
-				xml += `<Url><![CDATA[${article.Url}]]></Url>`;
-				if (article.PicUrl) {
-					xml += `<PicUrl><![CDATA[${article.PicUrl}]]></PicUrl>`;
-				}
-				xml += '</item>';
+				xml += '<item>' +
+					cdataTag('Title', article.Title) +
+					cdataTag('Description', article.Description) +
+					cdataTag('PicUrl', article.PicUrl) +
+					cdataTag('Url', article.Url) +
+					'</item>';
 			}
 			xml += '</Articles>';
 			break;
 		}
 		case 'update_button': {
-			if (content.Button) {
-				xml += '<Button>';
-				const button = content.Button as Record<string, unknown>;
-				xml += `<ReplaceName><![CDATA[${button.ReplaceName as string}]]></ReplaceName>`;
-				xml += '</Button>';
-			}
+			const button = asRecord(content.Button);
+			if (button) xml += `<Button>${cdataTag('ReplaceName', button.ReplaceName)}</Button>`;
 			break;
 		}
-		case 'update_template_card':
-			if (content.TemplateCard) {
-				const card = content.TemplateCard as Record<string, unknown>;
-				xml += '<TemplateCard>';
-				xml += `<CardType><![CDATA[${card.CardType as string}]]></CardType>`;
+		case 'update_template_card': {
+			const card = asRecord(content.TemplateCard);
+			if (!card) break;
+			xml += '<TemplateCard>' + cdataTag('CardType', card.card_type);
 
-				if (card.Source) {
-					const source = card.Source as Record<string, unknown>;
-					xml += '<Source>';
-					if (source.icon_url) xml += `<IconUrl><![CDATA[${source.icon_url as string}]]></IconUrl>`;
-					if (source.desc) xml += `<Desc><![CDATA[${source.desc as string}]]></Desc>`;
-					xml += '</Source>';
-				}
-
-				if (card.MainTitle) {
-					const mainTitle = card.MainTitle as Record<string, unknown>;
-					xml += '<MainTitle>';
-					if (mainTitle.title) xml += `<Title><![CDATA[${mainTitle.title as string}]]></Title>`;
-					if (mainTitle.desc) xml += `<Desc><![CDATA[${mainTitle.desc as string}]]></Desc>`;
-					xml += '</MainTitle>';
-				}
-
-				if (card.EmphasisContent) {
-					const emphasis = card.EmphasisContent as Record<string, unknown>;
-					xml += '<EmphasisContent>';
-					if (emphasis.title) xml += `<Title><![CDATA[${emphasis.title as string}]]></Title>`;
-					if (emphasis.desc) xml += `<Desc><![CDATA[${emphasis.desc as string}]]></Desc>`;
-					xml += '</EmphasisContent>';
-				}
-
-				if (card.QuoteArea) {
-					const quote = card.QuoteArea as Record<string, unknown>;
-					xml += '<QuoteArea>';
-					if (quote.type) xml += `<Type>${quote.type as number}</Type>`;
-					if (quote.url) xml += `<Url><![CDATA[${quote.url as string}]]></Url>`;
-					if (quote.title) xml += `<Title><![CDATA[${quote.title as string}]]></Title>`;
-					if (quote.quote_text) xml += `<QuoteText><![CDATA[${quote.quote_text as string}]]></QuoteText>`;
-					xml += '</QuoteArea>';
-				}
-
-				if (card.SubTitleText) {
-					xml += `<SubTitleText><![CDATA[${card.SubTitleText as string}]]></SubTitleText>`;
-				}
-
-				if (card.HorizontalContentList) {
-					const list = card.HorizontalContentList as Array<Record<string, unknown>>;
-					xml += '<HorizontalContentList>';
-					for (const item of list) {
-						xml += '<HorizontalContent>';
-						if (item.keyname) xml += `<Keyname><![CDATA[${item.keyname as string}]]></Keyname>`;
-						if (item.value) xml += `<Value><![CDATA[${item.value as string}]]></Value>`;
-						if (item.type) xml += `<Type>${item.type as number}</Type>`;
-						if (item.url) xml += `<Url><![CDATA[${item.url as string}]]></Url>`;
-						xml += '</HorizontalContent>';
-					}
-					xml += '</HorizontalContentList>';
-				}
-
-				if (card.JumpList) {
-					const jumpList = card.JumpList as Array<Record<string, unknown>>;
-					xml += '<JumpList>';
-					for (const jump of jumpList) {
-						xml += '<Jump>';
-						if (jump.type) xml += `<Type>${jump.type as number}</Type>`;
-						if (jump.title) xml += `<Title><![CDATA[${jump.title as string}]]></Title>`;
-						if (jump.url) xml += `<Url><![CDATA[${jump.url as string}]]></Url>`;
-						xml += '</Jump>';
-					}
-					xml += '</JumpList>';
-				}
-
-				if (card.CardAction) {
-					const action = card.CardAction as Record<string, unknown>;
-					xml += '<CardAction>';
-					if (action.type) xml += `<Type>${action.type as number}</Type>`;
-					if (action.url) xml += `<Url><![CDATA[${action.url as string}]]></Url>`;
-					xml += '</CardAction>';
-				}
-
-				if (card.TaskId) {
-					xml += `<TaskId><![CDATA[${card.TaskId as string}]]></TaskId>`;
-				}
-
-				if (card.ReplaceText) {
-					xml += `<ReplaceText><![CDATA[${card.ReplaceText as string}]]></ReplaceText>`;
-				}
-
-				if (card.ButtonList) {
-					const buttonList = card.ButtonList as Array<Record<string, unknown>>;
-					xml += '<ButtonList>';
-					for (const btn of buttonList) {
-						xml += '<Button>';
-						if (btn.text) xml += `<Text><![CDATA[${btn.text as string}]]></Text>`;
-						if (btn.style) xml += `<Style>${btn.style as number}</Style>`;
-						if (btn.key) xml += `<Key><![CDATA[${btn.key as string}]]></Key>`;
-						xml += '</Button>';
-					}
-					xml += '</ButtonList>';
-				}
-
-				if (card.Checkbox) {
-					const checkbox = card.Checkbox as Record<string, unknown>;
-					xml += '<Checkbox>';
-					if (checkbox.QuestionKey) xml += `<QuestionKey><![CDATA[${checkbox.QuestionKey as string}]]></QuestionKey>`;
-					if (checkbox.Mode) xml += `<Mode><![CDATA[${checkbox.Mode as string}]]></Mode>`;
-					if (checkbox.OptionList) {
-						const options = checkbox.OptionList as Array<Record<string, unknown>>;
-						xml += '<OptionList>';
-						for (const opt of options) {
-							xml += '<Option>';
-							if (opt.id) xml += `<Id><![CDATA[${opt.id as string}]]></Id>`;
-							if (opt.text) xml += `<Text><![CDATA[${opt.text as string}]]></Text>`;
-							xml += '</Option>';
-						}
-						xml += '</OptionList>';
-					}
-					xml += '</Checkbox>';
-				}
-
-				if (card.SubmitButton) {
-					const submitBtn = card.SubmitButton as Record<string, unknown>;
-					xml += '<SubmitButton>';
-					if (submitBtn.Text) xml += `<Text><![CDATA[${submitBtn.Text as string}]]></Text>`;
-					if (submitBtn.Key) xml += `<Key><![CDATA[${submitBtn.Key as string}]]></Key>`;
-					xml += '</SubmitButton>';
-				}
-
-				if (card.ImageTextArea) {
-					const imageText = card.ImageTextArea as Record<string, unknown>;
-					xml += '<ImageTextArea>';
-					if (imageText.type) xml += `<Type>${imageText.type as number}</Type>`;
-					if (imageText.url) xml += `<Url><![CDATA[${imageText.url as string}]]></Url>`;
-					if (imageText.title) xml += `<Title><![CDATA[${imageText.title as string}]]></Title>`;
-					if (imageText.desc) xml += `<Desc><![CDATA[${imageText.desc as string}]]></Desc>`;
-					if (imageText.image_url) xml += `<ImageUrl><![CDATA[${imageText.image_url as string}]]></ImageUrl>`;
-					xml += '</ImageTextArea>';
-				}
-
-				if (card.ActionMenu) {
-					const actionMenu = card.ActionMenu as Record<string, unknown>;
-					xml += '<ActionMenu>';
-					if (actionMenu.desc) xml += `<Desc><![CDATA[${actionMenu.desc as string}]]></Desc>`;
-					if (actionMenu.action_list) {
-						const actions = actionMenu.action_list as Array<Record<string, unknown>>;
-						xml += '<ActionList>';
-						for (const act of actions) {
-							xml += '<Action>';
-							if (act.text) xml += `<Text><![CDATA[${act.text as string}]]></Text>`;
-							if (act.key) xml += `<Key><![CDATA[${act.key as string}]]></Key>`;
-							xml += '</Action>';
-						}
-						xml += '</ActionList>';
-					}
-					xml += '</ActionMenu>';
-				}
-
-				xml += '</TemplateCard>';
+			const source = asRecord(card.source);
+			if (source) {
+				xml += '<Source>' +
+					cdataTag('IconUrl', source.icon_url) +
+					cdataTag('Desc', source.desc) +
+					textTag('DescColor', source.desc_color) +
+					'</Source>';
 			}
+			const mainTitle = asRecord(card.main_title);
+			if (mainTitle) {
+				xml += '<MainTitle>' +
+					cdataTag('Title', mainTitle.title) +
+					cdataTag('Desc', mainTitle.desc) +
+					'</MainTitle>';
+			}
+			const emphasis = asRecord(card.emphasis_content);
+			if (emphasis) {
+				xml += '<EmphasisContent>' +
+					cdataTag('Title', emphasis.title) +
+					cdataTag('Desc', emphasis.desc) +
+					'</EmphasisContent>';
+			}
+			const quote = asRecord(card.quote_area);
+			if (quote) {
+				xml += '<QuoteArea>' +
+					linkFields(quote) +
+					cdataTag('Title', quote.title) +
+					cdataTag('QuoteText', quote.quote_text) +
+					'</QuoteArea>';
+			}
+			xml += cdataTag('SubTitleText', card.sub_title_text);
+
+			for (const item of asRecords(card.horizontal_content_list)) {
+				xml += '<HorizontalContentList>' +
+					cdataTag('KeyName', item.keyname) +
+					cdataTag('Value', item.value) +
+					textTag('Type', item.type) +
+					cdataTag('Url', item.url) +
+					cdataTag('MediaId', item.media_id) +
+					cdataTag('UserId', item.userid) +
+					'</HorizontalContentList>';
+			}
+			for (const jump of asRecords(card.jump_list)) {
+				xml += '<JumpList>' +
+					cdataTag('Title', jump.title) +
+					linkFields(jump) +
+					'</JumpList>';
+			}
+			const cardAction = asRecord(card.card_action);
+			if (cardAction) xml += `<CardAction>${linkFields(cardAction)}</CardAction>`;
+
+			const cardImage = asRecord(card.card_image);
+			if (cardImage) {
+				xml += '<CardImage>' +
+					cdataTag('Url', cardImage.url) +
+					textTag('AspectRatio', cardImage.aspect_ratio) +
+					'</CardImage>';
+			}
+			const imageText = asRecord(card.image_text_area);
+			if (imageText) {
+				xml += '<ImageTextArea>' +
+					linkFields(imageText) +
+					cdataTag('Title', imageText.title) +
+					cdataTag('Desc', imageText.desc) +
+					cdataTag('ImageUrl', imageText.image_url) +
+					'</ImageTextArea>';
+			}
+			for (const item of asRecords(card.vertical_content_list)) {
+				xml += '<VerticalContentList>' +
+					cdataTag('Title', item.title) +
+					cdataTag('Desc', item.desc) +
+					'</VerticalContentList>';
+			}
+
+			for (const button of asRecords(card.button_list)) {
+				xml += '<ButtonList>' +
+					cdataTag('Text', button.text) +
+					textTag('Style', button.style) +
+					cdataTag('Key', button.key) +
+					'</ButtonList>';
+			}
+			const buttonSelection = asRecord(card.button_selection);
+			if (buttonSelection) {
+				xml += '<ButtonSelection>' +
+					cdataTag('QuestionKey', buttonSelection.question_key) +
+					cdataTag('Title', buttonSelection.title) +
+					cdataTag('SelectedId', buttonSelection.selected_id) +
+					textTag('Disable', buttonSelection.disable ?? false) +
+					optionListXml(buttonSelection.option_list, false) +
+					'</ButtonSelection>';
+			}
+			const checkbox = asRecord(card.checkbox);
+			if (checkbox) {
+				xml += '<CheckBox>' +
+					cdataTag('QuestionKey', checkbox.question_key) +
+					optionListXml(checkbox.option_list, true) +
+					textTag('Disable', checkbox.disable ?? false) +
+					textTag('Mode', checkbox.mode ?? 0) +
+					'</CheckBox>';
+			}
+			for (const selector of asRecords(card.select_list)) {
+				xml += '<SelectList>' +
+					cdataTag('QuestionKey', selector.question_key) +
+					cdataTag('Title', selector.title) +
+					cdataTag('SelectedId', selector.selected_id) +
+					textTag('Disable', selector.disable ?? false) +
+					optionListXml(selector.option_list, false) +
+					'</SelectList>';
+			}
+			const submitButton = asRecord(card.submit_button);
+			if (submitButton) {
+				xml += '<SubmitButton>' +
+					cdataTag('Text', submitButton.text) +
+					cdataTag('Key', submitButton.key) +
+					'</SubmitButton>';
+			}
+			xml += cdataTag('ReplaceText', card.replace_text);
+
+			const actionMenu = asRecord(card.action_menu);
+			if (actionMenu) {
+				xml += '<ActionMenu>' + cdataTag('Desc', actionMenu.desc);
+				for (const action of asRecords(actionMenu.action_list)) {
+					xml += '<ActionList>' +
+						cdataTag('Text', action.text) +
+						cdataTag('Key', action.key) +
+						'</ActionList>';
+				}
+				xml += '</ActionMenu>';
+			}
+
+			xml += '</TemplateCard>';
 			break;
+		}
 	}
 
 	xml += '</xml>';

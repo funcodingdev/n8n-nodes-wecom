@@ -1,4 +1,5 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
+import { NodeOperationError } from 'n8n-workflow';
 import { getRegisterCode } from './getRegisterCode';
 import { getRegisterInfo } from './getRegisterInfo';
 import { setAgentScope } from './setAgentScope';
@@ -29,7 +30,9 @@ export async function executePromotionQrcode(
 					responseData = await setContactSyncSuccess.call(this, i);
 					break;
 				default:
-					throw new Error(`未知操作: ${operation}`);
+					throw new NodeOperationError(this.getNode(), `不支持的推广二维码操作: ${operation}`, {
+						itemIndex: i,
+					});
 			}
 
 			returnData.push({

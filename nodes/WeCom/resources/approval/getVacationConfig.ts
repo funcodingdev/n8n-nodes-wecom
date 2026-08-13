@@ -19,4 +19,3 @@ export const getVacationConfigDescription: INodeProperties[] = [
 		description: '获取企业假期管理配置信息，此操作无需额外参数',
 	},
 ];
-

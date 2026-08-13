@@ -1,4 +1,5 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
+import { NodeOperationError } from 'n8n-workflow';
 import { createOrder } from './createOrder';
 import { cancelOrder } from './cancelOrder';
 import { getOrderList } from './getOrderList';
@@ -44,7 +45,9 @@ export async function executePaytool(
 					responseData = await getBillList.call(this, i);
 					break;
 				default:
-					throw new Error(`未知操作: ${operation}`);
+					throw new NodeOperationError(this.getNode(), `未知操作: ${operation}`, {
+						itemIndex: i,
+					});
 			}
 
 			returnData.push({
@@ -61,7 +64,10 @@ export async function executePaytool(
 					pairedItem: { item: i },
 				});
 			} else {
-				throw error;
+				if (error instanceof NodeOperationError) throw error;
+				throw new NodeOperationError(this.getNode(), (error as Error).message, {
+					itemIndex: i,
+				});
 			}
 		}
 	}

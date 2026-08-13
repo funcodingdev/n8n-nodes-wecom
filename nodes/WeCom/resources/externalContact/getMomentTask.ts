@@ -32,12 +32,13 @@ export const getMomentTaskDescription: INodeProperties[] = [
 		type: 'number',
 		typeOptions: {
 			minValue: 1,
+			maxValue: 1000,
+			numberStepSize: 1,
 		},
-		default: 50,
+		default: 500,
 		displayOptions: {
 			show: showOnly,
 		},
-		description: 'Max number of results to return。返回的最大记录数，整型，最大值1000',
+		description: '返回的最大记录数，默认 500，最大 1000',
 	},
 ];
-

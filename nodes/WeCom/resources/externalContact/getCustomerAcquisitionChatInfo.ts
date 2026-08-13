@@ -13,7 +13,7 @@ export const getCustomerAcquisitionChatInfoDescription: INodeProperties[] = [
 		required: true,
 		default: '',
 		displayOptions: { show: showOnly },
-		description: '成员多次收消息事件中回调的会话信息凭据ChatKey，回调后30分钟内有效',
+		description: '“成员多次收消息”事件回调中的 ChatKey，回调后仅 30 分钟内有效，请及时调用',
 		placeholder: 'CHAT_KEY',
 	},
 ];

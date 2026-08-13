@@ -6,17 +6,34 @@ const show = (ops: string[]) => ({
 
 export const chunkUploadOpsDescription: INodeProperties[] = [
 	{
+		displayName: '上传位置方式',
+		name: 'uploadLocationMethod',
+		type: 'options',
+		required: true,
+		displayOptions: show(['uploadInit']),
+		default: 'space',
+		options: [
+			{ name: '空间和文件夹', value: 'space' },
+			{ name: '选择凭证', value: 'ticket' },
+		],
+	},
+	{
 		displayName: '空间ID',
 		name: 'spaceId',
 		type: 'string',
-		displayOptions: show(['uploadInit', 'getCapacity']),
+		required: true,
+		displayOptions: {
+			show: { resource: ['wefile'], operation: ['uploadInit'], uploadLocationMethod: ['space'] },
+		},
 		default: '',
 	},
 	{
 		displayName: '父目录ID',
 		name: 'fatherId',
 		type: 'string',
-		displayOptions: show(['uploadInit']),
+		displayOptions: {
+			show: { resource: ['wefile'], operation: ['uploadInit'], uploadLocationMethod: ['space'] },
+		},
 		default: '',
 		description: '根目录时为 spaceid',
 	},
@@ -24,9 +41,12 @@ export const chunkUploadOpsDescription: INodeProperties[] = [
 		displayName: '选择凭证',
 		name: 'selectedTicket',
 		type: 'string',
-		displayOptions: show(['uploadInit']),
+		required: true,
+		displayOptions: {
+			show: { resource: ['wefile'], operation: ['uploadInit'], uploadLocationMethod: ['ticket'] },
+		},
 		default: '',
-		description: 'selected_ticket，与 spaceid/fatherid 二选一',
+		description: '微盘文件选择器返回的 selected_ticket',
 	},
 	{
 		displayName: '文件名',
@@ -43,7 +63,8 @@ export const chunkUploadOpsDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: show(['uploadInit']),
 		default: 0,
-		description: 'size，最大支持 20G',
+		typeOptions: { minValue: 1, maxValue: 21474836480 },
+		description: '文件字节数，最大 20GiB',
 	},
 	{
 		displayName: '分块SHA列表',
@@ -52,7 +73,7 @@ export const chunkUploadOpsDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: show(['uploadInit']),
 		default: '',
-		description: 'block_sha，逗号分隔的分块累积 sha（顺序）',
+		description: '每个 2MiB 分块的累积 SHA-1（40 位十六进制），可用逗号、中文逗号、竖线或换行分隔',
 	},
 	{
 		displayName: '跳过推送卡片',
@@ -77,6 +98,7 @@ export const chunkUploadOpsDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: show(['uploadPart']),
 		default: 1,
+		typeOptions: { minValue: 1, maxValue: 10240 },
 		description: 'index，从 1 开始',
 	},
 	{
@@ -87,5 +109,6 @@ export const chunkUploadOpsDescription: INodeProperties[] = [
 		displayOptions: show(['uploadPart']),
 		default: '',
 		typeOptions: { rows: 3 },
+		description: '纯 Base64 分块内容，不含 data URL 前缀，解码后最大 2MiB',
 	},
 ];

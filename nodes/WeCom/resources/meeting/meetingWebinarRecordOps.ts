@@ -139,11 +139,9 @@ export const webinarRecordOperationOptions = [
 	},
 ];
 
-const webinarMeetingOps = [
-	'webinarGet',
+const requiredMeetingIdOps = [
 	'webinarUpdate',
 	'webinarCancel',
-	'webinarListGuest',
 	'webinarUpdateGuestList',
 	'webinarUpdateWarmUp',
 	'webinarEnrollGetConfig',
@@ -153,13 +151,8 @@ const webinarMeetingOps = [
 	'webinarEnrollImport',
 	'webinarEnrollDelete',
 	'webinarEnrollQueryByTmpOpenid',
-];
-
-const recordMeetingOps = [
 	'recordDelete',
 	'recordDeleteFile',
-	'recordGetFileList',
-	'recordGetStatistics',
 	'recordUpdateSharingConfig',
 	'recordTranscriptGetDetail',
 	'recordTranscriptGetParagraphList',
@@ -168,7 +161,6 @@ const recordMeetingOps = [
 
 const recordFileOps = [
 	'recordDeleteFile',
-	'recordUpdateSharingConfig',
 	'recordTranscriptGetDetail',
 	'recordTranscriptGetParagraphList',
 	'recordTranscriptSearch',
@@ -482,18 +474,29 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		displayName: '会议ID',
 		name: 'webinar_meetingid',
 		type: 'string',
+		required: true,
 		displayOptions: {
-			show: { resource: ['meeting'], operation: [...webinarMeetingOps, ...recordMeetingOps] },
+			show: { resource: ['meeting'], operation: requiredMeetingIdOps },
 		},
 		default: '',
-		description: '会议 / 研讨会 ID（webinarGet 可与会议号二选一）',
+		description: '会议 / 研讨会 ID',
+	},
+	{
+		displayName: '会议ID',
+		name: 'webinar_meetingid',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarGet', 'webinarListGuest', 'recordGetFileList'] },
+		},
+		default: '',
+		description: '与会议号二选一；录制列表还可改用成员 UserID',
 	},
 	{
 		displayName: '会议号',
 		name: 'meeting_code',
 		type: 'string',
 		displayOptions: {
-			show: { resource: ['meeting'], operation: ['webinarGet', 'recordGetFileList'] },
+			show: { resource: ['meeting'], operation: ['webinarGet', 'webinarListGuest', 'recordGetFileList'] },
 		},
 		default: '',
 		description: '会议号；获取详情时与会议 ID 二选一',
@@ -502,6 +505,7 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		displayName: '录制文件ID',
 		name: 'webinar_record_file_id',
 		type: 'string',
+		required: true,
 		displayOptions: { show: { resource: ['meeting'], operation: recordFileOps } },
 		default: '',
 		description: '录制文件 ID',
@@ -518,6 +522,7 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		displayName: '查询开始时间',
 		name: 'record_start_time',
 		type: 'dateTime',
+		required: true,
 		displayOptions: { show: { resource: ['meeting'], operation: ['recordGetFileList'] } },
 		default: '',
 		description: '查询起始时间；区间跨度不超过 31 天',
@@ -526,6 +531,7 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		displayName: '查询结束时间',
 		name: 'record_end_time',
 		type: 'dateTime',
+		required: true,
 		displayOptions: { show: { resource: ['meeting'], operation: ['recordGetFileList'] } },
 		default: '',
 		description: '查询结束时间；区间跨度不超过 31 天',
@@ -534,6 +540,7 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		displayName: '搜索文本',
 		name: 'transcript_text',
 		type: 'string',
+		required: true,
 		displayOptions: {
 			show: { resource: ['meeting'], operation: ['recordTranscriptSearch'] },
 		},
@@ -547,7 +554,7 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['meeting'],
-				operation: ['recordTranscriptGetDetail', 'recordTranscriptGetParagraphList'],
+				operation: ['recordTranscriptGetDetail'],
 			},
 		},
 		default: '',
@@ -561,11 +568,9 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 			show: {
 				resource: ['meeting'],
 				operation: [
-					'webinarListGuest',
 					'webinarEnrollList',
 					'recordGetFileList',
 					'recordTranscriptGetDetail',
-					'recordTranscriptGetParagraphList',
 				],
 			},
 		},
@@ -579,7 +584,7 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['meeting'],
-				operation: ['webinarListGuest', 'webinarEnrollList', 'recordGetFileList'],
+				operation: ['webinarEnrollList', 'recordGetFileList'],
 			},
 		},
 		default: '',
@@ -658,6 +663,20 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		},
 		default: '[]',
 		description: '若填写非空数组则覆盖上方表单嘉宾列表',
+	},
+	{
+		displayName: '审批状态',
+		name: 'webinar_enroll_status',
+		type: 'options',
+		displayOptions: { show: { resource: ['meeting'], operation: ['webinarEnrollList'] } },
+		options: [
+			{ name: '全部', value: 0 },
+			{ name: '待审批', value: 1 },
+			{ name: '已拒绝', value: 2 },
+			{ name: '已批准', value: 3 },
+		],
+		default: 0,
+		description: 'status，默认返回全部报名信息',
 	},
 	{
 		displayName: '审批方式',
@@ -908,22 +927,37 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		description: 'end_time；区间不超过 31 天',
 	},
 	{
+		displayName: '暖场素材',
+		name: 'warm_up_type',
+		type: 'options',
+		displayOptions: { show: { resource: ['meeting'], operation: ['webinarUpdateWarmUp'] } },
+		options: [
+			{ name: '不设置/清除', value: 'none' },
+			{ name: '暖场图片', value: 'picture' },
+			{ name: '暖场视频', value: 'video' },
+		],
+		default: 'none',
+		description: '图片和视频只能选择一种',
+	},
+	{
 		displayName: '暖场图片URL',
 		name: 'warm_up_picture',
 		type: 'string',
 		displayOptions: {
-			show: { resource: ['meeting'], operation: ['webinarUpdateWarmUp'] },
+			show: { resource: ['meeting'], operation: ['webinarUpdateWarmUp'], warm_up_type: ['picture'] },
 		},
+		required: true,
 		default: '',
-		description: '与暖场视频二选一，同时传则以图片为准',
+		description: '支持 HTTP(S) 图片地址',
 	},
 	{
 		displayName: '暖场视频URL',
 		name: 'warm_up_video',
 		type: 'string',
 		displayOptions: {
-			show: { resource: ['meeting'], operation: ['webinarUpdateWarmUp'] },
+			show: { resource: ['meeting'], operation: ['webinarUpdateWarmUp'], warm_up_type: ['video'] },
 		},
+		required: true,
 		default: '',
 	},
 	{
@@ -950,7 +984,7 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		name: 'sharing_auth_type',
 		type: 'options',
 		displayOptions: {
-			show: { resource: ['meeting'], operation: ['recordUpdateSharingConfig'] },
+			show: { resource: ['meeting'], operation: ['recordUpdateSharingConfig'], sharing_enable_sharing: [true] },
 		},
 		options: [
 			{ name: '仅允许登录成员查看', value: 0 },
@@ -968,7 +1002,7 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		name: 'sharing_enable_password',
 		type: 'boolean',
 		displayOptions: {
-			show: { resource: ['meeting'], operation: ['recordUpdateSharingConfig'] },
+			show: { resource: ['meeting'], operation: ['recordUpdateSharingConfig'], sharing_enable_sharing: [true] },
 		},
 		default: false,
 	},
@@ -976,6 +1010,7 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		displayName: '分享密码',
 		name: 'sharing_password',
 		type: 'string',
+		required: true,
 		typeOptions: { password: true },
 		displayOptions: {
 			show: {
@@ -987,11 +1022,37 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
+		displayName: '开启分享有效期',
+		name: 'sharing_enable_expire',
+		type: 'boolean',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['recordUpdateSharingConfig'], sharing_enable_sharing: [true] },
+		},
+		default: false,
+		description: 'sharing_config.enable_sharing_expire',
+	},
+	{
+		displayName: '分享链接有效期',
+		name: 'sharing_expire',
+		type: 'dateTime',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['meeting'],
+				operation: ['recordUpdateSharingConfig'],
+				sharing_enable_sharing: [true],
+				sharing_enable_expire: [true],
+			},
+		},
+		default: '',
+		description: 'sharing_config.sharing_expire，发送毫秒级 Unix 时间戳',
+	},
+	{
 		displayName: '允许下载',
 		name: 'sharing_allow_download',
 		type: 'boolean',
 		displayOptions: {
-			show: { resource: ['meeting'], operation: ['recordUpdateSharingConfig'] },
+			show: { resource: ['meeting'], operation: ['recordUpdateSharingConfig'], sharing_enable_sharing: [true] },
 		},
 		default: false,
 	},

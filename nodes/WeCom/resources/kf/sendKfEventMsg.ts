@@ -17,7 +17,15 @@ const showOnlyForSendKfEventMsg = {
 
 export const sendKfEventMsgDescription: INodeProperties[] = [
 	{
-		displayName: '消息来源Code',
+		displayName: '事件响应限制',
+		name: 'sendKfEventMsgNotice',
+		type: 'notice',
+		displayOptions: { show: showOnlyForSendKfEventMsg },
+		default: '',
+		description: '事件 Code 具有场景、会话状态和有效期限制，且通过事件回调下发的 Code 仅可使用一次；欢迎语与结束语 Code 通常仅 20 秒有效。<a href="https://developer.work.weixin.qq.com/document/path/95122" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '事件响应 Code',
 		name: 'code',
 		type: 'string',
 		required: true,
@@ -27,6 +35,15 @@ export const sendKfEventMsgDescription: INodeProperties[] = [
 		default: '',
 		description: '事件响应消息对应的code，通过事件推送下发（如进入会话事件）',
 		placeholder: 'CODE_FROM_EVENT',
+	},
+	{
+		displayName: '消息 ID',
+		name: 'msgid',
+		type: 'string',
+		displayOptions: { show: showOnlyForSendKfEventMsg },
+		default: '',
+		description: '可选，最多 32 字节，仅支持数字、大小写字母、下划线和连字符',
+		placeholder: 'welcome_001',
 	},
 	{
 		displayName: '消息类型',
@@ -74,10 +91,9 @@ export const sendKfEventMsgDescription: INodeProperties[] = [
 
 	// ==================== 菜单消息参数 ====================
 	{
-		displayName: '菜单标题',
+		displayName: '菜单起始文本',
 		name: 'msgmenu_head_content',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: {
 				...showOnlyForSendKfEventMsg,
@@ -85,7 +101,7 @@ export const sendKfEventMsgDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '菜单消息头部文案',
+		description: '可选，最多 1024 字节；与菜单项、结束文本至少填写一项',
 		placeholder: '请选择您需要的服务：',
 	},
 	{
@@ -95,7 +111,6 @@ export const sendKfEventMsgDescription: INodeProperties[] = [
 		typeOptions: {
 			multipleValues: true,
 		},
-		required: true,
 		displayOptions: {
 			show: {
 				...showOnlyForSendKfEventMsg,
@@ -103,7 +118,7 @@ export const sendKfEventMsgDescription: INodeProperties[] = [
 			},
 		},
 		default: {},
-		description: '菜单项列表，最多3个',
+		description: '最多 10 个菜单项',
 		placeholder: '添加菜单项',
 		options: [
 			{
@@ -124,7 +139,7 @@ export const sendKfEventMsgDescription: INodeProperties[] = [
 						placeholder: 'menu_101',
 					},
 					{
-						displayName: '小程序AppID',
+						displayName: '小程序 AppID',
 						name: 'appid',
 						type: 'string',
 						default: '',
@@ -147,7 +162,7 @@ export const sendKfEventMsgDescription: INodeProperties[] = [
 							},
 						},
 						description: '小程序的页面路径',
-						placeholder: 'pages/index/index',
+						placeholder: 'pages/index.html',
 					},
 					{
 						displayName: '菜单文案',
@@ -188,7 +203,7 @@ export const sendKfEventMsgDescription: INodeProperties[] = [
 						description: '菜单项的类型',
 					},
 					{
-						displayName: '跳转URL',
+						displayName: '跳转 URL',
 						name: 'url',
 						type: 'string',
 						default: '',
@@ -227,7 +242,7 @@ export const sendKfEventMsgDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '菜单消息尾部文案（可选）',
+		description: '可选，最多 1024 字节；与起始文本、菜单项至少填写一项',
 		placeholder: '如有其他问题请直接回复',
 	},
 ];

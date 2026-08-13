@@ -39,7 +39,7 @@ export const sendMiniprogramNoticeDescription: INodeProperties[] = [
 		},
 
 		description:
-			'可选。使用JSON直接输入miniprogram_notice对象。<a href="https://developer.work.weixin.qq.com/document/path/90236#小程序通知消息" target="_blank">官方文档</a>',
+			'使用 JSON 直接输入 miniprogram_notice 对象。<a href="https://developer.work.weixin.qq.com/document/path/90236#小程序通知消息" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '小程序Appid',
@@ -174,7 +174,6 @@ export const sendMiniprogramNoticeDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				...showOnlySendMiniprogramNotice,
-				miniprogram_notice_input_mode: ['form'],
 			},
 		},
 		description:
@@ -188,7 +187,6 @@ export const sendMiniprogramNoticeDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				...showOnlySendMiniprogramNotice,
-				miniprogram_notice_input_mode: ['form'],
 			},
 		},
 		description:
@@ -203,7 +201,6 @@ export const sendMiniprogramNoticeDescription: INodeProperties[] = [
 			show: {
 				...showOnlySendMiniprogramNotice,
 				enable_duplicate_check: [true],
-				miniprogram_notice_input_mode: ['form'],
 			},
 		},
 		typeOptions: {

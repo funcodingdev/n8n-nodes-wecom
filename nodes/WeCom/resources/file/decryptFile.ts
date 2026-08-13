@@ -7,6 +7,14 @@ const showOnly = {
 
 export const decryptFileDescription: INodeProperties[] = [
 	{
+		displayName:
+			'请使用智能机器人回调返回的 5 分钟有效 URL，并选择与该机器人回调配置一致的 EncodingAESKey 凭证。URL 模式仅访问企业微信文档中的 myqcloud.com HTTPS 地址，且不跟随重定向。',
+		name: 'decryptFileNotice',
+		type: 'notice',
+		displayOptions: { show: showOnly },
+		default: '',
+	},
+	{
 		displayName: '输入方式',
 		name: 'inputType',
 		type: 'options',
@@ -62,10 +70,7 @@ export const decryptFileDescription: INodeProperties[] = [
 		name: 'outputFormat',
 		type: 'options',
 		displayOptions: {
-			show: {
-				...showOnly,
-				inputType: ['binary'],
-			},
+			show: showOnly,
 		},
 		options: [
 			{
@@ -81,5 +86,63 @@ export const decryptFileDescription: INodeProperties[] = [
 		],
 		default: 'binary',
 		description: '选择解密后文件的输出格式。默认返回二进制文件，可直接用于后续节点',
+	},
+	{
+		displayName: '输出二进制属性',
+		name: 'outputBinaryProperty',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: {
+				...showOnly,
+				outputFormat: ['binary'],
+			},
+		},
+		default: 'data',
+		description: '用于存放解密文件的输出二进制属性名',
+	},
+	{
+		displayName: '输出文件名',
+		name: 'outputFileName',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: {
+				...showOnly,
+				outputFormat: ['binary'],
+			},
+		},
+		default: 'decrypted-file',
+		typeOptions: { maxLength: 255 },
+		description: '解密文件的文件名，建议保留原始扩展名',
+	},
+	{
+		displayName: 'MIME 类型',
+		name: 'outputMimeType',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: {
+				...showOnly,
+				outputFormat: ['binary'],
+			},
+		},
+		default: 'application/octet-stream',
+		placeholder: 'application/pdf',
+		description: '解密文件的 MIME 类型，供后续节点识别文件格式',
+	},
+	{
+		displayName: 'Base64 输出字段名',
+		name: 'outputProperty',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: {
+				...showOnly,
+				outputFormat: ['base64'],
+			},
+		},
+		default: 'data',
+		description: '用于存放 Base64 字符串的 JSON 字段名。大文件会显著增加内存使用，建议使用二进制输出',
 	},
 ];

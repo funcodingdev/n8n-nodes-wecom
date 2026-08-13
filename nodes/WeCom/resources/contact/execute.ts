@@ -1,5 +1,49 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
+import { NodeOperationError } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
+
+function splitCsv(value: string, limit?: number): string[] {
+	const values = [
+		...new Set(
+			value
+				.split(',')
+				.map((item) => item.trim())
+				.filter(Boolean),
+		),
+	];
+	return limit === undefined ? values : values.slice(0, limit);
+}
+
+function parseIntegerCsv(
+	context: IExecuteFunctions,
+	value: string,
+	label: string,
+	itemIndex: number,
+	limit?: number,
+): number[] {
+	const values = splitCsv(value);
+	const invalid = values.find((item) => !/^\d+$/.test(item));
+	if (invalid !== undefined) {
+		throw new NodeOperationError(
+			context.getNode(),
+			`${label}必须是逗号分隔的非负整数，无效值：${invalid}`,
+			{ itemIndex },
+		);
+	}
+	const numbers = values.map(Number);
+	return limit === undefined ? numbers : numbers.slice(0, limit);
+}
+
+function requireAtLeastOne(
+	context: IExecuteFunctions,
+	values: string[],
+	message: string,
+	itemIndex: number,
+): void {
+	if (!values.some((value) => value.trim())) {
+		throw new NodeOperationError(context.getNode(), message, { itemIndex });
+	}
+}
 
 export async function executeContact(
 	this: IExecuteFunctions,
@@ -105,22 +149,23 @@ export async function executeContact(
 				const userid = this.getNodeParameter('userid', i) as string;
 				const name = this.getNodeParameter('name', i) as string;
 				const mobile = this.getNodeParameter('mobile', i, '') as string;
-				const department = this.getNodeParameter('department', i) as string;
-				const departmentArray = department.split(',').map((id) => parseInt(id.trim(), 10));
+				const email = this.getNodeParameter('email', i, '') as string;
+				const department = this.getNodeParameter('department', i, '') as string;
+				const departmentArray = parseIntegerCsv(this, department, '所属部门 ID', i, 100);
+				requireAtLeastOne(this, [mobile, email], '请至少填写手机号或邮箱', i);
 
 				const body: IDataObject = {
 					userid,
 					name,
-					department: departmentArray,
 				};
+				if (departmentArray.length) body.department = departmentArray;
 
 				// 可选字段
 				if (mobile) body.mobile = mobile;
 				const position = this.getNodeParameter('position', i, '') as string;
 				if (position) body.position = position;
-				const gender = this.getNodeParameter('gender', i, '0') as string;
+				const gender = this.getNodeParameter('gender', i, '') as string;
 				if (gender) body.gender = gender;
-				const email = this.getNodeParameter('email', i, '') as string;
 				if (email) body.email = email;
 				const biz_mail = this.getNodeParameter('biz_mail', i, '') as string;
 				if (biz_mail) body.biz_mail = biz_mail;
@@ -180,15 +225,41 @@ export async function executeContact(
 				body.to_invite = to_invite;
 				const order = this.getNodeParameter('order', i, '') as string;
 				if (order) {
-					body.order = order.split(',').map((val) => parseInt(val.trim(), 10));
+					const orderValues = parseIntegerCsv(this, order, '部门排序值', i, 100);
+					if (!departmentArray.length || orderValues.length !== departmentArray.length) {
+						throw new NodeOperationError(
+							this.getNode(),
+							'部门排序值数量必须与所属部门数量一致',
+							{ itemIndex: i },
+						);
+					}
+					body.order = orderValues;
 				}
 				const is_leader_in_dept = this.getNodeParameter('is_leader_in_dept', i, '') as string;
 				if (is_leader_in_dept) {
-					body.is_leader_in_dept = is_leader_in_dept.split(',').map((val) => parseInt(val.trim(), 10));
+					const leaderValues = parseIntegerCsv(
+						this,
+						is_leader_in_dept,
+						'部门负责人标识',
+						i,
+						100,
+					);
+					if (
+						leaderValues.some((value) => value !== 0 && value !== 1) ||
+						!departmentArray.length ||
+						leaderValues.length !== departmentArray.length
+					) {
+						throw new NodeOperationError(
+							this.getNode(),
+							'部门负责人标识只能为 0 或 1，且数量必须与所属部门一致',
+							{ itemIndex: i },
+						);
+					}
+					body.is_leader_in_dept = leaderValues;
 				}
 				const direct_leader = this.getNodeParameter('direct_leader', i, '') as string;
 				if (direct_leader) {
-					body.direct_leader = direct_leader.split(',').map((id) => id.trim());
+					body.direct_leader = splitCsv(direct_leader, 1);
 				}
 				const main_department = this.getNodeParameter('main_department', i, 0) as number;
 				if (main_department) {
@@ -230,8 +301,9 @@ export async function executeContact(
 				const mobile = this.getNodeParameter('mobile', i, '') as string;
 				if (mobile) body.mobile = mobile;
 				const department = this.getNodeParameter('department', i, '') as string;
+				const departmentArray = parseIntegerCsv(this, department, '所属部门 ID', i, 100);
 				if (department) {
-					body.department = department.split(',').map((id) => parseInt(id.trim(), 10));
+					body.department = departmentArray;
 				}
 				const position = this.getNodeParameter('position', i, '') as string;
 				if (position) body.position = position;
@@ -247,8 +319,8 @@ export async function executeContact(
 				if (alias) body.alias = alias;
 				const telephone = this.getNodeParameter('telephone', i, '') as string;
 				if (telephone) body.telephone = telephone;
-				const enable = this.getNodeParameter('enable', i, undefined) as number | undefined;
-				if (enable !== undefined) body.enable = enable;
+				const enable = this.getNodeParameter('enable', i, -1) as number;
+				if (enable === 0 || enable === 1) body.enable = enable;
 				const avatar_mediaid = this.getNodeParameter('avatar_mediaid', i, '') as string;
 				if (avatar_mediaid) body.avatar_mediaid = avatar_mediaid;
 				const external_corp_name = this.getNodeParameter('external_corp_name', i, '') as string;
@@ -295,15 +367,41 @@ export async function executeContact(
 				if (Object.keys(profile).length) body.external_profile = profile;
 				const order = this.getNodeParameter('order', i, '') as string;
 				if (order) {
-					body.order = order.split(',').map((val) => parseInt(val.trim(), 10));
+					const orderValues = parseIntegerCsv(this, order, '部门排序值', i, 100);
+					if (!departmentArray.length || orderValues.length !== departmentArray.length) {
+						throw new NodeOperationError(
+							this.getNode(),
+							'更新部门排序值时必须同时填写所属部门，且数量一致',
+							{ itemIndex: i },
+						);
+					}
+					body.order = orderValues;
 				}
 				const is_leader_in_dept = this.getNodeParameter('is_leader_in_dept', i, '') as string;
 				if (is_leader_in_dept) {
-					body.is_leader_in_dept = is_leader_in_dept.split(',').map((val) => parseInt(val.trim(), 10));
+					const leaderValues = parseIntegerCsv(
+						this,
+						is_leader_in_dept,
+						'部门负责人标识',
+						i,
+						100,
+					);
+					if (
+						leaderValues.some((value) => value !== 0 && value !== 1) ||
+						!departmentArray.length ||
+						leaderValues.length !== departmentArray.length
+					) {
+						throw new NodeOperationError(
+							this.getNode(),
+							'更新部门负责人时必须同时填写所属部门；标识只能为 0 或 1，且数量一致',
+							{ itemIndex: i },
+						);
+					}
+					body.is_leader_in_dept = leaderValues;
 				}
 				const direct_leader = this.getNodeParameter('direct_leader', i, '') as string;
 				if (direct_leader) {
-					body.direct_leader = direct_leader.split(',').map((id) => id.trim());
+					body.direct_leader = splitCsv(direct_leader, 1);
 				}
 				const main_department = this.getNodeParameter('main_department', i, 0) as number;
 				if (main_department) {
@@ -336,10 +434,7 @@ export async function executeContact(
 				}
 				const biz_mail_alias_list = this.getNodeParameter('biz_mail_alias_list', i, '') as string;
 				const biz_mail_alias = this.getNodeParameter('biz_mail_alias', i, '{}') as string;
-				const aliases = biz_mail_alias_list
-					.split(',')
-					.map((s) => s.trim())
-					.filter(Boolean);
+				const aliases = splitCsv(biz_mail_alias_list, 5);
 				if (aliases.length) body.biz_mail_alias = { item: aliases };
 				if (biz_mail_alias && biz_mail_alias !== '{}') {
 					try {
@@ -359,7 +454,12 @@ export async function executeContact(
 				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/user/delete', {}, { userid });
 			} else if (operation === 'batchDeleteUser') {
 				const useridlist = this.getNodeParameter('useridlist', i) as string;
-				const useridArray = useridlist.split(',').map((id) => id.trim());
+				const useridArray = splitCsv(useridlist, 200);
+				if (!useridArray.length) {
+					throw new NodeOperationError(this.getNode(), '请至少填写 1 个成员 UserID', {
+						itemIndex: i,
+					});
+				}
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/user/batchdelete', {
 					useridlist: useridArray,
 				});
@@ -377,15 +477,22 @@ export async function executeContact(
 				const user = this.getNodeParameter('user', i, '') as string;
 				const party = this.getNodeParameter('party', i, '') as string;
 				const tag = this.getNodeParameter('tag', i, '') as string;
+				const users = splitCsv(user, 1000);
+				const parties = parseIntegerCsv(this, party, '部门 ID', i, 100);
+				const tags = parseIntegerCsv(this, tag, '标签 ID', i, 100);
 
 				const body: IDataObject = {};
-				if (user) body.user = user.split(',').map((id) => id.trim());
-				if (party) body.party = party.split(',').map((id) => parseInt(id.trim(), 10));
-				if (tag) body.tag = tag.split(',').map((id) => parseInt(id.trim(), 10));
+				if (users.length) body.user = users;
+				if (parties.length) body.party = parties;
+				if (tags.length) body.tag = tags;
 
 				// user、party、tag三者不能同时为空
-				if (!user && !party && !tag) {
-					throw new Error('user、party、tag三者不能同时为空');
+				if (!users.length && !parties.length && !tags.length) {
+					throw new NodeOperationError(
+						this.getNode(),
+						'请至少填写 1 个成员、部门或标签 ID',
+						{ itemIndex: i },
+					);
 				}
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/batch/invite', body);
@@ -409,7 +516,7 @@ export async function executeContact(
 
 				const name_en = this.getNodeParameter('name_en', i, '') as string;
 				if (name_en) body.name_en = name_en;
-				const order = this.getNodeParameter('order', i, 1) as number;
+				const order = this.getNodeParameter('order', i, 0) as number;
 				if (order) body.order = order;
 				const id = this.getNodeParameter('id', i, '') as string;
 				if (id) body.id = parseInt(id, 10);
@@ -425,8 +532,10 @@ export async function executeContact(
 				if (name_en) body.name_en = name_en;
 				const parentid = this.getNodeParameter('parentid', i, '') as string;
 				if (parentid) body.parentid = parseInt(parentid, 10);
-				const order = this.getNodeParameter('order', i, undefined) as number | undefined;
-				if (order !== undefined) body.order = order;
+				const update_order = this.getNodeParameter('update_order', i, false) as boolean;
+				if (update_order) {
+					body.order = this.getNodeParameter('order', i, 1) as number;
+				}
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/department/update', body);
 			} else if (operation === 'deleteDepartment') {
@@ -462,30 +571,42 @@ export async function executeContact(
 				const tagid = this.getNodeParameter('tagid', i) as string;
 				const userlist = this.getNodeParameter('userlist', i, '') as string;
 				const partylist = this.getNodeParameter('partylist', i, '') as string;
+				const users = splitCsv(userlist, 1000);
+				const parties = parseIntegerCsv(this, partylist, '部门 ID', i, 100);
 
 				// userlist、partylist不能同时为空
-				if (!userlist && !partylist) {
-					throw new Error('userlist、partylist不能同时为空');
+				if (!users.length && !parties.length) {
+					throw new NodeOperationError(
+						this.getNode(),
+						'请至少填写 1 个成员 UserID 或部门 ID',
+						{ itemIndex: i },
+					);
 				}
 
 				const body: IDataObject = { tagid: parseInt(tagid, 10) };
-				if (userlist) body.userlist = userlist.split(',').map((id) => id.trim());
-				if (partylist) body.partylist = partylist.split(',').map((id) => parseInt(id.trim(), 10));
+				if (users.length) body.userlist = users;
+				if (parties.length) body.partylist = parties;
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/tag/addtagusers', body);
 			} else if (operation === 'delTagUsers') {
 				const tagid = this.getNodeParameter('tagid', i) as string;
 				const userlist = this.getNodeParameter('userlist', i, '') as string;
 				const partylist = this.getNodeParameter('partylist', i, '') as string;
+				const users = splitCsv(userlist, 1000);
+				const parties = parseIntegerCsv(this, partylist, '部门 ID', i, 100);
 
 				// userlist、partylist不能同时为空
-				if (!userlist && !partylist) {
-					throw new Error('userlist、partylist不能同时为空');
+				if (!users.length && !parties.length) {
+					throw new NodeOperationError(
+						this.getNode(),
+						'请至少填写 1 个成员 UserID 或部门 ID',
+						{ itemIndex: i },
+					);
 				}
 
 				const body: IDataObject = { tagid: parseInt(tagid, 10) };
-				if (userlist) body.userlist = userlist.split(',').map((id) => id.trim());
-				if (partylist) body.partylist = partylist.split(',').map((id) => parseInt(id.trim(), 10));
+				if (users.length) body.userlist = users;
+				if (parties.length) body.partylist = parties;
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/tag/deltagusers', body);
 			} else if (operation === 'batchSyncUser') {
@@ -546,21 +667,21 @@ export async function executeContact(
 				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/batch/getresult', {}, { jobid });
 			} else if (operation === 'exportSimpleUser') {
 				const encoding_aeskey = this.getNodeParameter('encoding_aeskey', i) as string;
-				const block_size = this.getNodeParameter('block_size', i, 106) as number;
+				const block_size = this.getNodeParameter('block_size', i, 1000000) as number;
 				const body: IDataObject = { encoding_aeskey };
 				if (block_size) body.block_size = block_size;
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/export/simple_user', body);
 			} else if (operation === 'exportUser') {
 				const encoding_aeskey = this.getNodeParameter('encoding_aeskey', i) as string;
-				const block_size = this.getNodeParameter('block_size', i, 106) as number;
+				const block_size = this.getNodeParameter('block_size', i, 1000000) as number;
 				const body: IDataObject = { encoding_aeskey };
 				if (block_size) body.block_size = block_size;
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/export/user', body);
 			} else if (operation === 'exportDepartment') {
 				const encoding_aeskey = this.getNodeParameter('encoding_aeskey', i) as string;
-				const block_size = this.getNodeParameter('block_size', i, 106) as number;
+				const block_size = this.getNodeParameter('block_size', i, 1000000) as number;
 				const body: IDataObject = { encoding_aeskey };
 				if (block_size) body.block_size = block_size;
 
@@ -568,7 +689,7 @@ export async function executeContact(
 			} else if (operation === 'exportTagUser') {
 				const tagid = this.getNodeParameter('tagid', i) as string;
 				const encoding_aeskey = this.getNodeParameter('encoding_aeskey', i) as string;
-				const block_size = this.getNodeParameter('block_size', i, 106) as number;
+				const block_size = this.getNodeParameter('block_size', i, 1000000) as number;
 				const body: IDataObject = { tagid: parseInt(tagid, 10), encoding_aeskey };
 				if (block_size) body.block_size = block_size;
 
@@ -600,4 +721,3 @@ export async function executeContact(
 
 	return returnData;
 }
-

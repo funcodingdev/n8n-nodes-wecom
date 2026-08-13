@@ -11,6 +11,7 @@ import {
 	WeComCrypto,
 	parseXML,
 } from '../WeCom/shared/crypto';
+import { weComReceiveApiTest } from '../WeCom/shared/credentialTest';
 
 /**
  * 企业微信消息接收触发器（被动回复模式）
@@ -38,6 +39,7 @@ export class WeComPassiveTrigger implements INodeType {
 			{
 				name: 'weComReceiveApi',
 				required: true,
+				testedBy: 'weComReceiveApiTest',
 			},
 		],
 		webhooks: [
@@ -45,6 +47,9 @@ export class WeComPassiveTrigger implements INodeType {
 				name: 'default',
 				httpMethod: 'POST',
 				responseMode: 'lastNode',
+				responseData: 'firstEntryJson',
+				responsePropertyName: 'responseXML',
+				responseContentType: 'application/xml',
 				path: '={{$parameter.path}}',
 				isFullPath: true,
 			},
@@ -58,7 +63,7 @@ export class WeComPassiveTrigger implements INodeType {
 		],
 		properties: [
 			{
-				displayName: 'Path',
+				displayName: '路径',
 				name: 'path',
 				type: 'string',
 				default: '',
@@ -166,6 +171,12 @@ export class WeComPassiveTrigger implements INodeType {
 				hint: '开启后会在输出中包含原始的 XML 字符串（解密后的XML）',
 			},
 		],
+	};
+
+	methods = {
+		credentialTest: {
+			weComReceiveApiTest,
+		},
 	};
 
 	webhookMethods = {
@@ -302,13 +313,6 @@ export class WeComPassiveTrigger implements INodeType {
 		if (returnRawData) {
 			outputData.rawXML = decryptedMsg;
 		}
-
-		// 添加加密信息供被动回复节点使用
-		outputData._wecomCrypto = {
-			token,
-			encodingAESKey,
-			corpId,
-		};
 
 		return {
 			workflowData: [

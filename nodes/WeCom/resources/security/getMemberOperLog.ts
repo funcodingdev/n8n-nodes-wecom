@@ -42,6 +42,7 @@ export const getMemberOperLogDescription: INodeProperties[] = [
 		},
 		description: '操作类型，不填表示全部',
 		options: [
+			{ name: '全部', value: 0 },
 			{ name: '添加外部联系人', value: 1 },
 			{ name: '删除外部联系人', value: 2 },
 			{ name: '标记企业客户', value: 3 },
@@ -60,7 +61,7 @@ export const getMemberOperLogDescription: INodeProperties[] = [
 			{ name: '封禁互通', value: 20 },
 			{ name: '锁定设备', value: 21 },
 		],
-		default: 1,
+		default: 0,
 	},
 	{
 		displayName: '操作者',

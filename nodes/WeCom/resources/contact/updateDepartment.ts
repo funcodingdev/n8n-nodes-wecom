@@ -52,14 +52,23 @@ export const updateDepartmentDescription: INodeProperties[] = [
 		description: '可选。父部门 ID，32位整型。如若要移动部门，需要有新父部门的管理权限。如果非必须的字段未指定，则不更新该字段。<a href="https://developer.work.weixin.qq.com/document/path/90206" target="_blank">官方文档</a>',
 	},
 	{
+		displayName: '更新次序值',
+		name: 'update_order',
+		type: 'boolean',
+		displayOptions: {
+			show: showOnlyForUpdateDept,
+		},
+		default: false,
+		description: '开启后才发送 order，避免仅修改其他字段时意外改变部门次序',
+	},
+	{
 		displayName: '在父部门中的次序值',
 		name: 'order',
 		type: 'number',
 		displayOptions: {
-			show: showOnlyForUpdateDept,
+			show: { ...showOnlyForUpdateDept, update_order: [true] },
 		},
 		default: 1,
 		description: '可选。在父部门中的次序值。order值大的排序靠前。有效的值范围是[0, 2^32)。如果非必须的字段未指定，则不更新该字段。<a href="https://developer.work.weixin.qq.com/document/path/90206" target="_blank">官方文档</a>',
 	},
 ];
-

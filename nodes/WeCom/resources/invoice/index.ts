@@ -17,7 +17,6 @@ export const invoiceDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForInvoice,
 		},
-		 
 		options: [
 			{
 				name: '[发票查询] 查询电子发票',
@@ -29,7 +28,7 @@ export const invoiceDescription: INodeProperties[] = [
 				name: '[发票查询] 批量查询电子发票',
 				value: 'batchGetInvoiceInfo',
 				action: '批量查询电子发票',
-				description: '批量查询多张电子发票的详细信息。报销方在获得用户选择的电子发票标识参数后，可以通过该接口批量查询电子发票的结构化信息。返回结果包含发票的详细信息，如发票类型、金额、开票时间、PDF_URL、报销状态等。仅认证的企业微信账号并且企业激活人数超过200的企业才有接口权限',
+				description: '批量查询发票类型、金额、开票时间、PDF URL 与报销状态等结构化信息。仅认证且激活人数超过 200 的企业有权限',
 			},
 			{
 				name: '[发票状态] 更新发票状态',
@@ -51,4 +50,3 @@ export const invoiceDescription: INodeProperties[] = [
 	...batchUpdateInvoiceStatusDescription,
 	...batchGetInvoiceInfoDescription,
 ];
-

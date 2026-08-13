@@ -21,7 +21,7 @@ export async function getPermissions(
 	this: IExecuteFunctions,
 	index: number,
 ): Promise<IDataObject> {
-	const accessToken = this.getNodeParameter('accessToken', index) as string;
+	const accessToken = String(this.getNodeParameter('accessToken', index) ?? '').trim();
 
 	if (!accessToken) {
 		throw new NodeOperationError(
@@ -53,6 +53,7 @@ export async function getPermissions(
 
 		return response;
 	} catch (error) {
+		if (error instanceof NodeOperationError) throw error;
 		const err = error as Error;
 		throw new NodeOperationError(
 			this.getNode(),

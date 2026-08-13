@@ -7,7 +7,7 @@ const showOnlyForGetTradeResult = {
 
 export const getTradeResultDescription: INodeProperties[] = [
 	{
-		displayName: '收款单ID',
+		displayName: '收款项目 ID',
 		name: 'payment_id',
 		type: 'string',
 		required: true,
@@ -16,29 +16,6 @@ export const getTradeResultDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'payment_001',
-	},
-	{
-		displayName: '分页游标',
-		name: 'next_key',
-		type: 'string',
-		displayOptions: {
-			show: showOnlyForGetTradeResult,
-		},
-		default: '',
-		description: '上次请求返回的 next_key',
-	},
-	{
-		displayName: '返回数量',
-		name: 'limit',
-		type: 'number',
-		typeOptions: {
-			minValue: 1,
-			maxValue: 100,
-		},
-		displayOptions: {
-			show: showOnlyForGetTradeResult,
-		},
-		default: 50,
-		description: '每次拉取数量，默认 50，最大 100',
+		description: '由应用发起班级收款接口返回；只能查询当前应用创建的收款项目。<a href="https://developer.work.weixin.qq.com/document/path/94470" target="_blank">官方文档</a>',
 	},
 ];

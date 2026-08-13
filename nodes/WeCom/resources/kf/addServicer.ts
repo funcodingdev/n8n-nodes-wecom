@@ -18,30 +18,33 @@ export const addServicerDescription: INodeProperties[] = [
 			show: showOnlyForAddServicer,
 		},
 		default: '',
-		description: '客服账号的唯一标识ID。<a href="https://developer.work.weixin.qq.com/document/path/94646" target="_blank">官方文档</a>.',
+		description: '要添加接待人员的客服账号。<a href="https://developer.work.weixin.qq.com/document/path/94646" target="_blank">官方文档</a>',
 		placeholder: 'wkxxxxxxxxxxxxxxxxxx',
 	},
 	{
 		displayName: '接待人员列表',
 		name: 'userid_list',
-		type: 'string',
+		type: 'multiOptions',
+		typeOptions: {
+			loadOptionsMethod: 'getAllUsers',
+		},
 		displayOptions: {
 			show: showOnlyForAddServicer,
 		},
-		default: '',
-		description: '要添加的接待人员UserID列表，多个用英文逗号分隔。与部门列表至少填其中一个。<a href="https://developer.work.weixin.qq.com/document/path/94646" target="_blank">官方文档</a>',
-		placeholder: 'zhangsan,lisi',
+		default: [],
+		description: '要添加的接待人员 UserID 列表，最多 100 人；第三方应用使用密文 UserID。与部门列表至少填写一项。<a href="https://developer.work.weixin.qq.com/document/path/94646" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '接待人员部门列表',
 		name: 'department_id_list',
-		type: 'string',
+		type: 'multiOptions',
+		typeOptions: {
+			loadOptionsMethod: 'getDepartments',
+		},
 		displayOptions: {
 			show: showOnlyForAddServicer,
 		},
-		default: '',
-		description: '接待人员部门ID列表，多个用英文逗号分隔，最多20个。与接待人员列表至少填其中一个。<a href="https://developer.work.weixin.qq.com/document/path/94646" target="_blank">官方文档</a>',
-		placeholder: '2,4',
+		default: [],
+		description: '要添加的接待人员部门列表，最多 20 个。与接待人员列表至少填写一项。<a href="https://developer.work.weixin.qq.com/document/path/94646" target="_blank">官方文档</a>',
 	},
 ];
-

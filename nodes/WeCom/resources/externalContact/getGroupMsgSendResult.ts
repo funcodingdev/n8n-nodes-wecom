@@ -35,6 +35,7 @@ export const getGroupMsgSendResultDescription: INodeProperties[] = [
 		typeOptions: {
 			minValue: 1,
 			maxValue: 1000,
+			numberStepSize: 1,
 		},
 		default: 500,
 		displayOptions: {

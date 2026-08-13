@@ -1,4 +1,5 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
+import { NodeOperationError } from 'n8n-workflow';
 import { openuseridToUserid } from './openuseridToUserid';
 import { useridToOpenuserid } from './useridToOpenuserid';
 import { fromServiceExternalUserid } from './fromServiceExternalUserid';
@@ -65,7 +66,9 @@ export async function executeAccountId(
 					responseData = await opencorpidToCorpid.call(this, i);
 					break;
 				default:
-					throw new Error(`未知操作: ${operation}`);
+					throw new NodeOperationError(this.getNode(), `不支持的账号 ID 操作: ${operation}`, {
+						itemIndex: i,
+					});
 			}
 
 			returnData.push({

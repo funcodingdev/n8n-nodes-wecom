@@ -89,7 +89,34 @@ export const createCalendarDescription: INodeProperties[] = [
 			show: showOnlyForCreate,
 		},
 		default: false,
-		description: '是否全员日历。注意：每个企业最多可创建20个全员日历；全员日历也是公共日历的一种，创建后&lt;strong&gt;必须指定公开范围&lt;/strong&gt;；全员日历不支持颜色、默认日历、只读权限；该属性不可更新',
+		description:
+			'是否全员日历。注意：每个企业最多可创建20个全员日历；全员日历也是公共日历的一种，创建后&lt;strong&gt;必须指定公开范围&lt;/strong&gt;；全员日历不支持颜色、默认日历、只读权限；该属性不可更新',
+	},
+	{
+		displayName: '是否公共日历',
+		name: 'isPublicCalendar',
+		type: 'boolean',
+		displayOptions: {
+			show: {
+				...showOnlyForCreate,
+				isCorpCalendar: [false],
+			},
+		},
+		default: false,
+		description: '是否创建为公共日历。公共日历可在高级设置中指定公开范围',
+	},
+	{
+		displayName: '设为应用默认日历',
+		name: 'set_as_default',
+		type: 'boolean',
+		displayOptions: {
+			show: {
+				...showOnlyForCreate,
+				isCorpCalendar: [false],
+			},
+		},
+		default: false,
+		description: '是否将该日历设为应用的默认日历。全员日历不支持此设置',
 	},
 	{
 		displayName: '日历通知范围',
@@ -159,7 +186,8 @@ export const createCalendarDescription: INodeProperties[] = [
 				type: 'collection',
 				default: {},
 				placeholder: '添加公开范围',
-				description: '公开范围，仅当是公共日历时有效。&lt;strong&gt;创建全员日历时必须指定公开范围&lt;/strong&gt;。可以选择公开成员列表、公开部门列表，或两者都选',
+				description:
+					'公开范围，仅当是公共日历时有效。&lt;strong&gt;创建全员日历时必须指定公开范围&lt;/strong&gt;。可以选择公开成员列表、公开部门列表，或两者都选',
 				options: [
 					{
 						displayName: '公开成员列表',

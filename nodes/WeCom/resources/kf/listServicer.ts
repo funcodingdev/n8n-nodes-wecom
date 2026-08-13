@@ -18,8 +18,7 @@ export const listServicerDescription: INodeProperties[] = [
 			show: showOnlyForListServicer,
 		},
 		default: '',
-		description: '客服账号的唯一标识ID。<a href="https://developer.work.weixin.qq.com/document/path/94645" target="_blank">官方文档</a>.',
+		description: '要查询接待人员的客服账号。返回结果包含成员接待状态及部门 ID。<a href="https://developer.work.weixin.qq.com/document/path/94645" target="_blank">官方文档</a>',
 		placeholder: 'wkxxxxxxxxxxxxxxxxxx',
 	},
 ];
-

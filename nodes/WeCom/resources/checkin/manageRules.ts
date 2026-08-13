@@ -35,6 +35,15 @@ export const manageRulesDescription: INodeProperties[] = [
 		description: 'effective_now，是否立即生效',
 	},
 	{
+		displayName: '覆盖表单中的基础字段',
+		name: 'includeBasicFields',
+		type: 'boolean',
+		displayOptions: { show: { ...showOnly, action: ['update'] } },
+		default: false,
+		description:
+			'更新规则时默认只发送规则 ID 和高级 JSON，避免表单默认值意外覆盖现有配置；开启后才发送下方基础字段',
+	},
+	{
 		displayName: '规则名称',
 		name: 'groupname',
 		type: 'string',
@@ -54,13 +63,14 @@ export const manageRulesDescription: INodeProperties[] = [
 		default: 1,
 	},
 	{
-		displayName: '打卡人员类型',
+		displayName: '打卡方式',
 		name: 'checkin_type',
 		type: 'options',
 		displayOptions: { show: { ...showOnly, action: ['create', 'update'] } },
 		options: [
-			{ name: '下班后不需打卡 type=0', value: 0 },
-			{ name: '下班后需打卡 type=1', value: 1 },
+			{ name: '手机', value: 0 },
+			{ name: '考勤机', value: 2 },
+			{ name: '手机和考勤机', value: 3 },
 		],
 		default: 0,
 		description: 'group.type 字段',
@@ -158,7 +168,7 @@ export const manageRulesDescription: INodeProperties[] = [
 		default: false,
 	},
 	{
-		displayName: '打卡方式',
+		displayName: '打卡交替方式',
 		name: 'checkin_method_type',
 		type: 'options',
 		displayOptions: { show: { ...showOnly, action: ['create', 'update'] } },
@@ -168,15 +178,17 @@ export const manageRulesDescription: INodeProperties[] = [
 			{ name: '手机+智慧硬件', value: 2 },
 		],
 		default: 0,
-		description: 'checkin_method_type',
+		description:
+			'0 多组交替；1 单组交替；2 仅记录打卡时间。固定/排班上下班在休息时生效，自由上下班始终生效',
 	},
 	{
-		displayName: '工作日(1-7)',
+		displayName: '工作日(0-6)',
 		name: 'workdays',
 		type: 'string',
 		displayOptions: { show: { ...showOnly, action: ['create', 'update'] } },
 		default: '1,2,3,4,5',
-		description: '周一到周日用 1-7，逗号分隔；用于简易固定班次',
+		description:
+			'0 表示周日，1–6 表示周一到周六；支持逗号、中文逗号、竖线或换行分隔，用于简易固定班次',
 	},
 	{
 		displayName: '上班时间(秒)',
@@ -193,6 +205,38 @@ export const manageRulesDescription: INodeProperties[] = [
 		displayOptions: { show: { ...showOnly, action: ['create', 'update'] } },
 		default: 64800,
 		description: '距 0 点秒数，如 18:00=64800',
+	},
+	{
+		displayName: '最早上班打卡时间(秒)',
+		name: 'earliest_work_sec',
+		type: 'number',
+		displayOptions: { show: { ...showOnly, action: ['create', 'update'] } },
+		default: 28800,
+		description: '距 0 点秒数且须为整分钟，默认 08:00',
+	},
+	{
+		displayName: '最晚上班打卡时间(秒)',
+		name: 'latest_work_sec',
+		type: 'number',
+		displayOptions: { show: { ...showOnly, action: ['create', 'update'] } },
+		default: 36000,
+		description: '距 0 点秒数且须为整分钟，默认 10:00',
+	},
+	{
+		displayName: '最早下班打卡时间(秒)',
+		name: 'earliest_off_work_sec',
+		type: 'number',
+		displayOptions: { show: { ...showOnly, action: ['create', 'update'] } },
+		default: 61200,
+		description: '距 0 点秒数且须为整分钟，默认 17:00',
+	},
+	{
+		displayName: '最晚下班打卡时间(秒)',
+		name: 'latest_off_work_sec',
+		type: 'number',
+		displayOptions: { show: { ...showOnly, action: ['create', 'update'] } },
+		default: 68400,
+		description: '距 0 点秒数且须为整分钟，默认 19:00',
 	},
 	{
 		displayName: '位置打卡点',
@@ -289,6 +333,7 @@ export const manageRulesDescription: INodeProperties[] = [
 			show: { ...showOnly, action: ['create', 'update'], useAdvancedConfig: [true] },
 		},
 		default: '{}',
-		description: 'group 内其余字段：checkindate、ot_info_v2、buka_remind 等',
+		description:
+			'完整 group 或 group 内字段对象；JSON 字段优先。可配置 checkindate、schedulelist、ot_info_v2、buka_remind 等所有文档字段',
 	},
 ];

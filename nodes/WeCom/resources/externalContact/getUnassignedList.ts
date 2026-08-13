@@ -10,6 +10,7 @@ export const getUnassignedListDescription: INodeProperties[] = [
 		displayName: 'Page ID',
 		name: 'page_id',
 		type: 'number',
+		typeOptions: { minValue: 0, numberStepSize: 1 },
 		default: 0,
 		displayOptions: {
 			show: showOnly,
@@ -20,6 +21,7 @@ export const getUnassignedListDescription: INodeProperties[] = [
 		displayName: '每页数量',
 		name: 'page_size',
 		type: 'number',
+		typeOptions: { minValue: 1, maxValue: 1000, numberStepSize: 1 },
 		default: 1000,
 		displayOptions: {
 			show: showOnly,
@@ -34,7 +36,6 @@ export const getUnassignedListDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '分页查询游标，字符串类型，由上一次调用返回。分页查询游标',
+		description: '分页查询游标，由上一次调用返回；填写后 Page ID 会被忽略并且不会发送',
 	},
 ];
-

@@ -1,6 +1,5 @@
 import type {
 	IAuthenticateGeneric,
-	ICredentialTestRequest,
 	ICredentialType,
 	INodeProperties,
 } from 'n8n-workflow';
@@ -56,17 +55,5 @@ export class WeComReceiveApi implements ICredentialType {
 	authenticate: IAuthenticateGeneric = {
 		type: 'generic',
 		properties: {},
-	};
-
-	test: ICredentialTestRequest = {
-		request: {
-			baseURL: '={{$credentials.baseUrl || "https://qyapi.weixin.qq.com"}}',
-			url: '/cgi-bin/gettoken',
-			method: 'GET',
-			qs: {
-				corpid: '={{$credentials.corpId}}',
-				corpsecret: 'test',
-			},
-		},
 	};
 }

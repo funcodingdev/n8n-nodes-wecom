@@ -9,17 +9,16 @@ export const batchGetExternalContactDescription: INodeProperties[] = [
 	{
 		displayName: '成员',
 		name: 'userid',
-		type: 'options',
+		type: 'multiOptions',
 		typeOptions: {
 			loadOptionsMethod: 'getAllUsers',
 		},
 		required: true,
-		default: '',
+		default: [],
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '企业成员的UserID。<a href="https://developer.work.weixin.qq.com/document/path/92994" target="_blank">官方文档</a>.。企业成员的userid',
-		placeholder: 'zhangsan',
+		description: '企业成员的 UserID 列表，最多 100 个。可从列表多选，或使用表达式传入逗号、竖线或换行分隔的 UserID',
 	},
 	{
 		displayName: 'Cursor',
@@ -39,6 +38,7 @@ export const batchGetExternalContactDescription: INodeProperties[] = [
 		typeOptions: {
 			minValue: 1,
 			maxValue: 100,
+			numberStepSize: 1,
 		},
 		default: 50,
 		displayOptions: {
@@ -47,4 +47,3 @@ export const batchGetExternalContactDescription: INodeProperties[] = [
 		description: '每页返回的记录数量，默认50，最大100。<a href="https://developer.work.weixin.qq.com/document/path/92994" target="_blank">官方文档</a>。可选。返回的最大记录数，取值范围1~100',
 	},
 ];
-

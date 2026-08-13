@@ -21,7 +21,10 @@ export const createAppChatDescription: INodeProperties[] = [
 	{
 		displayName: '群主ID',
 		name: 'owner',
-		type: 'string',
+		type: 'options',
+		typeOptions: {
+			loadOptionsMethod: 'getAllUsers',
+		},
 		displayOptions: {
 			show: showOnlyForCreateAppChat,
 		},
@@ -31,7 +34,20 @@ export const createAppChatDescription: INodeProperties[] = [
 			'可选。指定群主的 ID，必须是userlist的成员之一。如果不填，系统会随机从userlist中选一人作为群主。<a href="https://developer.work.weixin.qq.com/document/path/90245" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '成员列表',
+		displayName: '选择成员',
+		name: 'userlist_selected',
+		type: 'multiOptions',
+		typeOptions: {
+			loadOptionsMethod: 'getAllUsers',
+		},
+		displayOptions: {
+			show: showOnlyForCreateAppChat,
+		},
+		default: [],
+		description: '从通讯录中选择群成员，将与下方手动输入合并并去重。',
+	},
+	{
+		displayName: '成员 ID（手动）',
 		name: 'userlist',
 		type: 'string',
 		displayOptions: {
@@ -39,9 +55,8 @@ export const createAppChatDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'user1,user2,user3',
-		required: true,
 		description:
-			'群成员 ID 列表。用逗号分隔。至少2人，至多2000人（含应用）。<a href="https://developer.work.weixin.qq.com/document/path/90245" target="_blank">官方文档</a>',
+			'多个群成员 ID 用逗号或 | 分隔。至少 2 人，至多 2000 人（含应用）。<a href="https://developer.work.weixin.qq.com/document/path/90245" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '指定群聊ID',

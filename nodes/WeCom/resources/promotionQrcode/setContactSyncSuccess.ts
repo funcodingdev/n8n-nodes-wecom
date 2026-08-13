@@ -1,6 +1,7 @@
 import type { IExecuteFunctions, IDataObject, IHttpRequestOptions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { getWeComBaseUrl } from '../../shared/transport';
+import { requireText } from './utils';
 
 /**
  * 设置通讯录同步完成
@@ -20,15 +21,13 @@ export async function setContactSyncSuccess(
 	this: IExecuteFunctions,
 	index: number,
 ): Promise<IDataObject> {
-	const accessToken = this.getNodeParameter('accessToken', index) as string;
-
-	if (!accessToken) {
-		throw new NodeOperationError(
-			this.getNode(),
-			'Access Token不能为空',
-			{ itemIndex: index },
-		);
-	}
+	const accessToken = requireText(
+		this,
+		this.getNodeParameter('accessToken', index),
+		'Access Token',
+		index,
+		2048,
+	);
 
 	const options: IHttpRequestOptions = {
 		method: 'GET',
@@ -52,6 +51,7 @@ export async function setContactSyncSuccess(
 
 		return response;
 	} catch (error) {
+		if (error instanceof NodeOperationError) throw error;
 		const err = error as Error;
 		throw new NodeOperationError(
 			this.getNode(),

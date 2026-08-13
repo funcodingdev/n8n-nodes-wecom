@@ -116,7 +116,7 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 			name: 'touser_manual',
 			type: 'string',
 			default: '',
-			placeholder: '例如：user001|user002 或 @all',
+			placeholder: '例如：user001,user002 或 @all',
 			displayOptions: {
 				show: {
 					...showCondition,
@@ -124,14 +124,14 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 				},
 			},
 			description:
-				'多个成员 ID 用 | 分隔，最多 1000 个；输入 @all 可发送给应用可见范围内的所有成员。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
+				'多个成员 ID 用逗号或 | 分隔，最多 1000 个；输入 @all 可发送给应用可见范围内的所有成员。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
 		},
 		{
 			displayName: '部门 ID',
 			name: 'toparty_manual',
 			type: 'string',
 			default: '',
-			placeholder: '例如：1|2|3',
+			placeholder: '例如：1,2,3',
 			displayOptions: {
 				show: {
 					...showCondition,
@@ -139,14 +139,14 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 				},
 			},
 			description:
-				'多个部门 ID 用 | 分隔，最多 100 个。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
+				'多个部门 ID 用逗号或 | 分隔，最多 100 个。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
 		},
 		{
 			displayName: '标签 ID',
 			name: 'totag_manual',
 			type: 'string',
 			default: '',
-			placeholder: '例如：1|2|3',
+			placeholder: '例如：1,2,3',
 			displayOptions: {
 				show: {
 					...showCondition,
@@ -154,7 +154,7 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 				},
 			},
 			description:
-				'多个标签 ID 用 | 分隔，最多 100 个。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
+				'多个标签 ID 用逗号或 | 分隔，最多 100 个。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
 		},
 	];
 }
@@ -171,16 +171,21 @@ export function extractRecipients(
 	toparty_manual?: string,
 	totag_manual?: string,
 ): { touser?: string; toparty?: string; totag?: string } {
-	const normalizeRecipientValue = (value?: string | string[]): string | undefined => {
-		if (Array.isArray(value)) {
-			const trimmed = value.map((item) => item.trim()).filter(Boolean);
-			return trimmed.length > 0 ? trimmed.join('|') : undefined;
-		}
-		if (typeof value === 'string') {
-			const trimmed = value.trim();
-			return trimmed ? trimmed : undefined;
-		}
-		return undefined;
+	const normalizeRecipientValue = (
+		value: string | string[] | undefined,
+		limit: number,
+	): string | undefined => {
+		const rawValues = Array.isArray(value) ? value : typeof value === 'string' ? [value] : [];
+		const normalized = [
+			...new Set(
+				rawValues
+					.flatMap((item) => item.split(/[|,]/))
+					.map((item) => item.trim())
+					.filter(Boolean),
+			),
+		];
+		if (normalized.includes('@all')) return '@all';
+		return normalized.length > 0 ? normalized.slice(0, limit).join('|') : undefined;
 	};
 
 	if (recipientType === 'all') {
@@ -189,31 +194,31 @@ export function extractRecipients(
 
 	if (recipientType === 'manual') {
 		return {
-			touser: normalizeRecipientValue(touser_manual),
-			toparty: normalizeRecipientValue(toparty_manual),
-			totag: normalizeRecipientValue(totag_manual),
+			touser: normalizeRecipientValue(touser_manual, 1000),
+			toparty: normalizeRecipientValue(toparty_manual, 100),
+			totag: normalizeRecipientValue(totag_manual, 100),
 		};
 	}
 
 	const result: { touser?: string; toparty?: string; totag?: string } = {};
 
 	if (recipientType === 'mixed') {
-		result.touser = normalizeRecipientValue(touser);
-		result.toparty = normalizeRecipientValue(toparty);
-		result.totag = normalizeRecipientValue(totag);
+		result.touser = normalizeRecipientValue(touser, 1000);
+		result.toparty = normalizeRecipientValue(toparty, 100);
+		result.totag = normalizeRecipientValue(totag, 100);
 		return result;
 	}
 
 	if (recipientType === 'users') {
-		result.touser = normalizeRecipientValue(touser);
+		result.touser = normalizeRecipientValue(touser, 1000);
 	}
 
 	if (recipientType === 'departments') {
-		result.toparty = normalizeRecipientValue(toparty);
+		result.toparty = normalizeRecipientValue(toparty, 100);
 	}
 
 	if (recipientType === 'tags') {
-		result.totag = normalizeRecipientValue(totag);
+		result.totag = normalizeRecipientValue(totag, 100);
 	}
 
 	return result;

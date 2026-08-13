@@ -3,7 +3,14 @@ import type { ExtraHttpOp } from '../../shared/extraHttpOp';
 import { extraHttpOpOptions } from '../../shared/extraHttpOp';
 
 export const checkinExtraHttpOps: ExtraHttpOp[] = [
-	{ id: 'clearCheckinOptionArrayField', name: '[打卡] 清空规则数组字段', action: '清空打卡规则数组字段', description: '清空打卡规则数组字段', path: '/cgi-bin/checkin/clear_checkin_option_array_field', method: 'POST' },
+	{
+		id: 'clearCheckinOptionArrayField',
+		name: '[打卡] 清空规则数组字段',
+		action: '清空打卡规则数组字段',
+		description: '清空打卡规则数组字段',
+		path: '/cgi-bin/checkin/clear_checkin_option_array_field',
+		method: 'POST',
+	},
 ];
 
 export const checkinExtraHttpOpsById: Record<string, ExtraHttpOp> = Object.fromEntries(
@@ -21,16 +28,19 @@ export const checkinExtraHttpOpsDescription: INodeProperties[] = [
 		displayName: '规则组ID',
 		name: 'checkin_groupid',
 		type: 'number',
+		required: true,
 		displayOptions: {
 			show: { resource: ['checkin'], operation: checkinExtraHttpOpsOptionValues },
 		},
-		default: 0,
+		default: 1,
+		typeOptions: { minValue: 1 },
 		description: '打卡规则 groupid',
 	},
 	{
 		displayName: '要清空的字段',
 		name: 'clear_field_ids',
 		type: 'multiOptions',
+		required: true,
 		displayOptions: {
 			show: { resource: ['checkin'], operation: checkinExtraHttpOpsOptionValues },
 		},

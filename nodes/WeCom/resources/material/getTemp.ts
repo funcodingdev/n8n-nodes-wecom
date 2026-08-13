@@ -31,10 +31,70 @@ export const getTempDescription: INodeProperties[] = [
 		name: 'binaryProperty',
 		type: 'string',
 		default: 'data',
+		required: true,
 		displayOptions: {
 			show: showOnlyGetTemp,
 		},
-		description: '将下载的素材文件存储到的二进制属性名称。正确时返回和普通的http下载相同，请根据http头做相应的处理',
+		description: '用于存储下载文件的二进制属性名称',
 		placeholder: 'data',
+	},
+	{
+		displayName: '使用分片下载',
+		name: 'useRange',
+		type: 'boolean',
+		default: false,
+		displayOptions: {
+			show: showOnlyGetTemp,
+		},
+		description: '是否通过 Range 请求头下载指定字节范围。异步上传且超过 20MB 的素材必须分片下载，单片不能超过 20MB',
+	},
+	{
+		displayName: '分片起始位置',
+		name: 'rangeStart',
+		type: 'number',
+		default: 0,
+		required: true,
+		typeOptions: {
+			minValue: 0,
+			numberStepSize: 1,
+		},
+		displayOptions: {
+			show: {
+				...showOnlyGetTemp,
+				useRange: [true],
+			},
+		},
+		description: 'Range 的起始字节位置（包含此字节）',
+	},
+	{
+		displayName: '分片结束位置',
+		name: 'rangeEnd',
+		type: 'number',
+		default: 20971519,
+		required: true,
+		typeOptions: {
+			minValue: 0,
+			numberStepSize: 1,
+		},
+		displayOptions: {
+			show: {
+				...showOnlyGetTemp,
+				useRange: [true],
+			},
+		},
+		description: 'Range 的结束字节位置（包含此字节）。结束位置减起始位置再加 1 不能超过 20MB',
+	},
+	{
+		displayName: '加密素材',
+		name: 'encryptedMaterial',
+		type: 'boolean',
+		default: false,
+		displayOptions: {
+			show: {
+				...showOnlyGetTemp,
+				useRange: [true],
+			},
+		},
+		description: '是否按企业微信加密素材的要求校验分片。启用后，起始位置和分片长度必须按 16 字节对齐',
 	},
 ];

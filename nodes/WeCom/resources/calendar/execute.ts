@@ -2,15 +2,264 @@ import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-wor
 import { NodeOperationError } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
 
-// 辅助函数：将dateTime转换为Unix时间戳（秒级）
-function dateTimeToUnixTimestamp(dateTime: string | number): number {
-	if (typeof dateTime === 'number') {
-		return dateTime;
+const LIST_SEPARATOR = /[,，|\n\r]+/;
+const MAX_UINT32 = 4294967295;
+const REPEAT_TYPES = new Set([0, 1, 2, 5, 7]);
+const REMIND_BEFORE = new Set([0, 300, 900, 3600, 86400]);
+const REMIND_DIFFS = new Set([0, -300, -900, -3600, -86400, 32400, -172800, -604800]);
+
+function fail(context: IExecuteFunctions, message: string, itemIndex: number): never {
+	throw new NodeOperationError(context.getNode(), message, { itemIndex });
+}
+
+function text(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	maxBytes = 4096,
+	required = true,
+): string {
+	const normalized = String(value ?? '').trim();
+	if (required && !normalized) fail(context, `${label}不能为空`, itemIndex);
+	if (Buffer.byteLength(normalized, 'utf8') > maxBytes) {
+		fail(context, `${label}不能超过 ${maxBytes} 字节`, itemIndex);
 	}
-	if (!dateTime || dateTime === '') {
+	return normalized;
+}
+
+function textWithLimits(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	maxCharacters: number,
+	maxBytes: number,
+	required = true,
+): string {
+	const normalized = text(context, value, label, itemIndex, maxBytes, required);
+	if ([...normalized].length > maxCharacters) {
+		fail(context, `${label}不能超过 ${maxCharacters} 个字符`, itemIndex);
+	}
+	return normalized;
+}
+
+function integer(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	min: number,
+	max: number,
+): number {
+	const normalized = Number(value);
+	if (!Number.isSafeInteger(normalized) || normalized < min || normalized > max) {
+		fail(context, `${label}必须是 ${min}–${max} 之间的整数`, itemIndex);
+	}
+	return normalized;
+}
+
+function unixTimestamp(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	required = true,
+): number {
+	if (value === undefined || value === null || String(value).trim() === '') {
+		if (required) fail(context, `${label}不能为空`, itemIndex);
 		return 0;
 	}
-	return Math.floor(new Date(dateTime).getTime() / 1000);
+	const raw = String(value).trim();
+	const timestamp = /^\d+$/.test(raw) ? Number(raw) : Math.floor(Date.parse(raw) / 1000);
+	if (!Number.isSafeInteger(timestamp) || timestamp < 1 || timestamp > MAX_UINT32) {
+		fail(context, `${label}不是有效的日期时间`, itemIndex);
+	}
+	return timestamp;
+}
+
+function stringList(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	min: number,
+	max: number,
+): string[] {
+	const source = Array.isArray(value) ? value : [value];
+	const values = source
+		.flatMap((entry) => String(entry ?? '').split(LIST_SEPARATOR))
+		.map((entry) => entry.trim())
+		.filter(Boolean);
+	const unique = [...new Set(values)];
+	if (unique.length < min || unique.length > max) {
+		fail(context, `${label}数量必须为 ${min}–${max} 个`, itemIndex);
+	}
+	return unique;
+}
+
+function jsonObject(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): IDataObject {
+	let parsed: unknown;
+	try {
+		parsed = JSON.parse(String(value || '{}'));
+	} catch {
+		fail(context, `${label}不是有效的 JSON`, itemIndex);
+	}
+	if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+		fail(context, `${label}必须是 JSON 对象`, itemIndex);
+	}
+	return parsed as IDataObject;
+}
+
+function calendarShares(
+	context: IExecuteFunctions,
+	collection: IDataObject,
+	itemIndex: number,
+): IDataObject[] {
+	const rawShares = (collection.shares as IDataObject[]) || [];
+	if (rawShares.length > 2000) fail(context, '日历通知范围最多支持 2000 人', itemIndex);
+	const shares = new Map<string, IDataObject>();
+	for (const [index, rawShare] of rawShares.entries()) {
+		const userid = text(
+			context,
+			rawShare.userid,
+			`第 ${index + 1} 个通知成员 UserID`,
+			itemIndex,
+			64,
+		);
+		const permission = integer(context, rawShare.permission ?? 1, '通知成员权限', itemIndex, 1, 3);
+		if (permission !== 1 && permission !== 3) fail(context, '通知成员权限只能是 1 或 3', itemIndex);
+		shares.set(userid, { userid, permission });
+	}
+	return [...shares.values()];
+}
+
+function publicRange(
+	context: IExecuteFunctions,
+	value: IDataObject,
+	itemIndex: number,
+): IDataObject | undefined {
+	const userids = stringList(context, value.userids, '公开成员', itemIndex, 0, 1000).map((userid) =>
+		text(context, userid, '公开成员 UserID', itemIndex, 64),
+	);
+	const partyids = stringList(context, value.partyids, '公开部门', itemIndex, 0, 100).map(
+		(partyId) => integer(context, partyId, '公开部门 ID', itemIndex, 1, MAX_UINT32),
+	);
+	if (!userids.length && !partyids.length) return undefined;
+	const range: IDataObject = {};
+	if (userids.length) range.userids = userids;
+	if (partyids.length) range.partyids = partyids;
+	return range;
+}
+
+function scheduleReminders(
+	context: IExecuteFunctions,
+	collection: IDataObject,
+	wholeDay: boolean,
+	itemIndex: number,
+): IDataObject | undefined {
+	const raw = collection.reminders;
+	if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return undefined;
+	const data = raw as IDataObject;
+	const isRemind = Boolean(data.is_remind);
+	const isRepeat = Boolean(data.is_repeat);
+	const reminders: IDataObject = {
+		is_remind: isRemind ? 1 : 0,
+		is_repeat: isRepeat ? 1 : 0,
+	};
+	if (isRemind) {
+		const rawDiffs = Array.isArray(data.remind_time_diffs) ? data.remind_time_diffs : [];
+		if (rawDiffs.length) {
+			const diffs = [...new Set(rawDiffs.map(Number))];
+			for (const diff of diffs) {
+				if (!REMIND_DIFFS.has(diff) || (!wholeDay && [32400, -172800, -604800].includes(diff))) {
+					fail(context, '提醒时间差包含不支持的值', itemIndex);
+				}
+			}
+			reminders.remind_time_diffs = diffs;
+		} else {
+			const remindBefore = integer(
+				context,
+				data.remind_before_event_secs ?? 3600,
+				'提前提醒时间',
+				itemIndex,
+				0,
+				86400,
+			);
+			if (!REMIND_BEFORE.has(remindBefore)) fail(context, '提前提醒时间不受支持', itemIndex);
+			reminders.remind_before_event_secs = remindBefore;
+		}
+	}
+	if (isRepeat) {
+		const repeatType = integer(context, data.repeat_type ?? 0, '重复类型', itemIndex, 0, 7);
+		if (!REPEAT_TYPES.has(repeatType)) fail(context, '重复类型不受支持', itemIndex);
+		reminders.repeat_type = repeatType;
+		const repeatUntil = unixTimestamp(context, data.repeat_until, '重复结束时间', itemIndex, false);
+		if (repeatUntil) reminders.repeat_until = repeatUntil;
+		const custom = Boolean(data.is_custom_repeat);
+		reminders.is_custom_repeat = custom ? 1 : 0;
+		reminders.timezone = integer(context, data.timezone ?? 8, '时区', itemIndex, -12, 12);
+		if (custom) {
+			reminders.repeat_interval = integer(
+				context,
+				data.repeat_interval ?? 1,
+				'重复间隔',
+				itemIndex,
+				1,
+				MAX_UINT32,
+			);
+			if (repeatType === 1) {
+				const days = stringList(
+					context,
+					data.repeat_day_of_week,
+					'每周重复日期',
+					itemIndex,
+					1,
+					7,
+				).map((day) => integer(context, day, '每周重复日期', itemIndex, 1, 7));
+				reminders.repeat_day_of_week = [...new Set(days)];
+			} else if (repeatType === 2) {
+				const days = stringList(
+					context,
+					data.repeat_day_of_month,
+					'每月重复日期',
+					itemIndex,
+					1,
+					31,
+				).map((day) => integer(context, day, '每月重复日期', itemIndex, 1, 31));
+				reminders.repeat_day_of_month = [...new Set(days)];
+			}
+		}
+	}
+	return reminders;
+}
+
+function timeWindow(
+	context: IExecuteFunctions,
+	startValue: unknown,
+	endValue: unknown,
+	itemIndex: number,
+): { start: number; end: number } {
+	const start = unixTimestamp(context, startValue, '日程开始时间', itemIndex);
+	const end = unixTimestamp(context, endValue, '日程结束时间', itemIndex);
+	if (end <= start) fail(context, '日程结束时间必须晚于开始时间', itemIndex);
+	return { start, end };
+}
+
+function operationScope(
+	context: IExecuteFunctions,
+	opModeValue: unknown,
+	opStartValue: unknown,
+	itemIndex: number,
+): { opMode: number; opStart: number } {
+	const opMode = integer(context, opModeValue ?? 0, '操作模式', itemIndex, 0, 2);
+	const opStart = unixTimestamp(context, opStartValue, '操作起始时间', itemIndex, opMode !== 0);
+	return { opMode, opStart };
 }
 
 export async function executeCalendar(
@@ -24,715 +273,466 @@ export async function executeCalendar(
 		try {
 			let response: IDataObject;
 
-			// 管理日历
 			if (operation === 'createCalendar') {
-				const summary = this.getNodeParameter('summary', i) as string;
-				const admin_userids = this.getNodeParameter('admin_userids', i, '') as string;
-				const selectedAdmins = this.getNodeParameter('admins', i, []) as string[];
-				const admins = [
-					...admin_userids
-						.split(',')
-						.map((s) => s.trim())
-						.filter(Boolean),
-					...selectedAdmins,
-				];
-				const uniqueAdmins = [...new Set(admins)].slice(0, 3);
-				const description = this.getNodeParameter('description', i, '') as string;
+				const admins = stringList(
+					this,
+					[
+						this.getNodeParameter('admin_userids', i, ''),
+						...(this.getNodeParameter('admins', i, []) as string[]),
+					],
+					'日历管理员',
+					i,
+					0,
+					3,
+				);
 				const isCorpCalendar = this.getNodeParameter('isCorpCalendar', i, false) as boolean;
-				const advancedSettings = this.getNodeParameter('advancedSettings', i, {}) as IDataObject;
-				const sharesCollection = this.getNodeParameter('sharesCollection', i, {}) as IDataObject;
-
-				if (!uniqueAdmins.length) {
-					throw new NodeOperationError(
-						this.getNode(),
-						'请至少填写或选择 1 个日历管理员',
-						{ itemIndex: i },
-					);
+				const isPublicCalendar = this.getNodeParameter('isPublicCalendar', i, false) as boolean;
+				const advanced = this.getNodeParameter('advancedSettings', i, {}) as IDataObject;
+				const range = publicRange(this, (advanced.publicRange as IDataObject) || {}, i);
+				if (isCorpCalendar && !range) fail(this, '创建全员日历时必须指定公开范围', i);
+				const shares = calendarShares(
+					this,
+					this.getNodeParameter('sharesCollection', i, {}) as IDataObject,
+					i,
+				);
+				if (admins.length) {
+					const shareUserids = new Set(shares.map((share) => String(share.userid)));
+					const missing = admins.filter((admin) => !shareUserids.has(admin));
+					if (missing.length) fail(this, `管理员必须在通知范围中：${missing.join(', ')}`, i);
 				}
-
 				const calendar: IDataObject = {
-					summary,
-					admins: uniqueAdmins,
+					summary: textWithLimits(
+						this,
+						this.getNodeParameter('summary', i),
+						'日历标题',
+						i,
+						128,
+						512,
+					),
 				};
-
-				// 全员日历设置
+				if (admins.length) calendar.admins = admins;
+				if (shares.length) calendar.shares = shares;
+				const description = textWithLimits(
+					this,
+					this.getNodeParameter('description', i, ''),
+					'日历描述',
+					i,
+					512,
+					2048,
+					false,
+				);
+				if (description) calendar.description = description;
 				if (isCorpCalendar) {
-					calendar.is_corp_calendar = 1; // 设置为全员日历
+					calendar.is_corp_calendar = 1;
+					calendar.public_range = range;
+				} else {
+					const color = text(this, this.getNodeParameter('color', i), '日历颜色', i, 7);
+					if (!/^#[0-9A-Fa-f]{6}$/.test(color)) fail(this, '日历颜色必须是 #RRGGBB 格式', i);
+					calendar.color = color.toUpperCase();
+					if (isPublicCalendar) calendar.is_public = 1;
+					if (range) calendar.public_range = range;
 				}
-
-				// 日历描述
-				if (description) {
-					calendar.description = description;
-				}
-
-				// 全员日历不支持颜色
-				if (!isCorpCalendar) {
-					const color = this.getNodeParameter('color', i, '') as string;
-					if (color) {
-						calendar.color = color;
-					}
-				}
-
-				// 公开范围
-				const publicRange = advancedSettings.publicRange as IDataObject | undefined;
-				
-				// 创建全员日历时必须指定公开范围
-				if (isCorpCalendar) {
-					const hasUserids = publicRange?.userids && (publicRange.userids as string[]).length > 0;
-					const hasPartyids = publicRange?.partyids && (publicRange.partyids as string[]).length > 0;
-					if (!hasUserids && !hasPartyids) {
-						throw new NodeOperationError(
-							this.getNode(),
-							'创建全员日历时必须指定公开范围，请至少选择公开成员列表或公开部门列表中的一个',
-							{ itemIndex: i },
-						);
-					}
-				}
-
-				if (publicRange) {
-					const rangeObj: IDataObject = {};
-					if (publicRange.userids && (publicRange.userids as string[]).length > 0) {
-						rangeObj.userids = publicRange.userids as string[];
-					}
-					if (publicRange.partyids && (publicRange.partyids as string[]).length > 0) {
-						rangeObj.partyids = publicRange.partyids as string[];
-					}
-					if (Object.keys(rangeObj).length > 0) {
-						calendar.public_range = rangeObj;
-					}
-				}
-
-				// 构建共享范围
-				const shares: IDataObject[] = [];
-				if (sharesCollection.shares) {
-					const sharesList = sharesCollection.shares as IDataObject[];
-					sharesList.forEach((s) => {
-						const share: IDataObject = { userid: s.userid as string };
-						if (s.permission) {
-							share.permission = s.permission as number;
-						}
-						shares.push(share);
-					});
-					calendar.shares = shares;
-				}
-
-				// 验证管理员必须在通知范围成员列表中（创建日历时管理员是必填的，必须提供通知范围）
-				if (uniqueAdmins.length > 0) {
-					if (!sharesCollection.shares || shares.length === 0) {
-						throw new NodeOperationError(
-							this.getNode(),
-							'创建日历时，管理员必须在通知范围成员的列表中，请提供日历通知范围',
-							{ itemIndex: i },
-						);
-					}
-					const shareUserids = shares.map((s) => s.userid as string);
-					const missingAdmins = uniqueAdmins.filter((admin) => !shareUserids.includes(admin));
-					if (missingAdmins.length > 0) {
-						throw new NodeOperationError(
-							this.getNode(),
-							`管理员必须在通知范围成员的列表中。以下管理员不在通知范围中：${missingAdmins.join(', ')}`,
-							{ itemIndex: i },
-						);
-					}
-				}
-
 				const body: IDataObject = { calendar };
-				if (advancedSettings.agentid) {
-					body.agentid = advancedSettings.agentid as number;
+				if (!isCorpCalendar) {
+					body.set_as_default = this.getNodeParameter('set_as_default', i, false) ? 1 : 0;
 				}
-
+				const agentId = integer(this, advanced.agentid ?? 0, '应用 AgentID', i, 0, MAX_UINT32);
+				if (agentId) body.agentid = agentId;
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/oa/calendar/add', body);
 			} else if (operation === 'updateCalendar') {
-				const cal_id = this.getNodeParameter('cal_id', i) as string;
-				const summary = this.getNodeParameter('summary', i) as string;
-				const description = this.getNodeParameter('description', i, '') as string;
-				const color = this.getNodeParameter('color', i) as string;
-				const admins = this.getNodeParameter('admins', i, []) as string[];
-				const skipPublicRange = this.getNodeParameter('skip_public_range', i, false) as boolean;
-				const publicRange = this.getNodeParameter('publicRange', i, {}) as IDataObject;
-				const sharesCollection = this.getNodeParameter('sharesCollection', i, {}) as IDataObject;
-
 				const calendar: IDataObject = {
-					cal_id,
-					summary,
-					color,
+					cal_id: text(this, this.getNodeParameter('cal_id', i), '日历 ID', i, 64),
+					summary: textWithLimits(
+						this,
+						this.getNodeParameter('summary', i),
+						'日历标题',
+						i,
+						128,
+						512,
+					),
+					description: textWithLimits(
+						this,
+						this.getNodeParameter('description', i, ''),
+						'日历描述',
+						i,
+						512,
+						2048,
+						false,
+					),
 				};
-
-				// 日历描述（可选）
-				if (description) {
-					calendar.description = description;
+				const color = text(this, this.getNodeParameter('color', i), '日历颜色', i, 7);
+				if (!/^#[0-9A-Fa-f]{6}$/.test(color)) fail(this, '日历颜色必须是 #RRGGBB 格式', i);
+				calendar.color = color.toUpperCase();
+				const admins = stringList(
+					this,
+					this.getNodeParameter('admins', i, []),
+					'日历管理员',
+					i,
+					0,
+					3,
+				);
+				if (admins.length) calendar.admins = admins;
+				const shares = calendarShares(
+					this,
+					this.getNodeParameter('sharesCollection', i, {}) as IDataObject,
+					i,
+				);
+				if (shares.length) calendar.shares = shares;
+				const skipRange = this.getNodeParameter('skip_public_range', i, false) as boolean;
+				if (!skipRange) {
+					const range = publicRange(
+						this,
+						this.getNodeParameter('publicRange', i, {}) as IDataObject,
+						i,
+					);
+					if (range) calendar.public_range = range;
 				}
-
-				// 管理员列表（可选，最多3人）
-				if (admins && admins.length > 0) {
-					calendar.admins = admins;
-				}
-
-				// 日历通知范围（可选）
-				if (sharesCollection.shares) {
-					const sharesList = sharesCollection.shares as IDataObject[];
-					const shares: IDataObject[] = sharesList.map((s) => {
-						const share: IDataObject = { userid: s.userid as string };
-						if (s.permission) {
-							share.permission = s.permission as number;
-						}
-						return share;
-					});
-					if (shares.length > 0) {
-						calendar.shares = shares;
-					}
-				}
-
-				// 公开范围（可选，仅当是公共日历时有效）
-				if (!skipPublicRange && publicRange && Object.keys(publicRange).length > 0) {
-					const rangeObj: IDataObject = {};
-					if (publicRange.userids && (publicRange.userids as string[]).length > 0) {
-						rangeObj.userids = publicRange.userids as string[];
-					}
-					if (publicRange.partyids && (publicRange.partyids as string[]).length > 0) {
-						rangeObj.partyids = publicRange.partyids as string[];
-					}
-					if (Object.keys(rangeObj).length > 0) {
-						calendar.public_range = rangeObj;
-					}
-				}
-
-				const body: IDataObject = { calendar };
-				if (skipPublicRange) {
-					body.skip_public_range = 1;
-				} else {
-					body.skip_public_range = 0;
-				}
-
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/oa/calendar/update', body);
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/oa/calendar/update', {
+					calendar,
+					skip_public_range: skipRange ? 1 : 0,
+				});
 			} else if (operation === 'getCalendar') {
-				const cal_id_list = this.getNodeParameter('cal_id_list', i) as string;
-
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/oa/calendar/get', {
-					cal_id_list: cal_id_list.split(',').map((id) => id.trim()),
+					cal_id_list: stringList(
+						this,
+						this.getNodeParameter('cal_id_list', i),
+						'日历 ID',
+						i,
+						1,
+						1000,
+					).map((id) => text(this, id, '日历 ID', i, 64)),
 				});
 			} else if (operation === 'deleteCalendar') {
-				const cal_id = this.getNodeParameter('cal_id', i) as string;
-
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/oa/calendar/del', {
-					cal_id,
+					cal_id: text(this, this.getNodeParameter('cal_id', i), '日历 ID', i, 64),
 				});
-			}
-			// 管理日程
-			else if (operation === 'createSchedule') {
-				const summary = this.getNodeParameter('summary', i, '') as string;
-				const admin_userids = this.getNodeParameter('admin_userids', i, '') as string;
-				const selectedAdmins = this.getNodeParameter('admins', i, []) as string[];
-				const admins = [
-					...admin_userids
-						.split(',')
-						.map((s) => s.trim())
-						.filter(Boolean),
-					...selectedAdmins,
-				];
-				const uniqueAdmins = [...new Set(admins)].slice(0, 3);
-				const start_time = dateTimeToUnixTimestamp(this.getNodeParameter('start_time', i) as string | number);
-				const end_time = dateTimeToUnixTimestamp(this.getNodeParameter('end_time', i) as string | number);
-				const is_whole_day = this.getNodeParameter('is_whole_day', i, false) as boolean;
-				const attendee_userids = this.getNodeParameter('attendee_userids', i, '') as string;
-				const selectedAttendees = this.getNodeParameter('attendees', i, []) as string[];
-				const attendees = [
-					...attendee_userids
-						.split(',')
-						.map((s) => s.trim())
-						.filter(Boolean),
-					...selectedAttendees,
-				];
-				const description = this.getNodeParameter('description', i, '') as string;
-				const location = this.getNodeParameter('location', i, '') as string;
-				const remindersCollection = this.getNodeParameter('remindersCollection', i, {}) as IDataObject;
-				const advancedSettings = this.getNodeParameter('advancedSettings', i, {}) as IDataObject;
-				const cal_id = (advancedSettings.cal_id as string) || '';
-				const agentid = (advancedSettings.agentid as number) || 0;
-
+			} else if (operation === 'createSchedule') {
+				const { start, end } = timeWindow(
+					this,
+					this.getNodeParameter('start_time', i),
+					this.getNodeParameter('end_time', i),
+					i,
+				);
+				const wholeDay = this.getNodeParameter('is_whole_day', i, false) as boolean;
+				const admins = stringList(
+					this,
+					[
+						this.getNodeParameter('admin_userids', i, ''),
+						...(this.getNodeParameter('admins', i, []) as string[]),
+					],
+					'日程管理员',
+					i,
+					0,
+					3,
+				);
+				const attendees = stringList(
+					this,
+					[
+						this.getNodeParameter('attendee_userids', i, ''),
+						...(this.getNodeParameter('attendees', i, []) as string[]),
+						...admins,
+					],
+					'日程参与者',
+					i,
+					0,
+					1000,
+				);
 				const schedule: IDataObject = {
-					start_time,
-					end_time,
+					start_time: start,
+					end_time: end,
+					is_whole_day: wholeDay ? 1 : 0,
 				};
-
-				// 日程主题（可选）
-				if (summary) {
-					schedule.summary = summary;
-				}
-
-				// 构建参与者列表（可选，最多1000人）
-				// 使用 Set 来去重，确保管理员也在参与者列表中
-				const attendeesSet = new Set<string>();
-				if (attendees && attendees.length > 0) {
-					if (attendees.length > 1000) {
-						throw new NodeOperationError(
-							this.getNode(),
-							'日程参与者最多支持1000人',
-							{ itemIndex: i },
-						);
-					}
-					attendees.forEach((userid) => {
-						if (userid) {
-							attendeesSet.add(userid);
-						}
-					});
-				}
-
-				// 日程管理员（可选，最多3人）
-				// 注意：管理员必须在参与者列表中，所以需要先将管理员添加到参与者列表
-				if (uniqueAdmins.length > 0) {
-					uniqueAdmins.forEach((admin) => {
-						if (admin) {
-							attendeesSet.add(admin);
-						}
-					});
-					schedule.admins = uniqueAdmins;
-				}
-
-				// 设置参与者列表
-				if (attendeesSet.size > 0) {
-					schedule.attendees = Array.from(attendeesSet).map((userid) => ({ userid }));
-				}
-
-				// 是否全天日程
-				if (is_whole_day) {
-					schedule.is_whole_day = 1;
-				}
-
+				if (admins.length) schedule.admins = admins;
+				if (attendees.length)
+					schedule.attendees = attendees.map((userid) => ({
+						userid: text(this, userid, '参与者 UserID', i, 64),
+					}));
+				const summary = textWithLimits(
+					this,
+					this.getNodeParameter('summary', i, ''),
+					'日程标题',
+					i,
+					128,
+					512,
+					false,
+				);
+				const description = textWithLimits(
+					this,
+					this.getNodeParameter('description', i, ''),
+					'日程描述',
+					i,
+					1000,
+					4000,
+					false,
+				);
+				const location = textWithLimits(
+					this,
+					this.getNodeParameter('location', i, ''),
+					'日程地点',
+					i,
+					128,
+					512,
+					false,
+				);
+				if (summary) schedule.summary = summary;
 				if (description) schedule.description = description;
 				if (location) schedule.location = location;
-				if (cal_id) schedule.cal_id = cal_id;
-
-				// 构建提醒设置
-				if (remindersCollection.reminders) {
-					const remindersData = remindersCollection.reminders as IDataObject;
-					const reminders: IDataObject = {};
-
-					// 是否提醒
-					if (remindersData.is_remind !== undefined) {
-						reminders.is_remind = remindersData.is_remind ? 1 : 0;
-					}
-
-					// 提醒时间差列表（multiOptions数组）
-					// 注意：该字段与remind_before_event_secs仅一个字段会生效，当该字段有传值且列表不为空时，优先以该字段为准
-					if (remindersData.remind_time_diffs && Array.isArray(remindersData.remind_time_diffs) && remindersData.remind_time_diffs.length > 0) {
-						reminders.remind_time_diffs = (remindersData.remind_time_diffs as number[]).map((val) => Number(val));
-					} else {
-						// 只有当remind_time_diffs不存在或为空时，才使用remind_before_event_secs
-						if (remindersData.remind_before_event_secs !== undefined) {
-							reminders.remind_before_event_secs = remindersData.remind_before_event_secs;
-						}
-					}
-
-					// 是否重复
-					if (remindersData.is_repeat !== undefined) {
-						reminders.is_repeat = remindersData.is_repeat ? 1 : 0;
-					}
-
-					// 重复类型
-					if (remindersData.repeat_type !== undefined) {
-						reminders.repeat_type = remindersData.repeat_type;
-					}
-
-					// 重复结束时间
-					if (remindersData.repeat_until !== undefined && remindersData.repeat_until !== '' && remindersData.repeat_until !== 0) {
-						reminders.repeat_until = dateTimeToUnixTimestamp(remindersData.repeat_until as string | number);
-					}
-
-					// 是否自定义重复
-					if (remindersData.is_custom_repeat !== undefined) {
-						reminders.is_custom_repeat = remindersData.is_custom_repeat ? 1 : 0;
-					}
-
-					// 重复间隔
-					if (remindersData.repeat_interval !== undefined) {
-						reminders.repeat_interval = remindersData.repeat_interval;
-					}
-
-					// 每周重复日期（multiOptions数组）
-					if (remindersData.repeat_day_of_week && Array.isArray(remindersData.repeat_day_of_week) && remindersData.repeat_day_of_week.length > 0) {
-						reminders.repeat_day_of_week = (remindersData.repeat_day_of_week as number[])
-							.map((val) => Number(val))
-							.filter((val) => !isNaN(val) && val >= 1 && val <= 7);
-					}
-
-					// 每月重复日期（multiOptions数组）
-					if (remindersData.repeat_day_of_month && Array.isArray(remindersData.repeat_day_of_month) && remindersData.repeat_day_of_month.length > 0) {
-						reminders.repeat_day_of_month = (remindersData.repeat_day_of_month as number[])
-							.map((val) => Number(val))
-							.filter((val) => !isNaN(val) && val >= 1 && val <= 31);
-					}
-
-					// 时区
-					if (remindersData.timezone !== undefined) {
-						reminders.timezone = remindersData.timezone;
-					}
-
-					// 只有当 reminders 对象不为空时才添加到 schedule 中
-					if (Object.keys(reminders).length > 0) {
-						schedule.reminders = reminders;
-					}
-				}
-
+				const advanced = this.getNodeParameter('advancedSettings', i, {}) as IDataObject;
+				const calendarId = text(this, advanced.cal_id, '所属日历 ID', i, 64, false);
+				if (calendarId) schedule.cal_id = calendarId;
+				const reminders = scheduleReminders(
+					this,
+					this.getNodeParameter('remindersCollection', i, {}) as IDataObject,
+					wholeDay,
+					i,
+				);
+				if (reminders) schedule.reminders = reminders;
 				const body: IDataObject = { schedule };
-				if (agentid && agentid > 0) {
-					body.agentid = agentid;
-				}
-
+				const agentId = integer(this, advanced.agentid ?? 0, '应用 AgentID', i, 0, MAX_UINT32);
+				if (agentId) body.agentid = agentId;
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/oa/schedule/add', body);
 			} else if (operation === 'updateSchedule') {
-				const schedule_id = this.getNodeParameter('schedule_id', i) as string;
-				const summary = this.getNodeParameter('summary', i, '') as string;
-				const admins = this.getNodeParameter('admins', i, []) as string[];
-				const start_time = dateTimeToUnixTimestamp(this.getNodeParameter('start_time', i) as string | number);
-				const end_time = dateTimeToUnixTimestamp(this.getNodeParameter('end_time', i) as string | number);
-				const is_whole_day = this.getNodeParameter('is_whole_day', i, false) as boolean;
-				const attendees = this.getNodeParameter('attendees', i, []) as string[];
-				const description = this.getNodeParameter('description', i, '') as string;
-				const location = this.getNodeParameter('location', i, '') as string;
-				const remindersCollection = this.getNodeParameter('remindersCollection', i, {}) as IDataObject;
-				const skip_attendees = this.getNodeParameter('skip_attendees', i, false) as boolean;
-				const op_mode = this.getNodeParameter('op_mode', i, 0) as number;
-				const op_start_time_raw = this.getNodeParameter('op_start_time', i, '') as string | number;
-				const op_start_time = op_start_time_raw ? dateTimeToUnixTimestamp(op_start_time_raw) : 0;
-
+				const { start, end } = timeWindow(
+					this,
+					this.getNodeParameter('start_time', i),
+					this.getNodeParameter('end_time', i),
+					i,
+				);
+				const wholeDay = this.getNodeParameter('is_whole_day', i, false) as boolean;
+				const skipAttendees = this.getNodeParameter('skip_attendees', i, false) as boolean;
+				const admins = stringList(
+					this,
+					this.getNodeParameter('admins', i, []),
+					'日程管理员',
+					i,
+					0,
+					3,
+				);
+				const attendees = stringList(
+					this,
+					this.getNodeParameter('attendees', i, []),
+					'日程参与者',
+					i,
+					0,
+					1000,
+				);
 				const schedule: IDataObject = {
-					schedule_id,
-					start_time,
-					end_time,
+					schedule_id: text(this, this.getNodeParameter('schedule_id', i), '日程 ID', i, 128),
+					start_time: start,
+					end_time: end,
+					is_whole_day: wholeDay ? 1 : 0,
+					summary: textWithLimits(
+						this,
+						this.getNodeParameter('summary', i, ''),
+						'日程标题',
+						i,
+						128,
+						512,
+						false,
+					),
+					description: textWithLimits(
+						this,
+						this.getNodeParameter('description', i, ''),
+						'日程描述',
+						i,
+						1000,
+						4000,
+						false,
+					),
+					location: textWithLimits(
+						this,
+						this.getNodeParameter('location', i, ''),
+						'日程地点',
+						i,
+						128,
+						512,
+						false,
+					),
 				};
-
-				// 日程主题（可选）
-				if (summary) {
-					schedule.summary = summary;
+				if (admins.length) schedule.admins = admins;
+				if (!skipAttendees) {
+					const merged = stringList(this, [...attendees, ...admins], '日程参与者', i, 0, 1000);
+					schedule.attendees = merged.map((userid) => ({
+						userid: text(this, userid, '参与者 UserID', i, 64),
+					}));
 				}
-
-				// 构建参与者列表（可选，最多1000人）
-				// 使用 Set 来去重，确保管理员也在参与者列表中
-				const attendeesSet = new Set<string>();
-				if (attendees && attendees.length > 0) {
-					if (attendees.length > 1000) {
-						throw new NodeOperationError(
-							this.getNode(),
-							'日程参与者最多支持1000人',
-							{ itemIndex: i },
-						);
-					}
-					attendees.forEach((userid) => {
-						if (userid) {
-							attendeesSet.add(userid);
-						}
-					});
-				}
-
-				// 日程管理员（可选，最多3人）
-				// 注意：管理员必须在参与者列表中，所以需要先将管理员添加到参与者列表
-				if (admins && admins.length > 0) {
-					if (admins.length > 3) {
-						throw new NodeOperationError(
-							this.getNode(),
-							'日程管理员最多指定3人',
-							{ itemIndex: i },
-						);
-					}
-					// 将管理员添加到参与者列表中（如果还没有的话）
-					admins.forEach((admin) => {
-						if (admin) {
-							attendeesSet.add(admin);
-						}
-					});
-					schedule.admins = admins;
-				}
-
-				// 设置参与者列表（如果 skip_attendees 为 false）
-				if (!skip_attendees && attendeesSet.size > 0) {
-					schedule.attendees = Array.from(attendeesSet).map((userid) => ({ userid }));
-				}
-
-				// 是否全天日程
-				if (is_whole_day) {
-					schedule.is_whole_day = 1;
-				}
-
-				if (description) schedule.description = description;
-				if (location) schedule.location = location;
-
-				// 构建提醒设置
-				if (remindersCollection.reminders) {
-					const remindersData = remindersCollection.reminders as IDataObject;
-					const reminders: IDataObject = {};
-
-					// 是否提醒
-					if (remindersData.is_remind !== undefined) {
-						reminders.is_remind = remindersData.is_remind ? 1 : 0;
-					}
-
-					// 提醒时间差列表（multiOptions数组）
-					// 注意：该字段与remind_before_event_secs仅一个字段会生效，当该字段有传值且列表不为空时，优先以该字段为准
-					if (remindersData.remind_time_diffs && Array.isArray(remindersData.remind_time_diffs) && remindersData.remind_time_diffs.length > 0) {
-						reminders.remind_time_diffs = (remindersData.remind_time_diffs as number[]).map((val) => Number(val));
-					} else {
-						// 只有当remind_time_diffs不存在或为空时，才使用remind_before_event_secs
-						if (remindersData.remind_before_event_secs !== undefined) {
-							reminders.remind_before_event_secs = remindersData.remind_before_event_secs;
-						}
-					}
-
-					// 是否重复
-					if (remindersData.is_repeat !== undefined) {
-						reminders.is_repeat = remindersData.is_repeat ? 1 : 0;
-					}
-
-					// 重复类型
-					if (remindersData.repeat_type !== undefined) {
-						reminders.repeat_type = remindersData.repeat_type;
-					}
-
-					// 重复结束时间
-					if (remindersData.repeat_until !== undefined && remindersData.repeat_until !== '' && remindersData.repeat_until !== 0) {
-						reminders.repeat_until = dateTimeToUnixTimestamp(remindersData.repeat_until as string | number);
-					}
-
-					// 是否自定义重复
-					if (remindersData.is_custom_repeat !== undefined) {
-						reminders.is_custom_repeat = remindersData.is_custom_repeat ? 1 : 0;
-					}
-
-					// 重复间隔
-					if (remindersData.repeat_interval !== undefined) {
-						reminders.repeat_interval = remindersData.repeat_interval;
-					}
-
-					// 每周重复日期（multiOptions数组）
-					if (remindersData.repeat_day_of_week && Array.isArray(remindersData.repeat_day_of_week) && remindersData.repeat_day_of_week.length > 0) {
-						reminders.repeat_day_of_week = (remindersData.repeat_day_of_week as number[])
-							.map((val) => Number(val))
-							.filter((val) => !isNaN(val) && val >= 1 && val <= 7);
-					}
-
-					// 每月重复日期（multiOptions数组）
-					if (remindersData.repeat_day_of_month && Array.isArray(remindersData.repeat_day_of_month) && remindersData.repeat_day_of_month.length > 0) {
-						reminders.repeat_day_of_month = (remindersData.repeat_day_of_month as number[])
-							.map((val) => Number(val))
-							.filter((val) => !isNaN(val) && val >= 1 && val <= 31);
-					}
-
-					// 时区
-					if (remindersData.timezone !== undefined) {
-						reminders.timezone = remindersData.timezone;
-					}
-
-					// 只有当 reminders 对象不为空时才添加到 schedule 中
-					if (Object.keys(reminders).length > 0) {
-						schedule.reminders = reminders;
-					}
-				}
-
-				const body: IDataObject = { schedule };
-
-				if (skip_attendees) {
-					body.skip_attendees = skip_attendees ? 1 : 0;
-				}
-				if (op_mode !== 0) {
-					body.op_mode = op_mode;
-				}
-				if (op_start_time > 0 && (op_mode === 1 || op_mode === 2)) {
-					body.op_start_time = op_start_time;
-				}
-
+				const reminders = scheduleReminders(
+					this,
+					this.getNodeParameter('remindersCollection', i, {}) as IDataObject,
+					wholeDay,
+					i,
+				);
+				if (reminders) schedule.reminders = reminders;
+				const { opMode, opStart } = operationScope(
+					this,
+					this.getNodeParameter('op_mode', i, 0),
+					this.getNodeParameter('op_start_time', i, ''),
+					i,
+				);
+				const body: IDataObject = {
+					schedule,
+					skip_attendees: skipAttendees ? 1 : 0,
+					op_mode: opMode,
+				};
+				if (opStart) body.op_start_time = opStart;
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/oa/schedule/update', body);
 			} else if (operation === 'updateRecurringSchedule') {
-				const schedule_id = this.getNodeParameter('schedule_id', i) as string;
-				const schedule_summary = this.getNodeParameter('schedule_summary', i, '') as string;
-				const schedule_description = this.getNodeParameter('schedule_description', i, '') as string;
-				const schedule_start_time = dateTimeToUnixTimestamp(
-					this.getNodeParameter('schedule_start_time', i, '') as string | number,
+				const scheduleBody: IDataObject = {
+					...jsonObject(this, this.getNodeParameter('schedule', i, '{}'), '日程扩展 JSON', i),
+				};
+				const summary = textWithLimits(
+					this,
+					this.getNodeParameter('schedule_summary', i, ''),
+					'日程标题',
+					i,
+					128,
+					512,
+					false,
 				);
-				const schedule_end_time = dateTimeToUnixTimestamp(
-					this.getNodeParameter('schedule_end_time', i, '') as string | number,
+				const description = textWithLimits(
+					this,
+					this.getNodeParameter('schedule_description', i, ''),
+					'日程描述',
+					i,
+					1000,
+					4000,
+					false,
 				);
-				const schedule_location = this.getNodeParameter('schedule_location', i, '') as string;
-				const schedule = this.getNodeParameter('schedule', i, '{}') as string;
-				const skip_attendees = this.getNodeParameter('skip_attendees', i, false) as boolean;
-				const op_mode = this.getNodeParameter('op_mode', i, 1) as number;
-				const op_start_time_raw = this.getNodeParameter('op_start_time', i, '') as string | number;
-				const op_start_time = op_start_time_raw ? dateTimeToUnixTimestamp(op_start_time_raw) : 0;
-
-				const scheduleBody: IDataObject = { schedule_id };
-				if (schedule_summary) scheduleBody.summary = schedule_summary;
-				if (schedule_description) scheduleBody.description = schedule_description;
-				if (schedule_start_time) scheduleBody.start_time = schedule_start_time;
-				if (schedule_end_time) scheduleBody.end_time = schedule_end_time;
-				if (schedule_location) scheduleBody.location = schedule_location;
-
-				try {
-					const parsedSchedule = JSON.parse(schedule || '{}') as IDataObject;
-					if (parsedSchedule && typeof parsedSchedule === 'object') {
-						Object.assign(scheduleBody, parsedSchedule);
-						scheduleBody.schedule_id = schedule_id;
-					}
-				} catch (error) {
-					throw new NodeOperationError(
-						this.getNode(),
-						`日程扩展JSON 必须是有效的 JSON: ${(error as Error).message}`,
-						{ itemIndex: i },
-					);
-				}
-
-				const body: IDataObject = { schedule: scheduleBody };
-
-				if (skip_attendees) {
-					body.skip_attendees = skip_attendees ? 1 : 0;
-				}
-				if (op_mode !== 0) {
-					body.op_mode = op_mode;
-				}
-				if (op_start_time > 0 && (op_mode === 1 || op_mode === 2)) {
-					body.op_start_time = op_start_time;
-				}
-
-				// 更新重复日程使用相同的接口，通过op_mode和op_start_time控制
+				const location = textWithLimits(
+					this,
+					this.getNodeParameter('schedule_location', i, ''),
+					'日程地点',
+					i,
+					128,
+					512,
+					false,
+				);
+				if (summary && scheduleBody.summary === undefined) scheduleBody.summary = summary;
+				if (description && scheduleBody.description === undefined)
+					scheduleBody.description = description;
+				if (location && scheduleBody.location === undefined) scheduleBody.location = location;
+				const formStart = unixTimestamp(
+					this,
+					this.getNodeParameter('schedule_start_time', i, ''),
+					'日程开始时间',
+					i,
+					false,
+				);
+				const formEnd = unixTimestamp(
+					this,
+					this.getNodeParameter('schedule_end_time', i, ''),
+					'日程结束时间',
+					i,
+					false,
+				);
+				if (formStart && scheduleBody.start_time === undefined) scheduleBody.start_time = formStart;
+				if (formEnd && scheduleBody.end_time === undefined) scheduleBody.end_time = formEnd;
+				const start = unixTimestamp(this, scheduleBody.start_time, '日程开始时间', i);
+				const end = unixTimestamp(this, scheduleBody.end_time, '日程结束时间', i);
+				if (end <= start) fail(this, '日程结束时间必须晚于开始时间', i);
+				scheduleBody.start_time = start;
+				scheduleBody.end_time = end;
+				scheduleBody.schedule_id = text(
+					this,
+					this.getNodeParameter('schedule_id', i),
+					'日程 ID',
+					i,
+					128,
+				);
+				const { opMode, opStart } = operationScope(
+					this,
+					this.getNodeParameter('op_mode', i, 1),
+					this.getNodeParameter('op_start_time', i, ''),
+					i,
+				);
+				const body: IDataObject = {
+					schedule: scheduleBody,
+					skip_attendees: this.getNodeParameter('skip_attendees', i, false) ? 1 : 0,
+					op_mode: opMode,
+				};
+				if (opStart) body.op_start_time = opStart;
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/oa/schedule/update', body);
-			} else if (operation === 'addScheduleAttendees') {
-				const schedule_id = this.getNodeParameter('schedule_id', i) as string;
-				const attendeesCollection = this.getNodeParameter('attendeesCollection', i, {}) as IDataObject;
-
-				const attendees: IDataObject[] = [];
-				if (attendeesCollection.attendees) {
-					const attendeesList = attendeesCollection.attendees as IDataObject[];
-					if (attendeesList.length === 0) {
-						throw new NodeOperationError(
-							this.getNode(),
-							'至少需要添加一个参与者',
-							{ itemIndex: i },
-						);
-					}
-					attendeesList.forEach((a) => {
-						if (a.userid) {
-							attendees.push({ userid: a.userid });
-						}
-					});
-				}
-
-				if (attendees.length === 0) {
-					throw new NodeOperationError(
-						this.getNode(),
-						'至少需要添加一个参与者',
-						{ itemIndex: i },
-					);
-				}
-
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/oa/schedule/add_attendees', {
-					schedule_id,
-					attendees,
-				});
-			} else if (operation === 'deleteScheduleAttendees') {
-				const schedule_id = this.getNodeParameter('schedule_id', i) as string;
-				const attendeesCollection = this.getNodeParameter('attendeesCollection', i, {}) as IDataObject;
-
-				const attendees: IDataObject[] = [];
-				if (attendeesCollection.attendees) {
-					const attendeesList = attendeesCollection.attendees as IDataObject[];
-					if (attendeesList.length === 0) {
-						throw new NodeOperationError(
-							this.getNode(),
-							'至少需要删除一个参与者',
-							{ itemIndex: i },
-						);
-					}
-					attendeesList.forEach((a) => {
-						if (a.userid) {
-							attendees.push({ userid: a.userid });
-						}
-					});
-				}
-
-				if (attendees.length === 0) {
-					throw new NodeOperationError(
-						this.getNode(),
-						'至少需要删除一个参与者',
-						{ itemIndex: i },
-					);
-				}
-
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/oa/schedule/del_attendees', {
-					schedule_id,
-					attendees,
-				});
+			} else if (operation === 'addScheduleAttendees' || operation === 'deleteScheduleAttendees') {
+				const collection = this.getNodeParameter('attendeesCollection', i, {}) as IDataObject;
+				const rawAttendees = (collection.attendees as IDataObject[]) || [];
+				const attendeeIds = stringList(
+					this,
+					rawAttendees.map((attendee) => attendee.userid),
+					'日程参与者',
+					i,
+					1,
+					1000,
+				);
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					operation === 'addScheduleAttendees'
+						? '/cgi-bin/oa/schedule/add_attendees'
+						: '/cgi-bin/oa/schedule/del_attendees',
+					{
+						schedule_id: text(this, this.getNodeParameter('schedule_id', i), '日程 ID', i, 128),
+						attendees: attendeeIds.map((userid) => ({
+							userid: text(this, userid, '参与者 UserID', i, 64),
+						})),
+					},
+				);
 			} else if (operation === 'listCalendarSchedules') {
-				const cal_id = this.getNodeParameter('cal_id', i) as string;
-				const offset = this.getNodeParameter('offset', i, 0) as number;
-				const limit = this.getNodeParameter('limit', i, 500) as number;
-
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/oa/schedule/get_by_calendar', {
-					cal_id,
-					offset,
-					limit,
-				});
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/oa/schedule/get_by_calendar',
+					{
+						cal_id: text(this, this.getNodeParameter('cal_id', i), '日历 ID', i, 64),
+						offset: integer(
+							this,
+							this.getNodeParameter('offset', i, 0),
+							'偏移量',
+							i,
+							0,
+							MAX_UINT32,
+						),
+						limit: integer(this, this.getNodeParameter('limit', i, 500), '限制数量', i, 1, 1000),
+					},
+				);
 			} else if (operation === 'getSchedule') {
-				const schedule_id_list = this.getNodeParameter('schedule_id_list', i) as string;
-
-				const scheduleIds = schedule_id_list.split(',').map((id) => id.trim()).filter((id) => id.length > 0);
-
-				if (scheduleIds.length === 0) {
-					throw new NodeOperationError(
-						this.getNode(),
-						'至少需要提供一个日程ID',
-						{ itemIndex: i },
-					);
-				}
-
-				if (scheduleIds.length > 1000) {
-					throw new NodeOperationError(
-						this.getNode(),
-						'一次最多拉取1000条日程',
-						{ itemIndex: i },
-					);
-				}
-
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/oa/schedule/get', {
-					schedule_id_list: scheduleIds,
+					schedule_id_list: stringList(
+						this,
+						this.getNodeParameter('schedule_id_list', i),
+						'日程 ID',
+						i,
+						1,
+						1000,
+					).map((id) => text(this, id, '日程 ID', i, 128)),
 				});
 			} else if (operation === 'cancelSchedule') {
-				const schedule_id = this.getNodeParameter('schedule_id', i) as string;
-				const op_mode = this.getNodeParameter('op_mode', i, 0) as number;
-				const op_start_time_raw = this.getNodeParameter('op_start_time', i, '') as string | number;
-				const op_start_time = op_start_time_raw ? dateTimeToUnixTimestamp(op_start_time_raw) : 0;
-
+				const { opMode, opStart } = operationScope(
+					this,
+					this.getNodeParameter('op_mode', i, 0),
+					this.getNodeParameter('op_start_time', i, ''),
+					i,
+				);
 				const body: IDataObject = {
-					schedule_id,
+					schedule_id: text(this, this.getNodeParameter('schedule_id', i), '日程 ID', i, 128),
+					op_mode: opMode,
 				};
-
-				if (op_mode !== 0) {
-					body.op_mode = op_mode;
-				}
-				if (op_start_time > 0 && (op_mode === 1 || op_mode === 2)) {
-					body.op_start_time = op_start_time;
-				}
-
+				if (opStart) body.op_start_time = opStart;
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/oa/schedule/del', body);
 			} else {
-				response = {};
+				fail(this, `不支持的日历操作：${operation}`, i);
 			}
 
-			returnData.push({
-				json: response,
-				pairedItem: { item: i },
-			});
+			returnData.push({ json: response, pairedItem: { item: i } });
 		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
 			if (this.continueOnFail()) {
-				returnData.push({
-					json: {
-						error: error.message,
-					},
-					pairedItem: { item: i },
-				});
+				returnData.push({ json: { error: message }, pairedItem: { item: i } });
 				continue;
 			}
-			throw error;
+			if (error instanceof NodeOperationError) throw error;
+			throw new NodeOperationError(this.getNode(), message, { itemIndex: i });
 		}
 	}
 
 	return returnData;
 }
-

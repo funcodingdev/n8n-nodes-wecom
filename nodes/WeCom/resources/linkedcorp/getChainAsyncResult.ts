@@ -15,7 +15,6 @@ export const getChainAsyncResultDescription: INodeProperties[] = [
 			show: showOnlyForGetResult,
 		},
 		default: '',
-		description: '异步任务ID，最大长度为64字节。',
+		description: '异步任务 ID，最大长度 64 字节',
 	},
 ];
-

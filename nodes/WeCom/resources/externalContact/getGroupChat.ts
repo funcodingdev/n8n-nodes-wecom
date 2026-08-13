@@ -22,11 +22,10 @@ export const getGroupChatDescription: INodeProperties[] = [
 		displayName: '是否需要返回群成员的名字',
 		name: 'need_name',
 		type: 'boolean',
-		default: true,
+		default: false,
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '是否需要返回群成员的名字，默认为true。如果不需要可以设置为false以提升接口响应速度。<a href="https://developer.work.weixin.qq.com/document/path/92122" target="_blank">官方文档</a>。可选。是否需要返回群成员的名字',
+		description: '是否需要返回群成员名字；官方默认不返回，按需开启可减少响应数据量',
 	},
 ];
-

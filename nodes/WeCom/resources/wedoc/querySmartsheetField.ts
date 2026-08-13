@@ -26,7 +26,7 @@ export const querySmartsheetFieldDescription: INodeProperties[] = [
 		type: 'number',
 		displayOptions: { show: showOnly },
 		default: 50,
-		typeOptions: { minValue: 1, maxValue: 1000 },
-		description: '每页返回多少条数据。默认 100，最大 1000',
+		typeOptions: { minValue: 0, maxValue: 1000 },
+		description: '每页返回多少条数据。为 0 时按官方默认一次最多返回 1000 条，最大 1000',
 	},
 ];

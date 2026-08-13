@@ -5,7 +5,6 @@ const showOnly = { resource: ['wefile'], operation: ['addSpaceMembers'] };
 // 权限选项（根据官方文档）
 const authOptions = [
 	{ name: '仅下载', value: 1, description: '只能下载文件（仅浏览）' },
-	{ name: '可预览', value: 4, description: '只能预览文件（仅专业版微盘企业可设置）' },
 	{ name: '管理员', value: 7, description: '应用空间管理员（最多可指定3个，不支持设置部门）' },
 ];
 

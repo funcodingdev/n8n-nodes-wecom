@@ -105,7 +105,7 @@ export const appAuthDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '第三方应用ID或者代开发应用模板ID。第三方应用以ww或wx开头应用ID（对应于旧的以tj开头的套件ID）；代开发应用以dk开头',
+		description: '第三方应用 ID 或代开发应用模板 ID。第三方应用以 ww 或 wx 开头（对应旧的 tj 开头套件 ID）；代开发应用以 dk 开头',
 	},
 	{
 		displayName: '第三方应用Secret',
@@ -122,7 +122,7 @@ export const appAuthDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '第三方应用secret 或者代开发应用模板secret。从企业微信服务商后台获取',
+		description: '第三方应用 Secret 或代开发应用模板 Secret，从企业微信服务商后台获取',
 	},
 	{
 		displayName: 'Suite Ticket',
@@ -187,7 +187,7 @@ export const appAuthDescription: INodeProperties[] = [
 		description: '通过"获取预授权码"接口获取的pre_auth_code',
 	},
 	{
-		displayName: '允许授权的应用ID（可选）',
+		displayName: '允许授权的应用 ID',
 		name: 'appid',
 		type: 'string',
 		displayOptions: {
@@ -197,8 +197,8 @@ export const appAuthDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '允许进行授权的应用ID。如1、2、3，多个应用ID用逗号分隔。不填或者填空都表示允许授权套件内所有应用（仅旧的多应用套件可传此参数，新开发者可忽略）',
-		placeholder: '例如: 1,2,3',
+		description: '仅旧的多应用套件需要设置。支持使用逗号、竖线或换行分隔多个正整数；留空表示允许授权套件内全部应用',
+		placeholder: '例如：1,2,3',
 	},
 	{
 		displayName: '授权类型',
@@ -274,7 +274,7 @@ export const appAuthDescription: INodeProperties[] = [
 		description: '第三方应用access_token，通过"获取第三方应用凭证"接口获取的suite_access_token，有效期为2小时',
 	},
 	{
-		displayName: '授权方企业ID',
+		displayName: '授权方企业 ID',
 		name: 'authCorpid',
 		type: 'string',
 		required: true,
@@ -322,7 +322,7 @@ export const appAuthDescription: INodeProperties[] = [
 		description: '第三方应用access_token，通过"获取第三方应用凭证"接口获取的suite_access_token，有效期为2小时',
 	},
 	{
-		displayName: '授权方企业ID',
+		displayName: '授权方企业 ID',
 		name: 'authCorpid',
 		type: 'string',
 		required: true,
@@ -370,7 +370,7 @@ export const appAuthDescription: INodeProperties[] = [
 		description: '第三方应用access_token，通过"获取第三方应用凭证"接口获取的suite_access_token，有效期为2小时',
 	},
 	{
-		displayName: '第三方应用ID',
+		displayName: '第三方应用 ID',
 		name: 'suiteId',
 		type: 'string',
 		required: true,
@@ -381,12 +381,16 @@ export const appAuthDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '第三方应用ID（即ww或wx开头的suiteid）。第三方应用ID，单应用不需要该参数，多应用旧套件才需要传该参数',
+		description: '第三方应用 ID，即以 ww 或 wx 开头的 suite_id；接口要求必填',
 	},
 	{
-		displayName: '应用ID（可选）',
+		displayName: '旧套件应用 ID',
 		name: 'appid',
 		type: 'number',
+		typeOptions: {
+			minValue: 1,
+			numberStepSize: 1,
+		},
 		displayOptions: {
 			show: {
 				resource: ['appAuth'],
@@ -394,10 +398,10 @@ export const appAuthDescription: INodeProperties[] = [
 			},
 		},
 		default: 1,
-		description: '第三方应用ID。单应用不需要该参数，多应用旧套件才需要传该参数，若不传默认为1',
+		description: '仅旧的多应用套件需要设置；值为 1 时按接口默认行为不发送该字段',
 	},
 	{
-		displayName: 'State值（可选）',
+		displayName: 'State',
 		name: 'state',
 		type: 'string',
 		displayOptions: {
@@ -407,7 +411,7 @@ export const appAuthDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'State值，用于区分不同的安装渠道。可以填写a-zA-Z0-9，长度不可超过32个字节，默认为空。扫应用带参二维码授权安装后，获取企业永久授权码接口会返回该state值',
+		description: '用于区分安装渠道，仅支持英文字母和数字，最多 32 个字符。授权安装后，获取企业永久授权码接口会返回该值',
 	},
 	{
 		displayName: '二维码样式',
@@ -456,18 +460,33 @@ export const appAuthDescription: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: '二维码图片buffer',
+				name: '二维码图片（二进制）',
 				value: 1,
-				description: '返回二维码图片buffer（二进制数据）',
+				description: '将二维码图片写入指定的二进制数据属性',
 			},
 			{
-				name: '二维码图片URL',
+				name: '二维码图片 URL',
 				value: 2,
-				description: '返回二维码图片URL（JSON格式）',
+				description: '返回包含二维码图片 URL 的 JSON',
 			},
 		],
 		default: 1,
-		description: '结果返回方式，默认为返回二维码图片buffer',
+		description: '选择直接返回二维码图片，或返回图片 URL',
+	},
+	{
+		displayName: '二进制数据属性',
+		name: 'binaryProperty',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['appAuth'],
+				operation: ['getAppQrcode'],
+				resultType: [1],
+			},
+		},
+		default: 'data',
+		description: '用于存储二维码图片的二进制属性名称',
 	},
 	{
 		displayName: 'Provider Access Token',
@@ -487,7 +506,7 @@ export const appAuthDescription: INodeProperties[] = [
 		description: '应用服务商的provider_access_token，获取方法参见服务商的凭证',
 	},
 	{
-		displayName: '企业ID',
+		displayName: '企业 ID',
 		name: 'corpid',
 		type: 'string',
 		required: true,
@@ -564,7 +583,7 @@ export const appAuthDescription: INodeProperties[] = [
 		},
 		default: '',
 		description:
-			'start_time（Unix 秒）。<a href="https://developer.work.weixin.qq.com/document/path/90600" target="_blank">官方文档</a>',
+			'订单查询的起始时间，将自动转换为 Unix 秒。<a href="https://developer.work.weixin.qq.com/document/path/91910" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '终止时间',
@@ -578,7 +597,7 @@ export const appAuthDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'end_time（Unix 秒）',
+		description: '订单查询的终止时间，将自动转换为 Unix 秒；不能早于起始时间',
 	},
 	{
 		displayName: '测试模式',
@@ -634,7 +653,7 @@ export const appAuthDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '要查询的订单号',
+		description: '要查询的订单号。<a href="https://developer.work.weixin.qq.com/document/path/91909" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: 'Suite Access Token',
@@ -654,7 +673,7 @@ export const appAuthDescription: INodeProperties[] = [
 		description: '第三方应用凭证，通过"获取第三方应用凭证"接口获取的suite_access_token',
 	},
 	{
-		displayName: '购买方corpid',
+		displayName: '购买方 CorpID',
 		name: 'buyerCorpid',
 		type: 'string',
 		required: true,
@@ -665,7 +684,7 @@ export const appAuthDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '购买方企业ID',
+		description: '购买方企业 ID',
 	},
 	{
 		displayName: '延长天数',
@@ -682,19 +701,40 @@ export const appAuthDescription: INodeProperties[] = [
 		description: '一个应用可以多次延长试用，但是试用总天数不能超过60天',
 		typeOptions: {
 			minValue: 1,
+			maxValue: 60,
+			numberStepSize: 1,
 		},
 	},
 	{
-		displayName: '应用ID（可选）',
-		name: 'appid',
-		type: 'number',
+		displayName: '发送旧套件应用 ID',
+		name: 'includeAppid',
+		type: 'boolean',
 		displayOptions: {
 			show: {
 				resource: ['appAuth'],
 				operation: ['prolongTry'],
 			},
 		},
+		default: false,
+		description: '是否发送仅旧的多应用套件需要的 appid 字段',
+	},
+	{
+		displayName: '旧套件应用 ID',
+		name: 'appid',
+		type: 'number',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['appAuth'],
+				operation: ['prolongTry'],
+				includeAppid: [true],
+			},
+		},
 		default: 1,
-		description: '仅旧套件需要填此参数',
+		typeOptions: {
+			minValue: 1,
+			numberStepSize: 1,
+		},
+		description: '仅旧的多应用套件需要填写。<a href="https://developer.work.weixin.qq.com/document/path/91913" target="_blank">官方文档</a>',
 	},
 ];

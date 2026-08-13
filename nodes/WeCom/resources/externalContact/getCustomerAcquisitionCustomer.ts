@@ -7,7 +7,7 @@ const showOnly = {
 
 export const getCustomerAcquisitionCustomerDescription: INodeProperties[] = [
 	{
-		displayName: '链接ID',
+		displayName: '链接 ID',
 		name: 'link_id',
 		type: 'string',
 		required: true,
@@ -15,10 +15,10 @@ export const getCustomerAcquisitionCustomerDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '获客链接ID。获客链接ID',
+		description: '需要是当前应用创建的获客链接 ID',
 	},
 	{
-		displayName: 'Cursor',
+		displayName: '分页游标',
 		name: 'cursor',
 		type: 'string',
 		default: '',
@@ -33,12 +33,12 @@ export const getCustomerAcquisitionCustomerDescription: INodeProperties[] = [
 		type: 'number',
 		typeOptions: {
 			minValue: 1,
+			maxValue: 1000,
 		},
 		default: 50,
 		displayOptions: {
 			show: showOnly,
 		},
-		description: 'Max number of results to return。返回的最大记录数，整型，最大值1000',
+		description: '返回的最大记录数，范围 1–1000',
 	},
 ];
-

@@ -39,7 +39,7 @@ export const sendMpNewsDescription: INodeProperties[] = [
 		},
 
 		description:
-			'可选。使用JSON直接输入图文列表（数组）或完整mpnews对象（包含articles）。<a href="https://developer.work.weixin.qq.com/document/path/90236#mpnews消息" target="_blank">官方文档</a>',
+			'使用 JSON 直接输入图文列表（数组）或完整 mpnews 对象（包含 articles）。<a href="https://developer.work.weixin.qq.com/document/path/90236#mpnews消息" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '图文列表',
@@ -104,13 +104,13 @@ export const sendMpNewsDescription: INodeProperties[] = [
 					},
 					{
 						displayName: '缩略图Media ID',
-						name: 'thumb_media_ID',
+						name: 'thumb_media_id',
 						type: 'string',
 						required: true,
 						default: '',
 						placeholder: '请输入缩略图的Media ID',
 						description:
-							'图文消息缩略图的media_ID，可以在上传多媒体文件接口中获得。此处thumb_media_ID即上传接口返回的media_ID。<a href="https://developer.work.weixin.qq.com/document/path/90236#mpnews消息" target="_blank">官方文档</a>',
+							'图文消息缩略图的 media_id，可通过上传临时素材接口获得。<a href="https://developer.work.weixin.qq.com/document/path/90236#mpnews消息" target="_blank">官方文档</a>',
 					},
 					{
 						displayName: '阅读原文链接',
@@ -147,7 +147,6 @@ export const sendMpNewsDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				...showOnlySendMpNews,
-				mpnews_input_mode: ['form'],
 			},
 		},
 		description: '可选。表示是否是保密消息，默认可对外分享。注意仅mpnews类型的消息支持仅限在企业内分享选项，其他消息类型不支持。<a href="https://developer.work.weixin.qq.com/document/path/90236#mpnews消息" target="_blank">官方文档</a>',
@@ -160,7 +159,6 @@ export const sendMpNewsDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				...showOnlySendMpNews,
-				mpnews_input_mode: ['form'],
 			},
 		},
 		description: '可选。表示是否开启ID转译，默认否。开启后会将消息中的userid转为@对应成员显示。<a href="https://developer.work.weixin.qq.com/document/path/90236#mpnews消息" target="_blank">官方文档</a>',
@@ -173,7 +171,6 @@ export const sendMpNewsDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				...showOnlySendMpNews,
-				mpnews_input_mode: ['form'],
 			},
 		},
 		description: '可选。表示是否开启重复消息检查，默认否。开启后相同内容的消息在时间间隔内不会重复发送。<a href="https://developer.work.weixin.qq.com/document/path/90236#mpnews消息" target="_blank">官方文档</a>',
@@ -187,7 +184,6 @@ export const sendMpNewsDescription: INodeProperties[] = [
 			show: {
 				...showOnlySendMpNews,
 				enable_duplicate_check: [true],
-				mpnews_input_mode: ['form'],
 			},
 		},
 		typeOptions: {

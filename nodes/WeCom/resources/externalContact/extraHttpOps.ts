@@ -19,7 +19,7 @@ export const externalContactExtraHttpOps: ExtraHttpOp[] = [
 	{ id: 'externalcontactGetSubscribeMode', name: '[学校通知] 获取关注模式', action: '获取学校通知关注模式', description: '获取家长关注「学校通知」的模式', path: '/cgi-bin/externalcontact/get_subscribe_mode', method: 'GET' },
 	{ id: 'externalcontactGetSubscribeQrCode', name: '[学校通知] 获取关注二维码', action: '获取学校通知二维码', description: '获取学校通知二维码', path: '/cgi-bin/externalcontact/get_subscribe_qr_code', method: 'GET' },
 	{ id: 'externalcontactSetSubscribeMode', name: '[学校通知] 设置关注模式', action: '设置学校通知关注模式', description: '设置家长关注「学校通知」的模式', path: '/cgi-bin/externalcontact/set_subscribe_mode', method: 'POST' },
-	{ id: 'externalcontactTransfer', name: '[客户联系] 分配在职成员客户(旧)', action: '分配在职成员客户', description: '分配在职成员的客户', path: '/cgi-bin/externalcontact/transfer', method: 'POST' },
+	{ id: 'externalcontactTransfer', name: '[客户联系] 分配在职或离职成员客户(旧)', action: '分配在职或离职成员客户', description: '旧版客户分配接口', path: '/cgi-bin/externalcontact/transfer', method: 'POST' },
 	{ id: 'crmAddMsgTemplate', name: '[客户联系(旧)] 创建企业群发', action: '创建企业群发（旧版）', description: '创建企业群发（旧版路径）', path: '/cgi-bin/crm/add_msg_template', method: 'POST' },
 	{ id: 'crmGetCustomerContacts', name: '[客户联系(旧)] 获取客户列表', action: '获取客户列表（旧版）', description: '获取客户列表（旧版路径）', path: '/cgi-bin/crm/get_customer_contacts', method: 'POST' },
 	{ id: 'crmGetExternalContact', name: '[客户联系(旧)] 获取客户详情', action: '获取客户详情（旧版）', description: '获取客户详情（旧版路径）', path: '/cgi-bin/crm/get_external_contact', method: 'POST' },
@@ -36,6 +36,19 @@ export const externalContactExtraHttpOpsById: Record<string, ExtraHttpOp> = Obje
 
 export const externalContactExtraHttpOpsOptionValues = externalContactExtraHttpOps.map((o) => o.id);
 
+const legacyCustomerOps = [
+	'externalcontactGetGroupMsgResult',
+	'externalcontactTransfer',
+	'crmAddMsgTemplate',
+	'crmGetCustomerContacts',
+	'crmGetExternalContact',
+	'crmGetExternalContactList',
+	'crmGetGroupMsgResult',
+	'crmGetUnassignedList',
+	'crmGetUserBehaviorData',
+	'crmTransferExternalContact',
+];
+
 export function getExternalContactExtraHttpOpOptions() {
 	return extraHttpOpOptions(externalContactExtraHttpOps);
 }
@@ -46,13 +59,6 @@ const needStrategyId = [
 	'externalcontactCustomerStrategyGet',
 	'externalcontactCustomerStrategyGetRange',
 	'externalcontactAddStrategyTag',
-	'externalcontactDelStrategyTag',
-	'externalcontactGetStrategyTagList',
-];
-
-const strategyCreateEdit = [
-	'externalcontactCustomerStrategyCreate',
-	'externalcontactCustomerStrategyEdit',
 ];
 
 const rangeNodeValues: INodeProperties[] = [
@@ -68,14 +74,14 @@ const rangeNodeValues: INodeProperties[] = [
 		description: '1-成员 2-部门',
 	},
 	{
-		displayName: '成员UserID',
+		displayName: '成员 UserID',
 		name: 'userid',
 		type: 'string',
 		default: '',
 		description: 'type 为成员时填写',
 	},
 	{
-		displayName: '部门ID',
+		displayName: '部门 ID',
 		name: 'partyid',
 		type: 'number',
 		default: 0,
@@ -105,19 +111,67 @@ const privilegeBooleanDefs: Array<{ name: string; displayName: string }> = [
 
 export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 	{
-		displayName: '规则组ID',
+		displayName: '这是兼容旧工作流的历史接口，官方已提供新版客户联系接口。新工作流应优先选择本资源中对应的非“旧”操作。',
+		name: 'legacyOperationNotice',
+		type: 'notice',
+		default: '',
+		displayOptions: { show: { resource: ['externalContact'], operation: legacyCustomerOps } },
+	},
+	{
+		displayName: '删除后无法恢复；删除前请确认没有仍需使用的子规则组或管理配置。',
+		name: 'deleteStrategyNotice',
+		type: 'notice',
+		default: '',
+		displayOptions: {
+			show: { resource: ['externalContact'], operation: ['externalcontactCustomerStrategyDel'] },
+		},
+	},
+	{
+		displayName: '删除标签组会同时删除组内标签，且无法恢复。',
+		name: 'deleteStrategyTagNotice',
+		type: 'notice',
+		default: '',
+		displayOptions: {
+			show: { resource: ['externalContact'], operation: ['externalcontactDelStrategyTag'] },
+		},
+	},
+	{
+		displayName: '企业必须完成验证才可获取学校通知二维码，否则企业微信会返回错误码 43009。',
+		name: 'subscribeQrNotice',
+		type: 'notice',
+		default: '',
+		displayOptions: {
+			show: { resource: ['externalContact'], operation: ['externalcontactGetSubscribeQrCode'] },
+		},
+	},
+	{
+		displayName: '规则组 ID',
 		name: 'strategy_id',
 		type: 'number',
+		required: true,
+		typeOptions: { minValue: 1 },
 		displayOptions: {
 			show: { resource: ['externalContact'], operation: needStrategyId },
 		},
-		default: 0,
-		description: '客户规则组 strategy_id',
+		default: 1,
+		description: '正整数客户规则组 ID',
 	},
 	{
-		displayName: '外部联系人ID',
+		displayName: '规则组 ID',
+		name: 'strategy_id',
+		type: 'number',
+		typeOptions: { minValue: 1 },
+		displayOptions: {
+			show: { resource: ['externalContact'], operation: ['externalcontactGetStrategyTagList'] },
+		},
+		default: 0,
+		description: '可选；留空或填 0 时查询应用可见的全部规则组标签',
+	},
+	{
+		displayName: '外部联系人 UserID',
 		name: 'ec_external_userid',
 		type: 'string',
+		required: true,
 		displayOptions: {
 			show: {
 				resource: ['externalContact'],
@@ -130,26 +184,37 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'external_userid',
+		description: '外部联系人的 UserID；旧版分配接口每次处理一个客户',
 	},
 	{
-		displayName: '成员UserID',
+		displayName: '成员 UserID',
 		name: 'ec_userid',
 		type: 'string',
+		required: true,
 		displayOptions: {
 			show: {
 				resource: ['externalContact'],
-				operation: [
-					'crmGetCustomerContacts',
-					'crmGetExternalContactList',
-					'crmGetUserBehaviorData',
-					'externalcontactTransfer',
-					'crmTransferExternalContact',
-				],
+				operation: ['crmGetExternalContactList'],
 			},
 		},
 		default: '',
-		description: '企业成员 userid；统计接口可逗号分隔多人',
+		description: '企业成员 UserID',
+	},
+	{
+		displayName: '成员 UserID 列表',
+		name: 'ec_userid',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['crmGetUserBehaviorData'],
+				behaviorFilterType: ['user'],
+			},
+		},
+		default: '',
+		placeholder: 'zhangsan,lisi',
+		description: '支持逗号、竖线或换行分隔，自动去重，最多 100 个',
 	},
 	{
 		displayName: '游标',
@@ -171,6 +236,7 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		displayName: '条数限制',
 		name: 'ec_limit',
 		type: 'number',
+		typeOptions: { minValue: 1, maxValue: 1000 },
 		displayOptions: {
 			show: {
 				resource: ['externalContact'],
@@ -181,19 +247,45 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 				],
 			},
 		},
-		default: 100,
+		default: 1000,
+		description: '范围 1–1000',
+	},
+	{
+		displayName: '更新规则组名称',
+		name: 'updateStrategyName',
+		type: 'boolean',
+		default: false,
+		displayOptions: {
+			show: { resource: ['externalContact'], operation: ['externalcontactCustomerStrategyEdit'] },
+		},
+		description: '开启后才会向企业微信发送规则组名称字段',
 	},
 	{
 		displayName: '规则组名称',
 		name: 'strategy_name',
 		type: 'string',
+		required: true,
 		displayOptions: {
-			show: { resource: ['externalContact'], operation: strategyCreateEdit },
+			show: { resource: ['externalContact'], operation: ['externalcontactCustomerStrategyCreate'] },
 		},
 		default: '',
 	},
 	{
-		displayName: '父规则组ID',
+		displayName: '规则组名称',
+		name: 'strategy_name',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactCustomerStrategyEdit'],
+				updateStrategyName: [true],
+			},
+		},
+		default: '',
+	},
+	{
+		displayName: '父规则组 ID',
 		name: 'parent_id',
 		type: 'number',
 		displayOptions: {
@@ -203,23 +295,52 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: 0,
+		typeOptions: { minValue: 0 },
 		description: '顶级填 0；有父规则组时权限配置会被忽略并继承父组',
 	},
 	{
-		displayName: '管理员UserID列表',
+		displayName: '更新管理员列表',
+		name: 'updateAdminList',
+		type: 'boolean',
+		default: false,
+		displayOptions: {
+			show: { resource: ['externalContact'], operation: ['externalcontactCustomerStrategyEdit'] },
+		},
+		description: '开启后覆盖旧管理员列表；企业微信不支持用空列表清除',
+	},
+	{
+		displayName: '管理员 UserID 列表',
 		name: 'admin_list',
 		type: 'string',
+		required: true,
 		displayOptions: {
-			show: { resource: ['externalContact'], operation: strategyCreateEdit },
+			show: { resource: ['externalContact'], operation: ['externalcontactCustomerStrategyCreate'] },
 		},
 		default: '',
 		placeholder: 'zhangsan,lisi',
-		description: '逗号分隔，最多 20 个，不可配置超级管理员',
+		description: '支持逗号、竖线或换行分隔，自动去重，1–20 个；不可配置超级管理员',
+	},
+	{
+		displayName: '管理员 UserID 列表',
+		name: 'admin_list',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactCustomerStrategyEdit'],
+				updateAdminList: [true],
+			},
+		},
+		default: '',
+		placeholder: 'zhangsan,lisi',
+		description: '覆盖旧管理员列表，支持逗号、竖线或换行分隔，1–20 个',
 	},
 	{
 		displayName: '管理范围',
 		name: 'rangeCollection',
 		type: 'fixedCollection',
+		required: true,
 		displayOptions: {
 			show: {
 				resource: ['externalContact'],
@@ -245,7 +366,7 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		default: {},
 		placeholder: '添加节点',
 		typeOptions: { multipleValues: true },
-		description: '向管理范围追加的节点',
+		description: '向管理范围追加的节点；与删除节点合计单次最多 100 个',
 		options: [{ displayName: '范围节点', name: 'ranges', values: rangeNodeValues }],
 	},
 	{
@@ -261,7 +382,7 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		default: {},
 		placeholder: '删除节点',
 		typeOptions: { multipleValues: true },
-		description: '从管理范围移除的节点',
+		description: '从管理范围移除的节点；与添加节点合计单次最多 100 个',
 		options: [{ displayName: '范围节点', name: 'ranges', values: rangeNodeValues }],
 	},
 	{
@@ -284,11 +405,12 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 			name: p.name,
 			type: 'boolean',
 			default: true,
-			displayOptions: {
-				show: {
-					resource: ['externalContact'],
-					operation: ['externalcontactCustomerStrategyCreate'],
-				},
+				displayOptions: {
+					show: {
+						resource: ['externalContact'],
+						operation: ['externalcontactCustomerStrategyCreate'],
+						parent_id: [0],
+					},
 			},
 		},
 		{
@@ -306,7 +428,7 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		},
 	]),
 	{
-		displayName: '标签组ID',
+		displayName: '标签组 ID',
 		name: 'tag_group_id',
 		type: 'string',
 		displayOptions: {
@@ -316,7 +438,7 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '已有标签组 group_id；填写后忽略名称与次序',
+		description: '已有标签组 ID；填写后隐藏字段中的名称与次序不会下发',
 	},
 	{
 		displayName: '标签组名称',
@@ -335,6 +457,7 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		displayName: '标签组次序',
 		name: 'tag_group_order',
 		type: 'number',
+		typeOptions: { minValue: 0, maxValue: 4294967295 },
 		displayOptions: {
 			show: {
 				resource: ['externalContact'],
@@ -348,6 +471,7 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		displayName: '标签列表',
 		name: 'strategyTagCollection',
 		type: 'fixedCollection',
+		required: true,
 		displayOptions: {
 			show: {
 				resource: ['externalContact'],
@@ -374,6 +498,7 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 						displayName: '次序',
 						name: 'order',
 						type: 'number',
+						typeOptions: { minValue: 0, maxValue: 4294967295 },
 						default: 0,
 					},
 				],
@@ -381,9 +506,10 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '标签/标签组ID',
+		displayName: '标签或标签组 ID',
 		name: 'strategy_tag_id',
 		type: 'string',
+		required: true,
 		displayOptions: {
 			show: {
 				resource: ['externalContact'],
@@ -394,6 +520,18 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		description: '要编辑的标签或标签组 id',
 	},
 	{
+		displayName: '更新名称',
+		name: 'updateStrategyTagName',
+		type: 'boolean',
+		default: false,
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactEditStrategyTag'],
+			},
+		},
+	},
+	{
 		displayName: '新名称',
 		name: 'strategy_tag_name',
 		type: 'string',
@@ -401,10 +539,25 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 			show: {
 				resource: ['externalContact'],
 				operation: ['externalcontactEditStrategyTag'],
+				updateStrategyTagName: [true],
 			},
 		},
+		required: true,
 		default: '',
 		description: '新的标签或标签组名称，最长 30 字符',
+	},
+	{
+		displayName: '更新次序',
+		name: 'updateStrategyTagOrder',
+		type: 'boolean',
+		default: false,
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactEditStrategyTag'],
+			},
+		},
+		description: '开启后可显式将次序设置为 0',
 	},
 	{
 		displayName: '新次序',
@@ -414,13 +567,15 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 			show: {
 				resource: ['externalContact'],
 				operation: ['externalcontactEditStrategyTag'],
+				updateStrategyTagOrder: [true],
 			},
 		},
+		typeOptions: { minValue: 0, maxValue: 4294967295 },
 		default: 0,
-		description: 'order 越大越靠前；0 表示不修改',
+		description: '次序越大越靠前，有效范围 0–2³²−1',
 	},
 	{
-		displayName: '标签ID列表',
+		displayName: '标签 ID 列表',
 		name: 'strategy_tag_ids',
 		type: 'string',
 		displayOptions: {
@@ -431,10 +586,10 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'etXXX,etYYY',
-		description: '逗号分隔的标签 id',
+		description: '支持逗号、竖线或换行分隔，自动去重',
 	},
 	{
-		displayName: '标签组ID列表',
+		displayName: '标签组 ID 列表',
 		name: 'strategy_group_ids',
 		type: 'string',
 		displayOptions: {
@@ -445,7 +600,7 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'etZZZ,etWWW',
-		description: '逗号分隔的标签组 id；删除时与标签 id 不可同时为空',
+		description: '支持逗号、竖线或换行分隔，自动去重；查询时填写后会忽略标签 ID，删除时两者不可同时为空',
 	},
 	{
 		displayName: '关注模式',
@@ -465,9 +620,10 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		description: '家长关注「学校通知」的模式',
 	},
 	{
-		displayName: '企业群发消息ID',
+		displayName: '企业群发消息 ID',
 		name: 'msgid',
 		type: 'string',
+		required: true,
 		displayOptions: {
 			show: {
 				resource: ['externalContact'],
@@ -475,44 +631,6 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-	},
-	{
-		displayName: '发送成员UserID',
-		name: 'groupmsg_userid',
-		type: 'string',
-		displayOptions: {
-			show: {
-				resource: ['externalContact'],
-				operation: ['externalcontactGetGroupMsgResult', 'crmGetGroupMsgResult'],
-			},
-		},
-		default: '',
-		description: '发送成员 userid，用于筛选该成员的发送结果',
-	},
-	{
-		displayName: '群发结果游标',
-		name: 'groupmsg_cursor',
-		type: 'string',
-		displayOptions: {
-			show: {
-				resource: ['externalContact'],
-				operation: ['externalcontactGetGroupMsgResult', 'crmGetGroupMsgResult'],
-			},
-		},
-		default: '',
-	},
-	{
-		displayName: '群发结果条数',
-		name: 'groupmsg_limit',
-		type: 'number',
-		displayOptions: {
-			show: {
-				resource: ['externalContact'],
-				operation: ['externalcontactGetGroupMsgResult', 'crmGetGroupMsgResult'],
-			},
-		},
-		default: 50,
-		description: '最大 1000',
 	},
 	{
 		displayName: '群发文本内容',
@@ -529,7 +647,7 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		description: 'text.content 文本消息内容',
 	},
 	{
-		displayName: '群发接收客户ID列表',
+		displayName: '群发接收客户 UserID 列表',
 		name: 'crm_external_userid_list',
 		type: 'string',
 		displayOptions: {
@@ -540,10 +658,10 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'wmXXX,wmYYY',
-		description: 'external_userid 列表，逗号分隔',
+		description: '支持逗号、竖线或换行分隔，自动去重，最多 10000 个；与发送成员不能同时为空',
 	},
 	{
-		displayName: '群发发送成员UserID',
+		displayName: '群发发送成员 UserID',
 		name: 'crm_sender',
 		type: 'string',
 		displayOptions: {
@@ -553,7 +671,7 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'sender，发送企业群发消息的成员',
+		description: '发送企业群发消息的成员；与客户列表不能同时为空',
 	},
 	{
 		displayName: '群发附件',
@@ -568,7 +686,7 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		default: {},
 		placeholder: '添加附件',
 		typeOptions: { multipleValues: true },
-		description: 'attachments 简易表单（图片/链接/小程序）',
+		description: '附件简易表单，支持图片、链接和小程序；总数 1–9 个',
 		options: [
 			{
 				displayName: '附件',
@@ -586,14 +704,14 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 						default: 'image',
 					},
 					{
-						displayName: '图片MediaID',
+						displayName: 'Media ID / 小程序封面 Media ID',
 						name: 'media_id',
 						type: 'string',
 						default: '',
-						description: 'image.media_id',
+						description: '图片或小程序封面的 Media ID',
 					},
 					{
-						displayName: '图片URL',
+						displayName: '图片 URL / 链接封面 URL',
 						name: 'pic_url',
 						type: 'string',
 						default: '',
@@ -612,13 +730,13 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 						default: '',
 					},
 					{
-						displayName: '链接URL',
+						displayName: '链接 URL',
 						name: 'url',
 						type: 'string',
 						default: '',
 					},
 					{
-						displayName: '小程序AppID',
+						displayName: '小程序 AppID',
 						name: 'appid',
 						type: 'string',
 						default: '',
@@ -647,9 +765,39 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		description: '非空数组时覆盖上方附件表单',
 	},
 	{
+		displayName: '统计筛选类型',
+		name: 'behaviorFilterType',
+		type: 'options',
+		options: [
+			{ name: '按成员', value: 'user' },
+			{ name: '按部门', value: 'party' },
+		],
+		default: 'user',
+		displayOptions: {
+			show: { resource: ['externalContact'], operation: ['crmGetUserBehaviorData'] },
+		},
+	},
+	{
+		displayName: '部门 ID 列表',
+		name: 'behavior_partyid',
+		type: 'string',
+		required: true,
+		default: '',
+		placeholder: '2,3',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['crmGetUserBehaviorData'],
+				behaviorFilterType: ['party'],
+			},
+		},
+		description: '正整数部门 ID，支持逗号、竖线或换行分隔，最多 100 个',
+	},
+	{
 		displayName: '统计开始时间',
 		name: 'behavior_start_time',
 		type: 'dateTime',
+		required: true,
 		displayOptions: {
 			show: {
 				resource: ['externalContact'],
@@ -657,12 +805,13 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'start_time（Unix 秒）',
+		description: '仅可查询最近 180 天，统计粒度为自然日',
 	},
 	{
 		displayName: '统计结束时间',
 		name: 'behavior_end_time',
 		type: 'dateTime',
+		required: true,
 		displayOptions: {
 			show: {
 				resource: ['externalContact'],
@@ -670,12 +819,13 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: 'end_time（Unix 秒）',
+		description: '不得早于开始时间，查询跨度不得超过 30 天',
 	},
 	{
-		displayName: '原添加成员UserID',
+		displayName: '原跟进成员 UserID',
 		name: 'handover_userid',
 		type: 'string',
+		required: true,
 		displayOptions: {
 			show: {
 				resource: ['externalContact'],
@@ -683,12 +833,12 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '原跟进成员 userid',
 	},
 	{
-		displayName: '接替成员UserID',
+		displayName: '接替成员 UserID',
 		name: 'takeover_userid',
 		type: 'string',
+		required: true,
 		displayOptions: {
 			show: {
 				resource: ['externalContact'],
@@ -696,20 +846,19 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '客户接替成员 userid',
 	},
 	{
-		displayName: '请求体JSON',
+		displayName: '请求体 JSON（高级）',
 		name: 'requestBody',
 		type: 'json',
 		displayOptions: {
 			show: { resource: ['externalContact'], operation: externalContactExtraHttpOpsOptionValues },
 		},
 		default: '{}',
-		description: '其余字段与上方合并，同名字段以 JSON 为准',
+		description: '与表单字段合并，同名字段以此处为准；合并后仍会执行必填、类型和范围校验',
 	},
 	{
-		displayName: 'Query参数JSON',
+		displayName: 'Query 参数 JSON（高级）',
 		name: 'requestQuery',
 		type: 'json',
 		displayOptions: {

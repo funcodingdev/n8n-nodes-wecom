@@ -9,7 +9,7 @@ const showOnlySendTemplateCard = {
 export const sendTemplateCardDescription: INodeProperties[] = [
 	...getRecipientFields('sendTemplateCard'),
 	{
-		displayName: '输入方式（可选）',
+		displayName: '输入方式',
 		name: 'template_card_input_mode',
 		type: 'options',
 		options: [
@@ -23,7 +23,7 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		description: '选择模板卡片的输入方式',
 	},
 	{
-		displayName: '模板卡片（JSON）（可选）',
+		displayName: '模板卡片（JSON）',
 		name: 'template_card_json',
 		type: 'json',
 		typeOptions: {
@@ -40,6 +40,7 @@ export const sendTemplateCardDescription: INodeProperties[] = [
     "url": "https://work.weixin.qq.com"
   }
 }`,
+		required: true,
 		displayOptions: {
 			show: {
 				...showOnlySendTemplateCard,
@@ -49,7 +50,7 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		description: '完整 template_card 对象',
 	},
 	{
-		displayName: '模板卡片类型（可选）',
+		displayName: '模板卡片类型',
 		name: 'card_type',
 		type: 'options',
 		options: [
@@ -554,7 +555,7 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 				template_card_input_mode: ['form'],
 			},
 		},
-		description: '整体卡片的点击跳转事件（text_notice必填，news_notice不需要）',
+		description: '整体卡片的点击跳转事件（text_notice 和 news_notice 必填，button_interaction 可选）',
 		options: [
 			{
 				name: 'actionInfo',
@@ -682,6 +683,13 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 						default: '',
 						placeholder: 'btn_selection_id1',
 						description: '默认选定的ID，不填或错填默认第一个',
+					},
+					{
+						displayName: '是否禁用选择器',
+						name: 'disable',
+						type: 'boolean',
+						default: false,
+						description: '开启后展示当前选择，但不允许用户修改。',
 					},
 					{
 						displayName: '选项列表',
@@ -875,6 +883,13 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 						description: '默认选定的ID，不填或错填默认第一个',
 					},
 					{
+						displayName: '是否禁用选择器',
+						name: 'disable',
+						type: 'boolean',
+						default: false,
+						description: '开启后展示当前选择，但不允许用户修改。',
+					},
+					{
 						displayName: '选项列表',
 						name: 'option_list',
 						type: 'fixedCollection',
@@ -958,6 +973,20 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 			'选择题模式，单选：0，多选：1，不填默认0。<a href="https://developer.work.weixin.qq.com/document/path/90236#模板卡片消息" target="_blank">官方文档</a>',
 	},
 	{
+		displayName: '是否禁用选择题',
+		name: 'checkbox_disable',
+		type: 'boolean',
+		default: false,
+		displayOptions: {
+			show: {
+				...showOnlySendTemplateCard,
+				template_card_input_mode: ['form'],
+				card_type: ['vote_interaction'],
+			},
+		},
+		description: '开启后展示当前选择，但不允许用户修改。',
+	},
+	{
 		displayName: '选项列表（可选）',
 		name: 'option_list',
 		type: 'fixedCollection',
@@ -970,7 +999,7 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 			show: {
 				...showOnlySendTemplateCard,
 				template_card_input_mode: ['form'],
-				card_type: ['vote_interaction', 'multiple_interaction'],
+				card_type: ['vote_interaction'],
 			},
 		},
 		description: '选项列表，列表长度不超过10',
@@ -1312,7 +1341,6 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				...showOnlySendTemplateCard,
-				template_card_input_mode: ['form'],
 			},
 		},
 		description:
@@ -1326,7 +1354,6 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				...showOnlySendTemplateCard,
-				template_card_input_mode: ['form'],
 			},
 		},
 		description:
@@ -1341,7 +1368,6 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 			show: {
 				...showOnlySendTemplateCard,
 				enable_duplicate_check: [true],
-				template_card_input_mode: ['form'],
 			},
 		},
 		typeOptions: {

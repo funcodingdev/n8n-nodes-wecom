@@ -13,6 +13,7 @@ export const batchDelVipJobResultDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
+		typeOptions: { maxLength: 256 },
 		description: '批量取消高级功能的任务ID',
 	},
 ];

@@ -63,10 +63,10 @@ export const liveDescription: INodeProperties[] = [
 				description: '根据直播ID获取直播的详细信息',
 			},
 			{
-				name: '[直播信息] 获取直播分享信息',
+				name: '[直播信息] 获取商城直播观众信息',
 				value: 'getLivingShareInfo',
-				action: '获取直播分享信息',
-				description: '获取在微信中观看直播或回放的链接',
+				action: '获取商城直播观众信息',
+				description: '根据直播分享码获取观众与邀请人信息',
 			},
 			// 直播统计
 			{
@@ -77,10 +77,10 @@ export const liveDescription: INodeProperties[] = [
 			},
 			// 其他
 			{
-				name: '[其他] 获取直播观众临时码',
+				name: '[其他] 获取微信观看直播凭证',
 				value: 'getLivingCode',
-				action: '获取直播观众临时码',
-				description: '获取跳转小程序商城的直播观众信息',
+				action: '获取微信观看直播凭证',
+				description: '获取在微信 H5 或小程序观看直播的五分钟凭证',
 			},
 		],
 		default: 'createLiving',

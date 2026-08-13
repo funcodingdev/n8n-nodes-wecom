@@ -7,6 +7,18 @@ const showOnlyForGetDeviceCheckinData = {
 
 export const getDeviceCheckinDataDescription: INodeProperties[] = [
 	{
+		displayName: '过滤时间类型',
+		name: 'filter_type',
+		type: 'options',
+		displayOptions: { show: showOnlyForGetDeviceCheckinData },
+		options: [
+			{ name: '按打卡时间', value: 1 },
+			{ name: '按设备上传记录时间', value: 2 },
+		],
+		default: 1,
+		description: '开始和结束时间所代表的时间类型',
+	},
+	{
 		displayName: '开始时间',
 		name: 'starttime',
 		type: 'dateTime',
@@ -15,7 +27,8 @@ export const getDeviceCheckinDataDescription: INodeProperties[] = [
 			show: showOnlyForGetDeviceCheckinData,
 		},
 		default: '',
-		description: '查询的起始时间，使用Unix时间戳格式（秒级）。<a href="https://developer.work.weixin.qq.com/document/path/94126" target="_blank">官方文档</a>',
+		description:
+			'查询的起始时间，使用Unix时间戳格式（秒级）。<a href="https://developer.work.weixin.qq.com/document/path/94126" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '结束时间',
@@ -37,7 +50,7 @@ export const getDeviceCheckinDataDescription: INodeProperties[] = [
 			show: showOnlyForGetDeviceCheckinData,
 		},
 		default: '',
-		description: '需要获取设备打卡数据的成员UserID列表，多个UserID用逗号分隔',
+		description:
+			'需要获取设备打卡数据的成员 UserID 列表，支持逗号、中文逗号、竖线或换行分隔，最多 100 个',
 	},
 ];
-

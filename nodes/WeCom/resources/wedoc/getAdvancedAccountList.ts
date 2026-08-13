@@ -7,11 +7,11 @@ export const getAdvancedAccountListDescription: INodeProperties[] = [
 		type: 'number',
 		typeOptions: {
 			minValue: 1,
-			maxValue: 1000,
+			maxValue: 200,
 		},
 		displayOptions: { show: showOnly },
 		default: 50,
-		description: '每页返回的数量，最大1000。每页数量',
+		description: '每页返回的数量，默认100，最大200。每页数量',
 	},
 	{
 		displayName: '游标',

@@ -1,17 +1,26 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
-import { executeExtraHttpOp } from '../../shared/extraHttpOp';
+import { parseQueryJson, parseRequestJson } from '../../shared/extraHttpOp';
 import { externalContactExtraHttpOpsById } from './extraHttpOps';
-
-function dateTimeToUnixTimestamp(dateTime: string | number): number {
-	if (typeof dateTime === 'number') {
-		return dateTime;
-	}
-	if (!dateTime || dateTime === '') {
-		return 0;
-	}
-	return Math.floor(new Date(dateTime).getTime() / 1000);
-}
+import {
+	buildConclusion,
+	buildMessageAttachments,
+	buildSingleWelcomeAttachment,
+	collectionRows,
+	dateTimeToUnixTimestamp,
+	fail,
+	interceptWordList,
+	integerList,
+	optionalByteText,
+	optionalText,
+	productImageAttachments,
+	rangeNodes,
+	requireByteText,
+	requireInteger,
+	requireOption,
+	requireText,
+	stringList,
+} from './utils';
 
 export async function executeExternalContact(
 	this: IExecuteFunctions,
@@ -35,7 +44,7 @@ export async function executeExternalContact(
 			}
 			// 客户管理
 			else if (operation === 'getExternalContactList') {
-				const userid = this.getNodeParameter('userid', i) as string;
+				const userid = requireText(this, this.getNodeParameter('userid', i), '成员 UserID', i);
 				response = await weComApiRequest.call(
 					this,
 					'GET',
@@ -44,16 +53,34 @@ export async function executeExternalContact(
 					{ userid },
 				);
 			} else if (operation === 'getExternalContact') {
-				const external_userid = this.getNodeParameter('external_userid', i) as string;
-				const cursor = this.getNodeParameter('cursor', i, '') as string;
+				const external_userid = requireText(
+					this,
+					this.getNodeParameter('external_userid', i),
+					'外部联系人 UserID',
+					i,
+				);
+				const cursor = optionalText(this, this.getNodeParameter('cursor', i, ''), '游标', i);
 				const qs: IDataObject = { external_userid };
 				if (cursor) qs.cursor = cursor;
 				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/externalcontact/get', {}, qs);
 			} else if (operation === 'batchGetExternalContact') {
-				const userid = this.getNodeParameter('userid', i) as string;
-				const cursor = this.getNodeParameter('cursor', i, '') as string;
-				const limit = this.getNodeParameter('limit', i, 100) as number;
-				const body: IDataObject = { userid_list: [userid], limit };
+				const useridList = stringList(
+					this,
+					this.getNodeParameter('userid', i),
+					'成员 UserID 列表',
+					i,
+					{ minimum: 1, maximum: 100 },
+				);
+				const cursor = optionalText(this, this.getNodeParameter('cursor', i, ''), '游标', i);
+				const limit = requireInteger(
+					this,
+					this.getNodeParameter('limit', i, 50),
+					'每页数量',
+					i,
+					1,
+					100,
+				);
+				const body: IDataObject = { userid_list: useridList, limit };
 				if (cursor) body.cursor = cursor;
 				response = await weComApiRequest.call(
 					this,
@@ -62,30 +89,90 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'updateExternalContactRemark') {
-				const userid = this.getNodeParameter('userid', i) as string;
-				const external_userid = this.getNodeParameter('external_userid', i) as string;
-				const remark = this.getNodeParameter('remark', i, '') as string;
-				const description = this.getNodeParameter('description', i, '') as string;
-				const remark_company = this.getNodeParameter('remark_company', i, '') as string;
-				const remark_mobiles = this.getNodeParameter('remark_mobiles', i, '') as string;
-				const remark_pic_mediaid = this.getNodeParameter('remark_pic_mediaid', i, '') as string;
+				const userid = requireText(this, this.getNodeParameter('userid', i), '成员 UserID', i);
+				const external_userid = requireText(
+					this,
+					this.getNodeParameter('external_userid', i),
+					'外部联系人 UserID',
+					i,
+				);
+				const remark = optionalText(
+					this,
+					this.getNodeParameter('remark', i, ''),
+					'备注',
+					i,
+					20,
+				);
+				const description = optionalText(
+					this,
+					this.getNodeParameter('description', i, ''),
+					'描述',
+					i,
+					150,
+				);
+				const remark_company = optionalText(
+					this,
+					this.getNodeParameter('remark_company', i, ''),
+					'备注公司',
+					i,
+					20,
+				);
+				const clearRemarkMobiles = this.getNodeParameter(
+					'clearRemarkMobiles',
+					i,
+					false,
+				) as boolean;
+				const remarkMobiles = clearRemarkMobiles
+					? ['']
+					: stringList(
+							this,
+							this.getNodeParameter('remark_mobiles', i, ''),
+							'备注手机号',
+							i,
+							{ maximum: 5 },
+						);
+				const remark_pic_mediaid = optionalText(
+					this,
+					this.getNodeParameter('remark_pic_mediaid', i, ''),
+					'备注图片 Media ID',
+					i,
+				);
+				if (
+					!remark &&
+					!description &&
+					!remark_company &&
+					remarkMobiles.length === 0 &&
+					!remark_pic_mediaid
+				) {
+					fail(this, '备注、描述、备注公司、备注手机号和备注图片不能同时为空', i);
+				}
 
 				const body: IDataObject = { userid, external_userid };
 				if (remark) body.remark = remark;
 				if (description) body.description = description;
 				if (remark_company) body.remark_company = remark_company;
-				if (remark_mobiles) body.remark_mobiles = remark_mobiles.split(',').map((m) => m.trim());
+				if (remarkMobiles.length > 0) body.remark_mobiles = remarkMobiles;
 				if (remark_pic_mediaid) body.remark_pic_mediaid = remark_pic_mediaid;
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/externalcontact/remark', body);
 			}
 			// 客户标签管理
 			else if (operation === 'getCorpTagList') {
-				const tag_id = this.getNodeParameter('tag_id', i, '') as string;
-				const group_id = this.getNodeParameter('group_id', i, '') as string;
+				const tagIds = stringList(
+					this,
+					this.getNodeParameter('tag_id', i, ''),
+					'标签 ID',
+					i,
+				);
+				const groupIds = stringList(
+					this,
+					this.getNodeParameter('group_id', i, ''),
+					'标签组 ID',
+					i,
+				);
 				const body: IDataObject = {};
-				if (tag_id) body.tag_id = tag_id.split(',').map((id) => id.trim());
-				if (group_id) body.group_id = group_id.split(',').map((id) => id.trim());
+				if (groupIds.length > 0) body.group_id = groupIds;
+				else if (tagIds.length > 0) body.tag_id = tagIds;
 				response = await weComApiRequest.call(
 					this,
 					'POST',
@@ -93,26 +180,62 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'addCorpTag') {
-				const group_id = this.getNodeParameter('group_id', i, '') as string;
-				const group_name = this.getNodeParameter('group_name', i, '') as string;
+				const group_id = optionalText(
+					this,
+					this.getNodeParameter('group_id', i, ''),
+					'标签组 ID',
+					i,
+				);
+				const group_name = optionalText(
+					this,
+					this.getNodeParameter('group_name', i, ''),
+					'标签组名称',
+					i,
+					30,
+				);
 				const tagCollection = this.getNodeParameter('tagCollection', i, {}) as IDataObject;
-				const order = this.getNodeParameter('order', i, 0) as number;
+				const order = requireInteger(
+					this,
+					this.getNodeParameter('order', i, 0),
+					'标签组排序',
+					i,
+					0,
+					4294967295,
+				);
+				const agentid = requireInteger(
+					this,
+					this.getNodeParameter('agentid', i, 0),
+					'旧套件 AgentID',
+					i,
+					0,
+					Number.MAX_SAFE_INTEGER,
+				);
+				if (!group_id && !group_name) fail(this, '标签组 ID 和标签组名称至少填写一个', i);
 
 				// 构建标签列表
-				const tag: IDataObject[] = [];
-				if (tagCollection.tags) {
-					const tagsList = tagCollection.tags as IDataObject[];
-					tagsList.forEach((t) => {
-						const tagItem: IDataObject = { name: t.name };
-						if (t.order) tagItem.order = t.order;
-						tag.push(tagItem);
-					});
+				const tag = collectionRows(tagCollection, 'tags').map((entry, tagIndex) => ({
+					name: requireText(this, entry.name, `第 ${tagIndex + 1} 个标签名称`, i, 30),
+					order: requireInteger(
+						this,
+						entry.order ?? 0,
+						`第 ${tagIndex + 1} 个标签排序`,
+						i,
+						0,
+						4294967295,
+					),
+				}));
+				if (tag.length === 0) fail(this, '标签列表不能为空', i);
+				if (new Set(tag.map((entry) => String(entry.name))).size !== tag.length) {
+					fail(this, '同一标签组内的标签名称不能重复', i);
 				}
 
 				const body: IDataObject = { tag };
 				if (group_id) body.group_id = group_id;
-				if (group_name) body.group_name = group_name;
-				if (order) body.order = order;
+				else {
+					body.group_name = group_name;
+					body.order = order;
+				}
+				if (agentid > 0) body.agentid = agentid;
 
 				response = await weComApiRequest.call(
 					this,
@@ -121,13 +244,34 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'editCorpTag') {
-				const id = this.getNodeParameter('id', i) as string;
-				const name = this.getNodeParameter('name', i, '') as string;
-				const order = this.getNodeParameter('order', i, 0) as number;
+				const id = requireText(this, this.getNodeParameter('id', i), '标签或标签组 ID', i);
+				const updateName = this.getNodeParameter('updateName', i, false) as boolean;
+				const updateOrder = this.getNodeParameter('updateOrder', i, false) as boolean;
+				if (!updateName && !updateOrder) fail(this, '名称和排序至少更新一项', i);
 
 				const body: IDataObject = { id };
-				if (name) body.name = name;
-				if (order) body.order = order;
+				if (updateName) {
+					body.name = requireText(this, this.getNodeParameter('name', i, ''), '新名称', i, 30);
+				}
+				if (updateOrder) {
+					body.order = requireInteger(
+						this,
+						this.getNodeParameter('order', i, 0),
+						'新排序',
+						i,
+						0,
+						4294967295,
+					);
+				}
+				const agentid = requireInteger(
+					this,
+					this.getNodeParameter('agentid', i, 0),
+					'旧套件 AgentID',
+					i,
+					0,
+					Number.MAX_SAFE_INTEGER,
+				);
+				if (agentid > 0) body.agentid = agentid;
 
 				response = await weComApiRequest.call(
 					this,
@@ -136,12 +280,34 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'delCorpTag') {
-				const tag_id = this.getNodeParameter('tag_id', i, '') as string;
-				const group_id = this.getNodeParameter('group_id', i, '') as string;
+				const tagIds = stringList(
+					this,
+					this.getNodeParameter('tag_id', i, ''),
+					'标签 ID',
+					i,
+				);
+				const groupIds = stringList(
+					this,
+					this.getNodeParameter('group_id', i, ''),
+					'标签组 ID',
+					i,
+				);
+				if (tagIds.length === 0 && groupIds.length === 0) {
+					fail(this, '标签 ID 和标签组 ID 不能同时为空', i);
+				}
 
 				const body: IDataObject = {};
-				if (tag_id) body.tag_id = tag_id.split(',').map((id) => id.trim());
-				if (group_id) body.group_id = group_id.split(',').map((id) => id.trim());
+				if (tagIds.length > 0) body.tag_id = tagIds;
+				if (groupIds.length > 0) body.group_id = groupIds;
+				const agentid = requireInteger(
+					this,
+					this.getNodeParameter('agentid', i, 0),
+					'旧套件 AgentID',
+					i,
+					0,
+					Number.MAX_SAFE_INTEGER,
+				);
+				if (agentid > 0) body.agentid = agentid;
 
 				response = await weComApiRequest.call(
 					this,
@@ -150,14 +316,29 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'markTag') {
-				const userid = this.getNodeParameter('userid', i) as string;
-				const external_userid = this.getNodeParameter('external_userid', i) as string;
-				const add_tag = this.getNodeParameter('add_tag', i, '') as string;
-				const remove_tag = this.getNodeParameter('remove_tag', i, '') as string;
+				const userid = requireText(this, this.getNodeParameter('userid', i), '成员 UserID', i);
+				const external_userid = requireText(
+					this,
+					this.getNodeParameter('external_userid', i),
+					'外部联系人 UserID',
+					i,
+				);
+				const addTags = stringList(this, this.getNodeParameter('add_tag', i, ''), '添加标签', i);
+				const removeTags = stringList(
+					this,
+					this.getNodeParameter('remove_tag', i, ''),
+					'移除标签',
+					i,
+				);
+				if (addTags.length === 0 && removeTags.length === 0) {
+					fail(this, '添加标签和移除标签不能同时为空', i);
+				}
+				const overlap = addTags.find((id) => removeTags.includes(id));
+				if (overlap) fail(this, `标签 ${overlap} 不能同时添加和移除`, i);
 
 				const body: IDataObject = { userid, external_userid };
-				if (add_tag) body.add_tag = add_tag.split(',').map((id) => id.trim());
-				if (remove_tag) body.remove_tag = remove_tag.split(',').map((id) => id.trim());
+				if (addTags.length > 0) body.add_tag = addTags;
+				if (removeTags.length > 0) body.remove_tag = removeTags;
 
 				response = await weComApiRequest.call(
 					this,
@@ -168,15 +349,38 @@ export async function executeExternalContact(
 			}
 			// 在职继承
 			else if (operation === 'transferCustomer') {
-				const handover_userid = this.getNodeParameter('handover_userid', i) as string;
-				const takeover_userid = this.getNodeParameter('takeover_userid', i) as string;
-				const external_userid = this.getNodeParameter('external_userid', i) as string;
-				const transfer_success_msg = this.getNodeParameter('transfer_success_msg', i, '') as string;
+				const handover_userid = requireText(
+					this,
+					this.getNodeParameter('handover_userid', i),
+					'原成员 UserID',
+					i,
+				);
+				const takeover_userid = requireText(
+					this,
+					this.getNodeParameter('takeover_userid', i),
+					'接替成员 UserID',
+					i,
+				);
+				if (handover_userid === takeover_userid) fail(this, '原成员和接替成员不能相同', i);
+				const externalUserIds = stringList(
+					this,
+					this.getNodeParameter('external_userid', i),
+					'客户 UserID 列表',
+					i,
+					{ minimum: 1, maximum: 100 },
+				);
+				const transfer_success_msg = optionalText(
+					this,
+					this.getNodeParameter('transfer_success_msg', i, ''),
+					'转移说明',
+					i,
+					200,
+				);
 
 				const body: IDataObject = {
 					handover_userid,
 					takeover_userid,
-					external_userid: external_userid.split(',').map((id) => id.trim()),
+					external_userid: externalUserIds,
 				};
 				if (transfer_success_msg) body.transfer_success_msg = transfer_success_msg;
 
@@ -187,9 +391,20 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'transferResult') {
-				const handover_userid = this.getNodeParameter('handover_userid', i) as string;
-				const takeover_userid = this.getNodeParameter('takeover_userid', i) as string;
-				const cursor = this.getNodeParameter('cursor', i, '') as string;
+				const handover_userid = requireText(
+					this,
+					this.getNodeParameter('handover_userid', i),
+					'原成员 UserID',
+					i,
+				);
+				const takeover_userid = requireText(
+					this,
+					this.getNodeParameter('takeover_userid', i),
+					'接替成员 UserID',
+					i,
+				);
+				if (handover_userid === takeover_userid) fail(this, '原成员和接替成员不能相同', i);
+				const cursor = optionalText(this, this.getNodeParameter('cursor', i, ''), '游标', i);
 
 				const body: IDataObject = { handover_userid, takeover_userid };
 				if (cursor) body.cursor = cursor;
@@ -201,27 +416,53 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'transferGroupChat') {
-				const chat_id_list = this.getNodeParameter('chat_id_list', i) as string;
-				const new_owner = this.getNodeParameter('new_owner', i) as string;
+				const chatIdList = stringList(
+					this,
+					this.getNodeParameter('chat_id_list', i),
+					'客户群 ID 列表',
+					i,
+					{ minimum: 1, maximum: 100 },
+				);
+				const new_owner = requireText(
+					this,
+					this.getNodeParameter('new_owner', i),
+					'新群主 UserID',
+					i,
+				);
 
 				response = await weComApiRequest.call(
 					this,
 					'POST',
-					'/cgi-bin/externalcontact/groupchat/transfer',
+					'/cgi-bin/externalcontact/groupchat/onjob_transfer',
 					{
-						chat_id_list: chat_id_list.split(',').map((id) => id.trim()),
+						chat_id_list: chatIdList,
 						new_owner,
 					},
 				);
 			}
 			// 离职继承
 			else if (operation === 'getUnassignedList') {
-				const page_id = this.getNodeParameter('page_id', i, 0) as number;
-				const page_size = this.getNodeParameter('page_size', i, 1000) as number;
-				const cursor = this.getNodeParameter('cursor', i, '') as string;
+				const page_id = requireInteger(
+					this,
+					this.getNodeParameter('page_id', i, 0),
+					'Page ID',
+					i,
+					0,
+					Number.MAX_SAFE_INTEGER,
+				);
+				const page_size = requireInteger(
+					this,
+					this.getNodeParameter('page_size', i, 1000),
+					'每页数量',
+					i,
+					1,
+					1000,
+				);
+				const cursor = optionalText(this, this.getNodeParameter('cursor', i, ''), '游标', i);
 
-				const body: IDataObject = { page_id, page_size };
+				const body: IDataObject = { page_size };
 				if (cursor) body.cursor = cursor;
+				else body.page_id = page_id;
 
 				response = await weComApiRequest.call(
 					this,
@@ -230,9 +471,26 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'resignedTransferCustomer') {
-				const handover_userid = this.getNodeParameter('handover_userid', i) as string;
-				const takeover_userid = this.getNodeParameter('takeover_userid', i) as string;
-				const external_userid = this.getNodeParameter('external_userid', i) as string;
+				const handover_userid = requireText(
+					this,
+					this.getNodeParameter('handover_userid', i),
+					'离职成员 UserID',
+					i,
+				);
+				const takeover_userid = requireText(
+					this,
+					this.getNodeParameter('takeover_userid', i),
+					'接替成员 UserID',
+					i,
+				);
+				if (handover_userid === takeover_userid) fail(this, '离职成员和接替成员不能相同', i);
+				const externalUserIds = stringList(
+					this,
+					this.getNodeParameter('external_userid', i),
+					'客户 UserID 列表',
+					i,
+					{ minimum: 1, maximum: 100 },
+				);
 
 				response = await weComApiRequest.call(
 					this,
@@ -241,13 +499,24 @@ export async function executeExternalContact(
 					{
 						handover_userid,
 						takeover_userid,
-						external_userid: external_userid.split(',').map((id) => id.trim()),
+						external_userid: externalUserIds,
 					},
 				);
 			} else if (operation === 'resignedTransferResult') {
-				const handover_userid = this.getNodeParameter('handover_userid', i) as string;
-				const takeover_userid = this.getNodeParameter('takeover_userid', i) as string;
-				const cursor = this.getNodeParameter('cursor', i, '') as string;
+				const handover_userid = requireText(
+					this,
+					this.getNodeParameter('handover_userid', i),
+					'离职成员 UserID',
+					i,
+				);
+				const takeover_userid = requireText(
+					this,
+					this.getNodeParameter('takeover_userid', i),
+					'接替成员 UserID',
+					i,
+				);
+				if (handover_userid === takeover_userid) fail(this, '离职成员和接替成员不能相同', i);
+				const cursor = optionalText(this, this.getNodeParameter('cursor', i, ''), '游标', i);
 
 				const body: IDataObject = { handover_userid, takeover_userid };
 				if (cursor) body.cursor = cursor;
@@ -259,30 +528,60 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'resignedTransferGroupChat') {
-				const chat_id_list = this.getNodeParameter('chat_id_list', i) as string;
-				const new_owner = this.getNodeParameter('new_owner', i) as string;
+				const chatIdList = stringList(
+					this,
+					this.getNodeParameter('chat_id_list', i),
+					'客户群 ID 列表',
+					i,
+					{ minimum: 1, maximum: 100 },
+				);
+				const new_owner = requireText(
+					this,
+					this.getNodeParameter('new_owner', i),
+					'新群主 UserID',
+					i,
+				);
 
 				response = await weComApiRequest.call(
 					this,
 					'POST',
-					'/cgi-bin/externalcontact/groupchat/onjob_transfer',
+					'/cgi-bin/externalcontact/groupchat/transfer',
 					{
-						chat_id_list: chat_id_list.split(',').map((id) => id.trim()),
+						chat_id_list: chatIdList,
 						new_owner,
 					},
 				);
 			}
 			// 客户群管理
 			else if (operation === 'getGroupChatList') {
-				const status_filter = this.getNodeParameter('status_filter', i, 0) as number;
-				const owner_filter = this.getNodeParameter('owner_filter', i, '') as string;
-				const cursor = this.getNodeParameter('cursor', i, '') as string;
-				const limit = this.getNodeParameter('limit', i, 100) as number;
+				const status_filter = requireOption(
+					this,
+					this.getNodeParameter('status_filter', i, 0),
+					'跟进状态',
+					i,
+					[0, 1, 2, 3],
+				);
+				const ownerFilter = stringList(
+					this,
+					this.getNodeParameter('owner_filter', i, ''),
+					'群主 UserID 列表',
+					i,
+					{ maximum: 100 },
+				);
+				const cursor = optionalText(this, this.getNodeParameter('cursor', i, ''), '游标', i);
+				const limit = requireInteger(
+					this,
+					this.getNodeParameter('limit', i, 100),
+					'每页数量',
+					i,
+					1,
+					1000,
+				);
 
 				const body: IDataObject = { limit };
 				if (status_filter) body.status_filter = status_filter;
-				if (owner_filter) {
-					body.owner_filter = { userid_list: owner_filter.split(',').map((id) => id.trim()) };
+				if (ownerFilter.length > 0) {
+					body.owner_filter = { userid_list: ownerFilter };
 				}
 				if (cursor) body.cursor = cursor;
 
@@ -293,8 +592,8 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'getGroupChat') {
-				const chat_id = this.getNodeParameter('chat_id', i) as string;
-				const need_name = this.getNodeParameter('need_name', i, true) as boolean;
+				const chat_id = requireText(this, this.getNodeParameter('chat_id', i), '客户群 ID', i);
+				const need_name = this.getNodeParameter('need_name', i, false) as boolean;
 
 				response = await weComApiRequest.call(
 					this,
@@ -306,7 +605,7 @@ export async function executeExternalContact(
 					},
 				);
 			} else if (operation === 'opengidToChatid') {
-				const opengid = this.getNodeParameter('opengid', i) as string;
+				const opengid = requireText(this, this.getNodeParameter('opengid', i), 'OpenGID', i);
 
 				response = await weComApiRequest.call(
 					this,
@@ -317,85 +616,83 @@ export async function executeExternalContact(
 			}
 			// 联系我与客户入群方式
 			else if (operation === 'addContactWay') {
-				const type = this.getNodeParameter('type', i) as number;
-				const scene = this.getNodeParameter('scene', i) as number;
-				const user = this.getNodeParameter('user', i, '') as string;
-				const remark = this.getNodeParameter('remark', i, '') as string;
+				const type = requireOption(this, this.getNodeParameter('type', i), '联系方式类型', i, [1, 2]);
+				const scene = requireOption(this, this.getNodeParameter('scene', i), '场景', i, [1, 2]);
+				const users = stringList(this, this.getNodeParameter('user', i, ''), '成员 UserID', i, {
+					maximum: 100,
+				});
+				const parties = type === 2
+					? integerList(this, this.getNodeParameter('party', i, ''), '部门 ID', i, { maximum: 100 })
+					: [];
+				if (type === 1 && users.length !== 1) fail(this, '单人联系方式必须且只能配置 1 名成员', i);
+				if (type === 2 && users.length === 0 && parties.length === 0) {
+					fail(this, '多人联系方式的成员和部门不能同时为空', i);
+				}
+				const remark = optionalText(
+					this,
+					this.getNodeParameter('remark', i, ''),
+					'备注',
+					i,
+					30,
+				);
 				const skip_verify = this.getNodeParameter('skip_verify', i, true) as boolean;
-				const state = this.getNodeParameter('state', i, '') as string;
+				const state = optionalText(
+					this,
+					this.getNodeParameter('state', i, ''),
+					'State 参数',
+					i,
+					30,
+				);
 				const is_temp = this.getNodeParameter('is_temp', i, false) as boolean;
 				const is_exclusive = this.getNodeParameter('is_exclusive', i, false) as boolean;
 				const mark_source = this.getNodeParameter('mark_source', i, true) as boolean;
+				if (is_temp && type !== 1) fail(this, '临时会话仅支持单人联系方式', i);
 
-				const body: IDataObject = { type, scene, skip_verify };
-				if (user) body.user = user.split(',').map((id) => id.trim());
+				const body: IDataObject = { type, scene, skip_verify, mark_source };
+				if (users.length > 0) body.user = users;
+				if (parties.length > 0) body.party = parties;
 				if (remark) body.remark = remark;
 				if (state) body.state = state;
-				if (is_exclusive) body.is_exclusive = is_exclusive;
-				body.mark_source = mark_source;
-
-				// 多人类型时可设置部门
-				if (type === 2) {
-					const party = this.getNodeParameter('party', i, '') as string;
-					if (party) body.party = party.split(',').map((id) => parseInt(id.trim(), 10));
-				}
+				if (is_exclusive) body.is_exclusive = true;
 
 				// 小程序联系时可设置样式
 				if (scene === 1) {
-					const style = this.getNodeParameter('style', i, 1) as number;
-					if (style) body.style = style;
+					const style = requireOption(this, this.getNodeParameter('style', i, 1), '控件样式', i, [1, 2, 3]);
+					if (type === 2 && style === 3) fail(this, '多人联系方式仅支持样式 1 或样式 2', i);
+					body.style = style;
 				}
 
 				// 临时会话模式
 				if (is_temp) {
 					body.is_temp = true;
-					const expires_in = this.getNodeParameter('expires_in', i, 604800) as number;
-					const chat_expires_in = this.getNodeParameter('chat_expires_in', i, 86400) as number;
-					const unionid = this.getNodeParameter('unionid', i, '') as string;
+					const expires_in = requireInteger(
+						this,
+						this.getNodeParameter('expires_in', i, 604800),
+						'二维码有效期',
+						i,
+						1,
+						1209600,
+					);
+					const chat_expires_in = requireInteger(
+						this,
+						this.getNodeParameter('chat_expires_in', i, 86400),
+						'会话有效期',
+						i,
+						1,
+						1209600,
+					);
+					const unionid = optionalText(
+						this,
+						this.getNodeParameter('unionid', i, ''),
+						'客户 UnionID',
+						i,
+					);
 					body.expires_in = expires_in;
 					body.chat_expires_in = chat_expires_in;
 					if (unionid) body.unionid = unionid;
 
-					// 构建结束语（仅临时会话模式下有效）
 					const enableConclusions = this.getNodeParameter('enableConclusions', i, false) as boolean;
-					if (enableConclusions) {
-						const conclusionType = this.getNodeParameter('conclusionType', i, 'text') as string;
-						const conclusions: IDataObject = {};
-
-						if (conclusionType === 'text') {
-							const content = this.getNodeParameter('conclusion_text', i, '') as string;
-							if (content) conclusions.text = { content };
-						} else if (conclusionType === 'image') {
-							const media_id = this.getNodeParameter('conclusion_image_media_id', i, '') as string;
-							if (media_id) conclusions.image = { media_id };
-						} else if (conclusionType === 'link') {
-							const link: IDataObject = {};
-							const title = this.getNodeParameter('conclusion_link_title', i, '') as string;
-							const picurl = this.getNodeParameter('conclusion_link_picurl', i, '') as string;
-							const desc = this.getNodeParameter('conclusion_link_desc', i, '') as string;
-							const url = this.getNodeParameter('conclusion_link_url', i, '') as string;
-							if (title) link.title = title;
-							if (picurl) link.picurl = picurl;
-							if (desc) link.desc = desc;
-							if (url) link.url = url;
-							if (Object.keys(link).length > 0) conclusions.link = link;
-						} else if (conclusionType === 'miniprogram') {
-							const miniprogram: IDataObject = {};
-							const title = this.getNodeParameter('conclusion_miniprogram_title', i, '') as string;
-							const appid = this.getNodeParameter('conclusion_miniprogram_appid', i, '') as string;
-							const page = this.getNodeParameter('conclusion_miniprogram_page', i, '') as string;
-							const pic_media_id = this.getNodeParameter('conclusion_miniprogram_pic_media_id', i, '') as string;
-							if (title) miniprogram.title = title;
-							if (appid) miniprogram.appid = appid;
-							if (page) miniprogram.page = page;
-							if (pic_media_id) miniprogram.pic_media_id = pic_media_id;
-							if (Object.keys(miniprogram).length > 0) conclusions.miniprogram = miniprogram;
-						}
-
-						if (Object.keys(conclusions).length > 0) {
-							body.conclusions = conclusions;
-						}
-					}
+					if (enableConclusions) body.conclusions = buildConclusion(this, i);
 				}
 
 				response = await weComApiRequest.call(
@@ -405,7 +702,7 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'getContactWay') {
-				const config_id = this.getNodeParameter('config_id', i) as string;
+				const config_id = requireText(this, this.getNodeParameter('config_id', i), '联系方式配置 ID', i);
 
 				response = await weComApiRequest.call(
 					this,
@@ -414,70 +711,75 @@ export async function executeExternalContact(
 					{ config_id },
 				);
 			} else if (operation === 'updateContactWay') {
-				const config_id = this.getNodeParameter('config_id', i) as string;
-				const user = this.getNodeParameter('user', i, '') as string;
-				const party = this.getNodeParameter('party', i, '') as string;
-				const remark = this.getNodeParameter('remark', i, '') as string;
-				const skip_verify = this.getNodeParameter('skip_verify', i, true) as boolean;
-				const style = this.getNodeParameter('style', i, 0) as number;
-				const state = this.getNodeParameter('state', i, '') as string;
-				const expires_in = this.getNodeParameter('expires_in', i, 0) as number;
-				const chat_expires_in = this.getNodeParameter('chat_expires_in', i, 0) as number;
-				const unionid = this.getNodeParameter('unionid', i, '') as string;
-				const mark_source = this.getNodeParameter('mark_source', i, true) as boolean;
-				const enableConclusions = this.getNodeParameter('enableConclusions', i, false) as boolean;
-
+				const config_id = requireText(this, this.getNodeParameter('config_id', i), '联系方式配置 ID', i);
 				const body: IDataObject = { config_id };
-				if (user) body.user = user.split(',').map((id) => id.trim());
-				if (party) body.party = party.split(',').map((id) => parseInt(id.trim(), 10));
-				if (remark) body.remark = remark;
-				body.skip_verify = skip_verify;
-				if (style > 0) body.style = style;
-				if (state) body.state = state;
-				if (expires_in > 0) body.expires_in = expires_in;
-				if (chat_expires_in > 0) body.chat_expires_in = chat_expires_in;
-				if (unionid) body.unionid = unionid;
-				body.mark_source = mark_source;
-
-				// 构建结束语（仅临时会话模式下有效）
-				if (enableConclusions) {
-					const conclusionType = this.getNodeParameter('conclusionType', i, 'text') as string;
-					const conclusions: IDataObject = {};
-
-					if (conclusionType === 'text') {
-						const content = this.getNodeParameter('conclusion_text', i, '') as string;
-						if (content) conclusions.text = { content };
-					} else if (conclusionType === 'image') {
-						const media_id = this.getNodeParameter('conclusion_image_media_id', i, '') as string;
-						if (media_id) conclusions.image = { media_id };
-					} else if (conclusionType === 'link') {
-						const link: IDataObject = {};
-						const title = this.getNodeParameter('conclusion_link_title', i, '') as string;
-						const picurl = this.getNodeParameter('conclusion_link_picurl', i, '') as string;
-						const desc = this.getNodeParameter('conclusion_link_desc', i, '') as string;
-						const url = this.getNodeParameter('conclusion_link_url', i, '') as string;
-						if (title) link.title = title;
-						if (picurl) link.picurl = picurl;
-						if (desc) link.desc = desc;
-						if (url) link.url = url;
-						if (Object.keys(link).length > 0) conclusions.link = link;
-					} else if (conclusionType === 'miniprogram') {
-						const miniprogram: IDataObject = {};
-						const title = this.getNodeParameter('conclusion_miniprogram_title', i, '') as string;
-						const appid = this.getNodeParameter('conclusion_miniprogram_appid', i, '') as string;
-						const page = this.getNodeParameter('conclusion_miniprogram_page', i, '') as string;
-						const pic_media_id = this.getNodeParameter('conclusion_miniprogram_pic_media_id', i, '') as string;
-						if (title) miniprogram.title = title;
-						if (appid) miniprogram.appid = appid;
-						if (page) miniprogram.page = page;
-						if (pic_media_id) miniprogram.pic_media_id = pic_media_id;
-						if (Object.keys(miniprogram).length > 0) conclusions.miniprogram = miniprogram;
-					}
-
-					if (Object.keys(conclusions).length > 0) {
-						body.conclusions = conclusions;
-					}
+				let updatedFields = 0;
+				if (this.getNodeParameter('updateUsers', i, false) as boolean) {
+					body.user = stringList(this, this.getNodeParameter('user', i, ''), '成员 UserID', i, {
+						maximum: 100,
+					});
+					updatedFields++;
 				}
+				if (this.getNodeParameter('updateParty', i, false) as boolean) {
+					body.party = integerList(this, this.getNodeParameter('party', i, ''), '部门 ID', i, {
+						maximum: 100,
+					});
+					updatedFields++;
+				}
+				if (this.getNodeParameter('updateRemark', i, false) as boolean) {
+					body.remark =
+						optionalText(this, this.getNodeParameter('remark', i, ''), '备注', i, 30) ?? '';
+					updatedFields++;
+				}
+				if (this.getNodeParameter('updateSkipVerify', i, false) as boolean) {
+					body.skip_verify = this.getNodeParameter('skip_verify', i, true) as boolean;
+					updatedFields++;
+				}
+				if (this.getNodeParameter('updateStyle', i, false) as boolean) {
+					body.style = requireOption(this, this.getNodeParameter('style', i, 1), '控件样式', i, [1, 2, 3]);
+					updatedFields++;
+				}
+				if (this.getNodeParameter('updateState', i, false) as boolean) {
+					body.state =
+						optionalText(this, this.getNodeParameter('state', i, ''), 'State 参数', i, 30) ?? '';
+					updatedFields++;
+				}
+				if (this.getNodeParameter('updateExpiresIn', i, false) as boolean) {
+					body.expires_in = requireInteger(
+						this,
+						this.getNodeParameter('expires_in', i, 604800),
+						'二维码有效期',
+						i,
+						1,
+						1209600,
+					);
+					updatedFields++;
+				}
+				if (this.getNodeParameter('updateChatExpiresIn', i, false) as boolean) {
+					body.chat_expires_in = requireInteger(
+						this,
+						this.getNodeParameter('chat_expires_in', i, 86400),
+						'会话有效期',
+						i,
+						1,
+						1209600,
+					);
+					updatedFields++;
+				}
+				if (this.getNodeParameter('updateUnionid', i, false) as boolean) {
+					body.unionid =
+						optionalText(this, this.getNodeParameter('unionid', i, ''), '客户 UnionID', i) ?? '';
+					updatedFields++;
+				}
+				if (this.getNodeParameter('updateMarkSource', i, false) as boolean) {
+					body.mark_source = this.getNodeParameter('mark_source', i, true) as boolean;
+					updatedFields++;
+				}
+				if (this.getNodeParameter('updateConclusions', i, false) as boolean) {
+					body.conclusions = buildConclusion(this, i);
+					updatedFields++;
+				}
+				if (updatedFields === 0) fail(this, '至少选择一个要更新的字段', i);
 
 				response = await weComApiRequest.call(
 					this,
@@ -486,7 +788,7 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'delContactWay') {
-				const config_id = this.getNodeParameter('config_id', i) as string;
+				const config_id = requireText(this, this.getNodeParameter('config_id', i), '联系方式配置 ID', i);
 
 				response = await weComApiRequest.call(
 					this,
@@ -496,17 +798,33 @@ export async function executeExternalContact(
 				);
 			} else if (operation === 'listContactWay') {
 				const start_time = dateTimeToUnixTimestamp(
-					this.getNodeParameter('start_time', i, '') as string | number,
+					this,
+					this.getNodeParameter('start_time', i, ''),
+					'创建起始时间',
+					i,
 				);
 				const end_time = dateTimeToUnixTimestamp(
-					this.getNodeParameter('end_time', i, '') as string | number,
+					this,
+					this.getNodeParameter('end_time', i, ''),
+					'创建结束时间',
+					i,
 				);
-				const cursor = this.getNodeParameter('cursor', i, '') as string;
-				const limit = this.getNodeParameter('limit', i, 100) as number;
+				if (start_time !== undefined && end_time !== undefined && start_time > end_time) {
+					fail(this, '创建起始时间不能晚于创建结束时间', i);
+				}
+				const cursor = optionalText(this, this.getNodeParameter('cursor', i, ''), '游标', i);
+				const limit = requireInteger(
+					this,
+					this.getNodeParameter('limit', i, 100),
+					'每页数量',
+					i,
+					1,
+					1000,
+				);
 
 				const body: IDataObject = { limit };
-				if (start_time > 0) body.start_time = start_time;
-				if (end_time > 0) body.end_time = end_time;
+				if (start_time !== undefined) body.start_time = start_time;
+				if (end_time !== undefined) body.end_time = end_time;
 				if (cursor) body.cursor = cursor;
 
 				response = await weComApiRequest.call(
@@ -516,8 +834,13 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'closeTempChat') {
-				const userid = this.getNodeParameter('userid', i) as string;
-				const external_userid = this.getNodeParameter('external_userid', i) as string;
+				const userid = requireText(this, this.getNodeParameter('userid', i), '成员 UserID', i);
+				const external_userid = requireText(
+					this,
+					this.getNodeParameter('external_userid', i),
+					'外部联系人 UserID',
+					i,
+				);
 
 				response = await weComApiRequest.call(
 					this,
@@ -526,29 +849,50 @@ export async function executeExternalContact(
 					{ userid, external_userid },
 				);
 			} else if (operation === 'addJoinWay') {
-				const scene = this.getNodeParameter('scene', i) as number;
-				const chat_id_list = this.getNodeParameter('chat_id_list', i) as string;
-				const remark = this.getNodeParameter('remark', i, '') as string;
+				const scene = requireOption(this, this.getNodeParameter('scene', i), '场景', i, [1, 2]);
+				const chatIdList = stringList(
+					this,
+					this.getNodeParameter('chat_id_list', i),
+					'群聊 ID 列表',
+					i,
+					{ minimum: 1, maximum: 5 },
+				);
+				const remark = optionalText(this, this.getNodeParameter('remark', i, ''), '备注', i, 30);
 				const auto_create_room = this.getNodeParameter('auto_create_room', i, true) as boolean;
-				const state = this.getNodeParameter('state', i, '') as string;
+				const state = optionalText(
+					this,
+					this.getNodeParameter('state', i, ''),
+					'State 参数',
+					i,
+					30,
+				);
 				const mark_source = this.getNodeParameter('mark_source', i, true) as boolean;
 
 				const body: IDataObject = {
 					scene,
-					chat_id_list: chat_id_list.split(',').map((id) => id.trim()),
+					chat_id_list: chatIdList,
+					auto_create_room: auto_create_room ? 1 : 0,
+					mark_source,
 				};
 				if (remark) body.remark = remark;
 				if (state) body.state = state;
-				body.mark_source = mark_source;
 
-				if (auto_create_room) {
-					body.auto_create_room = 1;
-					const room_base_name = this.getNodeParameter('room_base_name', i, '') as string;
-					const room_base_id = this.getNodeParameter('room_base_id', i, 1) as number;
-					if (room_base_name) body.room_base_name = room_base_name;
-					if (room_base_id) body.room_base_id = room_base_id;
-				} else {
-					body.auto_create_room = 0;
+				if (auto_create_room && (this.getNodeParameter('customRoomNaming', i, false) as boolean)) {
+					body.room_base_name = requireText(
+						this,
+						this.getNodeParameter('room_base_name', i, ''),
+						'群名前缀',
+						i,
+						40,
+					);
+					body.room_base_id = requireInteger(
+						this,
+						this.getNodeParameter('room_base_id', i, 1),
+						'群起始序号',
+						i,
+						1,
+						Number.MAX_SAFE_INTEGER,
+					);
 				}
 
 				response = await weComApiRequest.call(
@@ -558,7 +902,7 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'getJoinWay') {
-				const config_id = this.getNodeParameter('config_id', i) as string;
+				const config_id = requireText(this, this.getNodeParameter('config_id', i), '进群方式配置 ID', i);
 
 				response = await weComApiRequest.call(
 					this,
@@ -567,31 +911,52 @@ export async function executeExternalContact(
 					{ config_id },
 				);
 			} else if (operation === 'updateJoinWay') {
-				const config_id = this.getNodeParameter('config_id', i) as string;
-				const scene = this.getNodeParameter('scene', i) as number;
-				const chat_id_list = this.getNodeParameter('chat_id_list', i) as string;
-				const remark = this.getNodeParameter('remark', i, '') as string;
-				const auto_create_room = this.getNodeParameter('auto_create_room', i, true) as boolean;
-				const state = this.getNodeParameter('state', i, '') as string;
-				const mark_source = this.getNodeParameter('mark_source', i, true) as boolean;
+				const config_id = requireText(this, this.getNodeParameter('config_id', i), '进群方式配置 ID', i);
+				const scene = requireOption(this, this.getNodeParameter('scene', i), '场景', i, [1, 2]);
+				const chatIdList = stringList(
+					this,
+					this.getNodeParameter('chat_id_list', i),
+					'群聊 ID 列表',
+					i,
+					{ minimum: 1, maximum: 5 },
+				);
 
 				const body: IDataObject = {
 					config_id,
 					scene,
-					chat_id_list: chat_id_list.split(',').map((id) => id.trim()),
+					chat_id_list: chatIdList,
 				};
-				if (remark) body.remark = remark;
-				if (state) body.state = state;
-				body.mark_source = mark_source;
-
-				if (auto_create_room) {
-					body.auto_create_room = 1;
-					const room_base_name = this.getNodeParameter('room_base_name', i, '') as string;
-					const room_base_id = this.getNodeParameter('room_base_id', i, 1) as number;
-					if (room_base_name) body.room_base_name = room_base_name;
-					if (room_base_id) body.room_base_id = room_base_id;
-				} else {
-					body.auto_create_room = 0;
+				if (this.getNodeParameter('updateRemark', i, false) as boolean) {
+					body.remark =
+						optionalText(this, this.getNodeParameter('remark', i, ''), '备注', i, 30) ?? '';
+				}
+				if (this.getNodeParameter('updateState', i, false) as boolean) {
+					body.state =
+						optionalText(this, this.getNodeParameter('state', i, ''), 'State 参数', i, 30) ?? '';
+				}
+				if (this.getNodeParameter('updateMarkSource', i, false) as boolean) {
+					body.mark_source = this.getNodeParameter('mark_source', i, true) as boolean;
+				}
+				if (this.getNodeParameter('updateAutoCreateRoom', i, false) as boolean) {
+					const autoCreateRoom = this.getNodeParameter('auto_create_room', i, true) as boolean;
+					body.auto_create_room = autoCreateRoom ? 1 : 0;
+					if (autoCreateRoom && (this.getNodeParameter('customRoomNaming', i, false) as boolean)) {
+						body.room_base_name = requireText(
+							this,
+							this.getNodeParameter('room_base_name', i, ''),
+							'群名前缀',
+							i,
+							40,
+						);
+						body.room_base_id = requireInteger(
+							this,
+							this.getNodeParameter('room_base_id', i, 1),
+							'群起始序号',
+							i,
+							1,
+							Number.MAX_SAFE_INTEGER,
+						);
+					}
 				}
 
 				response = await weComApiRequest.call(
@@ -601,7 +966,7 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'delJoinWay') {
-				const config_id = this.getNodeParameter('config_id', i) as string;
+				const config_id = requireText(this, this.getNodeParameter('config_id', i), '进群方式配置 ID', i);
 
 				response = await weComApiRequest.call(
 					this,
@@ -612,37 +977,50 @@ export async function executeExternalContact(
 			}
 			// 客户朋友圈
 			else if (operation === 'addMomentTask') {
-				const enableVisibleRange = this.getNodeParameter('enableVisibleRange', i, true) as boolean;
-				const contentType = this.getNodeParameter('contentType', i) as string;
+				const enableVisibleRange = this.getNodeParameter('enableVisibleRange', i, false) as boolean;
+				const contentType = String(this.getNodeParameter('contentType', i));
+				if (!['text', 'image', 'video', 'link'].includes(contentType)) {
+					fail(this, '朋友圈内容类型无效', i);
+				}
 
 				const body: IDataObject = {};
 
 				// 构建可见范围
 				if (enableVisibleRange) {
 					const visible_range: IDataObject = {};
-					const sender_user_list = this.getNodeParameter('sender_user_list', i, '') as string;
-					const sender_department_list = this.getNodeParameter('sender_department_list', i, '') as string;
+					const senderUserList = stringList(
+						this,
+						this.getNodeParameter('sender_user_list', i, ''),
+						'发表成员列表',
+						i,
+						{ maximum: 100000 },
+					);
+					const senderDepartmentList = integerList(
+						this,
+						this.getNodeParameter('sender_department_list', i, ''),
+						'发表部门列表',
+						i,
+						{ maximum: 100000 },
+					);
 
-					if (sender_user_list || sender_department_list) {
+					if (senderUserList.length > 0 || senderDepartmentList.length > 0) {
 						const sender_list: IDataObject = {};
-						if (sender_user_list) {
-							sender_list.user_list = sender_user_list.split(',').map((id) => id.trim());
-						}
-						if (sender_department_list) {
-							sender_list.department_list = sender_department_list.split(',').map((id) => parseInt(id.trim(), 10));
-						}
+						if (senderUserList.length > 0) sender_list.user_list = senderUserList;
+						if (senderDepartmentList.length > 0) sender_list.department_list = senderDepartmentList;
 						visible_range.sender_list = sender_list;
 					}
 
 					// 可见客户标签列表
 					const enableExternalContactList = this.getNodeParameter('enableExternalContactList', i, false) as boolean;
 					if (enableExternalContactList) {
-						const external_contact_tag_list = this.getNodeParameter('external_contact_tag_list', i, '') as string;
-						if (external_contact_tag_list) {
-							visible_range.external_contact_list = {
-								tag_list: external_contact_tag_list.split(',').map((id) => id.trim()),
-							};
-						}
+						const tagList = stringList(
+							this,
+							this.getNodeParameter('external_contact_tag_list', i, ''),
+							'可见客户标签列表',
+							i,
+							{ minimum: 1 },
+						);
+						visible_range.external_contact_list = { tag_list: tagList };
 					}
 
 					if (Object.keys(visible_range).length > 0) {
@@ -651,7 +1029,16 @@ export async function executeExternalContact(
 				}
 
 				// 文本内容
-				const text_content = this.getNodeParameter('text_content', i, '') as string;
+				const text_content = optionalByteText(
+					this,
+					this.getNodeParameter('text_content', i, ''),
+					'朋友圈文本',
+					i,
+					4000,
+				);
+				if (text_content && Array.from(text_content).length > 2000) {
+					fail(this, '朋友圈文本不能超过 2000 个字', i);
+				}
 				if (text_content) {
 					body.text = { content: text_content };
 				}
@@ -659,25 +1046,45 @@ export async function executeExternalContact(
 				// 附件内容
 				if (contentType === 'image') {
 					const imageCollection = this.getNodeParameter('imageCollection', i, {}) as IDataObject;
-					if (imageCollection.images) {
-						const imagesList = imageCollection.images as IDataObject[];
-						body.attachments = imagesList.map((img) => ({
+					const imagesList = collectionRows(imageCollection, 'images');
+					if (imagesList.length < 1 || imagesList.length > 9) {
+						fail(this, '图片附件数量必须为 1–9 张', i);
+					}
+					body.attachments = imagesList.map((img, imageIndex) => ({
 							msgtype: 'image',
-							image: { media_id: img.media_id },
+							image: {
+								media_id: requireText(
+									this,
+									img.media_id,
+									`第 ${imageIndex + 1} 张图片 Media ID`,
+									i,
+								),
+							},
 						}));
-					}
 				} else if (contentType === 'video') {
-					const video_media_id = this.getNodeParameter('video_media_id', i, '') as string;
-					if (video_media_id) {
-						body.attachments = [{
-							msgtype: 'video',
-							video: { media_id: video_media_id },
-						}];
-					}
+					const video_media_id = requireText(
+						this,
+						this.getNodeParameter('video_media_id', i, ''),
+						'视频 Media ID',
+						i,
+					);
+					body.attachments = [{ msgtype: 'video', video: { media_id: video_media_id } }];
 				} else if (contentType === 'link') {
-					const title = this.getNodeParameter('link_title', i, '') as string;
-					const url = this.getNodeParameter('link_url', i) as string;
-					const media_id = this.getNodeParameter('link_media_id', i) as string;
+					const title = optionalByteText(
+						this,
+						this.getNodeParameter('link_title', i, ''),
+						'链接标题',
+						i,
+						128,
+					);
+					if (title && Array.from(title).length > 64) fail(this, '链接标题不能超过 64 个字', i);
+					const url = requireText(this, this.getNodeParameter('link_url', i), '链接 URL', i);
+					const media_id = requireText(
+						this,
+						this.getNodeParameter('link_media_id', i),
+						'链接封面 Media ID',
+						i,
+					);
 					const link: IDataObject = {};
 					if (title) link.title = title;
 					link.url = url;
@@ -687,6 +1094,7 @@ export async function executeExternalContact(
 						link,
 					}];
 				}
+				if (!body.text && !body.attachments) fail(this, '朋友圈文本和附件不能同时为空', i);
 
 				response = await weComApiRequest.call(
 					this,
@@ -695,7 +1103,7 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'cancelMomentTask') {
-				const moment_id = this.getNodeParameter('moment_id', i) as string;
+				const moment_id = requireText(this, this.getNodeParameter('moment_id', i), '朋友圈 ID', i);
 
 				response = await weComApiRequest.call(
 					this,
@@ -704,7 +1112,8 @@ export async function executeExternalContact(
 					{ moment_id },
 				);
 			} else if (operation === 'getMomentTaskResult') {
-				const jobid = this.getNodeParameter('jobid', i) as string;
+				const jobid = requireText(this, this.getNodeParameter('jobid', i), '异步任务 ID', i);
+				if (Buffer.byteLength(jobid, 'utf8') > 64) fail(this, '异步任务 ID 不能超过 64 个字节', i);
 
 				response = await weComApiRequest.call(
 					this,
@@ -715,15 +1124,30 @@ export async function executeExternalContact(
 				);
 			} else if (operation === 'getMomentTaskList') {
 				const start_time = dateTimeToUnixTimestamp(
-					this.getNodeParameter('start_time', i) as string | number,
+					this,
+					this.getNodeParameter('start_time', i),
+					'开始时间',
+					i,
 				);
 				const end_time = dateTimeToUnixTimestamp(
-					this.getNodeParameter('end_time', i) as string | number,
+					this,
+					this.getNodeParameter('end_time', i),
+					'结束时间',
+					i,
 				);
-				const creator = this.getNodeParameter('creator', i, '') as string;
-				const filter_type = this.getNodeParameter('filter_type', i, 2) as number;
-				const cursor = this.getNodeParameter('cursor', i, '') as string;
-				const limit = this.getNodeParameter('limit', i, 20) as number;
+				if (start_time === undefined || end_time === undefined) fail(this, '开始时间和结束时间均为必填', i);
+				if (start_time > end_time) fail(this, '开始时间不能晚于结束时间', i);
+				if (end_time - start_time > 30 * 86400) fail(this, '朋友圈记录时间范围不能超过 30 天', i);
+				const creator = optionalText(this, this.getNodeParameter('creator', i, ''), '创建人 UserID', i);
+				const filter_type = requireOption(
+					this,
+					this.getNodeParameter('filter_type', i, 2),
+					'朋友圈类型',
+					i,
+					[0, 1, 2],
+				);
+				const cursor = optionalText(this, this.getNodeParameter('cursor', i, ''), '游标', i);
+				const limit = requireInteger(this, this.getNodeParameter('limit', i, 20), '每页数量', i, 1, 20);
 
 				const body: IDataObject = { start_time, end_time, limit };
 				if (creator) body.creator = creator;
@@ -737,9 +1161,9 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'getMomentTask') {
-				const moment_id = this.getNodeParameter('moment_id', i) as string;
-				const cursor = this.getNodeParameter('cursor', i, '') as string;
-				const limit = this.getNodeParameter('limit', i, 1000) as number;
+				const moment_id = requireText(this, this.getNodeParameter('moment_id', i), '朋友圈 ID', i);
+				const cursor = optionalText(this, this.getNodeParameter('cursor', i, ''), '游标', i);
+				const limit = requireInteger(this, this.getNodeParameter('limit', i, 500), '每页数量', i, 1, 1000);
 
 				const body: IDataObject = { moment_id, limit };
 				if (cursor) body.cursor = cursor;
@@ -751,10 +1175,10 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'getMomentCustomerList') {
-				const moment_id = this.getNodeParameter('moment_id', i) as string;
-				const userid = this.getNodeParameter('userid', i) as string;
-				const cursor = this.getNodeParameter('cursor', i, '') as string;
-				const limit = this.getNodeParameter('limit', i, 500) as number;
+				const moment_id = requireText(this, this.getNodeParameter('moment_id', i), '朋友圈 ID', i);
+				const userid = requireText(this, this.getNodeParameter('userid', i), '发表成员 UserID', i);
+				const cursor = optionalText(this, this.getNodeParameter('cursor', i, ''), '游标', i);
+				const limit = requireInteger(this, this.getNodeParameter('limit', i, 500), '每页数量', i, 1, 1000);
 
 				const body: IDataObject = { moment_id, userid, limit };
 				if (cursor) body.cursor = cursor;
@@ -766,10 +1190,10 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'getMomentSendResult') {
-				const moment_id = this.getNodeParameter('moment_id', i) as string;
-				const userid = this.getNodeParameter('userid', i) as string;
-				const cursor = this.getNodeParameter('cursor', i, '') as string;
-				const limit = this.getNodeParameter('limit', i, 3000) as number;
+				const moment_id = requireText(this, this.getNodeParameter('moment_id', i), '朋友圈 ID', i);
+				const userid = requireText(this, this.getNodeParameter('userid', i), '发表成员 UserID', i);
+				const cursor = optionalText(this, this.getNodeParameter('cursor', i, ''), '游标', i);
+				const limit = requireInteger(this, this.getNodeParameter('limit', i, 3000), '每页数量', i, 1, 5000);
 
 				const body: IDataObject = { moment_id, userid, limit };
 				if (cursor) body.cursor = cursor;
@@ -781,8 +1205,8 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'getMomentComments') {
-				const moment_id = this.getNodeParameter('moment_id', i) as string;
-				const userid = this.getNodeParameter('userid', i) as string;
+				const moment_id = requireText(this, this.getNodeParameter('moment_id', i), '朋友圈 ID', i);
+				const userid = requireText(this, this.getNodeParameter('userid', i), '发表成员 UserID', i);
 
 				response = await weComApiRequest.call(
 					this,
@@ -793,8 +1217,8 @@ export async function executeExternalContact(
 			}
 			// 朋友圈规则组管理
 			else if (operation === 'listMomentStrategy') {
-				const cursor = this.getNodeParameter('cursor', i, '') as string;
-				const limit = this.getNodeParameter('limit', i, 1000) as number;
+				const cursor = optionalText(this, this.getNodeParameter('cursor', i, ''), '游标', i);
+				const limit = requireInteger(this, this.getNodeParameter('limit', i, 1000), '每页数量', i, 1, 1000);
 
 				const body: IDataObject = { limit };
 				if (cursor) body.cursor = cursor;
@@ -806,7 +1230,14 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'getMomentStrategy') {
-				const strategy_id = this.getNodeParameter('strategy_id', i) as number;
+				const strategy_id = requireInteger(
+					this,
+					this.getNodeParameter('strategy_id', i),
+					'规则组 ID',
+					i,
+					1,
+					Number.MAX_SAFE_INTEGER,
+				);
 
 				response = await weComApiRequest.call(
 					this,
@@ -815,9 +1246,16 @@ export async function executeExternalContact(
 					{ strategy_id },
 				);
 			} else if (operation === 'getMomentStrategyRange') {
-				const strategy_id = this.getNodeParameter('strategy_id', i) as number;
-				const cursor = this.getNodeParameter('cursor', i, '') as string;
-				const limit = this.getNodeParameter('limit', i, 1000) as number;
+				const strategy_id = requireInteger(
+					this,
+					this.getNodeParameter('strategy_id', i),
+					'规则组 ID',
+					i,
+					1,
+					Number.MAX_SAFE_INTEGER,
+				);
+				const cursor = optionalText(this, this.getNodeParameter('cursor', i, ''), '游标', i);
+				const limit = requireInteger(this, this.getNodeParameter('limit', i, 1000), '每页数量', i, 1, 1000);
 
 				const body: IDataObject = { strategy_id, limit };
 				if (cursor) body.cursor = cursor;
@@ -829,34 +1267,47 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'createMomentStrategy') {
-				const strategy_name = this.getNodeParameter('strategy_name', i) as string;
-				const parent_id = this.getNodeParameter('parent_id', i, 0) as number;
-				const admin_list = this.getNodeParameter('admin_list', i) as string;
+				const strategy_name = requireText(this, this.getNodeParameter('strategy_name', i), '规则组名称', i);
+				const parent_id = requireInteger(
+					this,
+					this.getNodeParameter('parent_id', i, 0),
+					'父规则组 ID',
+					i,
+					0,
+					Number.MAX_SAFE_INTEGER,
+				);
+				const adminList = stringList(
+					this,
+					this.getNodeParameter('admin_list', i),
+					'管理员列表',
+					i,
+					{ minimum: 1, maximum: 20 },
+				);
 				const privilege_view_moment_list = this.getNodeParameter('privilege_view_moment_list', i, true) as boolean;
 				const privilege_send_moment = this.getNodeParameter('privilege_send_moment', i, true) as boolean;
 				const privilege_manage_moment_cover_and_sign = this.getNodeParameter('privilege_manage_moment_cover_and_sign', i, true) as boolean;
-				const rangeCollection = this.getNodeParameter('rangeCollection', i, {}) as IDataObject;
+				const range = rangeNodes(
+					this,
+					this.getNodeParameter('rangeCollection', i, {}),
+					'ranges',
+					'管理范围',
+					i,
+					{ minimum: 1, maximum: 3000 },
+				);
 
 				const body: IDataObject = {
 					strategy_name,
-					admin_list: admin_list.split(',').map((id) => id.trim()),
-					privilege: {
+					admin_list: adminList,
+					range,
+				};
+				if (parent_id > 0) {
+					body.parent_id = parent_id;
+				} else {
+					body.privilege = {
 						view_moment_list: privilege_view_moment_list,
 						send_moment: privilege_send_moment,
 						manage_moment_cover_and_sign: privilege_manage_moment_cover_and_sign,
-					},
-				};
-				if (parent_id > 0) body.parent_id = parent_id;
-
-				// 构建管理范围
-				if (rangeCollection.ranges) {
-					const rangesList = rangeCollection.ranges as IDataObject[];
-					body.range = rangesList.map((r) => {
-						const rangeItem: IDataObject = { type: r.type };
-						if (r.type === 1 && r.userid) rangeItem.userid = r.userid;
-						if (r.type === 2 && r.partyid) rangeItem.partyid = r.partyid;
-						return rangeItem;
-					});
+					};
 				}
 
 				response = await weComApiRequest.call(
@@ -866,22 +1317,63 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'editMomentStrategy') {
-				const strategy_id = this.getNodeParameter('strategy_id', i) as number;
-				const strategy_name = this.getNodeParameter('strategy_name', i, '') as string;
+				const strategy_id = requireInteger(
+					this,
+					this.getNodeParameter('strategy_id', i),
+					'规则组 ID',
+					i,
+					1,
+					Number.MAX_SAFE_INTEGER,
+				);
+				const updateStrategyName = this.getNodeParameter('updateStrategyName', i, false) as boolean;
 				const updateAdminList = this.getNodeParameter('updateAdminList', i, false) as boolean;
 				const updatePrivilege = this.getNodeParameter('updatePrivilege', i, false) as boolean;
-				const rangeAddCollection = this.getNodeParameter('rangeAddCollection', i, {}) as IDataObject;
-				const rangeDelCollection = this.getNodeParameter('rangeDelCollection', i, {}) as IDataObject;
+				const rangeAdd = rangeNodes(
+					this,
+					this.getNodeParameter('rangeAddCollection', i, {}),
+					'ranges',
+					'添加管理范围',
+					i,
+					{ maximum: 3000 },
+				);
+				const rangeDel = rangeNodes(
+					this,
+					this.getNodeParameter('rangeDelCollection', i, {}),
+					'ranges',
+					'删除管理范围',
+					i,
+					{ maximum: 3000 },
+				);
+				if (rangeAdd.length + rangeDel.length > 3000) {
+					fail(this, '单次添加和删除的管理范围节点合计不能超过 3000 个', i);
+				}
+				const deleted = new Set(
+					rangeDel.map((node) => `${node.type}:${node.type === 1 ? node.userid : node.partyid}`),
+				);
+				const overlap = rangeAdd.find((node) =>
+					deleted.has(`${node.type}:${node.type === 1 ? node.userid : node.partyid}`),
+				);
+				if (overlap) fail(this, '同一管理范围节点不能同时添加和删除', i);
 
 				const body: IDataObject = { strategy_id };
-				if (strategy_name) body.strategy_name = strategy_name;
+				if (updateStrategyName) {
+					body.strategy_name = requireText(
+						this,
+						this.getNodeParameter('strategy_name', i, ''),
+						'规则组名称',
+						i,
+					);
+				}
 
 				// 更新管理员列表
 				if (updateAdminList) {
-					const admin_list = this.getNodeParameter('admin_list', i, '') as string;
-					if (admin_list) {
-						body.admin_list = admin_list.split(',').map((id) => id.trim());
-					}
+					body.admin_list = stringList(
+						this,
+						this.getNodeParameter('admin_list', i, ''),
+						'管理员列表',
+						i,
+						{ minimum: 1, maximum: 20 },
+					);
 				}
 
 				// 更新权限配置
@@ -896,26 +1388,16 @@ export async function executeExternalContact(
 					};
 				}
 
-				// 添加管理范围
-				if (rangeAddCollection.ranges) {
-					const rangesList = rangeAddCollection.ranges as IDataObject[];
-					body.range_add = rangesList.map((r) => {
-						const rangeItem: IDataObject = { type: r.type };
-						if (r.type === 1 && r.userid) rangeItem.userid = r.userid;
-						if (r.type === 2 && r.partyid) rangeItem.partyid = r.partyid;
-						return rangeItem;
-					});
-				}
-
-				// 删除管理范围
-				if (rangeDelCollection.ranges) {
-					const rangesList = rangeDelCollection.ranges as IDataObject[];
-					body.range_del = rangesList.map((r) => {
-						const rangeItem: IDataObject = { type: r.type };
-						if (r.type === 1 && r.userid) rangeItem.userid = r.userid;
-						if (r.type === 2 && r.partyid) rangeItem.partyid = r.partyid;
-						return rangeItem;
-					});
+				if (rangeAdd.length > 0) body.range_add = rangeAdd;
+				if (rangeDel.length > 0) body.range_del = rangeDel;
+				if (
+					!updateStrategyName &&
+					!updateAdminList &&
+					!updatePrivilege &&
+					rangeAdd.length === 0 &&
+					rangeDel.length === 0
+				) {
+					fail(this, '至少选择一个要更新的规则组字段', i);
 				}
 
 				response = await weComApiRequest.call(
@@ -925,7 +1407,14 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'deleteMomentStrategy') {
-				const strategy_id = this.getNodeParameter('strategy_id', i) as number;
+				const strategy_id = requireInteger(
+					this,
+					this.getNodeParameter('strategy_id', i),
+					'规则组 ID',
+					i,
+					1,
+					Number.MAX_SAFE_INTEGER,
+				);
 
 				response = await weComApiRequest.call(
 					this,
@@ -936,9 +1425,16 @@ export async function executeExternalContact(
 			}
 			// 消息推送
 			else if (operation === 'addMsgTemplate') {
-				const chat_type = this.getNodeParameter('chat_type', i, 'single') as string;
-				const sender = this.getNodeParameter('sender', i, '') as string;
-				const text_content = this.getNodeParameter('text_content', i, '') as string;
+				const chat_type = String(this.getNodeParameter('chat_type', i, 'single'));
+				if (!['single', 'group'].includes(chat_type)) fail(this, '群发任务类型无效', i);
+				const sender = optionalText(this, this.getNodeParameter('sender', i, ''), '发送成员 UserID', i);
+				const text_content = optionalByteText(
+					this,
+					this.getNodeParameter('text_content', i, ''),
+					'群发文本',
+					i,
+					4000,
+				);
 				const enableAttachments = this.getNodeParameter('enableAttachments', i, false) as boolean;
 
 				const body: IDataObject = { chat_type };
@@ -950,14 +1446,17 @@ export async function executeExternalContact(
 
 				// 单聊场景参数
 				if (chat_type === 'single') {
-					const external_userid = this.getNodeParameter('external_userid', i, '') as string;
+					const externalUserIds = stringList(
+						this,
+						this.getNodeParameter('external_userid', i, ''),
+						'客户 ExternalUserID 列表',
+						i,
+						{ maximum: 10000 },
+					);
 					const allow_select = this.getNodeParameter('allow_select', i, false) as boolean;
 					const enableTagFilter = this.getNodeParameter('enableTagFilter', i, false) as boolean;
 
-					// 客户列表
-					if (external_userid) {
-						body.external_userid = external_userid.split(',').map((id) => id.trim());
-					}
+					if (externalUserIds.length > 0) body.external_userid = externalUserIds;
 
 					// 是否允许成员重新选择
 					if (allow_select) {
@@ -965,32 +1464,38 @@ export async function executeExternalContact(
 					}
 
 					// 标签过滤
-					if (enableTagFilter) {
+					if (enableTagFilter && externalUserIds.length === 0) {
 						const tagFilterGroups = this.getNodeParameter('tagFilterGroups', i, {}) as IDataObject;
-						if (tagFilterGroups.groups) {
-							const groupsList = tagFilterGroups.groups as IDataObject[];
-							const group_list: IDataObject[] = [];
-							for (const group of groupsList) {
-								if (group.tag_list) {
-									const tagListStr = group.tag_list as string;
-									group_list.push({
-										tag_list: tagListStr.split(',').map((id) => id.trim()),
-									});
-								}
-							}
-							if (group_list.length > 0) {
-								body.tag_filter = { group_list };
-							}
-						}
+						const groups = collectionRows(tagFilterGroups, 'groups');
+						if (groups.length === 0) fail(this, '启用标签过滤后至少需要 1 个标签组', i);
+						body.tag_filter = {
+							group_list: groups.map((group, groupIndex) => ({
+								tag_list: stringList(
+									this,
+									group.tag_list,
+									`第 ${groupIndex + 1} 个标签组`,
+									i,
+									{ minimum: 1, maximum: 100 },
+								),
+							})),
+						};
+					}
+					if (!sender && externalUserIds.length === 0 && !body.tag_filter) {
+						fail(this, '单聊群发的发送成员、客户列表和标签过滤不能同时为空', i);
 					}
 				}
 
 				// 群聊场景参数
 				if (chat_type === 'group') {
-					const chat_id_list = this.getNodeParameter('chat_id_list', i, '') as string;
-					if (chat_id_list) {
-						body.chat_id_list = chat_id_list.split(',').map((id) => id.trim());
-					}
+					if (!sender) fail(this, '群聊群发必须填写发送成员 UserID', i);
+					const chatIdList = stringList(
+						this,
+						this.getNodeParameter('chat_id_list', i, ''),
+						'客户群 ID 列表',
+						i,
+						{ maximum: 2000 },
+					);
+					if (chatIdList.length > 0) body.chat_id_list = chatIdList;
 				}
 
 				// 文本内容
@@ -1000,82 +1505,13 @@ export async function executeExternalContact(
 
 				// 附件列表
 				if (enableAttachments) {
-					const attachmentsCollection = this.getNodeParameter('attachments', i, {}) as IDataObject;
-					const attachments: IDataObject[] = [];
-
-					// 处理图片附件
-					if (attachmentsCollection.images) {
-						const imagesList = attachmentsCollection.images as IDataObject[];
-						for (const img of imagesList) {
-							const image: IDataObject = {};
-							if (img.media_id) image.media_id = img.media_id;
-							if (img.pic_url) image.pic_url = img.pic_url;
-							if (Object.keys(image).length > 0) {
-								attachments.push({ msgtype: 'image', image });
-							}
-						}
-					}
-
-					// 处理链接附件
-					if (attachmentsCollection.links) {
-						const linksList = attachmentsCollection.links as IDataObject[];
-						for (const lnk of linksList) {
-							const link: IDataObject = {};
-							if (lnk.title) link.title = lnk.title;
-							if (lnk.picurl) link.picurl = lnk.picurl;
-							if (lnk.desc) link.desc = lnk.desc;
-							if (lnk.url) link.url = lnk.url;
-							if (Object.keys(link).length > 0) {
-								attachments.push({ msgtype: 'link', link });
-							}
-						}
-					}
-
-					// 处理小程序附件
-					if (attachmentsCollection.miniprograms) {
-						const miniprogramsList = attachmentsCollection.miniprograms as IDataObject[];
-						for (const mp of miniprogramsList) {
-							const miniprogram: IDataObject = {};
-							if (mp.title) miniprogram.title = mp.title;
-							if (mp.pic_media_id) miniprogram.pic_media_id = mp.pic_media_id;
-							if (mp.appid) miniprogram.appid = mp.appid;
-							if (mp.page) miniprogram.page = mp.page;
-							if (Object.keys(miniprogram).length > 0) {
-								attachments.push({ msgtype: 'miniprogram', miniprogram });
-							}
-						}
-					}
-
-					// 处理视频附件
-					if (attachmentsCollection.videos) {
-						const videosList = attachmentsCollection.videos as IDataObject[];
-						for (const vid of videosList) {
-							if (vid.media_id) {
-								attachments.push({
-									msgtype: 'video',
-									video: { media_id: vid.media_id },
-								});
-							}
-						}
-					}
-
-					// 处理文件附件
-					if (attachmentsCollection.files) {
-						const filesList = attachmentsCollection.files as IDataObject[];
-						for (const file of filesList) {
-							if (file.media_id) {
-								attachments.push({
-									msgtype: 'file',
-									file: { media_id: file.media_id },
-								});
-							}
-						}
-					}
-
-					if (attachments.length > 0) {
-						body.attachments = attachments;
-					}
+					body.attachments = buildMessageAttachments(
+						this,
+						i,
+						this.getNodeParameter('attachments', i, {}),
+					);
 				}
+				if (!body.text && !body.attachments) fail(this, '群发文本和附件不能同时为空', i);
 
 				response = await weComApiRequest.call(
 					this,
@@ -1084,7 +1520,7 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'remindGroupMsgSend') {
-				const msgid = this.getNodeParameter('msgid', i) as string;
+				const msgid = requireText(this, this.getNodeParameter('msgid', i), '群发消息 ID', i);
 
 				response = await weComApiRequest.call(
 					this,
@@ -1093,7 +1529,7 @@ export async function executeExternalContact(
 					{ msgid },
 				);
 			} else if (operation === 'cancelGroupMsgSend') {
-				const msgid = this.getNodeParameter('msgid', i) as string;
+				const msgid = requireText(this, this.getNodeParameter('msgid', i), '群发消息 ID', i);
 
 				response = await weComApiRequest.call(
 					this,
@@ -1102,17 +1538,33 @@ export async function executeExternalContact(
 					{ msgid },
 				);
 			} else if (operation === 'getGroupMsgListV2') {
-				const chat_type = this.getNodeParameter('chat_type', i) as string;
+				const chat_type = String(this.getNodeParameter('chat_type', i));
+				if (!['single', 'group'].includes(chat_type)) fail(this, '群发任务类型无效', i);
 				const start_time = dateTimeToUnixTimestamp(
-					this.getNodeParameter('start_time', i) as string | number,
+					this,
+					this.getNodeParameter('start_time', i),
+					'开始时间',
+					i,
 				);
 				const end_time = dateTimeToUnixTimestamp(
-					this.getNodeParameter('end_time', i) as string | number,
+					this,
+					this.getNodeParameter('end_time', i),
+					'结束时间',
+					i,
 				);
-				const creator = this.getNodeParameter('creator', i, '') as string;
-				const filter_type = this.getNodeParameter('filter_type', i, 2) as number;
-				const limit = this.getNodeParameter('limit', i, 50) as number;
-				const cursor = this.getNodeParameter('cursor', i, '') as string;
+				if (start_time === undefined || end_time === undefined) fail(this, '开始时间和结束时间均为必填', i);
+				if (start_time > end_time) fail(this, '开始时间不能晚于结束时间', i);
+				if (end_time - start_time > 31 * 86400) fail(this, '群发记录时间范围不能超过 1 个月', i);
+				const creator = optionalText(this, this.getNodeParameter('creator', i, ''), '创建人 UserID', i);
+				const filter_type = requireOption(
+					this,
+					this.getNodeParameter('filter_type', i, 2),
+					'创建人类型',
+					i,
+					[0, 1, 2],
+				);
+				const limit = requireInteger(this, this.getNodeParameter('limit', i, 50), '每页数量', i, 1, 100);
+				const cursor = optionalText(this, this.getNodeParameter('cursor', i, ''), '游标', i);
 
 				const body: IDataObject = { chat_type, start_time, end_time, limit };
 				if (creator) body.creator = creator;
@@ -1126,9 +1578,9 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'getGroupMsgTask') {
-				const msgid = this.getNodeParameter('msgid', i) as string;
-				const limit = this.getNodeParameter('limit', i, 500) as number;
-				const cursor = this.getNodeParameter('cursor', i, '') as string;
+				const msgid = requireText(this, this.getNodeParameter('msgid', i), '群发消息 ID', i);
+				const limit = requireInteger(this, this.getNodeParameter('limit', i, 500), '每页数量', i, 1, 1000);
+				const cursor = optionalText(this, this.getNodeParameter('cursor', i, ''), '游标', i);
 
 				const body: IDataObject = { msgid, limit };
 				if (cursor) body.cursor = cursor;
@@ -1140,10 +1592,10 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'getGroupMsgSendResult') {
-				const msgid = this.getNodeParameter('msgid', i) as string;
-				const userid = this.getNodeParameter('userid', i) as string;
-				const limit = this.getNodeParameter('limit', i, 500) as number;
-				const cursor = this.getNodeParameter('cursor', i, '') as string;
+				const msgid = requireText(this, this.getNodeParameter('msgid', i), '群发消息 ID', i);
+				const userid = requireText(this, this.getNodeParameter('userid', i), '发送成员 UserID', i);
+				const limit = requireInteger(this, this.getNodeParameter('limit', i, 500), '每页数量', i, 1, 1000);
+				const cursor = optionalText(this, this.getNodeParameter('cursor', i, ''), '游标', i);
 
 				const body: IDataObject = { msgid, userid, limit };
 				if (cursor) body.cursor = cursor;
@@ -1155,8 +1607,14 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'sendWelcomeMsg') {
-				const welcome_code = this.getNodeParameter('welcome_code', i) as string;
-				const text_content = this.getNodeParameter('text_content', i, '') as string;
+				const welcome_code = requireText(this, this.getNodeParameter('welcome_code', i), '欢迎语 Code', i);
+				const text_content = optionalByteText(
+					this,
+					this.getNodeParameter('text_content', i, ''),
+					'欢迎语文本',
+					i,
+					4000,
+				);
 				const enableAttachments = this.getNodeParameter('enableAttachments', i, false) as boolean;
 
 				const body: IDataObject = { welcome_code };
@@ -1168,82 +1626,13 @@ export async function executeExternalContact(
 
 				// 附件列表
 				if (enableAttachments) {
-					const attachmentsCollection = this.getNodeParameter('attachments', i, {}) as IDataObject;
-					const attachments: IDataObject[] = [];
-
-					// 处理图片附件
-					if (attachmentsCollection.images) {
-						const imagesList = attachmentsCollection.images as IDataObject[];
-						for (const img of imagesList) {
-							const image: IDataObject = {};
-							if (img.media_id) image.media_id = img.media_id;
-							if (img.pic_url) image.pic_url = img.pic_url;
-							if (Object.keys(image).length > 0) {
-								attachments.push({ msgtype: 'image', image });
-							}
-						}
-					}
-
-					// 处理链接附件
-					if (attachmentsCollection.links) {
-						const linksList = attachmentsCollection.links as IDataObject[];
-						for (const lnk of linksList) {
-							const link: IDataObject = {};
-							if (lnk.title) link.title = lnk.title;
-							if (lnk.picurl) link.picurl = lnk.picurl;
-							if (lnk.desc) link.desc = lnk.desc;
-							if (lnk.url) link.url = lnk.url;
-							if (Object.keys(link).length > 0) {
-								attachments.push({ msgtype: 'link', link });
-							}
-						}
-					}
-
-					// 处理小程序附件
-					if (attachmentsCollection.miniprograms) {
-						const miniprogramsList = attachmentsCollection.miniprograms as IDataObject[];
-						for (const mp of miniprogramsList) {
-							const miniprogram: IDataObject = {};
-							if (mp.title) miniprogram.title = mp.title;
-							if (mp.pic_media_id) miniprogram.pic_media_id = mp.pic_media_id;
-							if (mp.appid) miniprogram.appid = mp.appid;
-							if (mp.page) miniprogram.page = mp.page;
-							if (Object.keys(miniprogram).length > 0) {
-								attachments.push({ msgtype: 'miniprogram', miniprogram });
-							}
-						}
-					}
-
-					// 处理视频附件
-					if (attachmentsCollection.videos) {
-						const videosList = attachmentsCollection.videos as IDataObject[];
-						for (const vid of videosList) {
-							if (vid.media_id) {
-								attachments.push({
-									msgtype: 'video',
-									video: { media_id: vid.media_id },
-								});
-							}
-						}
-					}
-
-					// 处理文件附件
-					if (attachmentsCollection.files) {
-						const filesList = attachmentsCollection.files as IDataObject[];
-						for (const file of filesList) {
-							if (file.media_id) {
-								attachments.push({
-									msgtype: 'file',
-									file: { media_id: file.media_id },
-								});
-							}
-						}
-					}
-
-					if (attachments.length > 0) {
-						body.attachments = attachments;
-					}
+					body.attachments = buildMessageAttachments(
+						this,
+						i,
+						this.getNodeParameter('attachments', i, {}),
+					);
 				}
+				if (!body.text && !body.attachments) fail(this, '欢迎语文本和附件不能同时为空', i);
 
 				response = await weComApiRequest.call(
 					this,
@@ -1252,58 +1641,45 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'addGroupWelcomeTemplate') {
-				const text_content = this.getNodeParameter('text_content', i, '') as string;
-				const attachmentType = this.getNodeParameter('attachmentType', i, 'none') as string;
-				const agentid = this.getNodeParameter('agentid', i, 0) as number;
-				const notify = this.getNodeParameter('notify', i, 1) as number;
+				const text_content = optionalByteText(
+					this,
+					this.getNodeParameter('text_content', i, ''),
+					'入群欢迎语文本',
+					i,
+					3000,
+				);
+				const attachment = buildSingleWelcomeAttachment(
+					this,
+					i,
+					this.getNodeParameter('attachmentType', i, 'none'),
+				);
+				const agentid = requireInteger(
+					this,
+					this.getNodeParameter('agentid', i, 0),
+					'旧套件 AgentID',
+					i,
+					0,
+					Number.MAX_SAFE_INTEGER,
+				);
+				const notify = requireOption(
+					this,
+					this.getNodeParameter('notify', i, 1),
+					'是否通知成员',
+					i,
+					[0, 1],
+				);
 
-				const body: IDataObject = {};
+				const body: IDataObject = { ...attachment, notify };
 
 				// 文本内容
 				if (text_content) {
 					body.text = { content: text_content };
 				}
 
-				// 附件（只能有一个）
-				if (attachmentType === 'image') {
-					const media_id = this.getNodeParameter('image_media_id', i, '') as string;
-					const pic_url = this.getNodeParameter('image_pic_url', i, '') as string;
-					const image: IDataObject = {};
-					if (media_id) image.media_id = media_id;
-					if (pic_url) image.pic_url = pic_url;
-					if (Object.keys(image).length > 0) body.image = image;
-				} else if (attachmentType === 'link') {
-					const link: IDataObject = {};
-					const title = this.getNodeParameter('link_title', i, '') as string;
-					const picurl = this.getNodeParameter('link_picurl', i, '') as string;
-					const desc = this.getNodeParameter('link_desc', i, '') as string;
-					const url = this.getNodeParameter('link_url', i, '') as string;
-					if (title) link.title = title;
-					if (picurl) link.picurl = picurl;
-					if (desc) link.desc = desc;
-					if (url) link.url = url;
-					if (Object.keys(link).length > 0) body.link = link;
-				} else if (attachmentType === 'miniprogram') {
-					const miniprogram: IDataObject = {};
-					const title = this.getNodeParameter('miniprogram_title', i, '') as string;
-					const appid = this.getNodeParameter('miniprogram_appid', i, '') as string;
-					const page = this.getNodeParameter('miniprogram_page', i, '') as string;
-					const pic_media_id = this.getNodeParameter('miniprogram_pic_media_id', i, '') as string;
-					if (title) miniprogram.title = title;
-					if (appid) miniprogram.appid = appid;
-					if (page) miniprogram.page = page;
-					if (pic_media_id) miniprogram.pic_media_id = pic_media_id;
-					if (Object.keys(miniprogram).length > 0) body.miniprogram = miniprogram;
-				} else if (attachmentType === 'file') {
-					const media_id = this.getNodeParameter('file_media_id', i, '') as string;
-					if (media_id) body.file = { media_id };
-				} else if (attachmentType === 'video') {
-					const media_id = this.getNodeParameter('video_media_id', i, '') as string;
-					if (media_id) body.video = { media_id };
-				}
-
 				if (agentid) body.agentid = agentid;
-				body.notify = notify;
+				if (!body.text && Object.keys(attachment).length === 0) {
+					fail(this, '入群欢迎语文本和附件不能同时为空', i);
+				}
 
 				response = await weComApiRequest.call(
 					this,
@@ -1312,57 +1688,39 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'editGroupWelcomeTemplate') {
-				const template_id = this.getNodeParameter('template_id', i) as string;
-				const text_content = this.getNodeParameter('text_content', i, '') as string;
-				const attachmentType = this.getNodeParameter('attachmentType', i, 'none') as string;
-				const agentid = this.getNodeParameter('agentid', i, 0) as number;
+				const template_id = requireText(this, this.getNodeParameter('template_id', i), '欢迎语模板 ID', i);
+				const text_content = optionalByteText(
+					this,
+					this.getNodeParameter('text_content', i, ''),
+					'入群欢迎语文本',
+					i,
+					3000,
+				);
+				const attachment = buildSingleWelcomeAttachment(
+					this,
+					i,
+					this.getNodeParameter('attachmentType', i, 'none'),
+				);
+				const agentid = requireInteger(
+					this,
+					this.getNodeParameter('agentid', i, 0),
+					'旧套件 AgentID',
+					i,
+					0,
+					Number.MAX_SAFE_INTEGER,
+				);
 
-				const body: IDataObject = { template_id };
+				const body: IDataObject = { template_id, ...attachment };
 
 				// 文本内容
 				if (text_content) {
 					body.text = { content: text_content };
 				}
 
-				// 附件（只能有一个）
-				if (attachmentType === 'image') {
-					const media_id = this.getNodeParameter('image_media_id', i, '') as string;
-					const pic_url = this.getNodeParameter('image_pic_url', i, '') as string;
-					const image: IDataObject = {};
-					if (media_id) image.media_id = media_id;
-					if (pic_url) image.pic_url = pic_url;
-					if (Object.keys(image).length > 0) body.image = image;
-				} else if (attachmentType === 'link') {
-					const link: IDataObject = {};
-					const title = this.getNodeParameter('link_title', i, '') as string;
-					const picurl = this.getNodeParameter('link_picurl', i, '') as string;
-					const desc = this.getNodeParameter('link_desc', i, '') as string;
-					const url = this.getNodeParameter('link_url', i, '') as string;
-					if (title) link.title = title;
-					if (picurl) link.picurl = picurl;
-					if (desc) link.desc = desc;
-					if (url) link.url = url;
-					if (Object.keys(link).length > 0) body.link = link;
-				} else if (attachmentType === 'miniprogram') {
-					const miniprogram: IDataObject = {};
-					const title = this.getNodeParameter('miniprogram_title', i, '') as string;
-					const appid = this.getNodeParameter('miniprogram_appid', i, '') as string;
-					const page = this.getNodeParameter('miniprogram_page', i, '') as string;
-					const pic_media_id = this.getNodeParameter('miniprogram_pic_media_id', i, '') as string;
-					if (title) miniprogram.title = title;
-					if (appid) miniprogram.appid = appid;
-					if (page) miniprogram.page = page;
-					if (pic_media_id) miniprogram.pic_media_id = pic_media_id;
-					if (Object.keys(miniprogram).length > 0) body.miniprogram = miniprogram;
-				} else if (attachmentType === 'file') {
-					const media_id = this.getNodeParameter('file_media_id', i, '') as string;
-					if (media_id) body.file = { media_id };
-				} else if (attachmentType === 'video') {
-					const media_id = this.getNodeParameter('video_media_id', i, '') as string;
-					if (media_id) body.video = { media_id };
-				}
-
 				if (agentid) body.agentid = agentid;
+				if (!body.text && Object.keys(attachment).length === 0) {
+					fail(this, '入群欢迎语文本和附件不能同时为空', i);
+				}
 
 				response = await weComApiRequest.call(
 					this,
@@ -1371,7 +1729,7 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'getGroupWelcomeTemplate') {
-				const template_id = this.getNodeParameter('template_id', i) as string;
+				const template_id = requireText(this, this.getNodeParameter('template_id', i), '欢迎语模板 ID', i);
 
 				response = await weComApiRequest.call(
 					this,
@@ -1380,8 +1738,15 @@ export async function executeExternalContact(
 					{ template_id },
 				);
 			} else if (operation === 'delGroupWelcomeTemplate') {
-				const template_id = this.getNodeParameter('template_id', i) as string;
-				const agentid = this.getNodeParameter('agentid', i, 0) as number;
+				const template_id = requireText(this, this.getNodeParameter('template_id', i), '欢迎语模板 ID', i);
+				const agentid = requireInteger(
+					this,
+					this.getNodeParameter('agentid', i, 0),
+					'旧套件 AgentID',
+					i,
+					0,
+					Number.MAX_SAFE_INTEGER,
+				);
 
 				const body: IDataObject = { template_id };
 				if (agentid) body.agentid = agentid;
@@ -1397,21 +1762,44 @@ export async function executeExternalContact(
 			else if (operation === 'getUserBehaviorData') {
 				const filterType = this.getNodeParameter('filterType', i, 'user') as string;
 				const start_time = dateTimeToUnixTimestamp(
-					this.getNodeParameter('start_time', i) as string | number,
+					this,
+					this.getNodeParameter('start_time', i),
+					'起始时间',
+					i,
 				);
 				const end_time = dateTimeToUnixTimestamp(
-					this.getNodeParameter('end_time', i) as string | number,
+					this,
+					this.getNodeParameter('end_time', i),
+					'结束时间',
+					i,
 				);
+				if (start_time === undefined || end_time === undefined) fail(this, '起始时间和结束时间均为必填', i);
+				if (start_time > end_time) fail(this, '起始时间不能晚于结束时间', i);
+				if (end_time - start_time > 30 * 86400) fail(this, '统计时间范围不能超过 30 天', i);
+				const now = Math.floor(Date.now() / 1000);
+				if (start_time < now - 180 * 86400 || end_time > now) {
+					fail(this, '只能查询最近 180 天内的数据，结束时间不能晚于当前时间', i);
+				}
 
 				const body: IDataObject = { start_time, end_time };
 
 				if (filterType === 'user') {
-					const userid = this.getNodeParameter('userid', i, '') as string;
-					if (userid) body.userid = userid.split(',').map((id) => id.trim());
+					body.userid = stringList(
+						this,
+						this.getNodeParameter('userid', i, ''),
+						'成员 UserID 列表',
+						i,
+						{ minimum: 1, maximum: 100 },
+					);
 				} else if (filterType === 'party') {
-					const partyid = this.getNodeParameter('partyid', i, '') as string;
-					if (partyid) body.partyid = partyid.split(',').map((id) => parseInt(id.trim(), 10));
-				}
+					body.partyid = integerList(
+						this,
+						this.getNodeParameter('partyid', i, ''),
+						'部门 ID 列表',
+						i,
+						{ minimum: 1, maximum: 100 },
+					);
+				} else fail(this, '筛选类型无效', i);
 
 				response = await weComApiRequest.call(
 					this,
@@ -1422,29 +1810,56 @@ export async function executeExternalContact(
 			} else if (operation === 'getGroupChatStatistic') {
 				const statistic_type = this.getNodeParameter('statistic_type', i, 'by_owner') as string;
 				const day_begin_time = dateTimeToUnixTimestamp(
-					this.getNodeParameter('day_begin_time', i) as string | number,
+					this,
+					this.getNodeParameter('day_begin_time', i),
+					'起始日期',
+					i,
 				);
 				const day_end_time = dateTimeToUnixTimestamp(
-					this.getNodeParameter('day_end_time', i, '') as string | number,
+					this,
+					this.getNodeParameter('day_end_time', i, ''),
+					'结束日期',
+					i,
 				);
-				const owner_userid_list = this.getNodeParameter('owner_userid_list', i, '') as string;
+				if (day_begin_time === undefined) fail(this, '起始日期为必填', i);
+				const effectiveEnd = day_end_time ?? day_begin_time;
+				if (day_begin_time > effectiveEnd) fail(this, '起始日期不能晚于结束日期', i);
+				if (effectiveEnd - day_begin_time > 30 * 86400) fail(this, '群聊统计时间范围不能超过 30 天', i);
+				const now = Math.floor(Date.now() / 1000);
+				if (day_begin_time < now - 180 * 86400 || effectiveEnd > now) {
+					fail(this, '只能查询昨天至前 180 天内的数据', i);
+				}
+				const ownerUserids = stringList(
+					this,
+					this.getNodeParameter('owner_userid_list', i, ''),
+					'群主 UserID 列表',
+					i,
+					{ maximum: 100 },
+				);
 
 				const body: IDataObject = { day_begin_time };
 				if (day_end_time) body.day_end_time = day_end_time;
 
-				// 构建群主筛选
-				if (owner_userid_list) {
-					body.owner_filter = {
-						userid_list: owner_userid_list.split(',').map((id) => id.trim()),
-					};
-				}
+				if (ownerUserids.length > 0) body.owner_filter = { userid_list: ownerUserids };
 
 				if (statistic_type === 'by_owner') {
-					// 按群主聚合
-					const order_by = this.getNodeParameter('order_by', i, 1) as number;
+					const order_by = requireOption(
+						this,
+						this.getNodeParameter('order_by', i, 1),
+						'排序方式',
+						i,
+						[1, 2, 3, 4],
+					);
 					const order_asc = this.getNodeParameter('order_asc', i, false) as boolean;
-					const offset = this.getNodeParameter('offset', i, 0) as number;
-					const limit = this.getNodeParameter('limit', i, 500) as number;
+					const offset = requireInteger(
+						this,
+						this.getNodeParameter('offset', i, 0),
+						'偏移量',
+						i,
+						0,
+						Number.MAX_SAFE_INTEGER,
+					);
+					const limit = requireInteger(this, this.getNodeParameter('limit', i, 500), '每页数量', i, 1, 1000);
 
 					body.order_by = order_by;
 					body.order_asc = order_asc ? 1 : 0;
@@ -1457,34 +1872,29 @@ export async function executeExternalContact(
 						'/cgi-bin/externalcontact/groupchat/statistic',
 						body,
 					);
-				} else {
-					// 按自然日聚合
+				} else if (statistic_type === 'by_day') {
 					response = await weComApiRequest.call(
 						this,
 						'POST',
 						'/cgi-bin/externalcontact/groupchat/statistic_group_by_day',
 						body,
 					);
-				}
+				} else fail(this, '统计方式无效', i);
 			}
-			// 其他接口
+			// 商品图册
 			else if (operation === 'addProductAlbum') {
-				const description = this.getNodeParameter('description', i) as string;
-				const price = this.getNodeParameter('price', i) as number;
-				const product_sn = this.getNodeParameter('product_sn', i, '') as string;
+				const description = requireText(this, this.getNodeParameter('description', i), '商品描述', i, 300);
+				const price = requireInteger(this, this.getNodeParameter('price', i), '商品价格', i, 0, 500000);
+				const product_sn = optionalByteText(this, this.getNodeParameter('product_sn', i, ''), '商品编码', i, 128);
+				if (product_sn && !/^[A-Za-z0-9]+$/.test(product_sn)) fail(this, '商品编码只能包含数字和英文字母', i);
 				const attachmentCollection = this.getNodeParameter('attachmentCollection', i, {}) as IDataObject;
 
-				const body: IDataObject = { description, price };
+				const body: IDataObject = {
+					description,
+					price,
+					attachments: productImageAttachments(this, attachmentCollection, '商品图片', i),
+				};
 				if (product_sn) body.product_sn = product_sn;
-
-				// 构建附件列表
-				if (attachmentCollection.attachments) {
-					const attachmentsList = attachmentCollection.attachments as IDataObject[];
-					body.attachments = attachmentsList.map((att) => ({
-						type: 'image',
-						image: { media_id: att.media_id },
-					}));
-				}
 
 				response = await weComApiRequest.call(
 					this,
@@ -1493,8 +1903,8 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'getProductAlbumList') {
-				const limit = this.getNodeParameter('limit', i, 50) as number;
-				const cursor = this.getNodeParameter('cursor', i, '') as string;
+				const limit = requireInteger(this, this.getNodeParameter('limit', i, 50), '每页数量', i, 1, 100);
+				const cursor = optionalText(this, this.getNodeParameter('cursor', i, ''), '分页游标', i);
 
 				const body: IDataObject = { limit };
 				if (cursor) body.cursor = cursor;
@@ -1506,7 +1916,7 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'getProductAlbum') {
-				const product_id = this.getNodeParameter('product_id', i) as string;
+				const product_id = requireText(this, this.getNodeParameter('product_id', i), '商品 ID', i);
 
 				response = await weComApiRequest.call(
 					this,
@@ -1515,27 +1925,30 @@ export async function executeExternalContact(
 					{ product_id },
 				);
 			} else if (operation === 'updateProductAlbum') {
-				const product_id = this.getNodeParameter('product_id', i) as string;
-				const description = this.getNodeParameter('description', i, '') as string;
-				const price = this.getNodeParameter('price', i, 0) as number;
-				const product_sn = this.getNodeParameter('product_sn', i, '') as string;
+				const product_id = requireText(this, this.getNodeParameter('product_id', i), '商品 ID', i);
+				const updateDescription = this.getNodeParameter('updateDescription', i, false) as boolean;
+				const updatePrice = this.getNodeParameter('updatePrice', i, false) as boolean;
+				const updateProductSn = this.getNodeParameter('updateProductSn', i, false) as boolean;
 				const updateAttachments = this.getNodeParameter('updateAttachments', i, false) as boolean;
 
 				const body: IDataObject = { product_id };
-				if (description) body.description = description;
-				if (price) body.price = price;
-				if (product_sn) body.product_sn = product_sn;
-
-				// 构建附件列表
+				if (updateDescription) {
+					body.description = requireText(this, this.getNodeParameter('description', i, ''), '商品描述', i, 300);
+				}
+				if (updatePrice) {
+					body.price = requireInteger(this, this.getNodeParameter('price', i, 0), '商品价格', i, 0, 500000);
+				}
+				if (updateProductSn) {
+					const productSn = requireByteText(this, this.getNodeParameter('product_sn', i, ''), '商品编码', i, 128);
+					if (!/^[A-Za-z0-9]+$/.test(productSn)) fail(this, '商品编码只能包含数字和英文字母', i);
+					body.product_sn = productSn;
+				}
 				if (updateAttachments) {
 					const attachmentCollection = this.getNodeParameter('attachmentCollection', i, {}) as IDataObject;
-					if (attachmentCollection.attachments) {
-						const attachmentsList = attachmentCollection.attachments as IDataObject[];
-						body.attachments = attachmentsList.map((att) => ({
-							type: 'image',
-							image: { media_id: att.media_id },
-						}));
-					}
+					body.attachments = productImageAttachments(this, attachmentCollection, '商品图片', i);
+				}
+				if (!updateDescription && !updatePrice && !updateProductSn && !updateAttachments) {
+					fail(this, '至少选择一个要更新的商品字段', i);
 				}
 
 				response = await weComApiRequest.call(
@@ -1545,7 +1958,7 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'deleteProductAlbum') {
-				const product_id = this.getNodeParameter('product_id', i) as string;
+				const product_id = requireText(this, this.getNodeParameter('product_id', i), '商品 ID', i);
 
 				response = await weComApiRequest.call(
 					this,
@@ -1554,40 +1967,47 @@ export async function executeExternalContact(
 					{ product_id },
 				);
 			} else if (operation === 'addInterceptRule') {
-				const rule_name = this.getNodeParameter('rule_name', i) as string;
-				const word_list = this.getNodeParameter('word_list', i) as string;
-				const intercept_type = this.getNodeParameter('intercept_type', i) as number;
+				const rule_name = requireText(this, this.getNodeParameter('rule_name', i), '规则名称', i, 20);
+				const word_list = interceptWordList(this, this.getNodeParameter('word_list', i), i);
+				const intercept_type = requireOption(this, this.getNodeParameter('intercept_type', i), '拦截方式', i, [1, 2]);
 				const applicableRangeType = this.getNodeParameter('applicableRangeType', i) as string;
 				const enableSemantics = this.getNodeParameter('enableSemantics', i, false) as boolean;
 
-				const body: IDataObject = {
-					rule_name,
-					word_list: word_list.split(',').map((w) => w.trim()),
-					intercept_type,
-				};
+				const body: IDataObject = { rule_name, word_list, intercept_type };
 
-				// 构建适用范围
 				const applicable_range: IDataObject = {};
 				if (applicableRangeType === 'user' || applicableRangeType === 'both') {
-					const userList = this.getNodeParameter('applicable_user_list', i, '') as string;
-					if (userList) {
-						applicable_range.user_list = userList.split(',').map((u) => u.trim());
-					}
+					applicable_range.user_list = stringList(
+						this,
+						this.getNodeParameter('applicable_user_list', i, ''),
+						'适用成员 UserID 列表',
+						i,
+						{ minimum: applicableRangeType === 'user' ? 1 : 0, maximum: 1000 },
+					);
 				}
 				if (applicableRangeType === 'department' || applicableRangeType === 'both') {
-					const deptList = this.getNodeParameter('applicable_department_list', i, '') as string;
-					if (deptList) {
-						applicable_range.department_list = deptList.split(',').map((d) => parseInt(d.trim(), 10));
-					}
+					applicable_range.department_list = integerList(
+						this,
+						this.getNodeParameter('applicable_department_list', i, ''),
+						'适用部门 ID 列表',
+						i,
+						{ minimum: applicableRangeType === 'department' ? 1 : 0, maximum: 1000 },
+					);
 				}
+				if (!['user', 'department', 'both'].includes(applicableRangeType)) fail(this, '适用范围类型无效', i);
+				const applicableNodeCount = ((applicable_range.user_list as string[] | undefined)?.length ?? 0)
+					+ ((applicable_range.department_list as number[] | undefined)?.length ?? 0);
+				if (applicableNodeCount < 1 || applicableNodeCount > 1000) fail(this, '适用范围节点数量必须为 1–1000 个', i);
+				if ((applicable_range.user_list as string[] | undefined)?.length === 0) delete applicable_range.user_list;
+				if ((applicable_range.department_list as number[] | undefined)?.length === 0) delete applicable_range.department_list;
 				body.applicable_range = applicable_range;
 
-				// 构建语义规则
 				if (enableSemantics) {
-					const semantics_list = this.getNodeParameter('semantics_list', i, []) as number[];
-					if (semantics_list.length > 0) {
-						body.semantics_list = semantics_list;
+					const semanticsList = [...new Set((this.getNodeParameter('semantics_list', i, []) as unknown[]).map(Number))];
+					if (semanticsList.length < 1 || semanticsList.some((value) => ![1, 2, 3].includes(value))) {
+						fail(this, '额外拦截语义规则至少选择一项，且仅支持 1、2、3', i);
 					}
+					body.semantics_list = semanticsList;
 				}
 
 				response = await weComApiRequest.call(
@@ -1604,7 +2024,7 @@ export async function executeExternalContact(
 					{},
 				);
 			} else if (operation === 'getInterceptRule') {
-				const rule_id = this.getNodeParameter('rule_id', i) as string;
+				const rule_id = requireText(this, this.getNodeParameter('rule_id', i), '规则 ID', i);
 
 				response = await weComApiRequest.call(
 					this,
@@ -1613,60 +2033,60 @@ export async function executeExternalContact(
 					{ rule_id },
 				);
 			} else if (operation === 'updateInterceptRule') {
-				const rule_id = this.getNodeParameter('rule_id', i) as string;
-				const rule_name = this.getNodeParameter('rule_name', i, '') as string;
-				const word_list = this.getNodeParameter('word_list', i, '') as string;
+				const rule_id = requireText(this, this.getNodeParameter('rule_id', i), '规则 ID', i);
+				const updateRuleName = this.getNodeParameter('updateRuleName', i, false) as boolean;
+				const updateWordList = this.getNodeParameter('updateWordList', i, false) as boolean;
 				const updateInterceptType = this.getNodeParameter('updateInterceptType', i, false) as boolean;
 				const updateSemantics = this.getNodeParameter('updateSemantics', i, false) as boolean;
 				const enableAddRange = this.getNodeParameter('enableAddRange', i, false) as boolean;
 				const enableRemoveRange = this.getNodeParameter('enableRemoveRange', i, false) as boolean;
 
 				const body: IDataObject = { rule_id };
-				if (rule_name) body.rule_name = rule_name;
-				if (word_list) body.word_list = word_list.split(',').map((w) => w.trim());
+				if (updateRuleName) {
+					body.rule_name = requireText(this, this.getNodeParameter('rule_name', i, ''), '规则名称', i, 20);
+				}
+				if (updateWordList) body.word_list = interceptWordList(this, this.getNodeParameter('word_list', i, ''), i);
 
 				// 更新拦截方式
 				if (updateInterceptType) {
-					const intercept_type = this.getNodeParameter('intercept_type', i) as number;
-					body.intercept_type = intercept_type;
+					body.intercept_type = requireOption(this, this.getNodeParameter('intercept_type', i), '拦截方式', i, [1, 2]);
 				}
 
 				// 更新语义规则
 				if (updateSemantics) {
-					const semantics_list = this.getNodeParameter('semantics_list', i, []) as number[];
-					body.extra_rule = { semantics_list };
+					const semanticsList = [...new Set((this.getNodeParameter('semantics_list', i, []) as unknown[]).map(Number))];
+					if (semanticsList.some((value) => ![1, 2, 3].includes(value))) fail(this, '额外拦截语义规则仅支持 1、2、3', i);
+					body.extra_rule = { semantics_list: semanticsList };
 				}
 
-				// 新增适用范围
+				let addUsers: string[] = [];
+				let addDepartments: number[] = [];
 				if (enableAddRange) {
-					const add_applicable_range: IDataObject = {};
-					const addUserList = this.getNodeParameter('add_user_list', i, '') as string;
-					const addDeptList = this.getNodeParameter('add_department_list', i, '') as string;
-					if (addUserList) {
-						add_applicable_range.user_list = addUserList.split(',').map((u) => u.trim());
-					}
-					if (addDeptList) {
-						add_applicable_range.department_list = addDeptList.split(',').map((d) => parseInt(d.trim(), 10));
-					}
-					if (Object.keys(add_applicable_range).length > 0) {
-						body.add_applicable_range = add_applicable_range;
-					}
+					addUsers = stringList(this, this.getNodeParameter('add_user_list', i, ''), '新增成员 UserID 列表', i, { maximum: 1000 });
+					addDepartments = integerList(this, this.getNodeParameter('add_department_list', i, ''), '新增部门 ID 列表', i, { maximum: 1000 });
+					if (addUsers.length + addDepartments.length < 1 || addUsers.length + addDepartments.length > 1000) fail(this, '新增适用范围节点数量必须为 1–1000 个', i);
+					body.add_applicable_range = {
+						...(addUsers.length > 0 ? { user_list: addUsers } : {}),
+						...(addDepartments.length > 0 ? { department_list: addDepartments } : {}),
+					};
 				}
 
-				// 删除适用范围
+				let removeUsers: string[] = [];
+				let removeDepartments: number[] = [];
 				if (enableRemoveRange) {
-					const remove_applicable_range: IDataObject = {};
-					const removeUserList = this.getNodeParameter('remove_user_list', i, '') as string;
-					const removeDeptList = this.getNodeParameter('remove_department_list', i, '') as string;
-					if (removeUserList) {
-						remove_applicable_range.user_list = removeUserList.split(',').map((u) => u.trim());
-					}
-					if (removeDeptList) {
-						remove_applicable_range.department_list = removeDeptList.split(',').map((d) => parseInt(d.trim(), 10));
-					}
-					if (Object.keys(remove_applicable_range).length > 0) {
-						body.remove_applicable_range = remove_applicable_range;
-					}
+					removeUsers = stringList(this, this.getNodeParameter('remove_user_list', i, ''), '删除成员 UserID 列表', i, { maximum: 1000 });
+					removeDepartments = integerList(this, this.getNodeParameter('remove_department_list', i, ''), '删除部门 ID 列表', i, { maximum: 1000 });
+					if (removeUsers.length + removeDepartments.length < 1 || removeUsers.length + removeDepartments.length > 1000) fail(this, '删除适用范围节点数量必须为 1–1000 个', i);
+					body.remove_applicable_range = {
+						...(removeUsers.length > 0 ? { user_list: removeUsers } : {}),
+						...(removeDepartments.length > 0 ? { department_list: removeDepartments } : {}),
+					};
+				}
+				if (addUsers.some((value) => removeUsers.includes(value)) || addDepartments.some((value) => removeDepartments.includes(value))) {
+					fail(this, '同一节点不能同时新增和删除', i);
+				}
+				if (!updateRuleName && !updateWordList && !updateInterceptType && !updateSemantics && !enableAddRange && !enableRemoveRange) {
+					fail(this, '至少选择一个要更新的敏感词规则字段', i);
 				}
 
 				response = await weComApiRequest.call(
@@ -1676,7 +2096,7 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'deleteInterceptRule') {
-				const rule_id = this.getNodeParameter('rule_id', i) as string;
+				const rule_id = requireText(this, this.getNodeParameter('rule_id', i), '规则 ID', i);
 
 				response = await weComApiRequest.call(
 					this,
@@ -1685,15 +2105,35 @@ export async function executeExternalContact(
 					{ rule_id },
 				);
 			} else if (operation === 'uploadAttachment') {
-				const media_type = this.getNodeParameter('media_type', i) as string;
-				const attachment_type = this.getNodeParameter('attachment_type', i) as number;
-				const binaryPropertyName = this.getNodeParameter('binaryPropertyName', i, 'data') as string;
+				const attachment_type = requireOption(this, this.getNodeParameter('attachment_type', i), '附件类型', i, [1, 2]);
+				const media_type = String(this.getNodeParameter('media_type', i));
+				if (attachment_type === 1 && !['image', 'video'].includes(media_type)) {
+					fail(this, '朋友圈附件仅支持图片或视频', i);
+				}
+				if (attachment_type === 2 && media_type !== 'image') fail(this, '商品图册附件仅支持图片', i);
+				const binaryPropertyName = requireText(
+					this,
+					this.getNodeParameter('binaryPropertyName', i, 'data'),
+					'二进制属性名',
+					i,
+				);
 
-				// 获取二进制数据
 				const binaryData = this.helpers.assertBinaryData(i, binaryPropertyName);
 				const buffer = await this.helpers.getBinaryDataBuffer(i, binaryPropertyName);
+				if (buffer.length <= 5 || buffer.length > 10 * 1024 * 1024) {
+					fail(this, '附件大小必须大于 5 字节且不超过 10 MB', i);
+				}
+				const fileName = String(binaryData.fileName ?? '').toLowerCase();
+				const mimeType = String(binaryData.mimeType ?? '').toLowerCase();
+				if (
+					media_type === 'image'
+					&& !['image/jpeg', 'image/png'].includes(mimeType)
+					&& !/\.(jpe?g|png)$/i.test(fileName)
+				) fail(this, '图片附件仅支持 JPG 或 PNG 格式', i);
+				if (media_type === 'video' && mimeType !== 'video/mp4' && !/\.mp4$/i.test(fileName)) {
+					fail(this, '视频附件仅支持 MP4 格式', i);
+				}
 
-				// 使用 weComApiRequest 上传文件
 				response = await weComApiRequest.call(
 					this,
 					'POST',
@@ -1709,7 +2149,7 @@ export async function executeExternalContact(
 							media: {
 								value: buffer,
 								options: {
-									filename: binaryData.fileName || 'file',
+									filename: binaryData.fileName || `attachment.${media_type === 'image' ? 'jpg' : 'mp4'}`,
 									contentType: binaryData.mimeType || 'application/octet-stream',
 								},
 							},
@@ -1724,13 +2164,26 @@ export async function executeExternalContact(
 					{},
 				);
 			} else if (operation === 'getCustomerAcquisitionStatistic') {
-				const link_id = this.getNodeParameter('link_id', i) as string;
+				const link_id = requireText(this, this.getNodeParameter('link_id', i), '获客链接 ID', i);
 				const start_time = dateTimeToUnixTimestamp(
-					this.getNodeParameter('start_time', i) as string | number,
+					this,
+					this.getNodeParameter('start_time', i),
+					'统计起始时间',
+					i,
 				);
 				const end_time = dateTimeToUnixTimestamp(
-					this.getNodeParameter('end_time', i) as string | number,
+					this,
+					this.getNodeParameter('end_time', i),
+					'统计结束时间',
+					i,
 				);
+				if (start_time === undefined || end_time === undefined) fail(this, '统计起始时间和结束时间均为必填', i);
+				if (start_time > end_time) fail(this, '统计起始时间不能晚于结束时间', i);
+				if (end_time - start_time > 30 * 86400) fail(this, '获客链接统计时间范围不能超过 30 天', i);
+				const now = Math.floor(Date.now() / 1000);
+				if (start_time < now - 180 * 86400 || end_time > now) {
+					fail(this, '只能查询最近 180 天内的数据，结束时间不能晚于当前时间', i);
+				}
 
 				response = await weComApiRequest.call(
 					this,
@@ -1739,8 +2192,8 @@ export async function executeExternalContact(
 					{ link_id, start_time, end_time },
 				);
 			} else if (operation === 'listCustomerAcquisitionLink') {
-				const cursor = this.getNodeParameter('cursor', i, '') as string;
-				const limit = this.getNodeParameter('limit', i, 100) as number;
+				const cursor = optionalText(this, this.getNodeParameter('cursor', i, ''), '分页游标', i);
+				const limit = requireInteger(this, this.getNodeParameter('limit', i, 100), '每页数量', i, 1, 100);
 
 				const body: IDataObject = { limit };
 				if (cursor) body.cursor = cursor;
@@ -1752,7 +2205,7 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'getCustomerAcquisitionLink') {
-				const link_id = this.getNodeParameter('link_id', i) as string;
+				const link_id = requireText(this, this.getNodeParameter('link_id', i), '获客链接 ID', i);
 
 				response = await weComApiRequest.call(
 					this,
@@ -1761,37 +2214,45 @@ export async function executeExternalContact(
 					{ link_id },
 				);
 			} else if (operation === 'createCustomerAcquisitionLink') {
-				const link_name = this.getNodeParameter('link_name', i) as string;
+				const link_name = requireText(this, this.getNodeParameter('link_name', i), '链接名称', i, 30);
 				const rangeType = this.getNodeParameter('rangeType', i) as string;
 				const skip_verify = this.getNodeParameter('skip_verify', i, true) as boolean;
 				const mark_source = this.getNodeParameter('mark_source', i, true) as boolean;
 				const enablePriorityOption = this.getNodeParameter('enablePriorityOption', i, false) as boolean;
 
 				const range: IDataObject = {};
-
-				if (rangeType === 'user') {
-					const user_list = this.getNodeParameter('user_list', i, '') as string;
-					if (user_list) {
-						range.user_list = user_list.split(',').map((id) => id.trim());
-					}
-				} else if (rangeType === 'department') {
-					const department_list = this.getNodeParameter('department_list', i, '') as string;
-					if (department_list) {
-						range.department_list = department_list.split(',').map((id) => parseInt(id.trim(), 10));
-					}
+				if (rangeType === 'user' || rangeType === 'both') {
+					const users = stringList(this, this.getNodeParameter('user_list', i, ''), '使用范围成员 UserID 列表', i, {
+						minimum: rangeType === 'user' ? 1 : 0,
+						maximum: 500,
+					});
+					if (users.length > 0) range.user_list = users;
 				}
+				if (rangeType === 'department' || rangeType === 'both') {
+					const departments = integerList(this, this.getNodeParameter('department_list', i, ''), '使用范围部门 ID 列表', i, {
+						minimum: rangeType === 'department' ? 1 : 0,
+						maximum: 500,
+					});
+					if (departments.length > 0) range.department_list = departments;
+				}
+				if (!['user', 'department', 'both'].includes(rangeType)) fail(this, '使用范围类型无效', i);
+				const rangeNodeCount = ((range.user_list as string[] | undefined)?.length ?? 0)
+					+ ((range.department_list as number[] | undefined)?.length ?? 0);
+				if (rangeNodeCount < 1 || rangeNodeCount > 500) fail(this, '使用范围节点数量必须为 1–500 个', i);
 
 				const body: IDataObject = { link_name, range, skip_verify, mark_source };
 
-				// 优先分配配置
 				if (enablePriorityOption) {
-					const priority_type = this.getNodeParameter('priority_type', i, 1) as number;
+					const priority_type = requireOption(this, this.getNodeParameter('priority_type', i, 1), '优先分配类型', i, [1, 2]);
 					const priority_option: IDataObject = { priority_type };
 					if (priority_type === 2) {
-						const priority_userid_list = this.getNodeParameter('priority_userid_list', i, '') as string;
-						if (priority_userid_list) {
-							priority_option.priority_userid_list = priority_userid_list.split(',').map((id) => id.trim());
-						}
+						priority_option.priority_userid_list = stringList(
+							this,
+							this.getNodeParameter('priority_userid_list', i, ''),
+							'优先分配成员 UserID 列表',
+							i,
+							{ minimum: 1, maximum: 1000 },
+						);
 					}
 					body.priority_option = priority_option;
 				}
@@ -1803,46 +2264,58 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'updateCustomerAcquisitionLink') {
-				const link_id = this.getNodeParameter('link_id', i) as string;
-				const link_name = this.getNodeParameter('link_name', i, '') as string;
+				const link_id = requireText(this, this.getNodeParameter('link_id', i), '获客链接 ID', i);
+				const updateLinkName = this.getNodeParameter('updateLinkName', i, false) as boolean;
 				const updateRange = this.getNodeParameter('updateRange', i, false) as boolean;
-				const skip_verify = this.getNodeParameter('skip_verify', i, true) as boolean;
-				const mark_source = this.getNodeParameter('mark_source', i, true) as boolean;
+				const updateSkipVerify = this.getNodeParameter('updateSkipVerify', i, false) as boolean;
+				const updateMarkSource = this.getNodeParameter('updateMarkSource', i, false) as boolean;
 				const updatePriorityOption = this.getNodeParameter('updatePriorityOption', i, false) as boolean;
 
-				const body: IDataObject = { link_id, skip_verify, mark_source };
-				if (link_name) body.link_name = link_name;
+				const body: IDataObject = { link_id };
+				if (updateLinkName) body.link_name = requireText(this, this.getNodeParameter('link_name', i, ''), '链接名称', i, 30);
+				if (updateSkipVerify) body.skip_verify = this.getNodeParameter('skip_verify', i, true) as boolean;
+				if (updateMarkSource) body.mark_source = this.getNodeParameter('mark_source', i, true) as boolean;
 
 				if (updateRange) {
 					const rangeType = this.getNodeParameter('rangeType', i) as string;
 					const range: IDataObject = {};
-
-					if (rangeType === 'user') {
-						const user_list = this.getNodeParameter('user_list', i, '') as string;
-						if (user_list) {
-							range.user_list = user_list.split(',').map((id) => id.trim());
-						}
-					} else if (rangeType === 'department') {
-						const department_list = this.getNodeParameter('department_list', i, '') as string;
-						if (department_list) {
-							range.department_list = department_list.split(',').map((id) => parseInt(id.trim(), 10));
-						}
+					if (rangeType === 'user' || rangeType === 'both') {
+						const users = stringList(this, this.getNodeParameter('user_list', i, ''), '使用范围成员 UserID 列表', i, {
+							minimum: rangeType === 'user' ? 1 : 0,
+							maximum: 500,
+						});
+						if (users.length > 0) range.user_list = users;
 					}
-
-					if (Object.keys(range).length > 0) body.range = range;
+					if (rangeType === 'department' || rangeType === 'both') {
+						const departments = integerList(this, this.getNodeParameter('department_list', i, ''), '使用范围部门 ID 列表', i, {
+							minimum: rangeType === 'department' ? 1 : 0,
+							maximum: 500,
+						});
+						if (departments.length > 0) range.department_list = departments;
+					}
+					if (!['user', 'department', 'both'].includes(rangeType)) fail(this, '使用范围类型无效', i);
+					const rangeNodeCount = ((range.user_list as string[] | undefined)?.length ?? 0)
+						+ ((range.department_list as number[] | undefined)?.length ?? 0);
+					if (rangeNodeCount < 1 || rangeNodeCount > 500) fail(this, '使用范围节点数量必须为 1–500 个', i);
+					body.range = range;
 				}
 
-				// 优先分配配置
 				if (updatePriorityOption) {
-					const priority_type = this.getNodeParameter('priority_type', i, 1) as number;
+					const priority_type = requireOption(this, this.getNodeParameter('priority_type', i, 1), '优先分配类型', i, [1, 2]);
 					const priority_option: IDataObject = { priority_type };
 					if (priority_type === 2) {
-						const priority_userid_list = this.getNodeParameter('priority_userid_list', i, '') as string;
-						if (priority_userid_list) {
-							priority_option.priority_userid_list = priority_userid_list.split(',').map((id) => id.trim());
-						}
+						priority_option.priority_userid_list = stringList(
+							this,
+							this.getNodeParameter('priority_userid_list', i, ''),
+							'优先分配成员 UserID 列表',
+							i,
+							{ minimum: 1, maximum: 1000 },
+						);
 					}
 					body.priority_option = priority_option;
+				}
+				if (!updateLinkName && !updateRange && !updateSkipVerify && !updateMarkSource && !updatePriorityOption) {
+					fail(this, '至少选择一个要更新的获客链接字段', i);
 				}
 
 				response = await weComApiRequest.call(
@@ -1852,7 +2325,7 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'deleteCustomerAcquisitionLink') {
-				const link_id = this.getNodeParameter('link_id', i) as string;
+				const link_id = requireText(this, this.getNodeParameter('link_id', i), '获客链接 ID', i);
 
 				response = await weComApiRequest.call(
 					this,
@@ -1861,9 +2334,9 @@ export async function executeExternalContact(
 					{ link_id },
 				);
 			} else if (operation === 'getCustomerAcquisitionCustomer') {
-				const link_id = this.getNodeParameter('link_id', i) as string;
-				const cursor = this.getNodeParameter('cursor', i, '') as string;
-				const limit = this.getNodeParameter('limit', i, 1000) as number;
+				const link_id = requireText(this, this.getNodeParameter('link_id', i), '获客链接 ID', i);
+				const cursor = optionalText(this, this.getNodeParameter('cursor', i, ''), '分页游标', i);
+				const limit = requireInteger(this, this.getNodeParameter('limit', i, 1000), '每页数量', i, 1, 1000);
 
 				const body: IDataObject = { link_id, limit };
 				if (cursor) body.cursor = cursor;
@@ -1875,7 +2348,7 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'getCustomerAcquisitionChatInfo') {
-				const chat_key = this.getNodeParameter('chat_key', i) as string;
+				const chat_key = requireText(this, this.getNodeParameter('chat_key', i), '会话信息凭据', i);
 
 				response = await weComApiRequest.call(
 					this,
@@ -1884,8 +2357,8 @@ export async function executeExternalContact(
 					{ chat_key },
 				);
 			} else if (operation === 'getServedExternalContact') {
-				const limit = this.getNodeParameter('limit', i, 1000) as number;
-				const cursor = this.getNodeParameter('cursor', i, '') as string;
+				const limit = requireInteger(this, this.getNodeParameter('limit', i, 1000), '每页数量', i, 1, 1000);
+				const cursor = optionalText(this, this.getNodeParameter('cursor', i, ''), '分页游标', i);
 
 				const body: IDataObject = { limit };
 				if (cursor) body.cursor = cursor;
@@ -1897,11 +2370,10 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'createOnceKey') {
-				const link_id = this.getNodeParameter('link_id', i) as string;
-				const key_num = this.getNodeParameter('key_num', i, 100) as number;
+				const link_id = requireText(this, this.getNodeParameter('link_id', i), '获客链接 ID', i);
+				const key_num = requireInteger(this, this.getNodeParameter('key_num', i, 100), '生成数量', i, 1, 1000);
 
-				const body: IDataObject = { link_id };
-				if (key_num) body.key_num = key_num;
+				const body: IDataObject = { link_id, key_num };
 
 				response = await weComApiRequest.call(
 					this,
@@ -1910,16 +2382,21 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'sendSchoolMessage') {
-				// 发送学校通知
-				const msgtype = this.getNodeParameter('msgtype', i) as string;
-				const agentid = this.getNodeParameter('agentid', i) as number;
-				const recv_scope = this.getNodeParameter('recv_scope', i, 0) as number;
-				const to_parent_userid = this.getNodeParameter('to_parent_userid', i, '') as string;
-				const to_student_userid = this.getNodeParameter('to_student_userid', i, '') as string;
-				const to_party = this.getNodeParameter('to_party', i, '') as string;
+				const msgtype = String(this.getNodeParameter('msgtype', i));
+				if (!['text', 'image', 'voice', 'video', 'file', 'news', 'mpnews', 'miniprogram'].includes(msgtype)) {
+					fail(this, '学校通知消息类型无效', i);
+				}
+				const agentid = requireInteger(
+					this,
+					this.getNodeParameter('agentid', i),
+					'应用 ID',
+					i,
+					1,
+					Number.MAX_SAFE_INTEGER,
+				);
+				const recv_scope = requireOption(this, this.getNodeParameter('recv_scope', i, 0), '发送对象', i, [0, 1, 2]);
 				const toall = this.getNodeParameter('toall', i, false) as boolean;
 				const enable_duplicate_check = this.getNodeParameter('enable_duplicate_check', i, false) as boolean;
-				const duplicate_check_interval = this.getNodeParameter('duplicate_check_interval', i, 1800) as number;
 
 				const body: IDataObject = {
 					msgtype,
@@ -1928,65 +2405,104 @@ export async function executeExternalContact(
 					toall: toall ? 1 : 0,
 				};
 
-				if (to_parent_userid) {
-					body.to_parent_userid = to_parent_userid.split(',').map((id) => id.trim());
-				}
-
-				if (to_student_userid) {
-					body.to_student_userid = to_student_userid.split(',').map((id) => id.trim());
-				}
-
-				if (to_party) {
-					body.to_party = to_party.split(',').map((id) => id.trim());
+				if (!toall) {
+					const parentUserids = recv_scope === 1
+						? []
+						: stringList(this, this.getNodeParameter('to_parent_userid', i, ''), '家长 UserID 列表', i, { maximum: 1000 });
+					const studentUserids = stringList(
+						this,
+						this.getNodeParameter('to_student_userid', i, ''),
+						'学生 UserID 列表',
+						i,
+						{ maximum: 1000 },
+					);
+					const parties = stringList(this, this.getNodeParameter('to_party', i, ''), '部门 ID 列表', i, { maximum: 100 });
+					if (parentUserids.length + studentUserids.length + parties.length < 1) {
+						fail(this, '未发送给所有人时，家长、学生和部门列表至少填写一项', i);
+					}
+					if (parentUserids.length > 0) body.to_parent_userid = parentUserids;
+					if (studentUserids.length > 0) body.to_student_userid = studentUserids;
+					if (parties.length > 0) body.to_party = parties;
 				}
 
 				if (enable_duplicate_check) {
 					body.enable_duplicate_check = 1;
-					body.duplicate_check_interval = duplicate_check_interval;
+					body.duplicate_check_interval = requireInteger(
+						this,
+						this.getNodeParameter('duplicate_check_interval', i, 1800),
+						'重复消息检查时间间隔',
+						i,
+						1,
+						14400,
+					);
 				} else {
 					body.enable_duplicate_check = 0;
 				}
 
-				// 根据消息类型构建消息体
 				if (msgtype === 'text') {
-					const content = this.getNodeParameter('content', i) as string;
+					const content = requireByteText(this, this.getNodeParameter('content', i), '消息内容', i, 2048);
 					const enable_id_trans = this.getNodeParameter('enable_id_trans', i, false) as boolean;
 					body.text = { content };
 					body.enable_id_trans = enable_id_trans ? 1 : 0;
 				} else if (msgtype === 'image') {
-					const media_id = this.getNodeParameter('media_id', i) as string;
+					const media_id = requireText(this, this.getNodeParameter('media_id', i), '图片 Media ID', i);
 					body.image = { media_id };
 				} else if (msgtype === 'voice') {
-					const media_id = this.getNodeParameter('media_id', i) as string;
+					const media_id = requireText(this, this.getNodeParameter('media_id', i), '语音 Media ID', i);
 					body.voice = { media_id };
 				} else if (msgtype === 'video') {
-					const media_id = this.getNodeParameter('media_id', i) as string;
-					const title = this.getNodeParameter('title', i, '') as string;
-					const description = this.getNodeParameter('description', i, '') as string;
+					const media_id = requireText(this, this.getNodeParameter('media_id', i), '视频 Media ID', i);
+					const title = optionalByteText(this, this.getNodeParameter('title', i, ''), '视频标题', i, 128);
+					const description = optionalByteText(this, this.getNodeParameter('description', i, ''), '视频描述', i, 512);
 					const videoData: IDataObject = { media_id };
 					if (title) videoData.title = title;
 					if (description) videoData.description = description;
 					body.video = videoData;
 				} else if (msgtype === 'file') {
-					const media_id = this.getNodeParameter('media_id', i) as string;
+					const media_id = requireText(this, this.getNodeParameter('media_id', i), '文件 Media ID', i);
 					body.file = { media_id };
 				} else if (msgtype === 'news') {
-					const articles = this.getNodeParameter('articles', i, {}) as IDataObject;
-					const articleList = (articles.article as IDataObject[]) || [];
+					const articleRows = collectionRows(this.getNodeParameter('articles', i, {}), 'article');
+					if (articleRows.length < 1 || articleRows.length > 8) fail(this, '图文消息数量必须为 1–8 条', i);
+					const articleList = articleRows.map((article, articleIndex) => {
+						const item: IDataObject = {
+							title: requireByteText(this, article.title, `第 ${articleIndex + 1} 条图文的标题`, i, 128),
+							url: requireText(this, article.url, `第 ${articleIndex + 1} 条图文的跳转链接`, i),
+						};
+						const description = optionalByteText(this, article.description, `第 ${articleIndex + 1} 条图文的描述`, i, 512);
+						const picurl = optionalText(this, article.picurl, `第 ${articleIndex + 1} 条图文的图片链接`, i);
+						if (description) item.description = description;
+						if (picurl) item.picurl = picurl;
+						return item;
+					});
 					const enable_id_trans = this.getNodeParameter('enable_id_trans', i, false) as boolean;
 					body.news = { articles: articleList };
 					body.enable_id_trans = enable_id_trans ? 1 : 0;
 				} else if (msgtype === 'mpnews') {
-					const articles = this.getNodeParameter('articles', i, {}) as IDataObject;
-					const articleList = (articles.article as IDataObject[]) || [];
+					const articleRows = collectionRows(this.getNodeParameter('articles', i, {}), 'article');
+					if (articleRows.length < 1 || articleRows.length > 8) fail(this, 'Mpnews 图文数量必须为 1–8 条', i);
+					const articleList = articleRows.map((article, articleIndex) => {
+						const item: IDataObject = {
+							title: requireByteText(this, article.title, `第 ${articleIndex + 1} 条 Mpnews 的标题`, i, 128),
+							thumb_media_id: requireText(this, article.thumb_media_id, `第 ${articleIndex + 1} 条 Mpnews 的缩略图 Media ID`, i),
+							content: requireByteText(this, article.content, `第 ${articleIndex + 1} 条 Mpnews 的内容`, i, 666 * 1024),
+						};
+						const author = optionalByteText(this, article.author, `第 ${articleIndex + 1} 条 Mpnews 的作者`, i, 64);
+						const contentSourceUrl = optionalText(this, article.content_source_url, `第 ${articleIndex + 1} 条 Mpnews 的阅读原文链接`, i);
+						const digest = optionalByteText(this, article.digest, `第 ${articleIndex + 1} 条 Mpnews 的摘要`, i, 512);
+						if (author) item.author = author;
+						if (contentSourceUrl) item.content_source_url = contentSourceUrl;
+						if (digest) item.digest = digest;
+						return item;
+					});
 					const enable_id_trans = this.getNodeParameter('enable_id_trans', i, false) as boolean;
 					body.mpnews = { articles: articleList };
 					body.enable_id_trans = enable_id_trans ? 1 : 0;
 				} else if (msgtype === 'miniprogram') {
-					const appid = this.getNodeParameter('appid', i) as string;
-					const title = this.getNodeParameter('title', i, '') as string;
-					const thumb_media_id = this.getNodeParameter('thumb_media_id', i) as string;
-					const pagepath = this.getNodeParameter('pagepath', i) as string;
+					const appid = requireText(this, this.getNodeParameter('appid', i), '小程序 AppID', i);
+					const title = optionalByteText(this, this.getNodeParameter('title', i, ''), '小程序标题', i, 64);
+					const thumb_media_id = requireText(this, this.getNodeParameter('thumb_media_id', i), '小程序封面 Media ID', i);
+					const pagepath = requireText(this, this.getNodeParameter('pagepath', i), '小程序页面路径', i);
 					const enable_id_trans = this.getNodeParameter('enable_id_trans', i, false) as boolean;
 					const miniprogramData: IDataObject = {
 						appid,
@@ -2006,39 +2522,7 @@ export async function executeExternalContact(
 				);
 			} else if (externalContactExtraHttpOpsById[operation]) {
 				const bodyDefaults: IDataObject = {};
-				const strategy_id = this.getNodeParameter('strategy_id', i, 0) as number;
-				const ec_external_userid = this.getNodeParameter('ec_external_userid', i, '') as string;
-				const ec_userid = this.getNodeParameter('ec_userid', i, '') as string;
-				const ec_cursor = this.getNodeParameter('ec_cursor', i, '') as string;
-				const ec_limit = this.getNodeParameter('ec_limit', i, 0) as number;
-				const strategy_name = this.getNodeParameter('strategy_name', i, '') as string;
-				const parent_id = this.getNodeParameter('parent_id', i, 0) as number;
-				const admin_list = this.getNodeParameter('admin_list', i, '') as string;
-				const msgid = this.getNodeParameter('msgid', i, '') as string;
-				const takeover_userid = this.getNodeParameter('takeover_userid', i, '') as string;
-				const handover_userid = this.getNodeParameter('handover_userid', i, '') as string;
-				const behavior_start_time = dateTimeToUnixTimestamp(
-					this.getNodeParameter('behavior_start_time', i, '') as string | number,
-				);
-				const behavior_end_time = dateTimeToUnixTimestamp(
-					this.getNodeParameter('behavior_end_time', i, '') as string | number,
-				);
-
-				const mapRangeNodes = (collection: IDataObject | undefined): IDataObject[] => {
-					const ranges = (collection?.ranges as IDataObject[]) || [];
-					return ranges
-						.map((r) => {
-							const type = Number(r.type) || 1;
-							const node: IDataObject = { type };
-							if (type === 1 && r.userid) node.userid = r.userid;
-							if (type === 2 && r.partyid) node.partyid = r.partyid;
-							return node;
-						})
-						.filter((n) => n.userid || n.partyid);
-				};
-
 				const buildPrivilege = (): IDataObject => ({
-					// 基础权限不可取消
 					view_customer_list: true,
 					view_customer_data: true,
 					view_room_list: true,
@@ -2062,117 +2546,139 @@ export async function executeExternalContact(
 					manage_customer_tag: this.getNodeParameter('priv_manage_customer_tag', i, true) as boolean,
 				});
 
-				if (strategy_id) bodyDefaults.strategy_id = strategy_id;
-				if (ec_external_userid) {
-					if (
-						operation === 'externalcontactTransfer' ||
-						operation === 'crmTransferExternalContact'
-					) {
-						const ids = ec_external_userid.split(',').map((s) => s.trim()).filter(Boolean);
-						bodyDefaults.external_userid = ids.length > 1 ? ids : ids[0] || ec_external_userid;
-					} else {
-						bodyDefaults.external_userid = ec_external_userid;
-					}
+				const strategyIdOps = [
+					'externalcontactCustomerStrategyDel',
+					'externalcontactCustomerStrategyEdit',
+					'externalcontactCustomerStrategyGet',
+					'externalcontactCustomerStrategyGetRange',
+					'externalcontactAddStrategyTag',
+					'externalcontactGetStrategyTagList',
+				];
+				if (strategyIdOps.includes(operation)) {
+					const strategyId = Number(this.getNodeParameter('strategy_id', i, 0));
+					if (strategyId > 0) bodyDefaults.strategy_id = strategyId;
 				}
-				if (ec_userid) {
-					if (operation === 'crmGetUserBehaviorData') {
-						bodyDefaults.userid = ec_userid.split(',').map((s) => s.trim()).filter(Boolean);
-					} else {
-						bodyDefaults.userid = ec_userid;
-					}
-				}
-				if (ec_cursor) bodyDefaults.cursor = ec_cursor;
-				if (ec_limit) bodyDefaults.limit = ec_limit;
-				if (strategy_name) bodyDefaults.strategy_name = strategy_name;
-				if (operation === 'externalcontactCustomerStrategyCreate') {
-					bodyDefaults.parent_id = parent_id || 0;
-				}
-				if (admin_list) {
-					bodyDefaults.admin_list = admin_list.split(',').map((s) => s.trim()).filter(Boolean);
+
+				if (operation === 'externalcontactCustomerStrategyList' || operation === 'externalcontactCustomerStrategyGetRange') {
+					const cursor = optionalText(this, this.getNodeParameter('ec_cursor', i, ''), '分页游标', i);
+					if (cursor) bodyDefaults.cursor = cursor;
+					bodyDefaults.limit = this.getNodeParameter('ec_limit', i, 1000) as number;
 				}
 
 				if (operation === 'externalcontactCustomerStrategyCreate') {
-					const rangeCollection = this.getNodeParameter('rangeCollection', i, {}) as IDataObject;
-					const range = mapRangeNodes(rangeCollection);
-					if (range.length) bodyDefaults.range = range;
-					// 有父规则组时官方忽略 privilege，但仍可提交
-					bodyDefaults.privilege = buildPrivilege();
+					const parentId = this.getNodeParameter('parent_id', i, 0) as number;
+					bodyDefaults.parent_id = parentId;
+					bodyDefaults.strategy_name = this.getNodeParameter('strategy_name', i, '') as string;
+					bodyDefaults.admin_list = this.getNodeParameter('admin_list', i, '') as string;
+					bodyDefaults.range = rangeNodes(
+						this,
+						this.getNodeParameter('rangeCollection', i, {}),
+						'ranges',
+						'管理范围',
+						i,
+						{ minimum: 1, maximum: 100 },
+					);
+					if (Number(parentId) === 0) bodyDefaults.privilege = buildPrivilege();
 				}
+
 				if (operation === 'externalcontactCustomerStrategyEdit') {
-					const rangeAdd = mapRangeNodes(
-						this.getNodeParameter('rangeAddCollection', i, {}) as IDataObject,
+					if (this.getNodeParameter('updateStrategyName', i, false) as boolean) {
+						bodyDefaults.strategy_name = this.getNodeParameter('strategy_name', i, '') as string;
+					}
+					if (this.getNodeParameter('updateAdminList', i, false) as boolean) {
+						bodyDefaults.admin_list = this.getNodeParameter('admin_list', i, '') as string;
+					}
+					const rangeAdd = rangeNodes(
+						this,
+						this.getNodeParameter('rangeAddCollection', i, {}),
+						'ranges',
+						'添加管理范围',
+						i,
+						{ maximum: 100 },
 					);
-					const rangeDel = mapRangeNodes(
-						this.getNodeParameter('rangeDelCollection', i, {}) as IDataObject,
+					const rangeDel = rangeNodes(
+						this,
+						this.getNodeParameter('rangeDelCollection', i, {}),
+						'ranges',
+						'删除管理范围',
+						i,
+						{ maximum: 100 },
 					);
-					if (rangeAdd.length) bodyDefaults.range_add = rangeAdd;
-					if (rangeDel.length) bodyDefaults.range_del = rangeDel;
-					const updatePrivilege = this.getNodeParameter('updatePrivilege', i, false) as boolean;
-					if (updatePrivilege) bodyDefaults.privilege = buildPrivilege();
+					if (rangeAdd.length > 0) bodyDefaults.range_add = rangeAdd;
+					if (rangeDel.length > 0) bodyDefaults.range_del = rangeDel;
+					if (this.getNodeParameter('updatePrivilege', i, false) as boolean) {
+						bodyDefaults.privilege = buildPrivilege();
+					}
 				}
 
 				if (operation === 'externalcontactAddStrategyTag') {
-					const tag_group_id = this.getNodeParameter('tag_group_id', i, '') as string;
-					const tag_group_name = this.getNodeParameter('tag_group_name', i, '') as string;
-					const tag_group_order = this.getNodeParameter('tag_group_order', i, 0) as number;
-					if (tag_group_id) bodyDefaults.group_id = tag_group_id;
-					if (tag_group_name) bodyDefaults.group_name = tag_group_name;
-					if (tag_group_order) bodyDefaults.order = tag_group_order;
-					const tagCollection = this.getNodeParameter('strategyTagCollection', i, {}) as IDataObject;
-					const tags = ((tagCollection?.tags as IDataObject[]) || [])
-						.filter((t) => t.name)
-						.map((t) => {
-							const item: IDataObject = { name: t.name };
-							if (t.order) item.order = t.order;
-							return item;
-						});
-					if (tags.length) bodyDefaults.tag = tags;
+					bodyDefaults.group_id = this.getNodeParameter('tag_group_id', i, '') as string;
+					bodyDefaults.group_name = this.getNodeParameter('tag_group_name', i, '') as string;
+					bodyDefaults.order = this.getNodeParameter('tag_group_order', i, 0) as number;
+					bodyDefaults.tag = collectionRows(this.getNodeParameter('strategyTagCollection', i, {}), 'tags');
 				}
 				if (operation === 'externalcontactEditStrategyTag') {
-					const strategy_tag_id = this.getNodeParameter('strategy_tag_id', i, '') as string;
-					const strategy_tag_name = this.getNodeParameter('strategy_tag_name', i, '') as string;
-					const strategy_tag_order = this.getNodeParameter('strategy_tag_order', i, 0) as number;
-					if (strategy_tag_id) bodyDefaults.id = strategy_tag_id;
-					if (strategy_tag_name) bodyDefaults.name = strategy_tag_name;
-					if (strategy_tag_order) bodyDefaults.order = strategy_tag_order;
+					bodyDefaults.id = this.getNodeParameter('strategy_tag_id', i, '') as string;
+					if (this.getNodeParameter('updateStrategyTagName', i, false) as boolean) {
+						bodyDefaults.name = this.getNodeParameter('strategy_tag_name', i, '') as string;
+					}
+					if (this.getNodeParameter('updateStrategyTagOrder', i, false) as boolean) {
+						bodyDefaults.order = this.getNodeParameter('strategy_tag_order', i, 0) as number;
+					}
 				}
-				if (
-					operation === 'externalcontactGetStrategyTagList' ||
-					operation === 'externalcontactDelStrategyTag'
-				) {
-					const strategy_tag_ids = this.getNodeParameter('strategy_tag_ids', i, '') as string;
-					const strategy_group_ids = this.getNodeParameter('strategy_group_ids', i, '') as string;
-					const tagIds = strategy_tag_ids.split(',').map((s) => s.trim()).filter(Boolean);
-					const groupIds = strategy_group_ids.split(',').map((s) => s.trim()).filter(Boolean);
-					if (tagIds.length) bodyDefaults.tag_id = tagIds;
-					if (groupIds.length) bodyDefaults.group_id = groupIds;
+				if (operation === 'externalcontactGetStrategyTagList' || operation === 'externalcontactDelStrategyTag') {
+					bodyDefaults.tag_id = this.getNodeParameter('strategy_tag_ids', i, '') as string;
+					bodyDefaults.group_id = this.getNodeParameter('strategy_group_ids', i, '') as string;
 				}
 				if (operation === 'externalcontactSetSubscribeMode') {
-					const subscribe_mode = this.getNodeParameter('subscribe_mode', i, 1) as number;
-					bodyDefaults.subscribe_mode = subscribe_mode;
+					bodyDefaults.subscribe_mode = this.getNodeParameter('subscribe_mode', i, 1) as number;
+				}
+				if (operation === 'externalcontactConvertToOpenid' || operation === 'crmGetExternalContact') {
+					bodyDefaults.external_userid = this.getNodeParameter('ec_external_userid', i, '') as string;
+				}
+				if (operation === 'crmGetExternalContactList') {
+					bodyDefaults.userid = this.getNodeParameter('ec_userid', i, '') as string;
+				}
+				if (operation === 'externalcontactTransfer' || operation === 'crmTransferExternalContact') {
+					bodyDefaults.external_userid = this.getNodeParameter('ec_external_userid', i, '') as string;
+					bodyDefaults.handover_userid = this.getNodeParameter('handover_userid', i, '') as string;
+					bodyDefaults.takeover_userid = this.getNodeParameter('takeover_userid', i, '') as string;
+				}
+				if (operation === 'externalcontactGetGroupMsgResult' || operation === 'crmGetGroupMsgResult') {
+					bodyDefaults.msgid = this.getNodeParameter('msgid', i, '') as string;
+				}
+				if (operation === 'crmGetUnassignedList') {
+					const cursor = optionalText(this, this.getNodeParameter('ec_cursor', i, ''), '分页游标', i);
+					if (cursor) bodyDefaults.cursor = cursor;
+					bodyDefaults.page_size = this.getNodeParameter('ec_limit', i, 1000) as number;
+				}
+				if (operation === 'crmGetUserBehaviorData') {
+					const filterType = String(this.getNodeParameter('behaviorFilterType', i, 'user'));
+					if (filterType === 'user') bodyDefaults.userid = this.getNodeParameter('ec_userid', i, '') as string;
+					else bodyDefaults.partyid = this.getNodeParameter('behavior_partyid', i, '') as string;
+					bodyDefaults.start_time = dateTimeToUnixTimestamp(
+						this,
+						this.getNodeParameter('behavior_start_time', i, ''),
+						'统计开始时间',
+						i,
+					);
+					bodyDefaults.end_time = dateTimeToUnixTimestamp(
+						this,
+						this.getNodeParameter('behavior_end_time', i, ''),
+						'统计结束时间',
+						i,
+					);
 				}
 				if (operation === 'crmAddMsgTemplate') {
-					const crm_msg_text = this.getNodeParameter('crm_msg_text', i, '') as string;
-					const crm_external_userid_list = this.getNodeParameter(
-						'crm_external_userid_list',
-						i,
-						'',
-					) as string;
-					const crm_sender = this.getNodeParameter('crm_sender', i, '') as string;
+					const crmMsgText = optionalByteText(this, this.getNodeParameter('crm_msg_text', i, ''), '群发文本内容', i, 4000);
+					if (crmMsgText) bodyDefaults.text = { content: crmMsgText };
+					bodyDefaults.external_userid = this.getNodeParameter('crm_external_userid_list', i, '') as string;
+					bodyDefaults.sender = this.getNodeParameter('crm_sender', i, '') as string;
 					const crm_attachments_json = this.getNodeParameter('crm_attachments_json', i, '[]') as string;
-					const crmAttachmentsCollection = this.getNodeParameter(
-						'crmAttachmentsCollection',
-						i,
-						{},
-					) as IDataObject;
-					if (crm_msg_text) bodyDefaults.text = { content: crm_msg_text };
-					const externalUserids = crm_external_userid_list
-						.split(',')
-						.map((s) => s.trim())
-						.filter(Boolean);
-					if (externalUserids.length) bodyDefaults.external_userid = externalUserids;
-					if (crm_sender) bodyDefaults.sender = crm_sender;
-					const formAttachments = ((crmAttachmentsCollection?.items as IDataObject[]) || [])
+					const formAttachments = collectionRows(
+						this.getNodeParameter('crmAttachmentsCollection', i, {}),
+						'items',
+					)
 						.map((a) => {
 							const msgtype = String(a.msgtype || 'image');
 							const item: IDataObject = { msgtype };
@@ -2203,37 +2709,188 @@ export async function executeExternalContact(
 					if (formAttachments.length) bodyDefaults.attachments = formAttachments;
 					try {
 						const attachments = JSON.parse(crm_attachments_json || '[]');
-						if (Array.isArray(attachments) && attachments.length) {
-							bodyDefaults.attachments = attachments;
-						}
-					} catch {
-						/* ignore */
+						if (!Array.isArray(attachments)) fail(this, '群发附件 JSON 必须是数组', i);
+						if (attachments.length) bodyDefaults.attachments = attachments;
+					} catch (error) {
+						if (error instanceof Error && error.name === 'NodeOperationError') throw error;
+						fail(this, `群发附件 JSON 解析失败: ${(error as Error).message}`, i);
 					}
 				}
-				if (msgid) bodyDefaults.msgid = msgid;
-				const groupmsg_userid = this.getNodeParameter('groupmsg_userid', i, '') as string;
-				const groupmsg_cursor = this.getNodeParameter('groupmsg_cursor', i, '') as string;
-				const groupmsg_limit = this.getNodeParameter('groupmsg_limit', i, 0) as number;
-				if (
-					operation === 'externalcontactGetGroupMsgResult' ||
-					operation === 'crmGetGroupMsgResult'
-				) {
-					if (groupmsg_userid) bodyDefaults.userid = groupmsg_userid;
-					if (groupmsg_cursor) bodyDefaults.cursor = groupmsg_cursor;
-					if (groupmsg_limit) bodyDefaults.limit = groupmsg_limit;
+
+				const body: IDataObject = { ...bodyDefaults, ...parseRequestJson.call(this, i) };
+				const maxOrder = 2 ** 32 - 1;
+				const normalizeRange = (value: unknown, label: string, minimum = 0): IDataObject[] =>
+					rangeNodes(this, { ranges: value }, 'ranges', label, i, { minimum, maximum: 100 });
+				const normalizePrivilege = (value: unknown): IDataObject => {
+					if (!value || typeof value !== 'object' || Array.isArray(value)) fail(this, '权限配置必须是对象', i);
+					return {
+						...(value as IDataObject),
+						view_customer_list: true,
+						view_customer_data: true,
+						view_room_list: true,
+						contact_me: true,
+						join_room: true,
+					};
+				};
+				const normalizeLegacyAttachments = (value: unknown): IDataObject[] => {
+					if (!Array.isArray(value) || value.length < 1 || value.length > 9) {
+						fail(this, '群发附件数量必须为 1–9 个', i);
+					}
+					return (value as IDataObject[]).map((attachment, attachmentIndex) => {
+						const msgtype = String(attachment.msgtype ?? '');
+						if (msgtype === 'image') {
+							const image = attachment.image as IDataObject | undefined;
+							const mediaId = optionalText(this, image?.media_id, `第 ${attachmentIndex + 1} 个图片 Media ID`, i);
+							const picUrl = optionalByteText(this, image?.pic_url, `第 ${attachmentIndex + 1} 个图片 URL`, i, 2048);
+							if (!mediaId && !picUrl) fail(this, `第 ${attachmentIndex + 1} 个图片必须填写 Media ID 或图片 URL`, i);
+							return { msgtype, image: mediaId ? { media_id: mediaId } : { pic_url: picUrl } };
+						}
+						if (msgtype === 'link') {
+							const link = attachment.link as IDataObject | undefined;
+							const normalized: IDataObject = {
+								title: requireByteText(this, link?.title, `第 ${attachmentIndex + 1} 个链接标题`, i, 128),
+								url: requireByteText(this, link?.url, `第 ${attachmentIndex + 1} 个链接 URL`, i, 2048),
+							};
+							const desc = optionalByteText(this, link?.desc, `第 ${attachmentIndex + 1} 个链接描述`, i, 512);
+							const picurl = optionalByteText(this, link?.picurl, `第 ${attachmentIndex + 1} 个链接封面 URL`, i, 2048);
+							if (desc) normalized.desc = desc;
+							if (picurl) normalized.picurl = picurl;
+							return { msgtype, link: normalized };
+						}
+						if (msgtype === 'miniprogram') {
+							const mini = attachment.miniprogram as IDataObject | undefined;
+							return {
+								msgtype,
+								miniprogram: {
+									title: requireByteText(this, mini?.title, `第 ${attachmentIndex + 1} 个小程序标题`, i, 64),
+									pic_media_id: requireText(this, mini?.pic_media_id, `第 ${attachmentIndex + 1} 个小程序封面 Media ID`, i),
+									appid: requireText(this, mini?.appid, `第 ${attachmentIndex + 1} 个小程序 AppID`, i),
+									page: requireText(this, mini?.page, `第 ${attachmentIndex + 1} 个小程序页面路径`, i),
+								},
+							};
+						}
+						fail(this, `第 ${attachmentIndex + 1} 个群发附件类型无效`, i);
+					});
+				};
+
+				if (operation === 'externalcontactCustomerStrategyList') {
+					body.limit = requireInteger(this, body.limit ?? 1000, '每页数量', i, 1, 1000);
+					const cursor = optionalText(this, body.cursor, '分页游标', i);
+					if (cursor) body.cursor = cursor;
+					else delete body.cursor;
+				} else if (['externalcontactCustomerStrategyGet', 'externalcontactCustomerStrategyGetRange', 'externalcontactCustomerStrategyDel'].includes(operation)) {
+					body.strategy_id = requireInteger(this, body.strategy_id, '规则组 ID', i, 1, Number.MAX_SAFE_INTEGER);
+					if (operation === 'externalcontactCustomerStrategyGetRange') {
+						body.limit = requireInteger(this, body.limit ?? 1000, '每页数量', i, 1, 1000);
+					}
+				} else if (operation === 'externalcontactCustomerStrategyCreate') {
+					body.parent_id = requireInteger(this, body.parent_id ?? 0, '父规则组 ID', i, 0, Number.MAX_SAFE_INTEGER);
+					body.strategy_name = requireText(this, body.strategy_name, '规则组名称', i);
+					body.admin_list = stringList(this, body.admin_list, '管理员 UserID 列表', i, { minimum: 1, maximum: 20 });
+					body.range = normalizeRange(body.range, '管理范围', 1);
+					if (body.parent_id !== 0) delete body.privilege;
+					else body.privilege = normalizePrivilege(body.privilege);
+				} else if (operation === 'externalcontactCustomerStrategyEdit') {
+					body.strategy_id = requireInteger(this, body.strategy_id, '规则组 ID', i, 1, Number.MAX_SAFE_INTEGER);
+					if (body.strategy_name !== undefined) body.strategy_name = requireText(this, body.strategy_name, '规则组名称', i);
+					if (body.admin_list !== undefined) body.admin_list = stringList(this, body.admin_list, '管理员 UserID 列表', i, { minimum: 1, maximum: 20 });
+					if (body.privilege !== undefined) body.privilege = normalizePrivilege(body.privilege);
+					const rangeAdd = body.range_add === undefined ? [] : normalizeRange(body.range_add, '添加管理范围');
+					const rangeDel = body.range_del === undefined ? [] : normalizeRange(body.range_del, '删除管理范围');
+					if (rangeAdd.length + rangeDel.length > 100) fail(this, '单次添加和删除的管理范围合计不能超过 100 个节点', i);
+					const delKeys = new Set(rangeDel.map((node) => `${node.type}:${node.userid ?? node.partyid}`));
+					if (rangeAdd.some((node) => delKeys.has(`${node.type}:${node.userid ?? node.partyid}`))) fail(this, '同一管理范围节点不能同时添加和删除', i);
+					if (rangeAdd.length > 0) body.range_add = rangeAdd; else delete body.range_add;
+					if (rangeDel.length > 0) body.range_del = rangeDel; else delete body.range_del;
+					if (Object.keys(body).every((key) => key === 'strategy_id')) fail(this, '至少选择一个要更新的规则组字段', i);
+				} else if (operation === 'externalcontactAddStrategyTag') {
+					body.strategy_id = requireInteger(this, body.strategy_id, '规则组 ID', i, 1, Number.MAX_SAFE_INTEGER);
+					const groupId = optionalText(this, body.group_id, '标签组 ID', i);
+					if (groupId) {
+						body.group_id = groupId;
+						delete body.group_name;
+						delete body.order;
+					} else {
+						delete body.group_id;
+						body.group_name = requireText(this, body.group_name, '标签组名称', i, 30);
+						body.order = requireInteger(this, body.order ?? 0, '标签组次序', i, 0, maxOrder);
+					}
+					if (!Array.isArray(body.tag) || body.tag.length < 1) fail(this, '标签列表至少需要 1 项', i);
+					const tagNames = new Set<string>();
+					body.tag = (body.tag as IDataObject[]).map((tag, tagIndex) => {
+						const name = requireText(this, tag.name, `第 ${tagIndex + 1} 个标签名称`, i, 30);
+						if (tagNames.has(name)) fail(this, `标签名称不能重复: ${name}`, i);
+						tagNames.add(name);
+						return { name, order: requireInteger(this, tag.order ?? 0, `第 ${tagIndex + 1} 个标签次序`, i, 0, maxOrder) };
+					});
+				} else if (operation === 'externalcontactEditStrategyTag') {
+					body.id = requireText(this, body.id, '标签或标签组 ID', i);
+					if (body.name !== undefined) body.name = requireText(this, body.name, '新名称', i, 30);
+					if (body.order !== undefined) body.order = requireInteger(this, body.order, '新次序', i, 0, maxOrder);
+					if (body.name === undefined && body.order === undefined) fail(this, '名称和次序至少更新一项', i);
+				} else if (operation === 'externalcontactGetStrategyTagList' || operation === 'externalcontactDelStrategyTag') {
+					if (body.strategy_id !== undefined) body.strategy_id = requireInteger(this, body.strategy_id, '规则组 ID', i, 1, Number.MAX_SAFE_INTEGER);
+					const groupIds = stringList(this, body.group_id, '标签组 ID 列表', i);
+					const tagIds = stringList(this, body.tag_id, '标签 ID 列表', i);
+					if (groupIds.length > 0) {
+						body.group_id = groupIds;
+						if (operation === 'externalcontactGetStrategyTagList') delete body.tag_id;
+					} else delete body.group_id;
+					if (tagIds.length > 0 && body.tag_id !== undefined) body.tag_id = tagIds;
+					else if (groupIds.length === 0) delete body.tag_id;
+					if (operation === 'externalcontactDelStrategyTag' && groupIds.length + tagIds.length < 1) fail(this, '标签和标签组 ID 不能同时为空', i);
+				} else if (operation === 'externalcontactSetSubscribeMode') {
+					body.subscribe_mode = requireOption(this, body.subscribe_mode, '关注模式', i, [1, 2]);
+				} else if (operation === 'externalcontactConvertToOpenid' || operation === 'crmGetExternalContact') {
+					body.external_userid = requireText(this, body.external_userid, '外部联系人 UserID', i);
+				} else if (operation === 'crmGetExternalContactList') {
+					body.userid = requireText(this, body.userid, '成员 UserID', i);
+				} else if (operation === 'externalcontactTransfer' || operation === 'crmTransferExternalContact') {
+					body.external_userid = requireText(this, body.external_userid, '外部联系人 UserID', i);
+					body.handover_userid = requireText(this, body.handover_userid, '原跟进成员 UserID', i);
+					body.takeover_userid = requireText(this, body.takeover_userid, '接替成员 UserID', i);
+					if (body.handover_userid === body.takeover_userid) fail(this, '原跟进成员和接替成员不能相同', i);
+				} else if (operation === 'externalcontactGetGroupMsgResult' || operation === 'crmGetGroupMsgResult') {
+					body.msgid = requireText(this, body.msgid, '群发消息 ID', i);
+				} else if (operation === 'crmGetUnassignedList') {
+					body.page_size = requireInteger(this, body.page_size ?? 1000, '每页数量', i, 1, 1000);
+				} else if (operation === 'crmGetUserBehaviorData') {
+					const userids = stringList(this, body.userid, '成员 UserID 列表', i, { maximum: 100 });
+					const partyids = integerList(this, body.partyid, '部门 ID 列表', i, { maximum: 100 });
+					if (userids.length + partyids.length < 1) fail(this, '成员和部门列表不能同时为空', i);
+					if (userids.length > 0) body.userid = userids; else delete body.userid;
+					if (partyids.length > 0) body.partyid = partyids; else delete body.partyid;
+					const start = Number(body.start_time);
+					const end = Number(body.end_time);
+					if (!Number.isSafeInteger(start) || !Number.isSafeInteger(end) || start <= 0 || end <= 0) fail(this, '统计开始时间和结束时间均为必填', i);
+					if (start > end) fail(this, '统计开始时间不能晚于结束时间', i);
+					if (end - start > 30 * 86400) fail(this, '统计时间范围不能超过 30 天', i);
+					const now = Math.floor(Date.now() / 1000);
+					if (start < now - 180 * 86400 || end > now) fail(this, '只能查询最近 180 天内的数据', i);
+				} else if (operation === 'crmAddMsgTemplate') {
+					const externalUserids = stringList(this, body.external_userid, '客户 UserID 列表', i, { maximum: 10000 });
+					const sender = optionalText(this, body.sender, '发送成员 UserID', i);
+					if (externalUserids.length + (sender ? 1 : 0) < 1) fail(this, '客户列表和发送成员不能同时为空', i);
+					if (externalUserids.length > 0) body.external_userid = externalUserids; else delete body.external_userid;
+					if (sender) body.sender = sender; else delete body.sender;
+					const textContent = body.text && typeof body.text === 'object' && !Array.isArray(body.text)
+						? optionalByteText(this, (body.text as IDataObject).content, '群发文本内容', i, 4000)
+						: undefined;
+					if (textContent) body.text = { content: textContent }; else delete body.text;
+					if (body.attachments !== undefined) body.attachments = normalizeLegacyAttachments(body.attachments);
+					if (!textContent && body.attachments === undefined) fail(this, '群发文本和附件不能同时为空', i);
 				}
-				if (handover_userid) bodyDefaults.handover_userid = handover_userid;
-				if (takeover_userid) bodyDefaults.takeover_userid = takeover_userid;
-				if (behavior_start_time) bodyDefaults.start_time = behavior_start_time;
-				if (behavior_end_time) bodyDefaults.end_time = behavior_end_time;
-				response = await executeExtraHttpOp.call(
+
+				const op = externalContactExtraHttpOpsById[operation];
+				response = await weComApiRequest.call(
 					this,
-					externalContactExtraHttpOpsById[operation],
-					i,
-					bodyDefaults,
+					op.method,
+					op.path,
+					op.method === 'GET' ? {} : body,
+					parseQueryJson.call(this, i),
 				);
 			} else {
-				response = {};
+				fail(this, `不支持的客户联系操作: ${operation}`, i);
 			}
 
 			returnData.push({
@@ -2256,4 +2913,3 @@ export async function executeExternalContact(
 
 	return returnData;
 }
-

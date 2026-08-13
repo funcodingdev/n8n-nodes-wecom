@@ -59,10 +59,24 @@ export const msgauditDescription: INodeProperties[] = [
 			'type，不传返回全量。<a href="https://developer.work.weixin.qq.com/document/path/91614" target="_blank">官方文档</a>',
 	},
 	{
+		displayName: '输入方式',
+		name: 'singleAgreeInputMode',
+		type: 'options',
+		displayOptions: { show: { ...showOnly, operation: ['checkSingleAgree'] } },
+		options: [
+			{ name: '表单', value: 'form' },
+			{ name: 'JSON', value: 'json' },
+		],
+		default: 'form',
+		description: '单聊会话对最多 100 项',
+	},
+	{
 		displayName: '单聊会话对',
 		name: 'singleAgreeCollection',
 		type: 'fixedCollection',
-		displayOptions: { show: { ...showOnly, operation: ['checkSingleAgree'] } },
+		displayOptions: {
+			show: { ...showOnly, operation: ['checkSingleAgree'], singleAgreeInputMode: ['form'] },
+		},
 		default: {},
 		placeholder: '添加会话对',
 		typeOptions: { multipleValues: true },
@@ -76,13 +90,17 @@ export const msgauditDescription: INodeProperties[] = [
 						displayName: '成员UserID',
 						name: 'userid',
 						type: 'string',
+						required: true,
 						default: '',
+						typeOptions: { maxLength: 64 },
 					},
 					{
 						displayName: '外部联系人OpenID',
 						name: 'exteranalopenid',
 						type: 'string',
+						required: true,
 						default: '',
+						typeOptions: { maxLength: 128 },
 						description: '官方字段拼写为 exteranalopenid',
 					},
 				],
@@ -98,6 +116,7 @@ export const msgauditDescription: INodeProperties[] = [
 			show: { ...showOnly, operation: ['getGroupChat', 'checkRoomAgree'] },
 		},
 		default: '',
+		typeOptions: { maxLength: 128 },
 		description: '内部群 roomid',
 	},
 	{
@@ -105,10 +124,20 @@ export const msgauditDescription: INodeProperties[] = [
 		name: 'infoJson',
 		type: 'json',
 		displayOptions: {
-			show: { ...showOnly, operation: ['checkSingleAgree', 'checkRoomAgree'] },
+			show: { ...showOnly, operation: ['checkSingleAgree'], singleAgreeInputMode: ['json'] },
 		},
 		default: '[]',
-		description: '单聊非空数组覆盖表单；群聊可写额外字段',
+		description: '1–100 个对象；每项必须包含 userid 与官方拼写 exteranalopenid',
+	},
+	{
+		displayName: '同意状态数据提示',
+		name: 'agreeNotice',
+		type: 'notice',
+		displayOptions: {
+			show: { ...showOnly, operation: ['checkSingleAgree', 'checkRoomAgree'] },
+		},
+		default: '',
+		description: '返回内容包含客户或群成员的会话存档同意状态与变更时间，请按企业合规要求处理和保存。',
 	},
 	{
 		displayName: '机器人ID',
@@ -117,5 +146,7 @@ export const msgauditDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { ...showOnly, operation: ['getRobotInfo'] } },
 		default: '',
+		typeOptions: { maxLength: 128 },
+		description: '会话内容中的机器人 external_userid，通常以 wb 开头；接口限频 600 次/分钟',
 	},
 ];

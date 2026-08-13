@@ -1,59 +1,58 @@
 import type { INodeProperties } from 'n8n-workflow';
+
 const showOnly = { resource: ['wedoc'], operation: ['modForm'] };
+
 export const modFormDescription: INodeProperties[] = [
-	{ displayName: '收集表ID', name: 'formid', type: 'string', required: true, displayOptions: { show: showOnly }, default: '', description: '收集表的formid。收集表ID' },
+	{
+		displayName: '收集表ID',
+		name: 'formid',
+		type: 'string',
+		required: true,
+		displayOptions: { show: showOnly },
+		default: '',
+	},
+	{
+		displayName: '修改类型',
+		name: 'formOper',
+		type: 'options',
+		required: true,
+		displayOptions: { show: showOnly },
+		options: [
+			{ name: '全量修改问题', value: 1 },
+			{ name: '全量修改设置', value: 2 },
+		],
+		default: 1,
+		description: '对应官方 oper 字段；两类内容需分开调用',
+	},
 	{
 		displayName: '收集表标题',
 		name: 'form_title',
 		type: 'string',
-		displayOptions: { show: showOnly },
+		displayOptions: { show: { ...showOnly, formOper: [1] } },
 		default: '',
-		description: '新的收集表标题，留空则不修改',
 	},
 	{
 		displayName: '收集表描述',
 		name: 'form_description',
 		type: 'string',
-		displayOptions: { show: showOnly },
+		displayOptions: { show: { ...showOnly, formOper: [1] } },
 		default: '',
-		description: '新的收集表描述，留空则不修改',
 	},
 	{
-		displayName: '收集表设置',
-		name: 'formSetting',
-		type: 'collection',
+		displayName: '收集表头图',
+		name: 'form_header',
+		type: 'string',
+		displayOptions: { show: { ...showOnly, formOper: [1] } },
+		default: '',
+		description: '收集表表头背景图链接',
+	},
+	{
+		displayName: '完整Form Info JSON',
+		name: 'formInfoJson',
+		type: 'json',
 		displayOptions: { show: showOnly },
-		default: {},
-		placeholder: '添加设置',
-		description: '收集表的高级设置',
-		options: [
-			{
-				displayName: '允许匿名填写',
-				name: 'allow_anonymous',
-				type: 'boolean',
-				default: false,
-			},
-			{
-				displayName: '限制每人填写次数',
-				name: 'limit_fill_count',
-				type: 'number',
-				default: 0,
-				description: '每人最多填写次数，0表示不限制',
-			},
-			{
-				displayName: '截止时间',
-				name: 'deadline',
-				type: 'dateTime',
-				default: '',
-				description: '收集表的截止时间',
-			},
-			{
-				displayName: '是否开启收集',
-				name: 'is_collecting',
-				type: 'boolean',
-				default: true,
-				description: '是否正在收集中',
-			},
-		],
+		default: '{}',
+		description:
+			'按官方 form_info 结构填写 form_question 或 form_setting。JSON 与表单合并，表单中非空的标题、描述和头图优先',
 	},
 ];

@@ -15,7 +15,8 @@ export const addCheckinDescription: INodeProperties[] = [
 			show: showOnlyForAddCheckin,
 		},
 		default: '',
-		description: '需要补卡的员工UserID。<a href="https://developer.work.weixin.qq.com/document/path/95803" target="_blank">官方文档</a>',
+		description:
+			'需要补卡的员工UserID。<a href="https://developer.work.weixin.qq.com/document/path/95803" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '应打卡日期',
@@ -40,11 +41,24 @@ export const addCheckinDescription: INodeProperties[] = [
 		description: '实际打卡时间，Unix 时间戳（秒）。接口字段 checkin_time',
 	},
 	{
+		displayName: '指定应打卡时间点',
+		name: 'include_schedule_checkin_time',
+		type: 'boolean',
+		displayOptions: {
+			show: showOnlyForAddCheckin,
+		},
+		default: false,
+		description: '开启后发送相对于应打卡日期 0 点的偏移秒数；休息日、无规则或自由上下班可关闭',
+	},
+	{
 		displayName: '应打卡时间点偏移(秒)',
 		name: 'schedule_checkin_time',
 		type: 'number',
 		displayOptions: {
-			show: showOnlyForAddCheckin,
+			show: {
+				...showOnlyForAddCheckin,
+				include_schedule_checkin_time: [true],
+			},
 		},
 		default: 0,
 		description:

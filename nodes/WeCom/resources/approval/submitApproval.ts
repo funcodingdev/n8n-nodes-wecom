@@ -83,6 +83,7 @@ export const submitApprovalDescription: INodeProperties[] = [
 						displayName: '控件ID',
 						name: 'id',
 						type: 'string',
+						required: true,
 						default: '',
 						placeholder: 'Text-1',
 						description: '与模板详情中的 id 一致',
@@ -92,6 +93,9 @@ export const submitApprovalDescription: INodeProperties[] = [
 						name: 'text',
 						type: 'string',
 						default: '',
+						displayOptions: {
+							show: { control: ['Text', 'Textarea', 'Number', 'PhoneNumber'] },
+						},
 						description: 'Text/Textarea 用 text；Number 写数字字符串',
 					},
 					{
@@ -99,6 +103,7 @@ export const submitApprovalDescription: INodeProperties[] = [
 						name: 'new_money',
 						type: 'string',
 						default: '',
+						displayOptions: { show: { control: ['Money'] } },
 						description: 'Money 控件 new_money（字符串，单位与模板一致）',
 					},
 					{
@@ -110,6 +115,7 @@ export const submitApprovalDescription: INodeProperties[] = [
 							{ name: '日期+时间 hour', value: 'hour' },
 						],
 						default: 'day',
+						displayOptions: { show: { control: ['Date'] } },
 						description: 'Date 控件 type',
 					},
 					{
@@ -117,6 +123,8 @@ export const submitApprovalDescription: INodeProperties[] = [
 						name: 'date_s',
 						type: 'dateTime',
 						default: '',
+						required: true,
+						displayOptions: { show: { control: ['Date'] } },
 						description: 'Date 控件 s_timestamp（Unix 秒）',
 					},
 					{
@@ -128,6 +136,7 @@ export const submitApprovalDescription: INodeProperties[] = [
 							{ name: '小时 hour', value: 'hour' },
 						],
 						default: 'halfday',
+						displayOptions: { show: { control: ['DateRange'] } },
 						description: 'DateRange.type',
 					},
 					{
@@ -135,6 +144,8 @@ export const submitApprovalDescription: INodeProperties[] = [
 						name: 'date_range_begin',
 						type: 'dateTime',
 						default: '',
+						required: true,
+						displayOptions: { show: { control: ['DateRange'] } },
 						description: 'DateRange.new_begin',
 					},
 					{
@@ -142,7 +153,19 @@ export const submitApprovalDescription: INodeProperties[] = [
 						name: 'date_range_end',
 						type: 'dateTime',
 						default: '',
+						required: true,
+						displayOptions: { show: { control: ['DateRange'] } },
 						description: 'DateRange.new_end',
+					},
+					{
+						displayName: '时长秒数',
+						name: 'date_range_duration',
+						type: 'number',
+						required: true,
+						displayOptions: { show: { control: ['DateRange'] } },
+						default: 86400,
+						typeOptions: { minValue: 1 },
+						description: 'DateRange.new_duration；按模板的时长计算规则填写',
 					},
 					{
 						displayName: '选择方式',
@@ -153,6 +176,7 @@ export const submitApprovalDescription: INodeProperties[] = [
 							{ name: '多选 multi', value: 'multi' },
 						],
 						default: 'single',
+						displayOptions: { show: { control: ['Selector'] } },
 						description: 'Selector.type',
 					},
 					{
@@ -160,6 +184,8 @@ export const submitApprovalDescription: INodeProperties[] = [
 						name: 'selector_keys',
 						type: 'string',
 						default: '',
+						required: true,
+						displayOptions: { show: { control: ['Selector'] } },
 						placeholder: 'option-1,option-2',
 						description: 'Selector.options[].key，逗号分隔；key 来自模板详情',
 					},
@@ -172,6 +198,7 @@ export const submitApprovalDescription: INodeProperties[] = [
 							{ name: '部门 departments', value: 'departments' },
 						],
 						default: 'members',
+						displayOptions: { show: { control: ['Contact'] } },
 						description: 'Contact 控件写 members 或 departments',
 					},
 					{
@@ -179,6 +206,10 @@ export const submitApprovalDescription: INodeProperties[] = [
 						name: 'contact_userids',
 						type: 'string',
 						default: '',
+						required: true,
+						displayOptions: {
+							show: { control: ['Contact'], contact_kind: ['members'] },
+						},
 						placeholder: 'zhangsan,lisi',
 						description: 'Contact members.userid，逗号分隔',
 					},
@@ -187,6 +218,10 @@ export const submitApprovalDescription: INodeProperties[] = [
 						name: 'contact_partyids',
 						type: 'string',
 						default: '',
+						required: true,
+						displayOptions: {
+							show: { control: ['Contact'], contact_kind: ['departments'] },
+						},
 						placeholder: '1,2',
 						description: 'Contact departments.openapi_id，逗号分隔',
 					},
@@ -195,6 +230,8 @@ export const submitApprovalDescription: INodeProperties[] = [
 						name: 'file_mediaids',
 						type: 'string',
 						default: '',
+						required: true,
+						displayOptions: { show: { control: ['File'] } },
 						placeholder: 'MEDIA_ID1,MEDIA_ID2',
 						description: 'File 控件 files[].file_id，逗号分隔',
 					},
@@ -208,13 +245,13 @@ export const submitApprovalDescription: INodeProperties[] = [
 		type: 'json',
 		displayOptions: { show: showOnlyForSubmitApproval },
 		default: '{}',
-		description:
-			'完整 apply_data。非空对象时优先；空对象则使用上方控件值表单',
+		description: '完整 apply_data。非空对象时优先；空对象则使用上方控件值表单',
 	},
 	{
 		displayName: '摘要行',
 		name: 'summaryLines',
 		type: 'fixedCollection',
+		required: true,
 		displayOptions: { show: showOnlyForSubmitApproval },
 		default: {},
 		placeholder: '添加摘要行',
@@ -229,6 +266,7 @@ export const submitApprovalDescription: INodeProperties[] = [
 						displayName: '摘要文字',
 						name: 'text',
 						type: 'string',
+						required: true,
 						default: '',
 					},
 					{
@@ -249,6 +287,7 @@ export const submitApprovalDescription: INodeProperties[] = [
 		displayName: '审批流程节点',
 		name: 'processNodeCollection',
 		type: 'fixedCollection',
+		required: true,
 		displayOptions: {
 			show: { ...showOnlyForSubmitApproval, use_template_approver: [0] },
 		},
@@ -288,6 +327,7 @@ export const submitApprovalDescription: INodeProperties[] = [
 						displayName: '成员UserID列表',
 						name: 'userid_list',
 						type: 'string',
+						required: true,
 						default: '',
 						placeholder: 'user1,user2',
 						description: '逗号分隔',

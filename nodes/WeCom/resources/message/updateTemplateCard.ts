@@ -22,7 +22,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 			'更新卡片所需要消费的code，可通过发消息接口和回调接口返回值获取，一个code只能调用一次该接口，且只能在72小时内调用。<a href="https://developer.work.weixin.qq.com/document/path/94888" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '输入方式（可选）',
+		displayName: '输入方式',
 		name: 'template_card_input_mode',
 		type: 'options',
 		options: [
@@ -36,7 +36,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 		description: '选择模板卡片的输入方式',
 	},
 	{
-		displayName: '模板卡片（JSON，可选）',
+		displayName: '模板卡片（JSON）',
 		name: 'template_card_json',
 		type: 'json',
 		typeOptions: {
@@ -54,7 +54,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 			'使用JSON直接输入template_card对象。JSON输入模式下仅展示此字段。<a href="https://developer.work.weixin.qq.com/document/path/94888" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '模板卡片类型（可选）',
+		displayName: '模板卡片类型',
 		name: 'card_type',
 		type: 'options',
 		options: [
@@ -637,7 +637,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				...showOnlyUpdateTemplateCard,
-				template_card_input_mode: ['form'],
+				button_update_only: [false],
 			},
 		},
 		description: '表示是否开启ID转译，默认否。开启后会将消息中的userid转为@对应成员。<a href="https://developer.work.weixin.qq.com/document/path/94888" target="_blank">官方文档</a>',

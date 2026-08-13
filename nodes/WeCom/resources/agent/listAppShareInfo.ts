@@ -7,7 +7,7 @@ const showOnly = {
 
 export const listAppShareInfoDescription: INodeProperties[] = [
 	{
-		displayName: '应用ID',
+		displayName: '应用 ID',
 		name: 'agentid',
 		type: 'number',
 		required: true,
@@ -15,7 +15,8 @@ export const listAppShareInfoDescription: INodeProperties[] = [
 			show: showOnly,
 		},
 		default: 0,
-		description: '上级/上游企业应用agentid',
+		typeOptions: { minValue: 1, numberStepSize: 1 },
+		description: '上级或上游企业应用 ID',
 	},
 	{
 		displayName: '业务类型',
@@ -35,14 +36,26 @@ export const listAppShareInfoDescription: INodeProperties[] = [
 			},
 		],
 		default: 0,
+		description: '0 表示企业互联或局校互联，1 表示上下游企业',
 	},
 	{
-		displayName: '下级/下游企业Corpid',
+		displayName: '查询方式',
+		name: 'shareInfoQueryMode',
+		type: 'options',
+		options: [
+			{ name: '分页获取企业列表', value: 'list' },
+			{ name: '指定企业', value: 'corp' },
+		],
+		default: 'list',
+		displayOptions: { show: showOnly },
+		description: '分页拉取所有共享企业，或通过 CorpID 查询指定企业',
+	},
+	{
+		displayName: '下级或下游企业 CorpID',
 		name: 'corpid',
 		type: 'string',
-		displayOptions: {
-			show: showOnly,
-		},
+		required: true,
+		displayOptions: { show: { ...showOnly, shareInfoQueryMode: ['corp'] } },
 		default: '',
 		description: '下级/下游企业corpid，若指定该参数则表示拉取该下级/下游企业的应用共享信息',
 	},
@@ -54,19 +67,15 @@ export const listAppShareInfoDescription: INodeProperties[] = [
 			minValue: 0,
 			maxValue: 100,
 		},
-		displayOptions: {
-			show: showOnly,
-		},
+		displayOptions: { show: { ...showOnly, shareInfoQueryMode: ['list'] } },
 		default: 0,
-		description: '返回的最大记录数，整型，最大值100',
+		description: '0 表示拉取全量；分页查询时可设置 1–100',
 	},
 	{
 		displayName: '分页游标',
 		name: 'cursor',
 		type: 'string',
-		displayOptions: {
-			show: showOnly,
-		},
+		displayOptions: { show: { ...showOnly, shareInfoQueryMode: ['list'] } },
 		default: '',
 		description: '用于分页查询的游标，字符串类型，由上一次调用返回，首次调用可不填',
 	},

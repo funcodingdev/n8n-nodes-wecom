@@ -42,8 +42,9 @@ export const addGridDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'zhangsan,lisi',
+		typeOptions: { rows: 2 },
 		description:
-			'网格「负责人」userid 列表，每个网格至少1个、最多20个，多个用逗号分隔。<a href="https://developer.work.weixin.qq.com/document/path/94478" target="_blank">官方文档</a>',
+			'网格负责人 UserID 列表，每个网格至少 1 个、最多 20 个；支持逗号、中文逗号、竖线或换行分隔，重复值会自动去除。<a href="https://developer.work.weixin.qq.com/document/path/94478" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '网格成员UserID列表',
@@ -54,7 +55,8 @@ export const addGridDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'wangwu,zhaoliu',
+		typeOptions: { rows: 3 },
 		description:
-			'可选。该节点成员 userid 列表，不能超过100个，多个用逗号分隔。<a href="https://developer.work.weixin.qq.com/document/path/94478" target="_blank">官方文档</a>',
+			'可选。网格成员 UserID 列表，最多 100 个；支持逗号、中文逗号、竖线或换行分隔，重复值会自动去除。<a href="https://developer.work.weixin.qq.com/document/path/94478" target="_blank">官方文档</a>',
 	},
 ];

@@ -7,6 +7,14 @@ const showOnlyForGetServicerStatistic = {
 
 export const getServicerStatisticDescription: INodeProperties[] = [
 	{
+		displayName: '统计日期限制',
+		name: 'servicerStatisticNotice',
+		type: 'notice',
+		displayOptions: { show: showOnlyForGetServicerStatistic },
+		default: '',
+		description: '仅可查询昨天至前 180 天的数据，闭区间跨度最多 31 天；不选择接待人员时返回客服账号维度汇总数据。',
+	},
+	{
 		displayName: '客服账号',
 		name: 'open_kfid',
 		type: 'options',
@@ -18,19 +26,19 @@ export const getServicerStatisticDescription: INodeProperties[] = [
 			show: showOnlyForGetServicerStatistic,
 		},
 		default: '',
-		description: '客服账号的唯一标识ID，格式为wkxxxx开头的字符串。<a href="https://developer.work.weixin.qq.com/document/path/95490" target="_blank">官方文档</a>.',
+		description: '要查询接待统计的客服账号。<a href="https://developer.work.weixin.qq.com/document/path/95490" target="_blank">官方文档</a>',
 		placeholder: 'wkxxxxxxxxxxxxxxxxxx',
 	},
 	{
-		displayName: '接待人员UserID',
+		displayName: '接待人员',
 		name: 'servicer_userid',
-		type: 'string',
-		required: true,
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
 		displayOptions: {
 			show: showOnlyForGetServicerStatistic,
 		},
 		default: '',
-		description: '要查询统计数据的接待人员UserID，必须是该客服账号下已添加的接待人员。<a href="https://developer.work.weixin.qq.com/document/path/95490" target="_blank">官方文档</a>',
+		description: '可选。选择后返回该接待人员在此客服账号下的数据；留空返回客服账号维度汇总数据。第三方应用使用密文 UserID。<a href="https://developer.work.weixin.qq.com/document/path/95490" target="_blank">官方文档</a>',
 		placeholder: 'zhangsan',
 	},
 	{
@@ -42,7 +50,7 @@ export const getServicerStatisticDescription: INodeProperties[] = [
 			show: showOnlyForGetServicerStatistic,
 		},
 		default: '',
-		description: '查询统计数据的起始日期，Unix时间戳格式（秒级），必须为当天0点的时间戳。<a href="https://developer.work.weixin.qq.com/document/path/95490" target="_blank">官方文档</a>',
+		description: '查询闭区间的起始日期',
 	},
 	{
 		displayName: '结束日期',
@@ -53,7 +61,6 @@ export const getServicerStatisticDescription: INodeProperties[] = [
 			show: showOnlyForGetServicerStatistic,
 		},
 		default: '',
-		description: '查询统计数据的结束日期，Unix时间戳格式（秒级），必须为当天0点的时间戳，最多支持查询最近180天的数据。<a href="https://developer.work.weixin.qq.com/document/path/95490" target="_blank">官方文档</a>',
+		description: '查询闭区间的结束日期',
 	},
 ];
-

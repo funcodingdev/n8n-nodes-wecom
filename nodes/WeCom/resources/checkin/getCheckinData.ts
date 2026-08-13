@@ -15,7 +15,8 @@ export const getCheckinDataDescription: INodeProperties[] = [
 			show: showOnlyForGetCheckinData,
 		},
 		default: '',
-		description: '获取打卡数据的起始时间，秒级Unix时间戳。时间跨度不超过30天。<a href="https://developer.work.weixin.qq.com/document/path/90262" target="_blank">官方文档</a>',
+		description:
+			'获取打卡数据的起始时间，秒级Unix时间戳。时间跨度不超过30天。<a href="https://developer.work.weixin.qq.com/document/path/90262" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '结束时间',
@@ -26,7 +27,8 @@ export const getCheckinDataDescription: INodeProperties[] = [
 			show: showOnlyForGetCheckinData,
 		},
 		default: '',
-		description: '获取打卡数据的结束时间，秒级Unix时间戳。必须大于开始时间，时间跨度不超过30天。<a href="https://developer.work.weixin.qq.com/document/path/90262" target="_blank">官方文档</a>',
+		description:
+			'获取打卡数据的结束时间，秒级Unix时间戳。必须大于开始时间，时间跨度不超过30天。<a href="https://developer.work.weixin.qq.com/document/path/90262" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '成员UserID列表',
@@ -37,7 +39,8 @@ export const getCheckinDataDescription: INodeProperties[] = [
 			show: showOnlyForGetCheckinData,
 		},
 		default: '',
-		description: '需要获取打卡数据的成员UserID列表，用逗号分隔，最多100个。<a href="https://developer.work.weixin.qq.com/document/path/90262" target="_blank">官方文档</a>',
+		description:
+			'需要获取打卡数据的成员UserID列表，用逗号分隔，最多100个。<a href="https://developer.work.weixin.qq.com/document/path/90262" target="_blank">官方文档</a>',
 		placeholder: 'zhangsan,lisi,wangwu',
 	},
 	{
@@ -53,7 +56,7 @@ export const getCheckinDataDescription: INodeProperties[] = [
 			{ name: '外出打卡', value: 2, description: '仅获取外出打卡记录' },
 		],
 		default: 3,
-		description: '打卡类型。<a href="https://developer.work.weixin.qq.com/document/path/90262" target="_blank">官方文档</a>',
+		description:
+			'打卡类型。<a href="https://developer.work.weixin.qq.com/document/path/90262" target="_blank">官方文档</a>',
 	},
 ];
-

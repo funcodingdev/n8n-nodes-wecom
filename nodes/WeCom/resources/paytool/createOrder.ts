@@ -1,390 +1,458 @@
-import type { IExecuteFunctions, IDataObject, IHttpRequestOptions } from 'n8n-workflow';
-import { NodeOperationError } from 'n8n-workflow';
-import { createHmac, randomBytes } from 'crypto';
-import { getWeComBaseUrl } from '../../shared/transport';
+import type { IExecuteFunctions, IDataObject } from 'n8n-workflow';
+import {
+	fail,
+	optionalPositiveInteger,
+	optionalText,
+	paytoolApiRequest,
+	requireInteger,
+	requireOption,
+	requireText,
+} from './utils';
 
-/**
- * 递归扁平化JSON对象为键值对数组
- * 对于数组，递归处理每个元素的子节点（不直接使用数组本身）
- *
- * @param obj - 要扁平化的对象
- * @param pairs - 键值对数组（输出参数）
- */
-function flattenObject(obj: unknown, pairs: string[] = []): void {
-	if (obj === null || obj === undefined) {
-		return;
+function parseProductList(
+	context: IExecuteFunctions,
+	value: unknown,
+	itemIndex: number,
+): IDataObject {
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch (error) {
+			fail(context, `产品配置不是有效的 JSON：${(error as Error).message}`, itemIndex);
+		}
 	}
+	if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+		fail(context, '产品配置必须是 JSON 对象', itemIndex);
+	}
+	return parsed as IDataObject;
+}
 
-	if (Array.isArray(obj)) {
-		for (const item of obj) {
-			if (typeof item === 'object' && item !== null) {
-				flattenObject(item, pairs);
-			} else {
-				pairs.push(`${String(item)}`);
-			}
-		}
-	} else if (typeof obj === 'object') {
-		for (const [key, value] of Object.entries(obj)) {
-			if (value === null || value === undefined) {
-				continue;
-			} else if (Array.isArray(value)) {
-				flattenObject(value, pairs);
-			} else if (typeof value === 'object') {
-				flattenObject(value, pairs);
-			} else {
-				pairs.push(`${key}=${String(value)}`);
-			}
-		}
+function chinaDateStart(date = new Date()): number {
+	const parts = new Intl.DateTimeFormat('en-US', {
+		timeZone: 'Asia/Shanghai',
+		year: 'numeric',
+		month: '2-digit',
+		day: '2-digit',
+	}).formatToParts(date);
+	const get = (type: string) => Number(parts.find((part) => part.type === type)?.value);
+	return Date.UTC(get('year'), get('month') - 1, get('day'));
+}
+
+function validateTakeEffectDate(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	allowToday: boolean,
+): string | undefined {
+	const text = optionalText(context, value, label, itemIndex, 8);
+	if (!text) return undefined;
+	if (!/^\d{8}$/.test(text)) fail(context, `${label}必须使用 YYYYMMDD 格式`, itemIndex);
+	const year = Number(text.slice(0, 4));
+	const month = Number(text.slice(4, 6));
+	const day = Number(text.slice(6, 8));
+	const timestamp = Date.UTC(year, month - 1, day);
+	const date = new Date(timestamp);
+	if (
+		date.getUTCFullYear() !== year ||
+		date.getUTCMonth() !== month - 1 ||
+		date.getUTCDate() !== day
+	) {
+		fail(context, `${label}不是有效日期`, itemIndex);
+	}
+	const today = chinaDateStart();
+	if (allowToday ? timestamp < today : timestamp <= today) {
+		fail(context, `${label}${allowToday ? '不能早于今天' : '必须晚于今天'}`, itemIndex);
+	}
+	if (timestamp > today + 366 * 86400_000) {
+		fail(context, `${label}不能超过一年后`, itemIndex);
+	}
+	return text;
+}
+
+function asObject(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): IDataObject {
+	if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+		fail(context, `${label}不能为空`, itemIndex);
+	}
+	return value as IDataObject;
+}
+
+function getList(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	required: boolean,
+): IDataObject[] {
+	if (!Array.isArray(value)) {
+		if (!required && (value === undefined || value === null)) return [];
+		fail(context, `${label}必须是数组`, itemIndex);
+	}
+	if ((required && value.length < 1) || value.length > 20) {
+		fail(context, `${label}数量必须为 ${required ? '1–20' : '0–20'} 项`, itemIndex);
+	}
+	if (!value.every((entry) => entry !== null && typeof entry === 'object' && !Array.isArray(entry))) {
+		fail(context, `${label}中的每一项都必须是对象`, itemIndex);
+	}
+	return value as IDataObject[];
+}
+
+function validateDiscount(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): IDataObject | undefined {
+	if (value === undefined || value === null) return undefined;
+	const discount = asObject(context, value, label, itemIndex);
+	if (Object.keys(discount).length === 0) return undefined;
+	const discountType = requireOption(
+		context,
+		discount.discount_type,
+		`${label}的优惠类型`,
+		itemIndex,
+		[1, 2],
+	);
+	const result: IDataObject = {
+		discount_type: discountType,
+		discount_remarks: requireText(
+			context,
+			discount.discount_remarks,
+			`${label}的优惠原因`,
+			itemIndex,
+			256,
+		),
+	};
+	if (discountType === 1) {
+		result.discount_amount = requireInteger(
+			context,
+			discount.discount_amount,
+			`${label}的优惠金额`,
+			itemIndex,
+			1,
+			10_000_000,
+		);
 	} else {
-		pairs.push(`${String(obj)}`);
+		result.discount_ratio = requireInteger(
+			context,
+			discount.discount_ratio,
+			`${label}的优惠折扣`,
+			itemIndex,
+			10,
+			99,
+		);
 	}
+	return result;
 }
 
-/**
- * 生成收银台API签名
- * 官方文档：https://developer.work.weixin.qq.com/document/path/98768
- *
- * 签名算法：
- * 1. 将所有非空参数构造成键值对（key=value），按照ASCII码从小到大排序（字典序）
- * 2. 拼接成字符串stringA
- * 3. 对stringA以服务商的支付密钥为key进行HMAC-SHA256运算，并进行base64编码
- * 4. sig参数不参与签名
- *
- * @param body - 请求体对象（不包含sig）
- * @param secret - 收银台API调用密钥
- * @returns 签名字符串（Base64编码）
- */
-function generatePaytoolSignature(body: IDataObject, secret: string): string {
-	const bodyWithoutSig = { ...body };
-	delete bodyWithoutSig.sig;
-
-	const pairs: string[] = [];
-	flattenObject(bodyWithoutSig, pairs);
-
-	pairs.sort();
-
-	const stringA = pairs.join('&');
-
-	const hmac = createHmac('sha256', secret);
-	hmac.update(stringA);
-	const signature = hmac.digest('base64');
-
-	return signature;
+function validateAppRows(
+	context: IExecuteFunctions,
+	rows: IDataObject[],
+	itemIndex: number,
+	options: {
+		label: string;
+		orderType: number;
+		requireEdition: boolean;
+		requireTotalPrice: boolean;
+		requireUserForPurchase: boolean;
+		allowDiscount: boolean;
+		allowToday: boolean;
+	},
+): IDataObject[] {
+	const normalized = rows.map((row, rowIndex) => {
+		const label = `${options.label}第 ${rowIndex + 1} 项`;
+		const result: IDataObject = {
+			suiteid: requireText(context, row.suiteid, `${label}的套件 ID`, itemIndex, 64),
+		};
+		if (row.appid !== undefined) {
+			result.appid = requireInteger(
+				context,
+				row.appid,
+				`${label}的旧套件应用 ID`,
+				itemIndex,
+				1,
+				Number.MAX_SAFE_INTEGER,
+			);
+		}
+		if (options.requireEdition) {
+			result.edition_id = requireText(
+				context,
+				row.edition_id,
+				`${label}的版本号 ID`,
+				itemIndex,
+				64,
+			);
+		}
+		if (options.requireTotalPrice) {
+			result.total_price = requireInteger(
+				context,
+				row.total_price,
+				`${label}的应用总价`,
+				itemIndex,
+				1,
+				5_000_000,
+			);
+		}
+		const userCount = optionalPositiveInteger(
+			context,
+			row.user_count,
+			`${label}的购买人数`,
+			itemIndex,
+			1_000_000,
+		);
+		if (options.requireUserForPurchase && [0, 1].includes(options.orderType) && !userCount) {
+			fail(context, `${label}在新购或扩容时必须填写购买人数`, itemIndex);
+		}
+		if (userCount) result.user_count = userCount;
+		const durationDays = optionalPositiveInteger(
+			context,
+			row.duration_days,
+			`${label}的购买时长`,
+			itemIndex,
+			1825,
+		);
+		if ([0, 2].includes(options.orderType) && !durationDays) {
+			fail(context, `${label}在新购或续期时必须填写购买时长`, itemIndex);
+		}
+		if (durationDays) result.duration_days = durationDays;
+		const takeEffectDate = validateTakeEffectDate(
+			context,
+			row.take_effect_date,
+			`${label}的生效日期`,
+			itemIndex,
+			options.allowToday,
+		);
+		if (takeEffectDate) result.take_effect_date = takeEffectDate;
+		if (options.allowDiscount) {
+			const discount = validateDiscount(
+				context,
+				row.discount_info,
+				`${label}的优惠信息`,
+				itemIndex,
+			);
+			if (discount) result.discount_info = discount;
+		}
+		return result;
+	});
+	const keys = normalized.map((row) => `${row.suiteid}\u0000${row.appid ?? ''}`);
+	if (new Set(keys).size !== keys.length) {
+		fail(context, `${options.label}不能包含重复的套件/应用`, itemIndex);
+	}
+	return normalized;
 }
 
-/**
- * 创建收款订单
- * 官方文档：https://developer.work.weixin.qq.com/document/path/98045
- *
- * 用途：
- * - 服务商可以使用该接口创建各种业务的收款订单
- * - 支持普通第三方应用、代开发应用、行业解决方案三种业务类型
- *
- * 注意事项：
- * - 服务商需有在收银台完成商户号注册（支付方式为"免支付"的订单可以不受此限制）
- * - 需要提供收银台API调用密钥用于签名
- * - 签名算法：将所有非空参数构造成键值对，按字典序排序后拼接，然后进行HMAC-SHA256签名并base64编码
- * - 签名算法文档：https://developer.work.weixin.qq.com/document/path/98768
- *
- * @returns 订单信息（包含订单ID、订单链接、价格等）
- */
+function buildFormProductList(
+	context: IExecuteFunctions,
+	itemIndex: number,
+	businessType: number,
+): IDataObject {
+	if (businessType === 1) {
+		const source = context.getNodeParameter('thirdApp', itemIndex, {}) as IDataObject;
+		const rows = ((source.buyInfoList as IDataObject | undefined)?.apps ?? []) as IDataObject[];
+		return {
+			third_app: {
+				order_type: source.orderType,
+				buy_info_list: rows.map((row) => ({
+					suiteid: row.suiteid,
+					...(row.includeAppid ? { appid: row.appid } : {}),
+					edition_id: row.editionId,
+					user_count: row.userCount,
+					duration_days: row.durationDays,
+					take_effect_date: row.takeEffectDate,
+					...(row.discountInfo && Object.keys(row.discountInfo as IDataObject).length > 0
+						? {
+							discount_info: {
+								discount_type: (row.discountInfo as IDataObject).discountType,
+								discount_amount: (row.discountInfo as IDataObject).discountAmount,
+								discount_ratio: (row.discountInfo as IDataObject).discountRatio,
+								discount_remarks: (row.discountInfo as IDataObject).discountRemarks,
+							},
+						}
+						: {}),
+				})),
+				notify_custom_corp: source.notifyCustomCorp,
+			},
+		};
+	}
+	if (businessType === 2) {
+		const source = context.getNodeParameter('customizedApp', itemIndex, {}) as IDataObject;
+		const rows = ((source.buyInfoList as IDataObject | undefined)?.apps ?? []) as IDataObject[];
+		return {
+			customized_app: {
+				order_type: source.orderType,
+				buy_info_list: rows.map((row) => ({
+					suiteid: row.suiteid,
+					total_price: row.totalPrice,
+					user_count: row.userCount,
+					duration_days: row.durationDays,
+					take_effect_date: row.takeEffectDate,
+				})),
+				notify_custom_corp: source.notifyCustomCorp,
+			},
+		};
+	}
+	const source = context.getNodeParameter('promotionCase', itemIndex, {}) as IDataObject;
+	const rows = ((source.buyInfoList as IDataObject | undefined)?.apps ?? []) as IDataObject[];
+	return {
+		promotion_case: {
+			order_type: source.orderType,
+			case_id: source.caseId,
+			promotion_edition_name: source.promotionEditionName,
+			duration_days: source.durationDays,
+			take_effect_date: source.takeEffectDate,
+			buy_info_list: rows.map((row) => ({
+				suiteid: row.suiteid,
+				...(row.includeAppid ? { appid: row.appid } : {}),
+				user_count: row.userCount,
+			})),
+			notify_custom_corp: source.notifyCustomCorp,
+		},
+	};
+}
+
+function validateProductList(
+	context: IExecuteFunctions,
+	itemIndex: number,
+	businessType: number,
+	productList: IDataObject,
+): IDataObject {
+	if (businessType === 1) {
+		const source = asObject(context, productList.third_app, '第三方应用购买详情', itemIndex);
+		const orderType = requireOption(context, source.order_type, '购买类型', itemIndex, [0, 1, 2]);
+		const rows = getList(context, source.buy_info_list, '购买应用列表', itemIndex, true);
+		return {
+			third_app: {
+				order_type: orderType,
+				buy_info_list: validateAppRows(context, rows, itemIndex, {
+					label: '购买应用列表', orderType, requireEdition: true,
+					requireTotalPrice: false, requireUserForPurchase: false,
+					allowDiscount: true, allowToday: false,
+				}),
+				notify_custom_corp: requireOption(
+					context, source.notify_custom_corp ?? 1, '确认提醒状态', itemIndex, [0, 1],
+				),
+			},
+		};
+	}
+	if (businessType === 2) {
+		const source = asObject(context, productList.customized_app, '代开发应用购买详情', itemIndex);
+		const orderType = requireOption(context, source.order_type, '购买类型', itemIndex, [0, 1, 2]);
+		const rows = getList(context, source.buy_info_list, '购买应用列表', itemIndex, true);
+		return {
+			customized_app: {
+				order_type: orderType,
+				buy_info_list: validateAppRows(context, rows, itemIndex, {
+					label: '购买应用列表', orderType, requireEdition: false,
+					requireTotalPrice: true, requireUserForPurchase: true,
+					allowDiscount: false, allowToday: true,
+				}),
+				notify_custom_corp: requireOption(
+					context, source.notify_custom_corp ?? 1, '确认提醒状态', itemIndex, [0, 1],
+				),
+			},
+		};
+	}
+	const source = asObject(context, productList.promotion_case, '行业解决方案购买详情', itemIndex);
+	const orderType = requireOption(context, source.order_type, '购买类型', itemIndex, [0, 1, 2]);
+	const durationDays = optionalPositiveInteger(
+		context, source.duration_days, '行业方案购买时长', itemIndex, 1825,
+	);
+	if ([0, 2].includes(orderType) && !durationDays) {
+		fail(context, '行业方案在新购或续期时必须填写购买时长', itemIndex);
+	}
+	const result: IDataObject = {
+		order_type: orderType,
+		case_id: requireText(context, source.case_id, '行业方案 ID', itemIndex, 64),
+		promotion_edition_name: requireText(
+			context, source.promotion_edition_name, '行业方案版本名', itemIndex, 128,
+		),
+		notify_custom_corp: requireOption(
+			context, source.notify_custom_corp ?? 1, '确认提醒状态', itemIndex, [0, 1],
+		),
+	};
+	if (durationDays) result.duration_days = durationDays;
+	const takeEffectDate = validateTakeEffectDate(
+		context, source.take_effect_date, '行业方案生效日期', itemIndex, false,
+	);
+	if (takeEffectDate) result.take_effect_date = takeEffectDate;
+	const rows = getList(context, source.buy_info_list, '购买应用列表', itemIndex, false);
+	if (rows.length > 0) {
+		result.buy_info_list = validateAppRows(context, rows, itemIndex, {
+			label: '购买应用列表', orderType: 1, requireEdition: false,
+			requireTotalPrice: false, requireUserForPurchase: false,
+			allowDiscount: false, allowToday: false,
+		});
+	}
+	return { promotion_case: result };
+}
+
+/** 创建收款订单：https://developer.work.weixin.qq.com/document/path/98045 */
 export async function createOrder(
 	this: IExecuteFunctions,
 	index: number,
 ): Promise<IDataObject> {
-	const providerAccessToken = this.getNodeParameter('providerAccessToken', index) as string;
-	const businessType = this.getNodeParameter('businessType', index) as number;
-	const payType = this.getNodeParameter('payType', index) as number;
-	const paytoolSecret = this.getNodeParameter('paytoolSecret', index) as string;
-	const customCorpid = this.getNodeParameter('customCorpid', index) as string | undefined;
-	const bankReceiptMediaId = this.getNodeParameter('bankReceiptMediaId', index) as
-		| string
-		| undefined;
-	const creator = this.getNodeParameter('creator', index) as string | undefined;
-
-	if (!providerAccessToken) {
-		throw new NodeOperationError(
-			this.getNode(),
-			'Provider Access Token不能为空',
-			{ itemIndex: index },
-		);
+	const businessType = requireOption(
+		this, this.getNodeParameter('businessType', index), '业务类型', index, [1, 2, 3],
+	);
+	const payType = requireOption(
+		this, this.getNodeParameter('payType', index), '支付方式', index, [0, 1, 2],
+	);
+	const customCorpid = optionalText(
+		this, this.getNodeParameter('customCorpid', index, ''), '客户企业 CorpID', index, 64,
+	);
+	if (businessType === 2 && !customCorpid) {
+		fail(this, '代开发应用必须指定客户企业 CorpID', index);
 	}
-
-	if (!paytoolSecret) {
-		throw new NodeOperationError(
-			this.getNode(),
-			'收银台API调用密钥不能为空',
-			{ itemIndex: index },
+	const productInputMode = String(
+		this.getNodeParameter('productInputMode', index, 'form'),
+	);
+	let productList: IDataObject;
+	if (productInputMode === 'form') {
+		productList = buildFormProductList(this, index, businessType);
+	} else if (productInputMode === 'json') {
+		productList = parseProductList(
+			this,
+			this.getNodeParameter('productListJson', index, '{}'),
+			index,
 		);
+	} else {
+		fail(this, '产品配置输入方式无效', index);
 	}
-
 	const body: IDataObject = {
 		business_type: businessType,
 		pay_type: payType,
+		product_list: validateProductList(this, index, businessType, productList),
 	};
-
-	if (customCorpid) {
-		body.custom_corpid = customCorpid;
+	if (customCorpid) body.custom_corpid = customCorpid;
+	const bankReceiptMediaId = optionalText(
+		this,
+		this.getNodeParameter('bankReceiptMediaId', index, ''),
+		'银行收款回单素材 ID',
+		index,
+	);
+	if (payType === 1 && !bankReceiptMediaId) {
+		fail(this, '服务商代支付必须填写银行收款回单素材 ID', index);
 	}
+	if (payType === 1) body.bank_receipt_media_id = bankReceiptMediaId;
+	const creator = optionalText(
+		this,
+		this.getNodeParameter('creator', index, ''),
+		'订单创建人 UserID',
+		index,
+	);
+	if (creator) body.creator = creator;
 
-	if (bankReceiptMediaId) {
-		body.bank_receipt_media_id = bankReceiptMediaId;
-	}
-
-	if (creator) {
-		body.creator = creator;
-	}
-
-	const productList: IDataObject = {};
-
-	if (businessType === 1) {
-		const thirdApp = this.getNodeParameter('thirdApp', index, {}) as IDataObject;
-		const orderType = thirdApp.orderType as number;
-		const buyInfoListCollection = thirdApp.buyInfoList as IDataObject | undefined;
-		const buyInfoList = buyInfoListCollection?.apps as IDataObject[] | undefined;
-		const notifyCustomCorp = thirdApp.notifyCustomCorp as number | undefined;
-
-		if (!buyInfoList || buyInfoList.length === 0) {
-			throw new NodeOperationError(
-				this.getNode(),
-				'购买应用列表不能为空',
-				{ itemIndex: index },
-			);
-		}
-
-		if (buyInfoList.length > 20) {
-			throw new NodeOperationError(
-				this.getNode(),
-				'购买应用列表最多20个',
-				{ itemIndex: index },
-			);
-		}
-
-		const formattedBuyInfoList: IDataObject[] = [];
-		for (const buyInfo of buyInfoList) {
-			const formattedBuyInfo: IDataObject = {
-				suiteid: buyInfo.suiteid,
-				edition_id: buyInfo.editionId,
-			};
-
-			if (buyInfo.appid !== undefined) {
-				formattedBuyInfo.appid = buyInfo.appid;
-			}
-
-			if (buyInfo.userCount !== undefined) {
-				formattedBuyInfo.user_count = buyInfo.userCount;
-			}
-
-			if (buyInfo.durationDays !== undefined) {
-				formattedBuyInfo.duration_days = buyInfo.durationDays;
-			}
-
-			if (buyInfo.takeEffectDate) {
-				formattedBuyInfo.take_effect_date = buyInfo.takeEffectDate;
-			}
-
-			if (buyInfo.discountInfo) {
-				const discountInfo = buyInfo.discountInfo as IDataObject;
-				const formattedDiscount: IDataObject = {
-					discount_type: discountInfo.discountType,
-					discount_remarks: discountInfo.discountRemarks,
-				};
-
-				if (discountInfo.discountAmount !== undefined) {
-					formattedDiscount.discount_amount = discountInfo.discountAmount;
-				}
-
-				if (discountInfo.discountRatio !== undefined) {
-					formattedDiscount.discount_ratio = discountInfo.discountRatio;
-				}
-
-				formattedBuyInfo.discount_info = formattedDiscount;
-			}
-
-			formattedBuyInfoList.push(formattedBuyInfo);
-		}
-
-		productList.third_app = {
-			order_type: orderType,
-			buy_info_list: formattedBuyInfoList,
-		};
-
-		if (notifyCustomCorp !== undefined) {
-			(productList.third_app as IDataObject).notify_custom_corp = notifyCustomCorp;
-		}
-	} else if (businessType === 2) {
-		if (!customCorpid) {
-			throw new NodeOperationError(
-				this.getNode(),
-				'代开发应用必须指定客户企业corpid',
-				{ itemIndex: index },
-			);
-		}
-
-		const customizedApp = this.getNodeParameter('customizedApp', index, {}) as IDataObject;
-		const orderType = customizedApp.orderType as number;
-		const buyInfoListCollection = customizedApp.buyInfoList as IDataObject | undefined;
-		const buyInfoList = buyInfoListCollection?.apps as IDataObject[] | undefined;
-		const notifyCustomCorp = customizedApp.notifyCustomCorp as number | undefined;
-
-		if (!buyInfoList || buyInfoList.length === 0) {
-			throw new NodeOperationError(
-				this.getNode(),
-				'购买应用列表不能为空',
-				{ itemIndex: index },
-			);
-		}
-
-		if (buyInfoList.length > 20) {
-			throw new NodeOperationError(
-				this.getNode(),
-				'购买应用列表最多20个',
-				{ itemIndex: index },
-			);
-		}
-
-		const formattedBuyInfoList: IDataObject[] = [];
-		for (const buyInfo of buyInfoList) {
-			const formattedBuyInfo: IDataObject = {
-				suiteid: buyInfo.suiteid,
-				total_price: buyInfo.totalPrice,
-			};
-
-			if (buyInfo.userCount !== undefined) {
-				formattedBuyInfo.user_count = buyInfo.userCount;
-			}
-
-			if (buyInfo.durationDays !== undefined) {
-				formattedBuyInfo.duration_days = buyInfo.durationDays;
-			}
-
-			if (buyInfo.takeEffectDate) {
-				formattedBuyInfo.take_effect_date = buyInfo.takeEffectDate;
-			}
-
-			formattedBuyInfoList.push(formattedBuyInfo);
-		}
-
-		productList.customized_app = {
-			order_type: orderType,
-			buy_info_list: formattedBuyInfoList,
-		};
-
-		if (notifyCustomCorp !== undefined) {
-			(productList.customized_app as IDataObject).notify_custom_corp = notifyCustomCorp;
-		}
-	} else if (businessType === 3) {
-		const promotionCase = this.getNodeParameter('promotionCase', index, {}) as IDataObject;
-		const orderType = promotionCase.orderType as number;
-		const caseId = promotionCase.caseId as string;
-		const promotionEditionName = promotionCase.promotionEditionName as string;
-		const buyInfoListCollection = promotionCase.buyInfoList as IDataObject | undefined;
-		const buyInfoList = buyInfoListCollection?.apps as IDataObject[] | undefined;
-		const notifyCustomCorp = promotionCase.notifyCustomCorp as number | undefined;
-
-		if (!caseId) {
-			throw new NodeOperationError(
-				this.getNode(),
-				'行业方案ID不能为空',
-				{ itemIndex: index },
-			);
-		}
-
-		if (!promotionEditionName) {
-			throw new NodeOperationError(
-				this.getNode(),
-				'行业方案版本名不能为空',
-				{ itemIndex: index },
-			);
-		}
-
-		const formattedBuyInfoList: IDataObject[] = [];
-		if (buyInfoList && buyInfoList.length > 0) {
-			if (buyInfoList.length > 20) {
-				throw new NodeOperationError(
-					this.getNode(),
-					'购买应用列表最多20个',
-					{ itemIndex: index },
-				);
-			}
-
-			for (const buyInfo of buyInfoList) {
-				const formattedBuyInfo: IDataObject = {
-					suiteid: buyInfo.suiteid,
-				};
-
-				if (buyInfo.appid !== undefined) {
-					formattedBuyInfo.appid = buyInfo.appid;
-				}
-
-				if (buyInfo.userCount !== undefined) {
-					formattedBuyInfo.user_count = buyInfo.userCount;
-				}
-
-				formattedBuyInfoList.push(formattedBuyInfo);
-			}
-		}
-
-		productList.promotion_case = {
-			order_type: orderType,
-			case_id: caseId,
-			promotion_edition_name: promotionEditionName,
-			buy_info_list: formattedBuyInfoList,
-		};
-
-		if (promotionCase.durationDays !== undefined) {
-			(productList.promotion_case as IDataObject).duration_days = promotionCase.durationDays;
-		}
-
-		if (promotionCase.takeEffectDate) {
-			(productList.promotion_case as IDataObject).take_effect_date = promotionCase.takeEffectDate;
-		}
-
-		if (notifyCustomCorp !== undefined) {
-			(productList.promotion_case as IDataObject).notify_custom_corp = notifyCustomCorp;
-		}
-	}
-
-	body.product_list = productList;
-
-	const nonceStr = randomBytes(16).toString('hex');
-	const ts = Math.floor(Date.now() / 1000);
-
-	body.nonce_str = nonceStr;
-	body.ts = ts;
-
-	const sig = generatePaytoolSignature(body, paytoolSecret);
-
-	body.sig = sig;
-
-	const options: IHttpRequestOptions = {
-		method: 'POST',
-		url: `${await getWeComBaseUrl.call(this)}/cgi-bin/paytool/open_order`,
-		qs: {
-			provider_access_token: providerAccessToken,
-		},
+	return await paytoolApiRequest(this, index, {
+		path: '/cgi-bin/paytool/open_order',
+		providerAccessToken: this.getNodeParameter('providerAccessToken', index),
+		paytoolSecret: this.getNodeParameter('paytoolSecret', index),
+		label: '创建收款订单',
 		body,
-		json: true,
-	};
-
-	try {
-		const response = (await this.helpers.httpRequest(options)) as IDataObject;
-
-		if (response.errcode !== undefined && response.errcode !== 0) {
-			throw new NodeOperationError(
-				this.getNode(),
-				`创建收款订单失败: ${response.errmsg} (错误码: ${response.errcode})`,
-				{ itemIndex: index },
-			);
-		}
-
-		return response;
-	} catch (error) {
-		const err = error as Error;
-		throw new NodeOperationError(
-			this.getNode(),
-			`创建收款订单失败: ${err.message}`,
-			{ itemIndex: index },
-		);
-	}
+	});
 }

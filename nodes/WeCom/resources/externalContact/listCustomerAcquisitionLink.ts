@@ -7,14 +7,14 @@ const showOnly = {
 
 export const listCustomerAcquisitionLinkDescription: INodeProperties[] = [
 	{
-		displayName: 'Cursor',
+		displayName: '分页游标',
 		name: 'cursor',
 		type: 'string',
 		default: '',
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '用于分页查询的游标，字符串类型，由上一次调用返回。用于分页查询的游标',
+		description: '由上一次调用返回；首次调用留空',
 	},
 	{
 		displayName: '每页数量',
@@ -22,12 +22,12 @@ export const listCustomerAcquisitionLinkDescription: INodeProperties[] = [
 		type: 'number',
 		typeOptions: {
 			minValue: 1,
+			maxValue: 100,
 		},
 		default: 50,
 		displayOptions: {
 			show: showOnly,
 		},
-		description: 'Max number of results to return。返回的最大记录数，整型，最大值1000',
+		description: '返回的最大记录数，范围 1–100',
 	},
 ];
-

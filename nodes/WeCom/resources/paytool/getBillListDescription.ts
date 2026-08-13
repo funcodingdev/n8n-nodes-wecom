@@ -41,7 +41,7 @@ export const getBillListDescription: INodeProperties[] = [
 		description: '流水记录结束时间（秒），起止间隔不能超过31天',
 	},
 	{
-		displayName: '授权企业Corpid',
+		displayName: '授权企业 CorpID',
 		name: 'authCorpid',
 		type: 'string',
 		required: true,
@@ -67,6 +67,7 @@ export const getBillListDescription: INodeProperties[] = [
 		typeOptions: {
 			minValue: 1,
 			maxValue: 1000,
+			numberStepSize: 1,
 		},
 		displayOptions: {
 			show: showOnly,

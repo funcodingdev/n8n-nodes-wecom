@@ -3,7 +3,7 @@ import type { ExtraHttpOp } from '../../shared/extraHttpOp';
 import { extraHttpOpOptions } from '../../shared/extraHttpOp';
 
 export const wefileExtraHttpOps: ExtraHttpOp[] = [
-	{ id: 'wedriveGetFilePermission', name: '[微盘] 获取文件权限', action: '获取微盘文件权限', description: '获取微盘文件权限', path: '/cgi-bin/wedrive/get_file_permission', method: 'POST' },
+	{ id: 'wedriveGetFilePermission', name: '[微盘] 获取文件权限（JSON 兼容入口）', action: '通过 JSON 获取微盘文件权限', description: '与标准表单入口调用同一官方接口，支持合并额外 JSON 字段', path: '/cgi-bin/wedrive/get_file_permission', method: 'POST' },
 ];
 
 export const wefileExtraHttpOpsById: Record<string, ExtraHttpOp> = Object.fromEntries(

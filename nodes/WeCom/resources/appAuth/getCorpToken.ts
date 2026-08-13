@@ -23,9 +23,11 @@ export async function getCorpToken(
 	this: IExecuteFunctions,
 	index: number,
 ): Promise<IDataObject> {
-	const suiteAccessToken = this.getNodeParameter('suiteAccessToken', index) as string;
-	const authCorpid = this.getNodeParameter('authCorpid', index) as string;
-	const permanentCode = this.getNodeParameter('permanentCode', index) as string;
+	const suiteAccessToken = String(
+		this.getNodeParameter('suiteAccessToken', index) ?? '',
+	).trim();
+	const authCorpid = String(this.getNodeParameter('authCorpid', index) ?? '').trim();
+	const permanentCode = String(this.getNodeParameter('permanentCode', index) ?? '').trim();
 
 	if (!suiteAccessToken) {
 		throw new NodeOperationError(
@@ -78,6 +80,7 @@ export async function getCorpToken(
 
 		return response;
 	} catch (error) {
+		if (error instanceof NodeOperationError) throw error;
 		const err = error as Error;
 		throw new NodeOperationError(
 			this.getNode(),

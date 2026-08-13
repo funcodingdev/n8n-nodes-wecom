@@ -43,7 +43,7 @@ export function buildXml(params: Record<string, string | number>): string {
 	const parts = ['<xml>'];
 	for (const [k, v] of Object.entries(params)) {
 		if (v === undefined || v === null || v === '') continue;
-		const s = String(v);
+		const s = String(v).replace(/]]>/g, ']]]]><![CDATA[>');
 		// 数字不套 CDATA 也可；统一 CDATA 更安全
 		if (/^\d+$/.test(s) && k !== 'nonce_str' && k !== 'mch_billno' && k !== 'partner_trade_no') {
 			parts.push(`<${k}>${s}</${k}>`);
@@ -106,4 +106,3 @@ export const URL_PAY_TO_EMPLOYEE =
 	'https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/paywwsptrans2pocket';
 export const URL_QUERY_PAY =
 	'https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/querywwsptrans2pocket';
-

@@ -1,6 +1,7 @@
 import type { IExecuteFunctions, IDataObject, IHttpRequestOptions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { getWeComBaseUrl } from '../../shared/transport';
+import { fail, optionalText, requireText } from './utils';
 
 /**
  * 获取注册码
@@ -20,29 +21,21 @@ export async function getRegisterCode(
 	this: IExecuteFunctions,
 	index: number,
 ): Promise<IDataObject> {
-	const providerAccessToken = this.getNodeParameter('providerAccessToken', index) as string;
-	const templateId = this.getNodeParameter('templateId', index) as string;
-	const corpName = this.getNodeParameter('corpName', index) as string | undefined;
-	const adminName = this.getNodeParameter('adminName', index) as string | undefined;
-	const adminMobile = this.getNodeParameter('adminMobile', index) as string | undefined;
-	const state = this.getNodeParameter('state', index) as string | undefined;
-	const followUser = this.getNodeParameter('followUser', index) as string | undefined;
-
-	if (!providerAccessToken) {
-		throw new NodeOperationError(
-			this.getNode(),
-			'Provider Access Token不能为空',
-			{ itemIndex: index },
-		);
-	}
-
-	if (!templateId) {
-		throw new NodeOperationError(
-			this.getNode(),
-			'推广包ID不能为空',
-			{ itemIndex: index },
-		);
-	}
+	const providerAccessToken = requireText(
+		this,
+		this.getNodeParameter('providerAccessToken', index),
+		'Provider Access Token',
+		index,
+		2048,
+	);
+	const templateId = requireText(this, this.getNodeParameter('templateId', index), '推广包 ID', index, 128);
+	const corpName = optionalText(this, this.getNodeParameter('corpName', index, ''), '企业名称', index, 256);
+	const adminName = optionalText(this, this.getNodeParameter('adminName', index, ''), '管理员姓名', index, 64);
+	const adminMobile = optionalText(this, this.getNodeParameter('adminMobile', index, ''), '管理员手机号', index, 20);
+	if (adminMobile && !/^\d{11}$/.test(adminMobile)) fail(this, '管理员手机号必须是 11 位数字', index);
+	const state = optionalText(this, this.getNodeParameter('state', index, ''), 'State 值', index, 128);
+	if (state && !/^[A-Za-z0-9]+$/.test(state)) fail(this, 'State 值只能包含英文字母和数字', index);
+	const followUser = optionalText(this, this.getNodeParameter('followUser', index, ''), '跟进人 UserID', index, 64);
 
 	const body: IDataObject = {
 		template_id: templateId,
@@ -91,6 +84,7 @@ export async function getRegisterCode(
 
 		return response;
 	} catch (error) {
+		if (error instanceof NodeOperationError) throw error;
 		const err = error as Error;
 		throw new NodeOperationError(
 			this.getNode(),

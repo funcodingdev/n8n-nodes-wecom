@@ -34,14 +34,20 @@ export const getGroupChatStatisticDescription: INodeProperties[] = [
 		description: '结束日期 day_end_time；空则默认同起始日期；最大跨度 30 天',
 	},
 	{
-		displayName: '群主UserID列表（必填）',
+		displayName: '群主 UserID 列表',
 		name: 'owner_userid_list',
 		type: 'string',
-		required: true,
 		default: '',
 		displayOptions: { show: showOnly },
-		description: '群主ID列表，用逗号分隔，最多100个。如果不指定，超过1000人会报错81017',
+		description: '支持逗号、竖线或换行分隔，自动去重，最多 100 个。留空查询应用可见范围内的全部群主',
 		placeholder: 'zhangsan,lisi',
+	},
+	{
+		displayName: '留空查询全部群主时，如果应用可见范围超过 1000 人，企业微信会返回错误码 81017。建议填写群主列表以控制结果范围。',
+		name: 'allOwnersNotice',
+		type: 'notice',
+		default: '',
+		displayOptions: { show: showOnly },
 	},
 	// 以下参数仅在"按群主聚合"时显示
 	{
@@ -70,6 +76,7 @@ export const getGroupChatStatisticDescription: INodeProperties[] = [
 		displayName: '偏移量',
 		name: 'offset',
 		type: 'number',
+		typeOptions: { minValue: 0 },
 		default: 0,
 		displayOptions: { show: { ...showOnly, statistic_type: ['by_owner'] } },
 		description: '分页，偏移量，默认为0',

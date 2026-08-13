@@ -7,7 +7,7 @@ const showOnly = {
 
 export const createStudentDescription: INodeProperties[] = [
 	{
-		displayName: '学生UserID',
+		displayName: '学生 UserID',
 		name: 'student_userid',
 		type: 'string',
 		required: true,
@@ -15,7 +15,7 @@ export const createStudentDescription: INodeProperties[] = [
 			show: showOnly,
 		},
 		default: '',
-		description: '学生UserID，学校内必须唯一，长度为1~64个字节',
+		description: '学校内唯一，1–64 个 UTF-8 字节；必须以数字或字母开头，只能包含数字、字母、下划线、连字符、@ 和点',
 	},
 	{
 		displayName: '学生姓名',
@@ -29,7 +29,7 @@ export const createStudentDescription: INodeProperties[] = [
 		description: '学生姓名，长度为1~32个字符',
 	},
 	{
-		displayName: '班级ID列表',
+		displayName: '班级 ID 列表',
 		name: 'department',
 		type: 'string',
 		required: true,
@@ -37,7 +37,9 @@ export const createStudentDescription: INodeProperties[] = [
 			show: showOnly,
 		},
 		default: '',
-		description: '学生所在的班级ID列表，不超过20个，用逗号分隔',
+		placeholder: '1,2',
+		typeOptions: { rows: 2 },
+		description: '学生所在班级，最多 20 个正整数；支持逗号、中文逗号、竖线或换行分隔',
 	},
 	{
 		displayName: '学生手机号',

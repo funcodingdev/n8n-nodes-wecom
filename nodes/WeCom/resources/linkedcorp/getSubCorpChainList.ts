@@ -1,21 +1,14 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-const showOnlyForGetSubChain = {
-	resource: ['linkedcorp'],
-	operation: ['getSubCorpChainList'],
-};
+const showOnly = { resource: ['linkedcorp'], operation: ['getSubCorpChainList'] };
 
 export const getSubCorpChainListDescription: INodeProperties[] = [
 	{
-		displayName: '下级企业CorpID',
+		displayName: '下级企业 CorpID',
 		name: 'corpid',
 		type: 'string',
-		required: true,
-		displayOptions: {
-			show: showOnlyForGetSubChain,
-		},
+		displayOptions: { show: showOnly },
 		default: '',
-		description: '下级企业的corpid。',
+		description: '可选；不填时返回当前应用可见范围内企业加入的上下游',
 	},
 ];
-

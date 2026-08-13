@@ -7,13 +7,13 @@ const showOnly = {
 
 export const getCustomerAcquisitionStatisticDescription: INodeProperties[] = [
 	{
-		displayName: '获客链接ID',
+		displayName: '获客链接 ID',
 		name: 'link_id',
 		type: 'string',
 		required: true,
 		default: '',
 		displayOptions: { show: showOnly },
-		description: '获客链接的ID',
+		description: '获客链接的 ID',
 		placeholder: 'caxxxxxxx',
 	},
 	{
@@ -23,7 +23,7 @@ export const getCustomerAcquisitionStatisticDescription: INodeProperties[] = [
 		required: true,
 		default: '',
 		displayOptions: { show: showOnly },
-		description: '统计起始时间 start_time（Unix 秒）；仅可查询最近 180 天',
+		description: '按自然日统计，查询区间为闭区间；仅可查询最近 180 天',
 	},
 	{
 		displayName: '统计结束时间',
@@ -32,6 +32,6 @@ export const getCustomerAcquisitionStatisticDescription: INodeProperties[] = [
 		required: true,
 		default: '',
 		displayOptions: { show: showOnly },
-		description: '统计结束时间 end_time（Unix 秒）；与起始相差不可超过 30 天',
+		description: '按自然日统计；不得早于起始时间，与起始时间相差不可超过 30 天',
 	},
 ];

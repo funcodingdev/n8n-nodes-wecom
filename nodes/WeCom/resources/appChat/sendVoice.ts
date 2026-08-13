@@ -21,7 +21,7 @@ export const sendVoiceDescription: INodeProperties[] = [
 	},
 	{
 		displayName: 'Media ID',
-		name: 'media_ID',
+		name: 'media_id',
 		type: 'string',
 		displayOptions: {
 			show: showOnlyForSendVoice,

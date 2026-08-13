@@ -25,7 +25,8 @@ export const setVacationQuotaDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForSetVacationQuota,
 		},
-		default: 0,
+		default: 1,
+		typeOptions: { minValue: 1 },
 		description: 'vacation_id，可通过获取假期配置接口获取',
 	},
 	{
@@ -37,8 +38,8 @@ export const setVacationQuotaDescription: INodeProperties[] = [
 			show: showOnlyForSetVacationQuota,
 		},
 		default: 0,
-		description:
-			'leftduration，单位秒；按小时请假须为 360 的倍数，按天请假须为 8640 的倍数',
+		typeOptions: { minValue: 0, maxValue: 86400000 },
+		description: 'leftduration，单位秒；按小时请假须为 360 的倍数，按天请假须为 8640 的倍数',
 	},
 	{
 		displayName: '假期时间刻度',
@@ -66,4 +67,3 @@ export const setVacationQuotaDescription: INodeProperties[] = [
 		description: '修改记录备注，不超过 200 字符',
 	},
 ];
-

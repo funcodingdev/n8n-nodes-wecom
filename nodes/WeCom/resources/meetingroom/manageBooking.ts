@@ -21,30 +21,47 @@ export const manageBookingDescription: INodeProperties[] = [
 		description:
 			'会议室预定管理。<a href="https://developer.work.weixin.qq.com/document/path/93620" target="_blank">官方文档</a>',
 	},
-	// 查询预定信息
+	{
+		displayName: '按会议室筛选',
+		name: 'filter_by_meetingroom',
+		type: 'boolean',
+		displayOptions: { show: { ...showOnly, action: ['list'] } },
+		default: false,
+	},
 	{
 		displayName: '会议室ID',
 		name: 'meetingroom_id',
 		type: 'number',
+		required: true,
+		displayOptions: {
+			show: { ...showOnly, action: ['list'], filter_by_meetingroom: [true] },
+		},
+		default: 1,
+		typeOptions: { minValue: 1 },
+	},
+	{
+		displayName: '指定查询时间',
+		name: 'filter_by_time',
+		type: 'boolean',
 		displayOptions: { show: { ...showOnly, action: ['list'] } },
-		default: 0,
-		description: '会议室 id（可选，不填则按位置/时间范围查询）',
+		default: false,
+		description: '接口不支持跨天查询；关闭时使用企业微信默认时间范围',
 	},
 	{
-		displayName: '开始时间',
-		name: 'start_time',
+		displayName: '查询开始时间',
+		name: 'list_start_time',
 		type: 'dateTime',
-		displayOptions: { show: { ...showOnly, action: ['list', 'book'] } },
+		required: true,
+		displayOptions: { show: { ...showOnly, action: ['list'], filter_by_time: [true] } },
 		default: '',
-		description: 'start_time，Unix 秒；list 时可选，book 时必填',
 	},
 	{
-		displayName: '结束时间',
-		name: 'end_time',
+		displayName: '查询结束时间',
+		name: 'list_end_time',
 		type: 'dateTime',
-		displayOptions: { show: { ...showOnly, action: ['list', 'book'] } },
+		required: true,
+		displayOptions: { show: { ...showOnly, action: ['list'], filter_by_time: [true] } },
 		default: '',
-		description: 'end_time，Unix 秒；list 时可选，book 时必填',
 	},
 	{
 		displayName: '城市',
@@ -52,7 +69,7 @@ export const manageBookingDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: { show: { ...showOnly, action: ['list'] } },
 		default: '',
-		description: '会议室所在城市（可选）',
+		description: '填写楼宇或楼层时必须填写',
 	},
 	{
 		displayName: '楼宇',
@@ -60,7 +77,7 @@ export const manageBookingDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: { show: { ...showOnly, action: ['list'] } },
 		default: '',
-		description: '会议室所在楼宇（可选，需同时填城市）',
+		description: '填写楼层时必须填写',
 	},
 	{
 		displayName: '楼层',
@@ -68,9 +85,7 @@ export const manageBookingDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: { show: { ...showOnly, action: ['list'] } },
 		default: '',
-		description: '会议室所在楼层（可选）',
 	},
-	// 按预定ID查询 / 取消
 	{
 		displayName: '预定ID',
 		name: 'booking_id',
@@ -78,7 +93,7 @@ export const manageBookingDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { ...showOnly, action: ['get', 'cancel'] } },
 		default: '',
-		description: '会议室预定 id（booking_id）',
+		description: '会议室预定 ID（booking_id）',
 	},
 	{
 		displayName: '会议室ID',
@@ -86,10 +101,9 @@ export const manageBookingDescription: INodeProperties[] = [
 		type: 'number',
 		required: true,
 		displayOptions: { show: { ...showOnly, action: ['get'] } },
-		default: 0,
-		description: '会议室 id（bookinfo/get 必填）',
+		default: 1,
+		typeOptions: { minValue: 1 },
 	},
-	// 预定会议室
 	{
 		displayName: '会议室ID',
 		name: 'meetingroom_id_book',
@@ -98,8 +112,25 @@ export const manageBookingDescription: INodeProperties[] = [
 		displayOptions: {
 			show: { ...showOnly, action: ['book', 'bookBySchedule', 'bookByMeeting'] },
 		},
-		default: 0,
-		description: '要预定的会议室 id',
+		default: 1,
+		typeOptions: { minValue: 1 },
+	},
+	{
+		displayName: '开始时间',
+		name: 'book_start_time',
+		type: 'dateTime',
+		required: true,
+		displayOptions: { show: { ...showOnly, action: ['book'] } },
+		default: '',
+		description: '最小预定时长为 30 分钟，企业微信会按 30 分钟取整',
+	},
+	{
+		displayName: '结束时间',
+		name: 'book_end_time',
+		type: 'dateTime',
+		required: true,
+		displayOptions: { show: { ...showOnly, action: ['book'] } },
+		default: '',
 	},
 	{
 		displayName: '会议主题',
@@ -117,17 +148,16 @@ export const manageBookingDescription: INodeProperties[] = [
 			show: { ...showOnly, action: ['book', 'bookBySchedule', 'bookByMeeting'] },
 		},
 		default: '',
-		description: '预定人的 userid',
+		description: '预定人的 UserID',
 	},
 	{
-		displayName: '参会人员',
+		displayName: '参会人员UserID',
 		name: 'attendees',
 		type: 'string',
 		displayOptions: { show: { ...showOnly, action: ['book'] } },
 		default: '',
-		description: '参会人员 userid 列表，多个用逗号分隔',
+		description: '支持逗号、中文逗号、竖线或换行分隔，将自动去空和去重',
 	},
-	// 通过日程预定
 	{
 		displayName: '日程ID',
 		name: 'schedule_id',
@@ -135,9 +165,8 @@ export const manageBookingDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { ...showOnly, action: ['bookBySchedule'] } },
 		default: '',
-		description: '日程 id，仅可使用同应用创建的日程',
+		description: '仅可使用同应用创建的日程',
 	},
-	// 通过会议预定
 	{
 		displayName: '会议ID',
 		name: 'meetingid',
@@ -145,9 +174,8 @@ export const manageBookingDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { ...showOnly, action: ['bookByMeeting'] } },
 		default: '',
-		description: '会议 id（meetingid），仅可使用同应用创建的会议',
+		description: '仅可使用同应用创建的会议',
 	},
-	// 取消预定
 	{
 		displayName: '保留日程',
 		name: 'keep_schedule',
@@ -158,7 +186,7 @@ export const manageBookingDescription: INodeProperties[] = [
 			{ name: '保留日程', value: 1 },
 		],
 		default: 0,
-		description: '是否保留日程（仅对非重复日程有效）',
+		description: '是否保留日程；仅对非重复日程有效',
 	},
 	{
 		displayName: '取消日期',
@@ -166,6 +194,6 @@ export const manageBookingDescription: INodeProperties[] = [
 		type: 'dateTime',
 		displayOptions: { show: { ...showOnly, action: ['cancel'] } },
 		default: '',
-		description: '重复日程时，取消对应日期当天的预定（当天 0 点时间戳）；空表示取消全部',
+		description: '重复预定时指定要取消的日期；留空表示取消全部重复预定',
 	},
 ];

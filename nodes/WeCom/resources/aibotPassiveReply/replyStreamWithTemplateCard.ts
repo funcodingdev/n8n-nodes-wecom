@@ -9,16 +9,15 @@ const showOnlyForReplyStreamWithTemplateCard = {
 
 export const replyStreamWithTemplateCardDescription: INodeProperties[] = [
 	{
-		displayName: '流式消息ID',
+		displayName: '流式消息 ID',
 		name: 'stream_id',
 		type: 'string',
 		displayOptions: {
 			show: showOnlyForReplyStreamWithTemplateCard,
 		},
 		default: '',
-		placeholder: 'STREAMID',
-		required: true,
-		description: '自定义唯一 ID，首次回复必填；后续回调据此获取最新流式消息',
+		placeholder: '例如：stream_weather_001',
+		description: '首次回复必填；流式刷新回调可留空并自动沿用回调中的 stream.id',
 	},
 	{
 		displayName: '是否结束',
@@ -42,7 +41,7 @@ export const replyStreamWithTemplateCardDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: '**广州**今日天气：29度，大部分多云',
-		description: '流式消息内容，最长 20480 字节，utf-8，支持 markdown',
+		description: '流式消息内容，最长 20480 字节，必须是 UTF-8 编码，支持 Markdown',
 	},
 	{
 		displayName: '图片列表',
@@ -66,40 +65,40 @@ export const replyStreamWithTemplateCardDescription: INodeProperties[] = [
 				displayName: '图片',
 				values: [
 					{
-						displayName: 'Base64编码',
+						displayName: 'Base64 编码',
 						name: 'base64',
 						type: 'string',
 						typeOptions: {
 							rows: 3,
 						},
 						default: '',
-						placeholder: 'BASE64',
+						placeholder: 'iVBORw0KGgoAAAANSUhEUgAA...',
 						required: true,
-						description: '图片 base64（编码前最大 10M，JPG/PNG）',
+						description: '图片的 Base64 编码；原图最大 10 MB，仅支持 JPG、PNG',
 					},
 					{
-						displayName: 'MD5值',
+						displayName: 'MD5 值',
 						name: 'md5',
 						type: 'string',
 						default: '',
-						placeholder: 'MD5',
+						placeholder: 'd41d8cd98f00b204e9800998ecf8427e',
 						required: true,
-						description: '图片内容（base64 编码前）的 md5',
+						description: '原始图片内容的 32 位十六进制 MD5 值',
 					},
 				],
 			},
 		],
 	},
 	{
-		displayName: '流式消息反馈ID',
+		displayName: '流式消息反馈 ID',
 		name: 'stream_feedback_id',
 		type: 'string',
 		displayOptions: {
 			show: showOnlyForReplyStreamWithTemplateCard,
 		},
 		default: '',
-		placeholder: 'FEEDBACKID',
-		description: '可选。首次回复非空时，用户反馈会触发回调；最长 256 字节 utf-8',
+		placeholder: '例如：feedback_stream_001',
+		description: '仅在首次回复时设置；非空时用户反馈会触发回调，最长 256 字节（UTF-8）',
 	},
 	{
 		displayName: '附带模板卡片',
@@ -116,7 +115,7 @@ export const replyStreamWithTemplateCardDescription: INodeProperties[] = [
 		attach_template_card: [true],
 	}),
 	{
-		displayName: '模板卡片反馈ID',
+		displayName: '模板卡片反馈 ID',
 		name: 'template_card_feedback_id',
 		type: 'string',
 		displayOptions: {
@@ -126,6 +125,6 @@ export const replyStreamWithTemplateCardDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '模板卡片 feedback.id',
+		description: '非空时用户反馈会触发回调，最长 256 字节（UTF-8）',
 	},
 ];

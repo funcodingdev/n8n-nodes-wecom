@@ -1,3 +1,4 @@
+import { randomBytes } from 'crypto';
 import type { IExecuteFunctions, IDataObject } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { getAccessToken, getWeComBaseUrl } from './transport';
@@ -18,6 +19,8 @@ export async function weComMultipartUpload(
 		formFieldName?: string;
 		/** 覆盖文件名 */
 		filename?: string;
+		/** 覆盖 Content-Type（已通过调用方格式校验时使用） */
+		contentType?: string;
 		minBytes?: number;
 		maxBytes?: number;
 	},
@@ -29,14 +32,19 @@ export async function weComMultipartUpload(
 		binaryPropertyName,
 		formFieldName = 'media',
 		filename,
+		contentType: contentTypeOverride,
 		minBytes = 6,
 		maxBytes,
 	} = options;
 
 	const binaryData = this.helpers.assertBinaryData(itemIndex, binaryPropertyName);
 	const dataBuffer = await this.helpers.getBinaryDataBuffer(itemIndex, binaryPropertyName);
-	const fileName = filename || binaryData.fileName || 'file';
-	const contentType = binaryData.mimeType || 'application/octet-stream';
+	const fileName = (filename || binaryData.fileName || 'file').replace(/[\r\n"\\]/g, '_');
+	const rawContentType = contentTypeOverride || binaryData.mimeType || 'application/octet-stream';
+	const contentType = /^[\w.+-]+\/[\w.+-]+$/.test(rawContentType)
+		? rawContentType
+		: 'application/octet-stream';
+	const safeFormFieldName = formFieldName.replace(/[^\w.-]/g, '_');
 	const fileLength = dataBuffer.length;
 
 	if (fileLength < minBytes) {
@@ -57,11 +65,11 @@ export async function weComMultipartUpload(
 	const accessToken = await getAccessToken.call(this);
 	const baseUrl = await getWeComBaseUrl.call(this);
 
-	const boundary = '----WebKitFormBoundary' + Math.random().toString(36).substring(2);
+	const boundary = `----n8nWeComBoundary${randomBytes(18).toString('hex')}`;
 	const CRLF = '\r\n';
 	const header =
 		`--${boundary}${CRLF}` +
-		`Content-Disposition: form-data; name="${formFieldName}";filename="${fileName}"; filelength=${fileLength}${CRLF}` +
+		`Content-Disposition: form-data; name="${safeFormFieldName}"; filename="${fileName}"; filelength=${fileLength}${CRLF}` +
 		`Content-Type: ${contentType}${CRLF}${CRLF}`;
 	const footer = `${CRLF}--${boundary}--${CRLF}`;
 	const bodyBuffer = Buffer.concat([
@@ -70,17 +78,13 @@ export async function weComMultipartUpload(
 		Buffer.from(footer, 'utf-8'),
 	]);
 
-	const query = new URLSearchParams({
-		access_token: accessToken,
-		...Object.fromEntries(
-			Object.entries(qs).map(([k, v]) => [k, String(v ?? '')]),
-		),
-	});
-	const uploadUrl = `${baseUrl}${path}?${query.toString()}`;
-
 	const response = (await this.helpers.httpRequest({
 		method: 'POST',
-		url: uploadUrl,
+		url: `${baseUrl}${path}`,
+		qs: {
+			access_token: accessToken,
+			...qs,
+		},
 		body: bodyBuffer,
 		headers: {
 			'Content-Type': `multipart/form-data; boundary=${boundary}`,

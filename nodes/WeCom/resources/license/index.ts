@@ -189,6 +189,36 @@ export const licenseDescription: INodeProperties[] = [
 			'查询服务商充值账户余额（单位：分）。仅需 Provider Access Token，无其他业务参数。',
 	},
 	{
+		displayName: '支付方式提示',
+		name: 'licensePaymentNotice',
+		type: 'notice',
+		displayOptions: {
+			show: { resource: ['license'], operation: ['submitPayJob'] },
+		},
+		default: '',
+		description: '提交余额支付任务成功后，订单将无法再变更支付方式；请先核对订单 ID 和充值账户余额。',
+	},
+	{
+		displayName: '取消提示',
+		name: 'licenseCancelNotice',
+		type: 'notice',
+		displayOptions: {
+			show: { resource: ['license'], operation: ['cancelOrder'] },
+		},
+		default: '',
+		description: '取消操作会立即关闭符合条件的未支付订单，请确认订单 ID 和订单类型。',
+	},
+	{
+		displayName: '接口状态',
+		name: 'licensePolicyExpiredNotice',
+		type: 'notice',
+		displayOptions: {
+			show: { resource: ['license'], operation: ['supportPolicyQuery'] },
+		},
+		default: '',
+		description: '企业微信文档注明：民生行业接口许可优惠政策已于 2023 年 3 月 31 日到期，当前接口可能不再支持查询。',
+	},
+	{
 		displayName: 'Provider Access Token',
 		name: 'providerAccessToken',
 		type: 'string',
@@ -244,6 +274,7 @@ export const licenseDescription: INodeProperties[] = [
 		},
 		default: 0,
 		description: '最多1000000个。若企业为服务商测试企业，最多购买1000个。基础账号跟互通账号不能同时为0',
+		typeOptions: { minValue: 0, maxValue: 1000000, numberStepSize: 1 },
 	},
 	{
 		displayName: '互通账号个数',
@@ -257,6 +288,7 @@ export const licenseDescription: INodeProperties[] = [
 		},
 		default: 0,
 		description: '最多1000000个。若企业为服务商测试企业，最多购买1000个。基础账号跟互通账号不能同时为0',
+		typeOptions: { minValue: 0, maxValue: 1000000, numberStepSize: 1 },
 	},
 	{
 		displayName: '购买月数',
@@ -270,6 +302,7 @@ export const licenseDescription: INodeProperties[] = [
 		},
 		default: 1,
 		description: '购买的月数。每个月按照31天计算。总购买时长为(months*31+days)天，最少购买1个月(31天)，最多购买60个月(1860天)。若企业为服务商测试企业，只支持购买1个月',
+		typeOptions: { minValue: 0, maxValue: 60, numberStepSize: 1 },
 	},
 	{
 		displayName: '购买天数（可选）',
@@ -283,6 +316,7 @@ export const licenseDescription: INodeProperties[] = [
 		},
 		default: 0,
 		description: '总购买时长为(months*31+days)天，最少购买1个月(31天)，最多购买60个月(1860天)。若企业为服务商测试企业，不支持指定天购买',
+		typeOptions: { minValue: 0, maxValue: 1860, numberStepSize: 1 },
 	},
 	{
 		displayName: '企业ID',
@@ -299,6 +333,20 @@ export const licenseDescription: INodeProperties[] = [
 		description: '待续期接口许可的企业ID',
 	},
 	{
+		displayName: '续期账号输入方式',
+		name: 'renewInputMode',
+		type: 'options',
+		displayOptions: {
+			show: { resource: ['license'], operation: ['createRenewOrderJob'] },
+		},
+		options: [
+			{ name: '逐项填写', value: 'form' },
+			{ name: 'JSON 数组', value: 'json' },
+		],
+		default: 'form',
+		description: '少量账号可逐项填写；大批量账号可直接提供 JSON 数组',
+	},
+	{
 		displayName: '续期账号列表',
 		name: 'accountCollection',
 		type: 'fixedCollection',
@@ -307,6 +355,7 @@ export const licenseDescription: INodeProperties[] = [
 			show: {
 				resource: ['license'],
 				operation: ['createRenewOrderJob'],
+				renewInputMode: ['form'],
 			},
 		},
 		default: {},
@@ -349,6 +398,21 @@ export const licenseDescription: INodeProperties[] = [
 				],
 			},
 		],
+	},
+	{
+		displayName: '续期账号列表（JSON）',
+		name: 'accountListJson',
+		type: 'json',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['license'],
+				operation: ['createRenewOrderJob'],
+				renewInputMode: ['json'],
+			},
+		},
+		default: '[{"userid":"USERID","type":1}]',
+		description: '1–1000 项的 JSON 数组。每项包含 userid 和 type（1 为基础账号，2 为互通账号）',
 	},
 	{
 		displayName: '任务ID（可选）',
@@ -430,6 +494,7 @@ export const licenseDescription: INodeProperties[] = [
 		},
 		default: 1,
 		description: '每个月按照31天计算。最多购买60个月。若企业为服务商测试企业，每次续期只能续期1个月',
+		typeOptions: { minValue: 1, maxValue: 60, numberStepSize: 1 },
 	},
 	{
 		displayName: '新到期时间',
@@ -512,6 +577,7 @@ export const licenseDescription: INodeProperties[] = [
 		typeOptions: {
 			minValue: 1,
 			maxValue: 1000,
+			numberStepSize: 1,
 		},
 	},
 	{
@@ -570,6 +636,7 @@ export const licenseDescription: INodeProperties[] = [
 		typeOptions: {
 			minValue: 1,
 			maxValue: 1000,
+			numberStepSize: 1,
 		},
 	},
 	{
@@ -615,6 +682,20 @@ export const licenseDescription: INodeProperties[] = [
 		description: '如果是多企业新购订单时不填，否则必填',
 	},
 	{
+		displayName: '企业新购信息输入方式',
+		name: 'buyListInputMode',
+		type: 'options',
+		displayOptions: {
+			show: { resource: ['license'], operation: ['createNewOrderJob'] },
+		},
+		options: [
+			{ name: '逐项填写', value: 'form' },
+			{ name: 'JSON 数组', value: 'json' },
+		],
+		default: 'form',
+		description: '少量企业可逐项填写；也可直接提供包含购买信息的 JSON 数组',
+	},
+	{
 		displayName: '企业新购信息列表',
 		name: 'buyListCollection',
 		type: 'fixedCollection',
@@ -623,6 +704,7 @@ export const licenseDescription: INodeProperties[] = [
 			show: {
 				resource: ['license'],
 				operation: ['createNewOrderJob'],
+				buyListInputMode: ['form'],
 			},
 		},
 		default: {},
@@ -646,12 +728,14 @@ export const licenseDescription: INodeProperties[] = [
 						name: 'baseCount',
 						type: 'number',
 						default: 0,
+						typeOptions: { minValue: 0, maxValue: 1000000, numberStepSize: 1 },
 					},
 					{
 						displayName: '互通账号个数（可选）',
 						name: 'externalContactCount',
 						type: 'number',
 						default: 0,
+						typeOptions: { minValue: 0, maxValue: 1000000, numberStepSize: 1 },
 					},
 					{
 						displayName: '购买月数（可选）',
@@ -659,6 +743,7 @@ export const licenseDescription: INodeProperties[] = [
 						type: 'number',
 						default: 1,
 						description: '购买的月数',
+						typeOptions: { minValue: 0, maxValue: 60, numberStepSize: 1 },
 					},
 					{
 						displayName: '购买天数（可选）',
@@ -666,6 +751,7 @@ export const licenseDescription: INodeProperties[] = [
 						type: 'number',
 						default: 0,
 						description: '购买的天数',
+						typeOptions: { minValue: 0, maxValue: 1860, numberStepSize: 1 },
 					},
 					{
 						displayName: '是否开启自动激活（可选）',
@@ -686,6 +772,21 @@ export const licenseDescription: INodeProperties[] = [
 				],
 			},
 		],
+	},
+	{
+		displayName: '企业新购信息列表（JSON）',
+		name: 'buyListJson',
+		type: 'json',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['license'],
+				operation: ['createNewOrderJob'],
+				buyListInputMode: ['json'],
+			},
+		},
+		default: '[{"corpid":"CORPID","base_count":1,"external_contact_count":0,"months":1,"days":0,"auto_active_status":1}]',
+		description: '1–10 项的 JSON 数组。支持 base_count、external_contact_count、months、days 和 auto_active_status 字段',
 	},
 	{
 		displayName: '任务ID（可选）',
@@ -784,6 +885,7 @@ export const licenseDescription: INodeProperties[] = [
 		typeOptions: {
 			minValue: 1,
 			maxValue: 1000,
+			numberStepSize: 1,
 		},
 	},
 	{
@@ -885,6 +987,20 @@ export const licenseDescription: INodeProperties[] = [
 		description: '激活码所属企业ID',
 	},
 	{
+		displayName: '激活账号输入方式',
+		name: 'activeListInputMode',
+		type: 'options',
+		displayOptions: {
+			show: { resource: ['license'], operation: ['batchActiveAccount'] },
+		},
+		options: [
+			{ name: '逐项填写', value: 'form' },
+			{ name: 'JSON 数组', value: 'json' },
+		],
+		default: 'form',
+		description: '少量账号可逐项填写；大批量账号可直接提供 JSON 数组',
+	},
+	{
 		displayName: '激活账号列表',
 		name: 'activeListCollection',
 		type: 'fixedCollection',
@@ -893,6 +1009,7 @@ export const licenseDescription: INodeProperties[] = [
 			show: {
 				resource: ['license'],
 				operation: ['batchActiveAccount'],
+				activeListInputMode: ['form'],
 			},
 		},
 		default: {},
@@ -922,6 +1039,21 @@ export const licenseDescription: INodeProperties[] = [
 				],
 			},
 		],
+	},
+	{
+		displayName: '激活账号列表（JSON）',
+		name: 'activeListJson',
+		type: 'json',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['license'],
+				operation: ['batchActiveAccount'],
+				activeListInputMode: ['json'],
+			},
+		},
+		default: '[{"active_code":"ACTIVE_CODE","userid":"USERID"}]',
+		description: '1–1000 项的 JSON 数组。每项包含 active_code 和 userid',
 	},
 	{
 		displayName: '账号类型',
@@ -1031,8 +1163,8 @@ export const licenseDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '激活码列表，最多不超过1000个，多个激活码用逗号分隔',
-		placeholder: '例如: code1,code2,code3',
+		description: '激活码列表，最多 1000 个；支持使用逗号、竖线或换行分隔，重复值会自动去除',
+		placeholder: '例如：code1,code2,code3',
 	},
 	{
 		displayName: '企业ID',
@@ -1076,6 +1208,7 @@ export const licenseDescription: INodeProperties[] = [
 		typeOptions: {
 			minValue: 1,
 			maxValue: 1000,
+			numberStepSize: 1,
 		},
 	},
 	{
@@ -1121,6 +1254,20 @@ export const licenseDescription: INodeProperties[] = [
 		description: '待绑定激活的成员所属企业corpid。转移成员和接收成员属于同一个企业',
 	},
 	{
+		displayName: '继承信息输入方式',
+		name: 'transferListInputMode',
+		type: 'options',
+		displayOptions: {
+			show: { resource: ['license'], operation: ['batchTransferLicense'] },
+		},
+		options: [
+			{ name: '逐项填写', value: 'form' },
+			{ name: 'JSON 数组', value: 'json' },
+		],
+		default: 'form',
+		description: '少量继承关系可逐项填写；大批量关系可直接提供 JSON 数组',
+	},
+	{
 		displayName: '继承信息列表',
 		name: 'transferListCollection',
 		type: 'fixedCollection',
@@ -1129,6 +1276,7 @@ export const licenseDescription: INodeProperties[] = [
 			show: {
 				resource: ['license'],
 				operation: ['batchTransferLicense'],
+				transferListInputMode: ['form'],
 			},
 		},
 		default: {},
@@ -1161,6 +1309,21 @@ export const licenseDescription: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: '继承信息列表（JSON）',
+		name: 'transferListJson',
+		type: 'json',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['license'],
+				operation: ['batchTransferLicense'],
+				transferListInputMode: ['json'],
+			},
+		},
+		default: '[{"handover_userid":"OLD_USERID","takeover_userid":"NEW_USERID"}]',
+		description: '1–1000 项的 JSON 数组。每项包含 handover_userid 和 takeover_userid',
+	},
+	{
 		displayName: '上游/上级企业ID',
 		name: 'fromCorpid',
 		type: 'string',
@@ -1189,6 +1352,20 @@ export const licenseDescription: INodeProperties[] = [
 		description: '下游/下级企业corpid。分配给下游/下级企业的激活码，当前未激活，且属于上游/上级企业的，且未分配给其他下游/下级企业',
 	},
 	{
+		displayName: '激活码输入方式',
+		name: 'shareListInputMode',
+		type: 'options',
+		displayOptions: {
+			show: { resource: ['license'], operation: ['batchShareActiveCode'] },
+		},
+		options: [
+			{ name: '逐项填写', value: 'form' },
+			{ name: 'JSON 数组', value: 'json' },
+		],
+		default: 'form',
+		description: '少量激活码可逐项填写；大批量激活码可直接提供 JSON 数组',
+	},
+	{
 		displayName: '分配的接口许可列表',
 		name: 'shareListCollection',
 		type: 'fixedCollection',
@@ -1197,6 +1374,7 @@ export const licenseDescription: INodeProperties[] = [
 			show: {
 				resource: ['license'],
 				operation: ['batchShareActiveCode'],
+				shareListInputMode: ['form'],
 			},
 		},
 		default: {},
@@ -1219,6 +1397,21 @@ export const licenseDescription: INodeProperties[] = [
 				],
 			},
 		],
+	},
+	{
+		displayName: '分配的接口许可列表（JSON）',
+		name: 'shareListJson',
+		type: 'json',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['license'],
+				operation: ['batchShareActiveCode'],
+				shareListInputMode: ['json'],
+			},
+		},
+		default: '[{"active_code":"ACTIVE_CODE"}]',
+		description: '1–1000 项的 JSON 数组。每项包含 active_code',
 	},
 	{
 		displayName: '分配场景（可选）',
@@ -1274,17 +1467,33 @@ export const licenseDescription: INodeProperties[] = [
 		description: '第三方应用或代开发应用的套件ID',
 	},
 	{
-		displayName: '应用ID（可选）',
-		name: 'appid',
-		type: 'number',
+		displayName: '发送旧套件应用 ID',
+		name: 'includeAppid',
+		type: 'boolean',
 		displayOptions: {
 			show: {
 				resource: ['license'],
 				operation: ['getAppLicenseInfo'],
 			},
 		},
+		default: false,
+		description: '是否发送仅旧的多应用套件需要的 appid 字段；新开发者请保持关闭',
+	},
+	{
+		displayName: '旧套件应用 ID',
+		name: 'appid',
+		type: 'number',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['license'],
+				operation: ['getAppLicenseInfo'],
+				includeAppid: [true],
+			},
+		},
 		default: 1,
-		description: '旧的多应用套件中的应用ID，新开发者请忽略',
+		typeOptions: { minValue: 1, numberStepSize: 1 },
+		description: '旧的多应用套件中的应用 ID',
 	},
 	{
 		displayName: '企业ID',

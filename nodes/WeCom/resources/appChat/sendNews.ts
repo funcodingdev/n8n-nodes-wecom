@@ -49,7 +49,7 @@ export const sendNewsDescription: INodeProperties[] = [
 			},
 		},
 		description:
-			'可选。使用JSON直接输入图文列表（数组）或对象（包含articles）。JSON输入模式下仅展示此字段。<a href="https://developer.work.weixin.qq.com/document/path/90248" target="_blank">官方文档</a>',
+			'使用 JSON 直接输入图文列表（数组）或对象（包含 articles）。<a href="https://developer.work.weixin.qq.com/document/path/90248" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '图文列表',
@@ -58,6 +58,7 @@ export const sendNewsDescription: INodeProperties[] = [
 		typeOptions: {
 			multipleValues: true,
 		},
+		required: true,
 		displayOptions: {
 			show: {
 				...showOnlyForSendNews,
@@ -122,12 +123,7 @@ export const sendNewsDescription: INodeProperties[] = [
 		displayName: '保密消息',
 		name: 'safe',
 		type: 'boolean',
-		displayOptions: {
-			show: {
-				...showOnlyForSendNews,
-				news_input_mode: ['form'],
-			},
-		},
+		displayOptions: { show: showOnlyForSendNews },
 		default: false,
 		description:
 			'可选。表示是否是保密消息，0表示否，1表示是，默认0。<a href="https://developer.work.weixin.qq.com/document/path/90248" target="_blank">官方文档</a>',

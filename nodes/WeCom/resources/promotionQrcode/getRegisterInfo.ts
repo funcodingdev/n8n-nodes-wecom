@@ -1,6 +1,7 @@
 import type { IExecuteFunctions, IDataObject, IHttpRequestOptions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { getWeComBaseUrl } from '../../shared/transport';
+import { requireText } from './utils';
 
 /**
  * 查询注册状态
@@ -21,24 +22,20 @@ export async function getRegisterInfo(
 	this: IExecuteFunctions,
 	index: number,
 ): Promise<IDataObject> {
-	const providerAccessToken = this.getNodeParameter('providerAccessToken', index) as string;
-	const registerCode = this.getNodeParameter('registerCode', index) as string;
-
-	if (!providerAccessToken) {
-		throw new NodeOperationError(
-			this.getNode(),
-			'Provider Access Token不能为空',
-			{ itemIndex: index },
-		);
-	}
-
-	if (!registerCode) {
-		throw new NodeOperationError(
-			this.getNode(),
-			'注册码不能为空',
-			{ itemIndex: index },
-		);
-	}
+	const providerAccessToken = requireText(
+		this,
+		this.getNodeParameter('providerAccessToken', index),
+		'Provider Access Token',
+		index,
+		2048,
+	);
+	const registerCode = requireText(
+		this,
+		this.getNodeParameter('registerCode', index),
+		'注册码',
+		index,
+		512,
+	);
 
 	const body: IDataObject = {
 		register_code: registerCode,
@@ -67,6 +64,7 @@ export async function getRegisterInfo(
 
 		return response;
 	} catch (error) {
+		if (error instanceof NodeOperationError) throw error;
 		const err = error as Error;
 		throw new NodeOperationError(
 			this.getNode(),

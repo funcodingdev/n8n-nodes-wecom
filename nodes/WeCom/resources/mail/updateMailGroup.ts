@@ -1,64 +1,52 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-const showOnlyForUpdateMailGroup = {
-	resource: ['mail'],
-	operation: ['updateMailGroup'],
-};
+const showOnly = { resource: ['mail'], operation: ['updateMailGroup'] };
+const switched = (name: string, extra: Record<string, unknown> = {}) => ({ ...showOnly, [name]: [true], ...extra });
+const separators = '可用逗号、中文逗号、竖线或换行分隔；留空可清空';
 
-export const updateMailGroupDescription: INodeProperties[] = [
+const listUpdate = (label: string, switchName: string, name: string, numeric = false): INodeProperties[] => [
 	{
-		displayName: '群组地址',
-		name: 'groupid',
-		type: 'string',
-		required: true,
-		displayOptions: {
-			show: showOnlyForUpdateMailGroup,
-		},
-		default: '',
-		placeholder: 'group@example.com',
-		description: '要更新的邮件群组地址。<a href="https://developer.work.weixin.qq.com/document/path/95486" target="_blank">更多信息</a>',
+		displayName: `更新${label}`, name: switchName, type: 'boolean',
+		displayOptions: { show: showOnly }, default: false,
+		description: '关闭时保持不变，开启后发送列表',
 	},
 	{
-		displayName: '群组名称',
-		name: 'groupname',
-		type: 'string',
-		displayOptions: {
-			show: showOnlyForUpdateMailGroup,
-		},
-		default: '',
-		placeholder: '销售团队',
-		description: '可选。邮件群组的新名称。<a href="https://developer.work.weixin.qq.com/document/path/95486" target="_blank">更多信息</a>',
-	},
-	{
-		displayName: '成员列表',
-		name: 'userlist',
-		type: 'string',
-		displayOptions: {
-			show: showOnlyForUpdateMailGroup,
-		},
-		default: '',
-		placeholder: 'user1@example.com,user2@example.com',
-		description: '可选。群组成员邮箱列表，多个邮箱用英文逗号分隔。填写后将覆盖原有成员列表。<a href="https://developer.work.weixin.qq.com/document/path/95486" target="_blank">更多信息</a>',
-	},
-	{
-		displayName: '允许外部成员',
-		name: 'allow_type',
-		type: 'options',
-		displayOptions: {
-			show: showOnlyForUpdateMailGroup,
-		},
-		options: [
-			{
-				name: '仅内部成员',
-				value: 0,
-			},
-			{
-				name: '允许外部成员',
-				value: 1,
-			},
-		],
-		default: 0,
-		description: '是否允许群组包含外部成员。<a href="https://developer.work.weixin.qq.com/document/path/95486" target="_blank">更多信息</a>',
+		displayName: label, name, type: 'string',
+		displayOptions: { show: switched(switchName) }, default: '',
+		description: `${separators}${numeric ? '，仅允许正整数 ID' : ''}`,
 	},
 ];
 
+export const updateMailGroupDescription: INodeProperties[] = [
+	{
+		displayName: '群组地址', name: 'groupid', type: 'string', required: true,
+		displayOptions: { show: showOnly }, default: '', placeholder: 'group@example.com',
+	},
+	{
+		displayName: '更新群组名称', name: 'updateGroupName', type: 'boolean',
+		displayOptions: { show: showOnly }, default: false,
+	},
+	{
+		displayName: '群组名称', name: 'groupname', type: 'string', required: true,
+		displayOptions: { show: switched('updateGroupName') }, default: '', description: '最长 200 字节',
+	},
+	...listUpdate('成员邮箱列表', 'updateEmailList', 'email_list'),
+	...listUpdate('群组邮箱列表', 'updateGroupList', 'group_list'),
+	...listUpdate('部门ID列表', 'updateDepartmentList', 'department_list', true),
+	...listUpdate('标签ID列表', 'updateTagList', 'tag_list', true),
+	{
+		displayName: '更新群组使用权限', name: 'updateAllowType', type: 'boolean',
+		displayOptions: { show: showOnly }, default: false,
+	},
+	{
+		displayName: '群组使用权限', name: 'allow_type', type: 'options',
+		displayOptions: { show: switched('updateAllowType') }, default: 0,
+		options: [
+			{ name: '企业成员', value: 0 }, { name: '任何人', value: 1 },
+			{ name: '组内成员', value: 2 }, { name: '自定义成员', value: 3 },
+		],
+	},
+	...listUpdate('允许使用的成员邮箱', 'updateAllowEmailList', 'allow_emaillist'),
+	...listUpdate('允许使用的部门ID', 'updateAllowDepartmentList', 'allow_departmentlist', true),
+	...listUpdate('允许使用的标签ID', 'updateAllowTagList', 'allow_taglist', true),
+];

@@ -7,7 +7,7 @@ const showOnly = {
 
 export const createOnceKeyDescription: INodeProperties[] = [
 	{
-		displayName: '获客链接ID',
+		displayName: '获客链接 ID',
 		name: 'link_id',
 		type: 'string',
 		required: true,
@@ -28,6 +28,6 @@ export const createOnceKeyDescription: INodeProperties[] = [
 			show: showOnly,
 		},
 		default: 100,
-		description: '生成的代支付key数量，默认100，最大可填写1000',
+		description: '生成的代支付 Key 数量，范围 1–1000，默认 100',
 	},
 ];

@@ -1,43 +1,128 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
+import { NodeOperationError } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
 
-function dateTimeToUnixTimestamp(dateTime: string | number): number {
-	if (typeof dateTime === 'number') {
-		return dateTime;
-	}
-	if (!dateTime || dateTime === '') {
-		return 0;
-	}
-	return Math.floor(new Date(dateTime).getTime() / 1000);
+const LIST_SEPARATOR = /[,，|\n\r]+/;
+const MAX_UINT32 = 4294967295;
+
+function fail(context: IExecuteFunctions, message: string, itemIndex: number): never {
+	throw new NodeOperationError(context.getNode(), message, { itemIndex });
 }
 
-function buildActivityDetail(fields: IDataObject): IDataObject | undefined {
+function text(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	maxBytes = 4096,
+	required = true,
+): string {
+	const normalized = String(value ?? '').trim();
+	if (required && !normalized) fail(context, `${label}不能为空`, itemIndex);
+	if (Buffer.byteLength(normalized, 'utf8') > maxBytes) {
+		fail(context, `${label}不能超过 ${maxBytes} 字节`, itemIndex);
+	}
+	return normalized;
+}
+
+function textWithLimits(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	maxCharacters: number,
+	maxBytes: number,
+	required = true,
+): string {
+	const normalized = text(context, value, label, itemIndex, maxBytes, required);
+	if ([...normalized].length > maxCharacters) {
+		fail(context, `${label}不能超过 ${maxCharacters} 个字符`, itemIndex);
+	}
+	return normalized;
+}
+
+function integer(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	min: number,
+	max: number,
+): number {
+	const normalized = Number(value);
+	if (!Number.isSafeInteger(normalized) || normalized < min || normalized > max) {
+		fail(context, `${label}必须是 ${min}–${max} 之间的整数`, itemIndex);
+	}
+	return normalized;
+}
+
+function unixTimestamp(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): number {
+	const raw = String(value ?? '').trim();
+	if (!raw) fail(context, `${label}不能为空`, itemIndex);
+	const timestamp = /^\d+$/.test(raw) ? Number(raw) : Math.floor(Date.parse(raw) / 1000);
+	if (!Number.isSafeInteger(timestamp) || timestamp < 1 || timestamp > MAX_UINT32) {
+		fail(context, `${label}不是有效的日期时间`, itemIndex);
+	}
+	return timestamp;
+}
+
+function stringList(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	min: number,
+	max: number,
+): string[] {
+	const normalized = [
+		...new Set(
+			String(value ?? '')
+				.split(LIST_SEPARATOR)
+				.map((entry) => entry.trim())
+				.filter(Boolean),
+		),
+	];
+	if (normalized.length < min || normalized.length > max) {
+		fail(context, `${label}数量必须为 ${min}–${max} 个`, itemIndex);
+	}
+	return normalized;
+}
+
+function activityDetail(
+	context: IExecuteFunctions,
+	descriptionValue: unknown,
+	imageListValue: unknown,
+	itemIndex: number,
+): IDataObject | undefined {
+	const description = textWithLimits(
+		context,
+		descriptionValue,
+		'活动详情文字',
+		itemIndex,
+		300,
+		1200,
+		false,
+	);
+	const imageList = stringList(
+		context,
+		imageListValue,
+		'活动详情图片 MediaID',
+		itemIndex,
+		0,
+		5,
+	).map((mediaId, imageIndex) =>
+		text(context, mediaId, `第 ${imageIndex + 1} 个活动图片 MediaID`, itemIndex, 128),
+	);
+	if (!description && imageList.length === 0) return undefined;
 	const detail: IDataObject = {};
-
-	if (fields.activity_detail_description) {
-		detail.description = fields.activity_detail_description as string;
-	}
-
-	if (fields.activity_detail_image_list) {
-		const images = String(fields.activity_detail_image_list)
-			.split(',')
-			.map((url) => url.trim())
-			.filter((url) => url)
-			.slice(0, 3);
-
-		if (images.length > 0) {
-			detail.image_list = images;
-		}
-	}
-
-	return Object.keys(detail).length > 0 ? detail : undefined;
-}
-
-function pickFirstString(...values: Array<string | undefined>): string {
-	for (const v of values) {
-		if (v !== undefined && v !== '') return v;
-	}
-	return '';
+	if (description) detail.description = description;
+	if (imageList.length) detail.image_list = imageList;
+	return detail;
 }
 
 export async function executeLive(
@@ -52,161 +137,193 @@ export async function executeLive(
 			let response: IDataObject;
 
 			if (operation === 'createLiving') {
-				const anchor_userid = this.getNodeParameter('anchor_userid', i) as string;
-				const theme = this.getNodeParameter('theme', i) as string;
-				const living_start = dateTimeToUnixTimestamp(
-					this.getNodeParameter('living_start', i) as string | number,
+				const livingStart = unixTimestamp(
+					this,
+					this.getNodeParameter('living_start', i),
+					'直播开始时间',
+					i,
 				);
-				const living_duration = this.getNodeParameter('living_duration', i) as number;
-				const additionalFields = this.getNodeParameter('additionalFields', i, {}) as IDataObject;
-
-				const description = pickFirstString(
-					this.getNodeParameter('description', i, '') as string,
-					additionalFields.description as string | undefined,
-				);
-				const type =
-					this.getNodeParameter('type', i, 0) ?? (additionalFields.type as number | undefined) ?? 0;
-				const remind_time =
-					this.getNodeParameter('remind_time', i, 60) ??
-					(additionalFields.remind_time as number | undefined) ??
-					60;
-				const activity_cover_mediaid = pickFirstString(
-					this.getNodeParameter('activity_cover_mediaid', i, '') as string,
-					additionalFields.activity_cover_mediaid as string | undefined,
-				);
-				const activity_share_mediaid = pickFirstString(
-					this.getNodeParameter('activity_share_mediaid', i, '') as string,
-					additionalFields.activity_share_mediaid as string | undefined,
-				);
-				const agentid =
-					(this.getNodeParameter('agentid', i, 0) as number) ||
-					(additionalFields.agentid as number | undefined) ||
-					0;
-				const activityFields: IDataObject = {
-					activity_detail_description: pickFirstString(
-						this.getNodeParameter('activity_detail_description', i, '') as string,
-						additionalFields.activity_detail_description as string | undefined,
-					),
-					activity_detail_image_list: pickFirstString(
-						this.getNodeParameter('activity_detail_image_list', i, '') as string,
-						additionalFields.activity_detail_image_list as string | undefined,
-					),
-				};
-
+				if (livingStart <= Math.floor(Date.now() / 1000)) {
+					fail(this, '直播开始时间必须晚于当前时间', i);
+				}
+				const type = integer(this, this.getNodeParameter('type', i, 0), '直播类型', i, 0, 4);
 				const body: IDataObject = {
-					anchor_userid,
-					theme,
-					living_start,
-					living_duration,
+					anchor_userid: text(
+						this,
+						this.getNodeParameter('anchor_userid', i),
+						'主播 UserID',
+						i,
+						64,
+					),
+					theme: textWithLimits(this, this.getNodeParameter('theme', i), '直播主题', i, 20, 80),
+					living_start: livingStart,
+					living_duration: integer(
+						this,
+						this.getNodeParameter('living_duration', i),
+						'直播持续时长',
+						i,
+						1,
+						86400,
+					),
 					type,
-					remind_time,
+					remind_time: integer(
+						this,
+						this.getNodeParameter('remind_time', i, 0),
+						'开播提醒提前秒数',
+						i,
+						0,
+						MAX_UINT32,
+					),
 				};
-
-				if (description) body.description = description;
-				if (agentid) body.agentid = agentid;
-				if (activity_cover_mediaid) body.activity_cover_mediaid = activity_cover_mediaid;
-				if (activity_share_mediaid) body.activity_share_mediaid = activity_share_mediaid;
-
-				const activityDetail = buildActivityDetail(activityFields);
-				if (activityDetail) body.activity_detail = activityDetail;
-
+				if (type === 4) {
+					const coverMediaId = text(
+						this,
+						this.getNodeParameter('activity_cover_mediaid', i, ''),
+						'直播封面 MediaID',
+						i,
+						128,
+						false,
+					);
+					const shareMediaId = text(
+						this,
+						this.getNodeParameter('activity_share_mediaid', i, ''),
+						'直播分享封面 MediaID',
+						i,
+						128,
+						false,
+					);
+					if (coverMediaId) body.activity_cover_mediaid = coverMediaId;
+					if (shareMediaId) body.activity_share_mediaid = shareMediaId;
+					const detail = activityDetail(
+						this,
+						this.getNodeParameter('activity_detail_description', i, ''),
+						this.getNodeParameter('activity_detail_image_list', i, ''),
+						i,
+					);
+					if (detail) body.activity_detail = detail;
+				} else {
+					const description = textWithLimits(
+						this,
+						this.getNodeParameter('description', i, ''),
+						'直播简介',
+						i,
+						100,
+						400,
+						false,
+					);
+					if (description) body.description = description;
+				}
+				const agentId = integer(
+					this,
+					this.getNodeParameter('agentid', i, 0),
+					'应用 AgentId',
+					i,
+					0,
+					MAX_UINT32,
+				);
+				if (agentId) body.agentid = agentId;
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/living/create', body);
 			} else if (operation === 'modifyLiving') {
-				const livingid = this.getNodeParameter('livingid', i) as string;
-				const additionalFields = this.getNodeParameter('additionalFields', i, {}) as IDataObject;
-
-				const body: IDataObject = { livingid };
-
-				const theme = pickFirstString(
-					this.getNodeParameter('theme', i, '') as string,
-					additionalFields.theme as string | undefined,
-				);
-				if (theme) body.theme = theme;
-
-				const living_start = dateTimeToUnixTimestamp(
-					this.getNodeParameter('living_start', i, '') as string | number,
-				);
-				const legacyStart = Number(additionalFields.living_start || 0);
-				if (living_start > 0) body.living_start = living_start;
-				else if (legacyStart > 0) body.living_start = legacyStart;
-
-				const living_duration = this.getNodeParameter('living_duration', i, 0) as number;
-				const legacyDuration = Number(additionalFields.living_duration || 0);
-				if (living_duration > 0) body.living_duration = living_duration;
-				else if (legacyDuration > 0) body.living_duration = legacyDuration;
-
-				const description = pickFirstString(
-					this.getNodeParameter('description', i, '') as string,
-					additionalFields.description as string | undefined,
-				);
-				if (description) body.description = description;
-
-				const type = this.getNodeParameter('type', i, -1) as number;
-				if (type !== -1) body.type = type;
-				else if (additionalFields.type !== undefined) body.type = additionalFields.type;
-
-				const remind_time = this.getNodeParameter('remind_time', i, -1) as number;
-				if (remind_time !== -1) body.remind_time = remind_time;
-				else if (additionalFields.remind_time !== undefined) {
-					body.remind_time = additionalFields.remind_time;
-				}
-
-				const activity_cover_mediaid = pickFirstString(
-					this.getNodeParameter('activity_cover_mediaid', i, '') as string,
-					additionalFields.activity_cover_mediaid as string | undefined,
-				);
-				const activity_share_mediaid = pickFirstString(
-					this.getNodeParameter('activity_share_mediaid', i, '') as string,
-					additionalFields.activity_share_mediaid as string | undefined,
-				);
-				if (activity_cover_mediaid) body.activity_cover_mediaid = activity_cover_mediaid;
-				if (activity_share_mediaid) body.activity_share_mediaid = activity_share_mediaid;
-
-				const activityFields: IDataObject = {
-					activity_detail_description: pickFirstString(
-						this.getNodeParameter('activity_detail_description', i, '') as string,
-						additionalFields.activity_detail_description as string | undefined,
-					),
-					activity_detail_image_list: pickFirstString(
-						this.getNodeParameter('activity_detail_image_list', i, '') as string,
-						additionalFields.activity_detail_image_list as string | undefined,
-					),
+				const body: IDataObject = {
+					livingid: text(this, this.getNodeParameter('livingid', i), '直播 ID', i, 128),
 				};
-				const activityDetail = buildActivityDetail(activityFields);
-				if (activityDetail) body.activity_detail = activityDetail;
-
+				const updateTheme = this.getNodeParameter('update_theme', i, false) as boolean;
+				const updateStart = this.getNodeParameter('update_living_start', i, false) as boolean;
+				const updateDuration = this.getNodeParameter('update_living_duration', i, false) as boolean;
+				const updateDescription = this.getNodeParameter('update_description', i, false) as boolean;
+				const updateType = this.getNodeParameter('update_type', i, false) as boolean;
+				const updateRemindTime = this.getNodeParameter('update_remind_time', i, false) as boolean;
+				if (
+					![
+						updateTheme,
+						updateStart,
+						updateDuration,
+						updateDescription,
+						updateType,
+						updateRemindTime,
+					].some(Boolean)
+				) {
+					fail(this, '至少选择一项要修改的直播字段', i);
+				}
+				if (updateTheme) {
+					body.theme = text(this, this.getNodeParameter('theme', i, ''), '直播主题', i, 60);
+				}
+				if (updateStart) {
+					const start = unixTimestamp(
+						this,
+						this.getNodeParameter('living_start', i, ''),
+						'直播开始时间',
+						i,
+					);
+					if (start <= Math.floor(Date.now() / 1000)) fail(this, '直播开始时间必须晚于当前时间', i);
+					body.living_start = start;
+				}
+				if (updateDuration) {
+					body.living_duration = integer(
+						this,
+						this.getNodeParameter('living_duration', i, 3600),
+						'直播持续时长',
+						i,
+						1,
+						86400,
+					);
+				}
+				if (updateDescription) {
+					body.description = text(
+						this,
+						this.getNodeParameter('description', i, ''),
+						'直播简介',
+						i,
+						300,
+						false,
+					);
+				}
+				if (updateType) {
+					body.type = integer(this, this.getNodeParameter('type', i, 0), '直播类型', i, 0, 4);
+				}
+				if (updateRemindTime) {
+					body.remind_time = integer(
+						this,
+						this.getNodeParameter('remind_time', i, 0),
+						'开播提醒提前秒数',
+						i,
+						0,
+						MAX_UINT32,
+					);
+				}
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/living/modify', body);
 			} else if (operation === 'cancelLiving') {
-				const livingid = this.getNodeParameter('livingid', i) as string;
-
+				const livingid = text(this, this.getNodeParameter('livingid', i), '直播 ID', i, 128);
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/living/cancel', { livingid });
 			} else if (operation === 'deleteLivingReplayData') {
-				const livingid = this.getNodeParameter('livingid', i) as string;
-
-				response = await weComApiRequest.call(
-					this,
-					'POST',
-					'/cgi-bin/living/delete_replay_data',
-					{ livingid },
-				);
+				const livingid = text(this, this.getNodeParameter('livingid', i), '直播 ID', i, 128);
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/living/delete_replay_data', {
+					livingid,
+				});
 			} else if (operation === 'getLivingShareInfo') {
-				const livingid = this.getNodeParameter('livingid', i) as string;
-				const wwshare = this.getNodeParameter('wwshare', i) as number;
-
+				const wwShareCode = text(
+					this,
+					this.getNodeParameter('ww_share_code', i),
+					'直播分享码',
+					i,
+					512,
+				);
 				response = await weComApiRequest.call(
 					this,
 					'POST',
 					'/cgi-bin/living/get_living_share_info',
-					{ livingid, wwshare },
+					{ ww_share_code: wwShareCode },
 				);
 			} else if (operation === 'getUserAllLivingId') {
-				const userid = this.getNodeParameter('userid', i) as string;
 				const additionalFields = this.getNodeParameter('additionalFields', i, {}) as IDataObject;
-
-				const body: IDataObject = { userid };
-				if (additionalFields.cursor) body.cursor = additionalFields.cursor;
-				if (additionalFields.limit !== undefined) body.limit = additionalFields.limit;
-
+				const body: IDataObject = {
+					userid: text(this, this.getNodeParameter('userid', i), '成员 UserID', i, 64),
+				};
+				const cursor = text(this, additionalFields.cursor, '分页游标', i, 1024, false);
+				if (cursor) body.cursor = cursor;
+				if (additionalFields.limit !== undefined) {
+					body.limit = integer(this, additionalFields.limit, '每页数量', i, 1, 100);
+				}
 				response = await weComApiRequest.call(
 					this,
 					'POST',
@@ -214,29 +331,37 @@ export async function executeLive(
 					body,
 				);
 			} else if (operation === 'getLivingInfo') {
-				const livingid = this.getNodeParameter('livingid', i) as string;
-
-				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/living/get_living_info', {}, {
-					livingid,
-				});
+				const livingid = text(this, this.getNodeParameter('livingid', i), '直播 ID', i, 128);
+				response = await weComApiRequest.call(
+					this,
+					'GET',
+					'/cgi-bin/living/get_living_info',
+					{},
+					{
+						livingid,
+					},
+				);
 			} else if (operation === 'getLivingWatchStat') {
-				const livingid = this.getNodeParameter('livingid', i) as string;
-				const next_key = this.getNodeParameter('next_key', i, '') as string;
-
-				const body: IDataObject = { livingid };
-				if (next_key) body.next_key = next_key;
-
+				const body: IDataObject = {
+					livingid: text(this, this.getNodeParameter('livingid', i), '直播 ID', i, 128),
+				};
+				const nextKey = text(
+					this,
+					this.getNodeParameter('next_key', i, ''),
+					'下一页 Key',
+					i,
+					1024,
+					false,
+				);
+				if (nextKey) body.next_key = nextKey;
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/living/get_watch_stat', body);
 			} else if (operation === 'getLivingCode') {
-				const openid = this.getNodeParameter('openid', i) as string;
-				const livingid = this.getNodeParameter('livingid', i) as string;
-
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/living/get_living_code', {
-					openid,
-					livingid,
+					openid: text(this, this.getNodeParameter('openid', i), '微信用户 OpenID', i, 128),
+					livingid: text(this, this.getNodeParameter('livingid', i), '直播 ID', i, 128),
 				});
 			} else {
-				throw new Error(`Unknown live operation: ${operation}`);
+				fail(this, `不支持的直播操作：${operation}`, i);
 			}
 
 			const executionData = this.helpers.constructExecutionMetaData(
@@ -245,15 +370,17 @@ export async function executeLive(
 			);
 			returnData.push(...executionData);
 		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
 			if (this.continueOnFail()) {
 				const executionData = this.helpers.constructExecutionMetaData(
-					this.helpers.returnJsonArray({ error: (error as Error).message }),
+					this.helpers.returnJsonArray({ error: message }),
 					{ itemData: { item: i } },
 				);
 				returnData.push(...executionData);
 				continue;
 			}
-			throw error;
+			if (error instanceof NodeOperationError) throw error;
+			throw new NodeOperationError(this.getNode(), message, { itemIndex: i });
 		}
 	}
 

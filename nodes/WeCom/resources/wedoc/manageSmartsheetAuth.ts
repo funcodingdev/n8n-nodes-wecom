@@ -119,6 +119,7 @@ export const manageSmartsheetAuthDescription: INodeProperties[] = [
 		type: 'json',
 		displayOptions: { show: showOnly },
 		default: '{}',
-		description: '其余 update_sheet_priv 字段，与上方合并（JSON 优先）',
+		description:
+			'其余 update_sheet_priv 字段，与上方合并（JSON 优先）；最终请求仍会校验子表权限与记录生效范围',
 	},
 ];

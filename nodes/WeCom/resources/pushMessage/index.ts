@@ -63,7 +63,7 @@ export const pushMessageDescription: INodeProperties[] = [
 				description: '发送语音消息到群聊',
 			},
 			{
-				name: '[消息推送] 发送视频消息',
+				name: '[消息推送] 发送文件消息',
 				value: 'sendFile',
 				action: '发送文件消息',
 				description: '发送文件消息到群聊',

@@ -1,11 +1,12 @@
 import type { IExecuteFunctions, IDataObject } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
+import { requireStringList } from './utils';
 
 export async function useridToOpenuserid(
 	this: IExecuteFunctions,
 	index: number,
 ): Promise<IDataObject> {
-	const useridList = this.getNodeParameter('useridList', index) as string[];
+	const useridList = requireStringList(this, this.getNodeParameter('useridList', index), 'UserID 列表', index, 1000);
 
 	const body: IDataObject = {
 		userid_list: useridList,

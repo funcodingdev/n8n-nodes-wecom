@@ -22,8 +22,8 @@ export async function setSessionInfo(
 	this: IExecuteFunctions,
 	index: number,
 ): Promise<IDataObject> {
-	const suiteAccessToken = this.getNodeParameter('suiteAccessToken', index) as string;
-	const preAuthCode = this.getNodeParameter('preAuthCode', index) as string;
+	const suiteAccessToken = String(this.getNodeParameter('suiteAccessToken', index) ?? '').trim();
+	const preAuthCode = String(this.getNodeParameter('preAuthCode', index) ?? '').trim();
 	const appidStr = this.getNodeParameter('appid', index, '') as string;
 	const authType = this.getNodeParameter('authType', index, 0) as number;
 
@@ -48,14 +48,21 @@ export async function setSessionInfo(
 		session_info: {} as IDataObject,
 	};
 
+	if (![0, 1].includes(authType)) {
+		throw new NodeOperationError(this.getNode(), '授权类型仅支持正式授权或测试授权', {
+			itemIndex: index,
+		});
+	}
+
 	if (appidStr && appidStr.trim()) {
-		const appidArray = appidStr
-			.split(',')
-			.map((id) => parseInt(id.trim(), 10))
-			.filter((id) => !isNaN(id));
-		if (appidArray.length > 0) {
-			(body.session_info as IDataObject).appid = appidArray;
+		const rawAppIds = appidStr.split(/[,|\n]/).map((id) => id.trim()).filter(Boolean);
+		const appidArray = rawAppIds.map((id) => Number(id));
+		if (appidArray.some((id) => !Number.isSafeInteger(id) || id <= 0)) {
+			throw new NodeOperationError(this.getNode(), '允许授权的应用 ID 必须全部为正整数', {
+				itemIndex: index,
+			});
 		}
+		(body.session_info as IDataObject).appid = [...new Set(appidArray)];
 	}
 
 	(body.session_info as IDataObject).auth_type = authType;
@@ -83,6 +90,7 @@ export async function setSessionInfo(
 
 		return response;
 	} catch (error) {
+		if (error instanceof NodeOperationError) throw error;
 		const err = error as Error;
 		throw new NodeOperationError(
 			this.getNode(),

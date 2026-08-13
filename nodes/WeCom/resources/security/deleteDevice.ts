@@ -2,6 +2,15 @@ import type { INodeProperties } from 'n8n-workflow';
 
 export const deleteDeviceDescription: INodeProperties[] = [
 	{
+		displayName: '删除设备会立即移除其当前可信或申请状态，请先确认设备类型和编码列表。',
+		name: 'deleteDeviceNotice',
+		type: 'notice',
+		displayOptions: {
+			show: { resource: ['security'], operation: ['deleteDevice'] },
+		},
+		default: '',
+	},
+	{
 		displayName: '设备类型',
 		name: 'type',
 		type: 'options',

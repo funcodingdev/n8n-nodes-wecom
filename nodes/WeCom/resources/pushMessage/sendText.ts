@@ -30,7 +30,7 @@ export const sendTextDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'wangqing,zhangsan 或 @all',
-		description: 'Userid 列表，提醒群中的指定成员。多个成员用逗号分隔，@all 表示提醒所有人。示例：wangqing,zhangsan 或 @all。<a href="https://developer.work.weixin.qq.com/document/path/99110#%E6%96%87%E6%9C%AC%E7%B1%BB%E5%9E%8B" target="_blank">官方文档</a>',
+		description: 'Userid 列表，提醒群中的指定成员。多个成员可用逗号、竖线或换行分隔，@all 表示提醒所有人。示例：wangqing,zhangsan 或 @all。<a href="https://developer.work.weixin.qq.com/document/path/99110#%E6%96%87%E6%9C%AC%E7%B1%BB%E5%9E%8B" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '@ 成员（手机号）',
@@ -41,7 +41,6 @@ export const sendTextDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: '13800001111,13900002222 或 @all',
-		description: '手机号列表，提醒手机号对应的群成员。多个手机号用逗号分隔，@all 表示提醒所有人。示例：13800001111,13900002222 或 @all。<a href="https://developer.work.weixin.qq.com/document/path/99110#%E6%96%87%E6%9C%AC%E7%B1%BB%E5%9E%8B" target="_blank">官方文档</a>',
+		description: '手机号列表，提醒手机号对应的群成员。多个手机号可用逗号、竖线或换行分隔，@all 表示提醒所有人。示例：13800001111,13900002222 或 @all。<a href="https://developer.work.weixin.qq.com/document/path/99110#%E6%96%87%E6%9C%AC%E7%B1%BB%E5%9E%8B" target="_blank">官方文档</a>',
 	},
 ];
-

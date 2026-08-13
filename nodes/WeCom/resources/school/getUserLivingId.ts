@@ -7,46 +7,27 @@ const showOnlyForGetUserLivingId = {
 
 export const getUserLivingIdDescription: INodeProperties[] = [
 	{
-		displayName: '老师UserID',
+		displayName: '老师',
 		name: 'userid',
-		type: 'string',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
 		required: true,
 		displayOptions: {
 			show: showOnlyForGetUserLivingId,
 		},
 		default: '',
 		placeholder: 'teacher_001',
-		description: '老师的用户ID',
-	},
-	{
-		displayName: '开始时间',
-		name: 'begin_time',
-		type: 'dateTime',
-		displayOptions: {
-			show: showOnlyForGetUserLivingId,
-		},
-		default: '',
-		description: '起始时间 begin_time（Unix 秒）',
-	},
-	{
-		displayName: '结束时间',
-		name: 'end_time',
-		type: 'dateTime',
-		displayOptions: {
-			show: showOnlyForGetUserLivingId,
-		},
-		default: '',
-		description: '结束时间 end_time（Unix 秒）',
+		description: '创建直播的企业成员 UserID；只能获取本应用创建的直播。<a href="https://developer.work.weixin.qq.com/document/path/93739" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '分页游标',
-		name: 'next_key',
+		name: 'cursor',
 		type: 'string',
 		displayOptions: {
 			show: showOnlyForGetUserLivingId,
 		},
 		default: '',
-		description: '上次请求返回的 next_key',
+		description: '上次请求返回的 next_cursor，首次留空',
 	},
 	{
 		displayName: '返回数量',
@@ -55,11 +36,12 @@ export const getUserLivingIdDescription: INodeProperties[] = [
 		typeOptions: {
 			minValue: 1,
 			maxValue: 100,
+			numberStepSize: 1,
 		},
 		displayOptions: {
 			show: showOnlyForGetUserLivingId,
 		},
-		default: 50,
-		description: '每次拉取数量，默认 50，最大 100',
+		default: 100,
+		description: '每次拉取数量，默认及最大均为 100',
 	},
 ];

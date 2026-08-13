@@ -63,7 +63,7 @@ export const externalpayDescription: INodeProperties[] = [
 		},
 		default: '',
 		description:
-			'微信支付商户号 mch_id。<a href="https://developer.work.weixin.qq.com/document/path/93666" target="_blank">官方文档</a>',
+			'微信支付商户号 mch_id，不超过 32 个 UTF-8 字节。<a href="https://developer.work.weixin.qq.com/document/path/93666" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '商户号',
@@ -73,7 +73,7 @@ export const externalpayDescription: INodeProperties[] = [
 			show: { ...showOnly, operation: ['getFundFlow'] },
 		},
 		default: '',
-		description: '商户号 ID，不填则拉取所有商户号的资金流水',
+		description: '商户号 ID，不超过 32 个 UTF-8 字节；不填则拉取所有商户号的资金流水',
 	},
 
 	{
@@ -83,7 +83,8 @@ export const externalpayDescription: INodeProperties[] = [
 		displayOptions: { show: { ...showOnly, operation: ['setMchUseScope'] } },
 		default: '',
 		placeholder: 'zhangsan,lisi',
-		description: 'allow_use_scope.user，逗号分隔',
+		typeOptions: { rows: 2 },
+		description: '成员 UserID 列表；支持逗号、中文逗号、竖线或换行分隔，重复值会自动去除',
 	},
 	{
 		displayName: '使用范围部门',
@@ -92,7 +93,8 @@ export const externalpayDescription: INodeProperties[] = [
 		displayOptions: { show: { ...showOnly, operation: ['setMchUseScope'] } },
 		default: '',
 		placeholder: '1,2',
-		description: 'allow_use_scope.partyid，逗号分隔',
+		typeOptions: { rows: 2 },
+		description: '正整数部门 ID 列表；支持逗号、中文逗号、竖线或换行分隔',
 	},
 	{
 		displayName: '使用范围标签',
@@ -101,7 +103,16 @@ export const externalpayDescription: INodeProperties[] = [
 		displayOptions: { show: { ...showOnly, operation: ['setMchUseScope'] } },
 		default: '',
 		placeholder: '1,2',
-		description: 'allow_use_scope.tagid，逗号分隔',
+		typeOptions: { rows: 2 },
+		description: '正整数标签 ID 列表；支持逗号、中文逗号、竖线或换行分隔',
+	},
+	{
+		displayName: '范围更新提示',
+		name: 'scopeUpdateNotice',
+		type: 'notice',
+		displayOptions: { show: { ...showOnly, operation: ['setMchUseScope'] } },
+		default: '',
+		description: '该操作会整体更新商户号可使用范围。请确认成员、部门与标签列表完整后执行。',
 	},
 	// getBillList / getFundFlow
 	{
@@ -124,7 +135,7 @@ export const externalpayDescription: INodeProperties[] = [
 			show: { ...showOnly, operation: ['getBillList', 'getFundFlow'] },
 		},
 		default: '',
-		description: 'end_time（Unix 秒），与开始时间间隔不超过约 1 个月',
+		description: 'end_time（Unix 秒），不能早于开始时间，起止间隔不超过 31 天',
 	},
 	{
 		displayName: '收款成员UserID',
@@ -145,15 +156,30 @@ export const externalpayDescription: INodeProperties[] = [
 		description: '分页游标 cursor',
 	},
 	{
-		displayName: '条数限制',
+		displayName: '返回数量',
 		name: 'limit',
 		type: 'number',
-		typeOptions: { minValue: 1 },
-		displayOptions: {
-			show: { ...showOnly, operation: ['getBillList', 'getFundFlow'] },
-		},
+		typeOptions: { minValue: 1, maxValue: 1000, numberStepSize: 1 },
+		displayOptions: { show: { ...showOnly, operation: ['getBillList'] } },
 		default: 10,
-		description: '最大记录数；收款记录最大 1000，资金流水最大 200',
+		description: '返回的最大记录数，最多 1000 条',
+	},
+	{
+		displayName: '返回数量',
+		name: 'limit',
+		type: 'number',
+		typeOptions: { minValue: 1, maxValue: 200, numberStepSize: 1 },
+		displayOptions: { show: { ...showOnly, operation: ['getFundFlow'] } },
+		default: 100,
+		description: '返回的最大记录数，默认 100，最多 200 条',
+	},
+	{
+		displayName: '资金流水提示',
+		name: 'fundFlowNotice',
+		type: 'notice',
+		displayOptions: { show: { ...showOnly, operation: ['getFundFlow'] } },
+		default: '',
+		description: '只能查询不早于 2022-12-01 且最长保留 3 年的流水；当日流水通常在次日上午 11 点后生成。',
 	},
 	// getPaymentInfo
 	{

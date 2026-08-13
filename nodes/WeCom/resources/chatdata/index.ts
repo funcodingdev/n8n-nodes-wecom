@@ -116,7 +116,16 @@ export const chatdataDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { ...showOnly, operation: ['setPublicKey'] } },
 		default: 1,
+		typeOptions: { minValue: 1, maxValue: 4294967295, numberStepSize: 1 },
 		description: 'public_key_ver，更换公钥时需大于旧版本号',
+	},
+	{
+		displayName: '公钥轮换提示',
+		name: 'publicKeyNotice',
+		type: 'notice',
+		displayOptions: { show: { ...showOnly, operation: ['setPublicKey'] } },
+		default: '',
+		description: '仅接受 RSA-2048 PUBLIC KEY PEM。更换公钥时版本号必须高于旧版本；请先安全保存对应私钥，私钥不要提交到此节点。',
 	},
 	// getAuthUserList
 	{
@@ -131,7 +140,7 @@ export const chatdataDescription: INodeProperties[] = [
 		displayName: '条数限制',
 		name: 'limit',
 		type: 'number',
-		typeOptions: { minValue: 1 },
+		typeOptions: { minValue: 1, maxValue: 1000, numberStepSize: 1 },
 		displayOptions: { show: { ...showOnly, operation: ['getAuthUserList'] } },
 		default: 200,
 		description: '最大 1000，默认 200',
@@ -158,7 +167,16 @@ export const chatdataDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
+		typeOptions: { maxLength: 256 },
 		description: '应用关联的 program_id',
+	},
+	{
+		displayName: '回调切换提示',
+		name: 'callbackNotice',
+		type: 'notice',
+		displayOptions: { show: { ...showOnly, operation: ['setReceiveCallback'] } },
+		default: '',
+		description: '同一应用只能设置一个接收程序；再次设置会把原接收程序切换为当前程序。',
 	},
 	// sensitive info
 	{
@@ -166,13 +184,20 @@ export const chatdataDescription: INodeProperties[] = [
 		name: 'userid',
 		type: 'string',
 		required: true,
-		displayOptions: {
-			show: {
-				...showOnly,
-				operation: ['setHideSensitiveInfoConfig', 'getHideSensitiveInfoConfig'],
-			},
-		},
+		displayOptions: { show: { ...showOnly, operation: ['setHideSensitiveInfoConfig'] } },
 		default: '',
+		typeOptions: { maxLength: 64 },
+		description: '要设置会话组件隐藏规则的成员 UserID',
+	},
+	{
+		displayName: '成员密文UserID',
+		name: 'userid',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { ...showOnly, operation: ['getHideSensitiveInfoConfig'] } },
+		default: '',
+		typeOptions: { maxLength: 64 },
+		description: '官方接口要求填写成员的密文 UserID',
 	},
 	{
 		displayName: '隐藏手机号',
@@ -194,6 +219,14 @@ export const chatdataDescription: INodeProperties[] = [
 		type: 'boolean',
 		displayOptions: { show: { ...showOnly, operation: ['setHideSensitiveInfoConfig'] } },
 		default: false,
+	},
+	{
+		displayName: '敏感信息显示提示',
+		name: 'sensitiveInfoNotice',
+		type: 'notice',
+		displayOptions: { show: { ...showOnly, operation: ['setHideSensitiveInfoConfig'] } },
+		default: '',
+		description: '该配置会改变指定成员在会话组件中看到的手机号、身份证号和银行卡号显示方式。',
 	},
 	// log level
 	{
@@ -219,6 +252,7 @@ export const chatdataDescription: INodeProperties[] = [
 			show: { ...showOnly, operation: ['syncCallProgram', 'asyncProgramTask'] },
 		},
 		default: '',
+		typeOptions: { maxLength: 256 },
 	},
 	{
 		displayName: '请求数据JSON',
@@ -230,7 +264,7 @@ export const chatdataDescription: INodeProperties[] = [
 			show: { ...showOnly, operation: ['syncCallProgram', 'asyncProgramTask'] },
 		},
 		default: '{}',
-		description: 'request_data，与专区能力输入协议匹配的 JSON',
+		description: '必须是有效 JSON 对象；节点会序列化为 request_data 字符串并限制为 1MB',
 	},
 	{
 		displayName: '通知ID',
@@ -238,6 +272,7 @@ export const chatdataDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: { show: { ...showOnly, operation: ['syncCallProgram'] } },
 		default: '',
+		typeOptions: { maxLength: 256 },
 		description: 'notify_id，可选，由专区通知应用返回',
 	},
 	{
@@ -247,6 +282,17 @@ export const chatdataDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { ...showOnly, operation: ['asyncProgramResult'] } },
 		default: '',
+		typeOptions: { maxLength: 256 },
+	},
+	{
+		displayName: '专区调用提示',
+		name: 'programCallNotice',
+		type: 'notice',
+		displayOptions: {
+			show: { ...showOnly, operation: ['syncCallProgram', 'asyncProgramTask'] },
+		},
+		default: '',
+		description: '请求数据必须符合所选能力在管理端配置的输入协议；异步调用会创建任务，结果需用返回的 jobid 查询。',
 	},
 	// debug
 	{
@@ -257,6 +303,16 @@ export const chatdataDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { ...showOnly, operation: ['openDebugMode'] } },
 		default: '',
+	},
+	{
+		displayName: '调试模式提示',
+		name: 'debugModeNotice',
+		type: 'notice',
+		displayOptions: {
+			show: { ...showOnly, operation: ['openDebugMode', 'closeDebugMode'] },
+		},
+		default: '',
+		description: '调试模式会改变专区程序的调试调用状态。调试 Token 属于敏感凭证，请勿写入输出或日志。',
 	},
 	{
 		displayName: '二进制字段名',
@@ -275,5 +331,13 @@ export const chatdataDescription: INodeProperties[] = [
 		options: [{ name: 'file', value: 'file' }],
 		default: 'file',
 		description: '目前仅支持 file',
+	},
+	{
+		displayName: '临时文件提示',
+		name: 'uploadMediaNotice',
+		type: 'notice',
+		displayOptions: { show: { ...showOnly, operation: ['uploadMedia'] } },
+		default: '',
+		description: '文件大小必须为 6B–60MB。返回的 media_id 仅 3 天有效，且不能跨企业或跨应用使用。',
 	},
 ];

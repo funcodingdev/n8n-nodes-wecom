@@ -7,6 +7,13 @@ const showOnly = {
 
 export const deleteProductAlbumDescription: INodeProperties[] = [
 	{
+		displayName: '删除后无法恢复。应用只能删除由自己创建的商品图册。',
+		name: 'deleteNotice',
+		type: 'notice',
+		default: '',
+		displayOptions: { show: showOnly },
+	},
+	{
 		displayName: '商品ID',
 		name: 'product_id',
 		type: 'string',
@@ -17,4 +24,3 @@ export const deleteProductAlbumDescription: INodeProperties[] = [
 		},
 	},
 ];
-

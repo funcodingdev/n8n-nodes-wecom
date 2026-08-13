@@ -1,54 +1,38 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-const showOnlyForGetToken = {
-	resource: ['linkedcorp'],
-	operation: ['getLinkedCorpToken'],
-};
+const showOnly = { resource: ['linkedcorp'], operation: ['getLinkedCorpToken'] };
 
 export const getLinkedCorpTokenDescription: INodeProperties[] = [
+	{
+		displayName: '下级/下游企业 CorpID',
+		name: 'corpid',
+		type: 'string',
+		required: true,
+		displayOptions: { show: showOnly },
+		default: '',
+		placeholder: 'ww1234567890abcdef',
+		description: '已授权的下级/下游企业 CorpID',
+	},
+	{
+		displayName: '下级/下游应用 AgentID',
+		name: 'agentid',
+		type: 'string',
+		required: true,
+		displayOptions: { show: showOnly },
+		default: '',
+		placeholder: '1000001',
+		description: '已授权的下级/下游企业应用 ID',
+	},
 	{
 		displayName: '业务类型',
 		name: 'business_type',
 		type: 'options',
-		required: true,
-		displayOptions: {
-			show: showOnlyForGetToken,
-		},
+		displayOptions: { show: showOnly },
 		options: [
-			{
-				name: '互联企业',
-				value: 'linked_corp',
-			},
-			{
-				name: '上下游',
-				value: 'chain',
-			},
+			{ name: '企业互联/局校互联', value: 0 },
+			{ name: '上下游企业', value: 1 },
 		],
-		default: 'linked_corp',
-		description: '业务类型。linked_corp表示互联企业，chain表示上下游。<a href="https://developer.work.weixin.qq.com/document/path/93360" target="_blank">官方文档</a>',
-	},
-	{
-		displayName: '下级/下游企业CorpID',
-		name: 'corpid',
-		type: 'string',
-		required: true,
-		displayOptions: {
-			show: showOnlyForGetToken,
-		},
-		default: '',
-		description: '下级/下游企业的corpid。<a href="https://developer.work.weixin.qq.com/document/path/93360" target="_blank">官方文档</a>',
-		placeholder: 'ww1234567890abcdef',
-	},
-	{
-		displayName: '应用AgentID',
-		name: 'agentid',
-		type: 'string',
-		displayOptions: {
-			show: showOnlyForGetToken,
-		},
-		default: '',
-		description: '可选。上级/上游企业应用的agentid。如果不填，默认使用凭证中的agentid。<a href="https://developer.work.weixin.qq.com/document/path/93360" target="_blank">官方文档</a>',
-		placeholder: '1000001',
+		default: 0,
+		description: '不传时企业微信默认按企业互联处理',
 	},
 ];
-

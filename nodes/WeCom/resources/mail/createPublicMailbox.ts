@@ -25,7 +25,7 @@ export const createPublicMailboxDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly },
 		default: '',
 		placeholder: '客户服务',
-		description: '公共邮箱名称 name',
+		description: '公共邮箱名称，换算长度最多 64（英文计 1，汉字计 2）',
 	},
 	{
 		displayName: '成员UserID列表',
@@ -34,7 +34,7 @@ export const createPublicMailboxDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly },
 		default: '',
 		placeholder: 'zhangsan,lisi',
-		description: '有权限使用的成员 userid，逗号分隔。userid_list / department_list / tag_list 不能同时为空',
+		description: '有权限使用的成员 userid；可用逗号、中文逗号、竖线或换行分隔。三类使用范围不能同时为空',
 	},
 	{
 		displayName: '部门ID列表',
@@ -43,7 +43,7 @@ export const createPublicMailboxDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly },
 		default: '',
 		placeholder: '1,2',
-		description: '有权限使用的部门 ID，逗号分隔',
+		description: '有权限使用的部门 ID；支持逗号、中文逗号、竖线或换行分隔',
 	},
 	{
 		displayName: '标签ID列表',
@@ -52,7 +52,7 @@ export const createPublicMailboxDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly },
 		default: '',
 		placeholder: '1,2',
-		description: '有权限使用的标签 ID，逗号分隔',
+		description: '有权限使用的标签 ID；支持逗号、中文逗号、竖线或换行分隔',
 	},
 	{
 		displayName: '创建客户端专用密码',
@@ -72,6 +72,6 @@ export const createPublicMailboxDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: { show: { ...showOnly, create_auth_code: [1] } },
 		default: '',
-		description: '客户端专用密码的备注说明',
+		description: '客户端专用密码的备注说明，最长 128 字节',
 	},
 ];

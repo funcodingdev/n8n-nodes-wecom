@@ -25,7 +25,8 @@ export const updateScheduleDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: showOnlyForUpdate },
 		default: '',
-		description: '日程开始时间。注意：如果操作模式是"仅修改此日程"或"修改将来的所有日程"，start_time和end_time必须是op_start_time当天或之后的时间',
+		description:
+			'日程开始时间。注意：如果操作模式是"仅修改此日程"或"修改将来的所有日程"，start_time和end_time必须是op_start_time当天或之后的时间',
 	},
 	{
 		displayName: '结束时间',
@@ -34,7 +35,8 @@ export const updateScheduleDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: showOnlyForUpdate },
 		default: '',
-		description: '日程结束时间。注意：如果操作模式是"仅修改此日程"或"修改将来的所有日程"，start_time和end_time必须是op_start_time当天或之后的时间',
+		description:
+			'日程结束时间。注意：如果操作模式是"仅修改此日程"或"修改将来的所有日程"，start_time和end_time必须是op_start_time当天或之后的时间',
 	},
 	{
 		displayName: '是否全天日程',
@@ -42,7 +44,8 @@ export const updateScheduleDescription: INodeProperties[] = [
 		type: 'boolean',
 		displayOptions: { show: showOnlyForUpdate },
 		default: false,
-		description: '是否更新成全天日程。注意：若修改字段跟会议室有关联，已预约会议室的日程无法通过此接口进行更新',
+		description:
+			'是否更新成全天日程。注意：若修改字段跟会议室有关联，已预约会议室的日程无法通过此接口进行更新',
 	},
 	{
 		displayName: '日程主题',
@@ -81,7 +84,8 @@ export const updateScheduleDescription: INodeProperties[] = [
 			loadOptionsMethod: 'getAllUsers',
 		},
 		default: [],
-		description: '日程参与者列表。最多支持1000人。注意：更新操作是覆盖式，如果需要增量式更新成员，可使用"新增日程参与者"与"删除日程参与者"接口。可从列表选择或手动输入UserID',
+		description:
+			'日程参与者列表。最多支持1000人。注意：更新操作是覆盖式，如果需要增量式更新成员，可使用"新增日程参与者"与"删除日程参与者"接口。可从列表选择或手动输入UserID',
 	},
 	{
 		displayName: '日程管理员',
@@ -92,7 +96,8 @@ export const updateScheduleDescription: INodeProperties[] = [
 			loadOptionsMethod: 'getAllUsers',
 		},
 		default: [],
-		description: '日程的管理员userid列表，管理员必须在共享成员的列表中。最多指定3人。可从列表选择或手动输入UserID',
+		description:
+			'日程的管理员userid列表，管理员必须在共享成员的列表中。最多指定3人。可从列表选择或手动输入UserID',
 	},
 	{
 		displayName: '跳过参与者更新',
@@ -102,7 +107,8 @@ export const updateScheduleDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForUpdate,
 		},
-		description: '是否不更新参与人。默认为否。注意：更新操作是覆盖式，如果需要增量式更新成员，可使用"新增日程参与者"与"删除日程参与者"接口',
+		description:
+			'是否不更新参与人。默认为否。注意：更新操作是覆盖式，如果需要增量式更新成员，可使用"新增日程参与者"与"删除日程参与者"接口',
 	},
 	{
 		displayName: '操作模式',
@@ -135,6 +141,7 @@ export const updateScheduleDescription: INodeProperties[] = [
 		displayName: '操作起始时间',
 		name: 'op_start_time',
 		type: 'dateTime',
+		required: true,
 		displayOptions: {
 			show: {
 				...showOnlyForUpdate,
@@ -142,7 +149,8 @@ export const updateScheduleDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '操作起始时间。仅当操作模式是"仅修改此日程"或"修改将来的所有日程"时有效。该时间必须是重复日程的某一次开始时间。注意：如果操作模式是"仅修改此日程"或"修改将来的所有日程"，start_time和end_time必须是op_start_time当天或之后的时间',
+		description:
+			'操作起始时间。仅当操作模式是"仅修改此日程"或"修改将来的所有日程"时有效。该时间必须是重复日程的某一次开始时间。注意：如果操作模式是"仅修改此日程"或"修改将来的所有日程"，start_time和end_time必须是op_start_time当天或之后的时间',
 	},
 	{
 		displayName: '提醒设置',
@@ -151,7 +159,8 @@ export const updateScheduleDescription: INodeProperties[] = [
 		displayOptions: { show: showOnlyForUpdate },
 		default: {},
 		placeholder: '添加提醒设置',
-		description: '提醒相关信息。注意：若修改字段跟会议室有关联，已预约会议室的日程无法通过此接口进行更新。跟会议室关联的字段有：start_time、end_time、is_whole_day、is_repeat、repeat_type、repeat_until、is_custom_repeat、repeat_interval、repeat_day_of_week、repeat_day_of_month、timezone',
+		description:
+			'提醒相关信息。注意：若修改字段跟会议室有关联，已预约会议室的日程无法通过此接口进行更新。跟会议室关联的字段有：start_time、end_time、is_whole_day、is_repeat、repeat_type、repeat_until、is_custom_repeat、repeat_interval、repeat_day_of_week、repeat_day_of_month、timezone',
 		options: [
 			{
 				displayName: '提醒设置',
@@ -174,7 +183,8 @@ export const updateScheduleDescription: INodeProperties[] = [
 								is_remind: [true],
 							},
 						},
-						description: '日程开始（start_time）前多少秒提醒，当需要提醒时有效。该字段与remind_time_diffs仅一个字段会生效，当remind_time_diffs有传值且列表不为空时，优先以remind_time_diffs为准',
+						description:
+							'日程开始（start_time）前多少秒提醒，当需要提醒时有效。该字段与remind_time_diffs仅一个字段会生效，当remind_time_diffs有传值且列表不为空时，优先以remind_time_diffs为准',
 						options: [
 							{ name: '事件开始时', value: 0 },
 							{ name: '事件开始前5分钟', value: 300 },
@@ -193,7 +203,8 @@ export const updateScheduleDescription: INodeProperties[] = [
 								is_remind: [true],
 							},
 						},
-						description: '提醒时间与日程开始时间（start_time）的差值，当需要提醒时有效，可以指定多个提醒时间。当是全天日程时，还支持更多选项。该字段与remind_before_event_secs仅一个字段会生效，当该字段有传值且列表不为空时，优先以该字段为准',
+						description:
+							'提醒时间与日程开始时间（start_time）的差值，当需要提醒时有效，可以指定多个提醒时间。当是全天日程时，还支持更多选项。该字段与remind_before_event_secs仅一个字段会生效，当该字段有传值且列表不为空时，优先以该字段为准',
 						options: [
 							{ name: '事件开始时', value: 0 },
 							{ name: '事件开始前5分钟', value: -300 },
@@ -210,7 +221,8 @@ export const updateScheduleDescription: INodeProperties[] = [
 						name: 'is_repeat',
 						type: 'boolean',
 						default: false,
-						description: '是否重复日程。注意：若修改字段跟会议室有关联，已预约会议室的日程无法通过此接口进行更新',
+						description:
+							'是否重复日程。注意：若修改字段跟会议室有关联，已预约会议室的日程无法通过此接口进行更新',
 					},
 					{
 						displayName: '重复类型',
@@ -222,7 +234,8 @@ export const updateScheduleDescription: INodeProperties[] = [
 								is_repeat: [true],
 							},
 						},
-						description: '重复类型，当是重复日程时有效。目前支持如下类型：每日、每周、每月、每年、工作日',
+						description:
+							'重复类型，当是重复日程时有效。目前支持如下类型：每日、每周、每月、每年、工作日',
 						options: [
 							{ name: '每日', value: 0 },
 							{ name: '每周', value: 1 },
@@ -253,7 +266,8 @@ export const updateScheduleDescription: INodeProperties[] = [
 								is_repeat: [true],
 							},
 						},
-						description: '是否自定义重复。当是重复日程时有效。如果为否，系统会根据start_time和repeat_type自动计算下一次重复的时间；如果为是，可以配合repeat_day_of_week或repeat_day_of_month特别指定周几或几号重复，且可以使用repeat_interval指定重复间隔',
+						description:
+							'是否自定义重复。当是重复日程时有效。如果为否，系统会根据start_time和repeat_type自动计算下一次重复的时间；如果为是，可以配合repeat_day_of_week或repeat_day_of_month特别指定周几或几号重复，且可以使用repeat_interval指定重复间隔',
 					},
 					{
 						displayName: '重复间隔',
@@ -269,7 +283,8 @@ export const updateScheduleDescription: INodeProperties[] = [
 						typeOptions: {
 							minValue: 1,
 						},
-						description: '重复间隔。仅当指定为自定义重复时有效。该字段随repeat_type不同而含义不同。例如：repeat_interval指定为2，repeat_type指定为每周重复，那么每2周重复一次；repeat_interval指定为2，repeat_type指定为每月重复，那么每2个月重复一次',
+						description:
+							'重复间隔。仅当指定为自定义重复时有效。该字段随repeat_type不同而含义不同。例如：repeat_interval指定为2，repeat_type指定为每周重复，那么每2周重复一次；repeat_interval指定为2，repeat_type指定为每月重复，那么每2个月重复一次',
 					},
 					{
 						displayName: '每周重复日期',
@@ -283,7 +298,8 @@ export const updateScheduleDescription: INodeProperties[] = [
 								repeat_type: [1],
 							},
 						},
-						description: '每周周几重复。仅当指定为自定义重复且重复类型为每周时有效。取值范围：1 ~ 7',
+						description:
+							'每周周几重复。仅当指定为自定义重复且重复类型为每周时有效。取值范围：1 ~ 7',
 						options: [
 							{ name: '周一', value: 1 },
 							{ name: '周二', value: 2 },
@@ -306,7 +322,8 @@ export const updateScheduleDescription: INodeProperties[] = [
 								repeat_type: [2],
 							},
 						},
-						description: '每月哪几天重复。仅当指定为自定义重复且重复类型为每月时有效。取值范围：1 ~ 31',
+						description:
+							'每月哪几天重复。仅当指定为自定义重复且重复类型为每月时有效。取值范围：1 ~ 31',
 						options: Array.from({ length: 31 }, (_, i) => ({
 							name: `${i + 1}号`,
 							value: i + 1,
@@ -326,7 +343,8 @@ export const updateScheduleDescription: INodeProperties[] = [
 							minValue: -12,
 							maxValue: 12,
 						},
-						description: '时区。UTC偏移量表示(即偏离零时区的小时数)，东区为正数，西区为负数。例如：+8 表示北京时间东八区。默认为北京时间东八区。取值范围：-12 ~ +12',
+						description:
+							'时区。UTC偏移量表示(即偏离零时区的小时数)，东区为正数，西区为负数。例如：+8 表示北京时间东八区。默认为北京时间东八区。取值范围：-12 ~ +12',
 					},
 				],
 			},

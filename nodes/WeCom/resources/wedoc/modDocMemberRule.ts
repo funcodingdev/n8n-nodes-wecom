@@ -1,159 +1,96 @@
 import type { INodeProperties } from 'n8n-workflow';
+
 const showOnly = { resource: ['wedoc'], operation: ['modDocMemberRule'] };
-
-const memberTypeOptions = [
-	{ name: '成员', value: 1, description: '企业成员' },
-	{ name: '部门', value: 2, description: '企业部门' },
-];
-
 const authOptions = [
-	{ name: '只读', value: 1, description: '只能查看' },
-	{ name: '可编辑', value: 2, description: '可以编辑内容' },
-	{ name: '管理员', value: 3, description: '管理员权限' },
+	{ name: '只读', value: 1 },
+	{ name: '可编辑（仅智能表格）', value: 2 },
+	{ name: '管理员', value: 7 },
 ];
+
+function memberValues(includeAuth: boolean): INodeProperties[] {
+	const values: INodeProperties[] = [
+		{
+			displayName: 'ID 类型',
+			name: 'id_type',
+			type: 'options',
+			options: [
+				{ name: '企业内成员 UserID', value: 'userid' },
+				{ name: '外部用户临时 ID', value: 'tmp_external_userid' },
+			],
+			default: 'userid',
+		},
+		{
+			displayName: '成员UserID',
+			name: 'userid',
+			type: 'string',
+			required: true,
+			displayOptions: { show: { id_type: ['userid'] } },
+			default: '',
+		},
+		{
+			displayName: '外部用户临时ID',
+			name: 'tmp_external_userid',
+			type: 'string',
+			required: true,
+			displayOptions: { show: { id_type: ['tmp_external_userid'] } },
+			default: '',
+		},
+	];
+	if (includeAuth) {
+		values.push({
+			displayName: '权限',
+			name: 'auth',
+			type: 'options',
+			options: authOptions,
+			default: 1,
+			description: '管理员权限最多可设置 3 人',
+		});
+	}
+	return values;
+}
+
+function memberCollection(
+	name: string,
+	displayName: string,
+	placeholder: string,
+	includeAuth: boolean,
+): INodeProperties {
+	return {
+		displayName,
+		name,
+		type: 'fixedCollection',
+		displayOptions: { show: showOnly },
+		default: {},
+		placeholder,
+		typeOptions: { multipleValues: true },
+		options: [
+			{
+				displayName: '成员',
+				name: 'members',
+				values: memberValues(includeAuth),
+			},
+		],
+	};
+}
 
 export const modDocMemberRuleDescription: INodeProperties[] = [
-	{ displayName: '文档ID', name: 'docid', type: 'string', required: true, displayOptions: { show: showOnly }, default: '', description: '文档的docid' },
 	{
-		displayName: '添加成员',
-		name: 'addMemberCollection',
-		type: 'fixedCollection',
+		displayName: '文档ID',
+		name: 'docid',
+		type: 'string',
+		required: true,
 		displayOptions: { show: showOnly },
-		default: {},
-		placeholder: '添加成员',
-		typeOptions: { multipleValues: true },
-		description: '要添加的文档成员',
-		options: [
-			{
-				displayName: '成员',
-				name: 'members',
-				values: [
-					{
-						displayName: '类型',
-						name: 'type',
-						type: 'options',
-						default: 1,
-						options: memberTypeOptions,
-						description: '成员类型',
-					},
-					{
-						displayName: '成员UserID',
-						name: 'userid',
-						type: 'string',
-						default: '',
-						displayOptions: { show: { type: [1] } },
-						description: '企业成员的UserID',
-					},
-					{
-						displayName: '部门ID',
-						name: 'departmentid',
-						type: 'number',
-						default: 0,
-						displayOptions: { show: { type: [2] } },
-
-					},
-					{
-						displayName: '权限',
-						name: 'auth',
-						type: 'options',
-						default: 1,
-						options: authOptions,
-						description: '成员权限级别',
-					},
-				],
-			},
-		],
+		default: '',
 	},
 	{
-		displayName: '删除成员',
-		name: 'delMemberCollection',
-		type: 'fixedCollection',
+		displayName:
+			'企业微信官方接口的通知范围仅支持按人配置；更新和删除各最多 100 人，不支持部门。',
+		name: 'docMemberNotice',
+		type: 'notice',
 		displayOptions: { show: showOnly },
-		default: {},
-		placeholder: '删除成员',
-		typeOptions: { multipleValues: true },
-		description: '要移除的文档成员',
-		options: [
-			{
-				displayName: '成员',
-				name: 'members',
-				values: [
-					{
-						displayName: '类型',
-						name: 'type',
-						type: 'options',
-						default: 1,
-						options: memberTypeOptions,
-						description: '成员类型',
-					},
-					{
-						displayName: '成员UserID',
-						name: 'userid',
-						type: 'string',
-						default: '',
-						displayOptions: { show: { type: [1] } },
-						description: '企业成员的UserID',
-					},
-					{
-						displayName: '部门ID',
-						name: 'departmentid',
-						type: 'number',
-						default: 0,
-						displayOptions: { show: { type: [2] } },
-
-					},
-				],
-			},
-		],
+		default: '',
 	},
-	{
-		displayName: '更新成员权限',
-		name: 'updateMemberCollection',
-		type: 'fixedCollection',
-		displayOptions: { show: showOnly },
-		default: {},
-		placeholder: '更新权限',
-		typeOptions: { multipleValues: true },
-		description: '要更新权限的成员',
-		options: [
-			{
-				displayName: '成员',
-				name: 'members',
-				values: [
-					{
-						displayName: '类型',
-						name: 'type',
-						type: 'options',
-						default: 1,
-						options: memberTypeOptions,
-						description: '成员类型',
-					},
-					{
-						displayName: '成员UserID',
-						name: 'userid',
-						type: 'string',
-						default: '',
-						displayOptions: { show: { type: [1] } },
-						description: '企业成员的UserID',
-					},
-					{
-						displayName: '部门ID',
-						name: 'departmentid',
-						type: 'number',
-						default: 0,
-						displayOptions: { show: { type: [2] } },
-
-					},
-					{
-						displayName: '新权限',
-						name: 'auth',
-						type: 'options',
-						default: 1,
-						options: authOptions,
-						description: '新的权限级别',
-					},
-				],
-			},
-		],
-	},
+	memberCollection('addMemberCollection', '添加通知范围', '添加成员', true),
+	memberCollection('updateMemberCollection', '更新成员权限', '更新成员', true),
+	memberCollection('delMemberCollection', '删除通知范围', '删除成员', false),
 ];

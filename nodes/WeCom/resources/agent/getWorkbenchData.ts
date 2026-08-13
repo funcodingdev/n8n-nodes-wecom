@@ -7,25 +7,27 @@ const showOnlyGetWorkbenchData = {
 
 export const getWorkbenchDataDescription: INodeProperties[] = [
 	{
-		displayName: '应用ID',
+		displayName: '应用 ID',
 		name: 'agentid',
 		type: 'number',
 		required: true,
 		default: 0,
+		typeOptions: { minValue: 1, numberStepSize: 1 },
 		displayOptions: {
 			show: showOnlyGetWorkbenchData,
 		},
 		description: '企业应用的唯一标识',
 	},
 	{
-		displayName: '用户ID',
+		displayName: '用户',
 		name: 'userid',
-		type: 'string',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
 		required: true,
 		default: '',
 		displayOptions: {
 			show: showOnlyGetWorkbenchData,
 		},
-		description: '需要获取数据的用户userid。<a href="https://developer.work.weixin.qq.com/document/path/104210" target="_blank">官方文档</a>',
+		description: '选择应用可见范围内的用户，或使用表达式指定 UserID。<a href="https://developer.work.weixin.qq.com/document/path/92535" target="_blank">官方文档</a>',
 	},
 ];

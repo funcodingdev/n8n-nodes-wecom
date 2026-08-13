@@ -39,7 +39,7 @@ export const sendNewsDescription: INodeProperties[] = [
 		},
 
 		description:
-			'可选。使用JSON直接输入图文列表（数组）或完整news对象（包含articles）。<a href="https://developer.work.weixin.qq.com/document/path/90236#图文消息" target="_blank">官方文档</a>',
+			'使用 JSON 直接输入图文列表（数组）或完整 news 对象（包含 articles）。<a href="https://developer.work.weixin.qq.com/document/path/90236#图文消息" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '图文列表',
@@ -163,7 +163,6 @@ export const sendNewsDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				...showOnlySendNews,
-				news_input_mode: ['form'],
 			},
 		},
 		description: '可选。表示是否开启ID转译，默认否。开启后会将消息中的userid转为@对应成员显示。<a href="https://developer.work.weixin.qq.com/document/path/90236#图文消息" target="_blank">官方文档</a>',
@@ -176,7 +175,6 @@ export const sendNewsDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				...showOnlySendNews,
-				news_input_mode: ['form'],
 			},
 		},
 		description: '可选。表示是否开启重复消息检查，默认否。开启后相同内容的消息在时间间隔内不会重复发送。<a href="https://developer.work.weixin.qq.com/document/path/90236#图文消息" target="_blank">官方文档</a>',
@@ -190,7 +188,6 @@ export const sendNewsDescription: INodeProperties[] = [
 			show: {
 				...showOnlySendNews,
 				enable_duplicate_check: [true],
-				news_input_mode: ['form'],
 			},
 		},
 		typeOptions: {

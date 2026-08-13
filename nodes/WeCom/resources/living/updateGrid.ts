@@ -55,19 +55,41 @@ export const updateGridDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'zhangsan,lisi',
+		typeOptions: { rows: 2 },
 		description:
-			'网格「负责人」userid 列表，每个网格至少1个、最多20个。<a href="https://developer.work.weixin.qq.com/document/path/94479" target="_blank">官方文档</a>',
+			'网格负责人 UserID 列表，每个网格至少 1 个、最多 20 个；支持逗号、中文逗号、竖线或换行分隔。<a href="https://developer.work.weixin.qq.com/document/path/94479" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '更新网格成员',
+		name: 'update_grid_member',
+		type: 'boolean',
+		displayOptions: {
+			show: showOnlyForUpdateGrid,
+		},
+		default: false,
+		description: '关闭时保留现有网格成员；开启后按下方列表全量更新',
+	},
+	{
+		displayName: '成员更新提示',
+		name: 'gridMemberUpdateNotice',
+		type: 'notice',
+		displayOptions: {
+			show: { ...showOnlyForUpdateGrid, update_grid_member: [true] },
+		},
+		default: '',
+		description: '网格成员列表为全量更新。留空会清空所有成员，非空时最多 100 个。',
 	},
 	{
 		displayName: '网格成员UserID列表',
 		name: 'grid_member',
 		type: 'string',
 		displayOptions: {
-			show: showOnlyForUpdateGrid,
+			show: { ...showOnlyForUpdateGrid, update_grid_member: [true] },
 		},
 		default: '',
 		placeholder: 'wangwu,zhaoliu',
+		typeOptions: { rows: 3 },
 		description:
-			'可选。成员 userid 列表，不能超过100个；为空则清空所有成员。<a href="https://developer.work.weixin.qq.com/document/path/94479" target="_blank">官方文档</a>',
+			'成员 UserID 列表，最多 100 个；支持逗号、中文逗号、竖线或换行分隔。留空会清空所有成员。<a href="https://developer.work.weixin.qq.com/document/path/94479" target="_blank">官方文档</a>',
 	},
 ];

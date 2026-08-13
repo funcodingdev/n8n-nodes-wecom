@@ -33,9 +33,9 @@ export const muteMemberDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: showOnly },
 		default: {},
-		placeholder: '添加成员',
-		typeOptions: { multipleValues: true },
-		description: 'operated_user：会中临时 ID + 设备类型',
+		placeholder: '填写成员',
+		typeOptions: { multipleValues: false },
+		description: 'operated_user：接口每次只接受一个会中成员',
 		options: [
 			{
 				displayName: '成员',
@@ -54,8 +54,7 @@ export const muteMemberDescription: INodeProperties[] = [
 						name: 'instance_id',
 						type: 'number',
 						default: 1,
-						description:
-							'instance_id：0 PSTN / 1 PC / 2 Mac / 3 Android / 4 iOS / 5 Web 等',
+						description: 'instance_id：0 PSTN / 1 PC / 2 Mac / 3 Android / 4 iOS / 5 Web 等',
 					},
 				],
 			},

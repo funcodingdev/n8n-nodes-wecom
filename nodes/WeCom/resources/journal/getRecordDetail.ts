@@ -7,7 +7,7 @@ const showOnlyForGetRecordDetail = {
 
 export const getRecordDetailDescription: INodeProperties[] = [
 	{
-		displayName: '汇报ID',
+		displayName: '汇报记录ID',
 		name: 'journalid',
 		type: 'string',
 		required: true,
@@ -16,7 +16,6 @@ export const getRecordDetailDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'JOURNAL_ID_STRING',
-		description: '汇报记录的唯一标识ID，从汇报列表接口获取。<a href="https://developer.work.weixin.qq.com/document/path/93496" target="_blank">更多信息</a>',
+		description: '汇报记录的 journaluuid，从汇报记录列表获取，不超过 256 字节',
 	},
 ];
-

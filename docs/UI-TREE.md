@@ -58,7 +58,7 @@ n8n 节点面板
 │  │       ├─ 导出标签成员  (exportTagUser)
 │  │       └─ 获取导出结果  (getExportResult)
 │
-│  ├─ 资源 · 应用消息  (message)  · 15 ops
+│  ├─ 资源 · 应用消息  (message)  · 16 ops
 │  │   ├─ [基础消息]
 │  │   │   ├─ 发送文本消息  (sendText)
 │  │   │   ├─ 发送图片消息  (sendImage)
@@ -73,6 +73,8 @@ n8n 节点面板
 │  │   │   ├─ 发送小程序通知消息  (sendMiniprogramNotice)
 │  │   │   ├─ 发送任务卡片消息  (sendTaskCard)
 │  │   │   ├─ 发送模板卡片消息  (sendTemplateCard)
+│  │   │   └─ 发送并等待审批  (sendAndWait)
+│  │   ├─ [家校消息]
 │  │   │   └─ 发送学校通知  (sendSchoolNotice)
 │  │   └─ [消息操作]
 │  │       ├─ 撤回应用消息  (recallMessage)
@@ -103,7 +105,7 @@ n8n 节点面板
 │  │       ├─ 发送 Markdown V2 消息  (sendMarkdownV2)
 │  │       ├─ 发送图片消息  (sendImage)
 │  │       ├─ 发送语音消息  (sendVoice)
-│  │       ├─ 发送视频消息  (sendFile)
+│  │       ├─ 发送文件消息  (sendFile)
 │  │       ├─ 发送图文消息  (sendNews)
 │  │       └─ 发送模板卡片消息  (sendTemplateCard)
 │
@@ -123,26 +125,26 @@ n8n 节点面板
 │  │   │   ├─ 获取上下游信息  (getChainInfo)
 │  │   │   └─ 获取下级企业加入的上下游  (getSubCorpChainList)
 │  │   ├─ [认证与访问]
-│  │   │   ├─ 获取下级/下游企业的Access_token  (getLinkedCorpToken)
-│  │   │   ├─ 获取下级/下游企业小程序Session  (getMiniProgramSession)
+│  │   │   ├─ 获取下级/下游企业的 Access Token  (getLinkedCorpToken)
+│  │   │   ├─ 获取下级/下游企业小程序 Session  (getMiniProgramSession)
 │  │   │   └─ 获取应用共享信息  (getAppShareInfo)
 │  │   ├─ [客户管理]
-│  │   │   ├─ 上下游关联客户信息-已添加客户  (getLinkedCustomer)
+│  │   │   ├─ 已添加客户 ID 转换  (getLinkedCustomer)
 │  │   │   ├─ 批量导入上下游联系人  (batchImportChainContact)
-│  │   │   └─ 获取异步任务结果  (getChainAsyncResult)
+│  │   │   ├─ 获取异步任务结果  (getChainAsyncResult)
+│  │   │   └─ 未添加客户 ID 转换  (unionidToPendingId)
 │  │   ├─ [对接规则]
-│  │   │   ├─ 获取对接规则ID列表  (getChainRuleList)
+│  │   │   ├─ 获取对接规则 ID 列表  (getChainRuleList)
 │  │   │   ├─ 获取对接规则详情  (getChainRuleDetail)
 │  │   │   ├─ 新增对接规则  (addChainRule)
 │  │   │   ├─ 更新对接规则  (updateChainRule)
 │  │   │   └─ 删除对接规则  (deleteChainRule)
 │  │   ├─ [其他操作]
-│  │   │   ├─ 查询成员自定义ID  (getCustomUserId)
+│  │   │   ├─ 查询成员自定义 ID  (getCustomUserId)
 │  │   │   └─ 移除企业  (removeChainCorp)
 │  │   └─ [上下游]
 │  │       ├─ 获取企业信息  (corpGetChainCorpinfo)
-│  │       ├─ 获取企业分组  (corpGetChainGroup)
-│  │       └─ unionid转pending_id  (unionidToPendingId)
+│  │       └─ 获取企业分组  (corpGetChainGroup)
 │
 │  ├─ 资源 · 素材管理  (material)  · 6 ops
 │  │   └─ [素材管理]
@@ -155,20 +157,20 @@ n8n 节点面板
 │
 │  ├─ 资源 · 系统信息  (system)  · 12 ops
 │  │   ├─ [基础]
-│  │   │   ├─ 获取接口IP段  (getApiDomainIp)
-│  │   │   ├─ 获取回调IP段  (getCallbackIp)
-│  │   │   └─ 获取AccessToken  (getAccessToken)
+│  │   │   ├─ 获取接口 IP 段  (getApiDomainIp)
+│  │   │   ├─ 获取回调 IP 段  (getCallbackIp)
+│  │   │   └─ 获取 Access Token  (getAccessToken)
 │  │   ├─ [身份验证]
-│  │   │   ├─ 获取二次验证信息  (authGetTfaInfo)
+│  │   │   ├─ 获取用户二次验证信息  (authGetTfaInfo)
 │  │   │   ├─ 获取访问用户敏感信息  (authGetuserdetail)
 │  │   │   ├─ 获取访问用户身份  (authGetuserinfo)
-│  │   │   ├─ 获取成员身份  (userGetuserinfo)
-│  │   │   └─ 二次验证成功  (userTfaSucc)
+│  │   │   ├─ 获取移动端 SDK 成员身份  (userGetuserinfo)
+│  │   │   └─ 使用二次验证  (userTfaSucc)
 │  │   ├─ [JS-SDK]
-│  │   │   ├─ 获取企业 jsapi_ticket  (ticketGet)
-│  │   │   └─ 获取应用 jsapi_ticket  (getJsapiTicket)
+│  │   │   ├─ 获取企业 jsapi_ticket  (getJsapiTicket)
+│  │   │   └─ 获取应用 jsapi_ticket  (ticketGet)
 │  │   ├─ [系统]
-│  │   │   └─ 获取 launch_code  (getLaunchCode)
+│  │   │   └─ 获取个人聊天 launch_code  (getLaunchCode)
 │  │   └─ [小程序]
 │  │       └─ 登录凭证校验  (miniprogramJscode2session)
 │
@@ -279,10 +281,10 @@ n8n 节点面板
 │  │       └─ 提交图片  (uploadImage)
 │
 │  ├─ 资源 · 企业红包与向员工付款  (mchpay)  · 4 ops
-│  │   ├─ [企业红包]
+│  │   ├─ [兼容旧商户·企业红包]
 │  │   │   ├─ 发放企业红包  (sendRedpack)
 │  │   │   └─ 查询红包记录  (queryRedpack)
-│  │   └─ [向员工付款]
+│  │   └─ [兼容旧商户·向员工付款]
 │  │       ├─ 付款  (payToEmployee)
 │  │       └─ 查询付款记录  (queryPayToEmployee)
 │
@@ -472,7 +474,7 @@ n8n 节点面板
 │  │   │   ├─ 上传分片  (uploadPart)
 │  │   │   └─ 完成分片上传  (uploadFinish)
 │  │   └─ [微盘]
-│  │       └─ 获取文件权限  (wedriveGetFilePermission)
+│  │       └─ 获取文件权限（JSON 兼容入口）  (wedriveGetFilePermission)
 │
 │  ├─ 资源 · 邮件  (mail)  · 26 ops
 │  │   ├─ [邮件收发]
@@ -644,11 +646,11 @@ n8n 节点面板
 │  │   ├─ [直播信息]
 │  │   │   ├─ 获取成员直播ID列表  (getUserAllLivingId)
 │  │   │   ├─ 获取直播详情  (getLivingInfo)
-│  │   │   └─ 获取直播分享信息  (getLivingShareInfo)
+│  │   │   └─ 获取商城直播观众信息  (getLivingShareInfo)
 │  │   ├─ [直播统计]
 │  │   │   └─ 获取直播观看明细  (getLivingWatchStat)
 │  │   └─ [其他]
-│  │       └─ 获取直播观众临时码  (getLivingCode)
+│  │       └─ 获取微信观看直播凭证  (getLivingCode)
 │
 │  ├─ 资源 · 日程  (calendar)  · 12 ops
 │  │   ├─ [日历管理]
@@ -721,15 +723,11 @@ n8n 节点面板
 │  │       ├─ 获取员工花名册信息  (getStaffInfo)
 │  │       └─ 更新员工花名册信息  (updateStaffInfo)
 │
-│  ├─ 资源 · 会议室  (meetingroom)  · 5 ops
+│  ├─ 资源 · 会议室  (meetingroom)  · 2 ops
 │  │   ├─ [会议室管理]
 │  │   │   └─ 管理会议室  (manageMeetingroom)
-│  │   ├─ [预定管理]
-│  │   │   └─ 管理预定  (manageBooking)
-│  │   └─ [审批管理]
-│  │       ├─ 批量获取申请单ID  (getApplicationList)
-│  │       ├─ 获取申请单详细信息  (getApplicationDetail)
-│  │       └─ 设置审批单审批信息  (setApprovalInfo)
+│  │   └─ [预定管理]
+│  │       └─ 管理预定  (manageBooking)
 │
 │  ├─ 资源 · 紧急通知  (emergency)  · 2 ops
 │  │   └─ [紧急通知]
@@ -850,7 +848,7 @@ n8n 节点面板
 │  │   ├─ [客户联系]
 │  │   │   ├─ external_userid转openid  (externalcontactConvertToOpenid)
 │  │   │   ├─ 获取群发执行结果(旧)  (externalcontactGetGroupMsgResult)
-│  │   │   └─ 分配在职成员客户(旧)  (externalcontactTransfer)
+│  │   │   └─ 分配在职或离职成员客户(旧)  (externalcontactTransfer)
 │  │   ├─ [客户规则组]
 │  │   │   ├─ 创建规则组  (externalcontactCustomerStrategyCreate)
 │  │   │   ├─ 删除规则组  (externalcontactCustomerStrategyDel)
@@ -916,7 +914,7 @@ n8n 节点面板
 │  │   │   ├─ 获取学生付款结果  (getTradeResult)
 │  │   │   ├─ 获取订单详情  (getTradeDetail)
 │  │   │   ├─ 获取可使用的家长范围  (getAllowScope)
-│  │   │   ├─ 获取家校访问用户身份  (getUserInfo3rd)
+│  │   │   ├─ 获取第三方访问用户身份  (getUserInfo3rd)
 │  │   │   ├─ 创建学生  (createStudent)
 │  │   │   ├─ 删除学生  (deleteStudent)
 │  │   │   ├─ 更新学生  (updateStudent)
@@ -941,8 +939,9 @@ n8n 节点面板
 │  │   │   ├─ 设置通讯录同步模式  (setArchSyncMode)
 │  │   │   ├─ 设置群创建模式  (setChatCreateMode)
 │  │   │   └─ 设置升级信息  (setUpgradeInfo)
-│  │   ├─ [家校直播]
-│  │   │   ├─ 获取直播详情  (livingGetLivingInfo)
+│  │   ├─ [家校直播·兼容]
+│  │   │   └─ 获取直播详情  (livingGetLivingInfo)
+│  │   ├─ [家校直播·旧版兼容]
 │  │   │   ├─ 获取未观看统计  (livingGetUnwatchStat)
 │  │   │   └─ 获取观看统计  (livingGetWatchStat)
 │  │   ├─ [家校学生]
@@ -983,7 +982,7 @@ n8n 节点面板
    │    ├─ 参数 · Path
    │    ├─ 参数 · 事件类型
    │    └─ 参数 · 返回原始数据
-   ├─ 企业微信(WeCom)-消息接收（被动回复）触发器
+   ├─ 企业微信(WeCom)-消息接收被动回复触发器
    │    type: weComPassiveTrigger
    │    ├─ 参数 · Path
    │    ├─ 参数 · 消息类型
@@ -996,8 +995,9 @@ n8n 节点面板
    └─ 企业微信(WeCom)-智能机器人消息接收触发器
         type: weComAiBotTrigger
         ├─ 参数 · Path
+        ├─ 参数 · 响应方式
         ├─ 参数 · 消息类型
         └─ 参数 · 返回原始数据
 ```
 
-**统计**：Action 节点 3 · 资源 40 · 操作 718 · 触发器 4
+**统计**：Action 节点 3 · 资源 40 · 操作 716 · 触发器 4

@@ -1,21 +1,43 @@
 import type { IExecuteFunctions, IDataObject, INodeExecutionData } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
+import {
+	fail,
+	normalizeUserIdList,
+	optionalText,
+	optionalUnixSeconds,
+	requireCharacterText,
+	requireInteger,
+	requireText,
+} from './utils';
 
-function parseCommaList(value: string): string[] {
-	return value
-		.split(',')
-		.map((item) => item.trim())
-		.filter((item) => item.length > 0);
-}
-
-function dateTimeToUnixTimestamp(dateTime: string | number): number {
-	if (typeof dateTime === 'number') {
-		return dateTime;
-	}
-	if (!dateTime || dateTime === '') {
-		return 0;
-	}
-	return Math.floor(new Date(dateTime).getTime() / 1000);
+function buildEventListBody(context: IExecuteFunctions, itemIndex: number): IDataObject {
+	const body: IDataObject = {
+		limit: requireInteger(
+			context,
+			context.getNodeParameter('limit', itemIndex, 20),
+			'每页条数',
+			itemIndex,
+			1,
+			50,
+		),
+	};
+	const beginCreateTime = optionalUnixSeconds(
+		context,
+		context.getNodeParameter('begin_create_time', itemIndex, ''),
+		'创建时间起点',
+		itemIndex,
+	);
+	const beginModifyTime = optionalUnixSeconds(
+		context,
+		context.getNodeParameter('begin_modify_time', itemIndex, ''),
+		'修改时间起点',
+		itemIndex,
+	);
+	const cursor = optionalText(context.getNodeParameter('cursor', itemIndex, ''));
+	if (beginCreateTime !== undefined) body.begin_create_time = beginCreateTime;
+	if (beginModifyTime !== undefined) body.begin_modify_time = beginModifyTime;
+	if (cursor !== undefined) body.cursor = cursor;
+	return body;
 }
 
 /**
@@ -32,25 +54,44 @@ export async function executeLiving(
 
 	for (let i = 0; i < items.length; i++) {
 		try {
-			let responseData: IDataObject = {};
+			let responseData: IDataObject;
 
 			switch (operation) {
 				case 'addGrid': {
-					// POST /cgi-bin/report/grid/add
-					const grid_name = this.getNodeParameter('grid_name', i) as string;
-					const grid_parent_id = this.getNodeParameter('grid_parent_id', i) as string;
-					const grid_admin = this.getNodeParameter('grid_admin', i) as string;
-					const grid_member = this.getNodeParameter('grid_member', i, '') as string;
-
 					const body: IDataObject = {
-						grid_name,
-						grid_parent_id,
-						grid_admin: parseCommaList(grid_admin),
+						grid_name: requireCharacterText(
+							this,
+							this.getNodeParameter('grid_name', i),
+							'网格名称',
+							i,
+							30,
+						),
+						grid_parent_id: requireText(
+							this,
+							this.getNodeParameter('grid_parent_id', i),
+							'父网格 ID',
+							i,
+						),
+						grid_admin: normalizeUserIdList(
+							this,
+							this.getNodeParameter('grid_admin', i),
+							'负责人列表',
+							i,
+							1,
+							20,
+						),
 					};
-					if (grid_member) {
-						body.grid_member = parseCommaList(grid_member);
+					const gridMember = optionalText(this.getNodeParameter('grid_member', i, ''));
+					if (gridMember !== undefined) {
+						body.grid_member = normalizeUserIdList(
+							this,
+							gridMember,
+							'网格成员列表',
+							i,
+							1,
+							100,
+						);
 					}
-
 					responseData = await weComApiRequest.call(
 						this,
 						'POST',
@@ -60,24 +101,40 @@ export async function executeLiving(
 					break;
 				}
 				case 'updateGrid': {
-					// POST /cgi-bin/report/grid/update
-					const grid_id = this.getNodeParameter('grid_id', i) as string;
-					const grid_name = this.getNodeParameter('grid_name', i) as string;
-					const grid_parent_id = this.getNodeParameter('grid_parent_id', i) as string;
-					const grid_admin = this.getNodeParameter('grid_admin', i) as string;
-					const grid_member = this.getNodeParameter('grid_member', i, '') as string;
-
 					const body: IDataObject = {
-						grid_id,
-						grid_name,
-						grid_parent_id,
-						grid_admin: parseCommaList(grid_admin),
+						grid_id: requireText(this, this.getNodeParameter('grid_id', i), '网格 ID', i),
+						grid_name: requireCharacterText(
+							this,
+							this.getNodeParameter('grid_name', i),
+							'网格名称',
+							i,
+							30,
+						),
+						grid_parent_id: requireText(
+							this,
+							this.getNodeParameter('grid_parent_id', i),
+							'父网格 ID',
+							i,
+						),
+						grid_admin: normalizeUserIdList(
+							this,
+							this.getNodeParameter('grid_admin', i),
+							'负责人列表',
+							i,
+							1,
+							20,
+						),
 					};
-					// 空字符串表示清空成员；不传则不覆盖时文档要求 grid_member 可选
-					if (grid_member !== undefined && grid_member !== null) {
-						body.grid_member = parseCommaList(grid_member);
+					if (this.getNodeParameter('update_grid_member', i, false) === true) {
+						body.grid_member = normalizeUserIdList(
+							this,
+							this.getNodeParameter('grid_member', i, ''),
+							'网格成员列表',
+							i,
+							0,
+							100,
+						);
 					}
-
 					responseData = await weComApiRequest.call(
 						this,
 						'POST',
@@ -87,20 +144,23 @@ export async function executeLiving(
 					break;
 				}
 				case 'deleteGrid': {
-					// POST /cgi-bin/report/grid/delete
-					const grid_id = this.getNodeParameter('grid_id', i) as string;
-					responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/report/grid/delete', {
-						grid_id,
-					});
+					const deleteRoot = this.getNodeParameter('delete_root_grid', i, false) === true;
+					responseData = await weComApiRequest.call(
+						this,
+						'POST',
+						'/cgi-bin/report/grid/delete',
+						{
+							grid_id: deleteRoot
+								? ''
+								: requireText(this, this.getNodeParameter('grid_id', i), '网格 ID', i),
+						},
+					);
 					break;
 				}
 				case 'getGridList': {
-					// POST /cgi-bin/report/grid/list
-					const grid_id = this.getNodeParameter('grid_id', i, '') as string;
 					const body: IDataObject = {};
-					if (grid_id) {
-						body.grid_id = grid_id;
-					}
+					const gridId = optionalText(this.getNodeParameter('grid_id', i, ''));
+					if (gridId !== undefined) body.grid_id = gridId;
 					responseData = await weComApiRequest.call(
 						this,
 						'POST',
@@ -110,75 +170,79 @@ export async function executeLiving(
 					break;
 				}
 				case 'getUserGridList': {
-					// POST /cgi-bin/report/grid/get_user_grid_info
-					const userid = this.getNodeParameter('userid', i) as string;
 					responseData = await weComApiRequest.call(
 						this,
 						'POST',
 						'/cgi-bin/report/grid/get_user_grid_info',
-						{ userid },
+						{ userid: requireText(this, this.getNodeParameter('userid', i), '成员 UserID', i) },
 					);
 					break;
 				}
-				case 'addEventCategory': {
-					// POST /cgi-bin/report/grid/add_cata
-					const category_name = this.getNodeParameter('category_name', i) as string;
-					const level = this.getNodeParameter('level', i) as number;
-					const parent_category_id = this.getNodeParameter('parent_category_id', i, '') as string;
-
-					const body: IDataObject = {
-						category_name,
-						level,
-					};
-					if (level === 2 && parent_category_id) {
-						body.parent_category_id = parent_category_id;
-					}
-
-					responseData = await weComApiRequest.call(
-						this,
-						'POST',
-						'/cgi-bin/report/grid/add_cata',
-						body,
-					);
-					break;
-				}
+				case 'addEventCategory':
 				case 'updateEventCategory': {
-					// POST /cgi-bin/report/grid/update_cata
-					const category_id = this.getNodeParameter('category_id', i) as string;
-					const category_name = this.getNodeParameter('category_name', i) as string;
-					const level = this.getNodeParameter('level', i) as number;
-					const parent_category_id = this.getNodeParameter('parent_category_id', i, '') as string;
-
+					const level = requireInteger(
+						this,
+						this.getNodeParameter('level', i),
+						'分类层级',
+						i,
+						1,
+						2,
+					);
 					const body: IDataObject = {
-						category_id,
-						category_name,
+						category_name: requireCharacterText(
+							this,
+							this.getNodeParameter('category_name', i),
+							'分类名称',
+							i,
+							30,
+						),
 						level,
 					};
-					if (level === 2 && parent_category_id) {
-						body.parent_category_id = parent_category_id;
+					if (operation === 'updateEventCategory') {
+						body.category_id = requireText(
+							this,
+							this.getNodeParameter('category_id', i),
+							'分类 ID',
+							i,
+						);
 					}
-
+					if (level === 2) {
+						body.parent_category_id = requireText(
+							this,
+							this.getNodeParameter('parent_category_id', i),
+							'所属一级分类 ID',
+							i,
+						);
+					}
+					const path =
+						operation === 'addEventCategory'
+							? '/cgi-bin/report/grid/add_cata'
+							: '/cgi-bin/report/grid/update_cata';
 					responseData = await weComApiRequest.call(
 						this,
 						'POST',
-						'/cgi-bin/report/grid/update_cata',
+						path,
 						body,
 					);
 					break;
 				}
 				case 'deleteEventCategory': {
-					// POST /cgi-bin/report/grid/delete_cata
-					const category_id = this.getNodeParameter('category_id', i) as string;
 					responseData = await weComApiRequest.call(
 						this,
 						'POST',
 						'/cgi-bin/report/grid/delete_cata',
-						{ category_id },
+						{
+							category_id: requireText(
+								this,
+								this.getNodeParameter('category_id', i),
+								'分类 ID',
+								i,
+							),
+						},
 					);
 					break;
 				}
 				case 'getEventCategoryList': {
-					// POST /cgi-bin/report/grid/list_cata
 					responseData = await weComApiRequest.call(
 						this,
 						'POST',
@@ -187,194 +251,97 @@ export async function executeLiving(
 					);
 					break;
 				}
-				case 'getInspectGridInfo': {
-					// GET /cgi-bin/report/patrol/get_grid_info
-					responseData = await weComApiRequest.call(
-						this,
-						'GET',
-						'/cgi-bin/report/patrol/get_grid_info',
-					);
-					break;
-				}
-				case 'getCorpInspectStat': {
-					// POST /cgi-bin/report/patrol/get_corp_status
-					const grid_id = this.getNodeParameter('grid_id', i, '') as string;
-					const body: IDataObject = {};
-					if (grid_id) {
-						body.grid_id = grid_id;
-					}
-					responseData = await weComApiRequest.call(
-						this,
-						'POST',
-						'/cgi-bin/report/patrol/get_corp_status',
-						body,
-					);
-					break;
-				}
-				case 'getUserInspectStat': {
-					// POST /cgi-bin/report/patrol/get_user_status
-					const userid = this.getNodeParameter('userid', i) as string;
-					responseData = await weComApiRequest.call(
-						this,
-						'POST',
-						'/cgi-bin/report/patrol/get_user_status',
-						{ userid },
-					);
-					break;
-				}
-				case 'getInspectCategoryStat': {
-					// POST /cgi-bin/report/patrol/category_statistic
-					const category_id = this.getNodeParameter('category_id', i, '') as string;
-					const body: IDataObject = {};
-					if (category_id) {
-						body.category_id = category_id;
-					}
-					responseData = await weComApiRequest.call(
-						this,
-						'POST',
-						'/cgi-bin/report/patrol/category_statistic',
-						body,
-					);
-					break;
-				}
-				case 'getInspectEventList': {
-					// POST /cgi-bin/report/patrol/get_order_list
-					const begin_create_time = dateTimeToUnixTimestamp(
-						this.getNodeParameter('begin_create_time', i, '') as string | number,
-					);
-					const begin_modify_time = dateTimeToUnixTimestamp(
-						this.getNodeParameter('begin_modify_time', i, '') as string | number,
-					);
-					const cursor = this.getNodeParameter('cursor', i, '') as string;
-					const limit = this.getNodeParameter('limit', i, 20) as number;
-
-					const body: IDataObject = {
-						limit: limit || 20,
-					};
-					if (begin_create_time) {
-						body.begin_create_time = begin_create_time;
-					}
-					if (begin_modify_time) {
-						body.begin_modify_time = begin_modify_time;
-					}
-					if (cursor) {
-						body.cursor = cursor;
-					}
-
-					responseData = await weComApiRequest.call(
-						this,
-						'POST',
-						'/cgi-bin/report/patrol/get_order_list',
-						body,
-					);
-					break;
-				}
-				case 'getInspectEventDetail': {
-					// POST /cgi-bin/report/patrol/get_order_info
-					const order_id = this.getNodeParameter('order_id', i) as string;
-					responseData = await weComApiRequest.call(
-						this,
-						'POST',
-						'/cgi-bin/report/patrol/get_order_info',
-						{ order_id },
-					);
-					break;
-				}
+				case 'getInspectGridInfo':
 				case 'getResidentGridInfo': {
-					// GET /cgi-bin/report/resident/get_grid_info
+					const path =
+						operation === 'getInspectGridInfo'
+							? '/cgi-bin/report/patrol/get_grid_info'
+							: '/cgi-bin/report/resident/get_grid_info';
 					responseData = await weComApiRequest.call(
 						this,
 						'GET',
-						'/cgi-bin/report/resident/get_grid_info',
+						path,
 					);
 					break;
 				}
+				case 'getCorpInspectStat':
 				case 'getCorpResidentStat': {
-					// POST /cgi-bin/report/resident/get_corp_status
-					const grid_id = this.getNodeParameter('grid_id', i, '') as string;
+					const path =
+						operation === 'getCorpInspectStat'
+							? '/cgi-bin/report/patrol/get_corp_status'
+							: '/cgi-bin/report/resident/get_corp_status';
 					const body: IDataObject = {};
-					if (grid_id) {
-						body.grid_id = grid_id;
-					}
+					const gridId = optionalText(this.getNodeParameter('grid_id', i, ''));
+					if (gridId !== undefined) body.grid_id = gridId;
 					responseData = await weComApiRequest.call(
 						this,
 						'POST',
-						'/cgi-bin/report/resident/get_corp_status',
+						path,
 						body,
 					);
 					break;
 				}
+				case 'getUserInspectStat':
 				case 'getUserResidentStat': {
-					// POST /cgi-bin/report/resident/get_user_status
-					const userid = this.getNodeParameter('userid', i) as string;
+					const path =
+						operation === 'getUserInspectStat'
+							? '/cgi-bin/report/patrol/get_user_status'
+							: '/cgi-bin/report/resident/get_user_status';
 					responseData = await weComApiRequest.call(
 						this,
 						'POST',
-						'/cgi-bin/report/resident/get_user_status',
-						{ userid },
+						path,
+						{ userid: requireText(this, this.getNodeParameter('userid', i), '成员 UserID', i) },
 					);
 					break;
 				}
+				case 'getInspectCategoryStat':
 				case 'getResidentCategoryStat': {
-					// POST /cgi-bin/report/resident/category_statistic
-					const category_id = this.getNodeParameter('category_id', i, '') as string;
+					const path =
+						operation === 'getInspectCategoryStat'
+							? '/cgi-bin/report/patrol/category_statistic'
+							: '/cgi-bin/report/resident/category_statistic';
 					const body: IDataObject = {};
-					if (category_id) {
-						body.category_id = category_id;
-					}
+					const categoryId = optionalText(this.getNodeParameter('category_id', i, ''));
+					if (categoryId !== undefined) body.category_id = categoryId;
 					responseData = await weComApiRequest.call(
 						this,
 						'POST',
-						'/cgi-bin/report/resident/category_statistic',
+						path,
 						body,
 					);
 					break;
 				}
+				case 'getInspectEventList':
 				case 'getResidentEventList': {
-					// POST /cgi-bin/report/resident/get_order_list
-					const begin_create_time = dateTimeToUnixTimestamp(
-						this.getNodeParameter('begin_create_time', i, '') as string | number,
-					);
-					const begin_modify_time = dateTimeToUnixTimestamp(
-						this.getNodeParameter('begin_modify_time', i, '') as string | number,
-					);
-					const cursor = this.getNodeParameter('cursor', i, '') as string;
-					const limit = this.getNodeParameter('limit', i, 20) as number;
-
-					const body: IDataObject = {
-						limit: limit || 20,
-					};
-					if (begin_create_time) {
-						body.begin_create_time = begin_create_time;
-					}
-					if (begin_modify_time) {
-						body.begin_modify_time = begin_modify_time;
-					}
-					if (cursor) {
-						body.cursor = cursor;
-					}
-
+					const path =
+						operation === 'getInspectEventList'
+							? '/cgi-bin/report/patrol/get_order_list'
+							: '/cgi-bin/report/resident/get_order_list';
 					responseData = await weComApiRequest.call(
 						this,
 						'POST',
-						'/cgi-bin/report/resident/get_order_list',
-						body,
+						path,
+						buildEventListBody(this, i),
 					);
 					break;
 				}
+				case 'getInspectEventDetail':
 				case 'getResidentEventDetail': {
-					// POST /cgi-bin/report/resident/get_order_info
-					const order_id = this.getNodeParameter('order_id', i) as string;
+					const path =
+						operation === 'getInspectEventDetail'
+							? '/cgi-bin/report/patrol/get_order_info'
+							: '/cgi-bin/report/resident/get_order_info';
 					responseData = await weComApiRequest.call(
 						this,
 						'POST',
-						'/cgi-bin/report/resident/get_order_info',
-						{ order_id },
+						path,
+						{ order_id: requireText(this, this.getNodeParameter('order_id', i), '工单 ID', i) },
 					);
 					break;
 				}
 				default:
-					throw new Error(`未知操作: ${operation}`);
+					fail(this, `不支持的政民沟通操作: ${operation}`, i);
 			}
 
 			returnData.push({
@@ -384,9 +351,7 @@ export async function executeLiving(
 		} catch (error) {
 			if (this.continueOnFail()) {
 				returnData.push({
-					json: {
-						error: (error as Error).message,
-					},
+					json: { error: (error as Error).message },
 					pairedItem: { item: i },
 				});
 				continue;

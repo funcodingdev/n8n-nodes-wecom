@@ -28,4 +28,15 @@ export const addSmartsheetViewDescription: INodeProperties[] = [
 		],
 		description: '视图的类型',
 	},
+	{
+		displayName: '视图属性JSON',
+		name: 'viewExtraJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '{}',
+		description:
+			'可填写官方 property_gantt 或 property_calendar。甘特图和日历视图必须提供对应属性',
+		placeholder:
+			'{"property_calendar":{"start_date_field_id":"FIELD1","end_date_field_id":"FIELD2"}}',
+	},
 ];

@@ -1,11 +1,12 @@
 import type { IExecuteFunctions, IDataObject } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
+import { requireStringList } from './utils';
 
 export async function openKfidToNewOpenKfid(
 	this: IExecuteFunctions,
 	index: number,
 ): Promise<IDataObject> {
-	const openKfidList = this.getNodeParameter('openKfidList', index) as string[];
+	const openKfidList = requireStringList(this, this.getNodeParameter('openKfidList', index), 'Open KfID 列表', index, 1000);
 
 	const body: IDataObject = {
 		open_kfid_list: openKfidList,

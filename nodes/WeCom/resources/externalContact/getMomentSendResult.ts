@@ -35,7 +35,7 @@ export const getMomentSendResultDescription: INodeProperties[] = [
 		displayName: '每页数量',
 		name: 'limit',
 		type: 'number',
-		typeOptions: { minValue: 1, maxValue: 5000 },
+		typeOptions: { minValue: 1, maxValue: 5000, numberStepSize: 1 },
 		default: 3000,
 		displayOptions: { show: showOnly },
 		description: '返回的最大记录数，整型，最大值5000，默认值3000',

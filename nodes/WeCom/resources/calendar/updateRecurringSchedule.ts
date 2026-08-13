@@ -86,6 +86,7 @@ export const updateRecurringScheduleDescription: INodeProperties[] = [
 		displayName: '操作起始时间',
 		name: 'op_start_time',
 		type: 'dateTime',
+		required: true,
 		displayOptions: {
 			show: {
 				...showOnlyForUpdateRecurring,

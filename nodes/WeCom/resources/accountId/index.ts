@@ -101,10 +101,11 @@ export const accountIdDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['accountId'],
-				operation: ['openuseridToUserid', 'fromServiceExternalUserid'],
+				operation: ['openuseridToUserid', 'fromServiceExternalUserid', 'opencorpidToCorpid'],
 			},
 		},
-		default: 0,
+		default: 1,
+		typeOptions: { minValue: 1, maxValue: 4294967295, numberStepSize: 1 },
 		description: '企业授权的代开发自建应用或第三方应用的agentid',
 	},
 	{
@@ -161,9 +162,9 @@ export const accountIdDescription: INodeProperties[] = [
 				description: '收集表的统计信息查询、读取收集表答案',
 			},
 			{
-				name: '文档',
+				name: '智能表格',
 				value: 3,
-				description: '获取记录',
+				description: '智能表格获取记录',
 			},
 		],
 		default: 1,
@@ -232,7 +233,7 @@ export const accountIdDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['accountId'],
-				operation: ['corpidToOpencorpid', 'opencorpidToCorpid'],
+				operation: ['corpidToOpencorpid'],
 			},
 		},
 		default: '',
@@ -487,5 +488,15 @@ export const accountIdDescription: INodeProperties[] = [
 		],
 		default: 1,
 		description: 'ID类型：1-userid与corpid; 3-external_userid。多个值请使用"Add Value"按钮添加',
+	},
+	{
+		displayName: '迁移完成提示',
+		name: 'finishMigrationNotice',
+		type: 'notice',
+		displayOptions: {
+			show: { resource: ['accountId'], operation: ['finishOpenidMigration'] },
+		},
+		default: '',
+		description: '仅在企业下所有第三方应用对应类型的新旧 ID 已全部迁移后执行。该状态用于宣告迁移完成，请勿提前设置。',
 	},
 ];

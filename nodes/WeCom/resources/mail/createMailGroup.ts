@@ -1,65 +1,53 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-const showOnlyForCreateMailGroup = {
-	resource: ['mail'],
-	operation: ['createMailGroup'],
-};
+const showOnly = { resource: ['mail'], operation: ['createMailGroup'] };
+const custom = { ...showOnly, allow_type: [3] };
+const separators = '可用逗号、中文逗号、竖线或换行分隔';
 
 export const createMailGroupDescription: INodeProperties[] = [
 	{
-		displayName: '群组地址',
-		name: 'groupid',
-		type: 'string',
-		required: true,
-		displayOptions: {
-			show: showOnlyForCreateMailGroup,
-		},
-		default: '',
-		placeholder: 'group@example.com',
-		description: '邮件群组的邮箱地址，作为群组的唯一标识。<a href="https://developer.work.weixin.qq.com/document/path/95486" target="_blank">更多信息</a>',
+		displayName: '群组地址', name: 'groupid', type: 'string', required: true,
+		displayOptions: { show: showOnly }, default: '', placeholder: 'group@example.com',
+		description: '邮件群组 ID，必须是邮箱格式',
 	},
 	{
-		displayName: '群组名称',
-		name: 'groupname',
-		type: 'string',
-		required: true,
-		displayOptions: {
-			show: showOnlyForCreateMailGroup,
-		},
-		default: '',
-		placeholder: '销售团队',
-		description: '邮件群组的显示名称。<a href="https://developer.work.weixin.qq.com/document/path/95486" target="_blank">更多信息</a>',
+		displayName: '群组名称', name: 'groupname', type: 'string', required: true,
+		displayOptions: { show: showOnly }, default: '', description: '最长 200 字节',
 	},
 	{
-		displayName: '成员列表',
-		name: 'userlist',
-		type: 'string',
-		displayOptions: {
-			show: showOnlyForCreateMailGroup,
-		},
-		default: '',
-		placeholder: 'user1@example.com,user2@example.com',
-		description: '可选。群组成员邮箱列表，多个邮箱用英文逗号分隔。<a href="https://developer.work.weixin.qq.com/document/path/95486" target="_blank">更多信息</a>',
+		displayName: '成员邮箱列表', name: 'email_list', type: 'string',
+		displayOptions: { show: showOnly }, default: '', description: separators,
 	},
 	{
-		displayName: '允许外部成员',
-		name: 'allow_type',
-		type: 'options',
-		displayOptions: {
-			show: showOnlyForCreateMailGroup,
-		},
+		displayName: '群组邮箱列表', name: 'group_list', type: 'string',
+		displayOptions: { show: showOnly }, default: '', description: separators,
+	},
+	{
+		displayName: '部门ID列表', name: 'department_list', type: 'string',
+		displayOptions: { show: showOnly }, default: '', description: separators,
+	},
+	{
+		displayName: '标签ID列表', name: 'tag_list', type: 'string',
+		displayOptions: { show: showOnly }, default: '', description: `四类群成员至少填一类；${separators}`,
+	},
+	{
+		displayName: '群组使用权限', name: 'allow_type', type: 'options',
+		displayOptions: { show: showOnly }, default: 0,
 		options: [
-			{
-				name: '仅内部成员',
-				value: 0,
-			},
-			{
-				name: '允许外部成员',
-				value: 1,
-			},
+			{ name: '企业成员', value: 0 }, { name: '任何人', value: 1 },
+			{ name: '组内成员', value: 2 }, { name: '自定义成员', value: 3 },
 		],
-		default: 0,
-		description: '是否允许群组包含外部成员。<a href="https://developer.work.weixin.qq.com/document/path/95486" target="_blank">更多信息</a>',
+	},
+	{
+		displayName: '允许使用的成员邮箱', name: 'allow_emaillist', type: 'string',
+		displayOptions: { show: custom }, default: '', description: separators,
+	},
+	{
+		displayName: '允许使用的部门ID', name: 'allow_departmentlist', type: 'string',
+		displayOptions: { show: custom }, default: '', description: separators,
+	},
+	{
+		displayName: '允许使用的标签ID', name: 'allow_taglist', type: 'string',
+		displayOptions: { show: custom }, default: '', description: `自定义权限时三类范围至少填一类；${separators}`,
 	},
 ];
-

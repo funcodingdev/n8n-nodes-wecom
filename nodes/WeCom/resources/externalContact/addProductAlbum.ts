@@ -20,6 +20,7 @@ export const addProductAlbumDescription: INodeProperties[] = [
 		type: 'number',
 		required: true,
 		default: 0,
+		typeOptions: { minValue: 0, maxValue: 500000 },
 		displayOptions: { show: showOnly },
 		description: '商品的价格，单位为分；最大不超过5万元（500000分）',
 	},
@@ -41,7 +42,7 @@ export const addProductAlbumDescription: INodeProperties[] = [
 		default: {},
 		placeholder: '添加图片',
 		typeOptions: { multipleValues: true },
-		description: '商品图片列表，最多不超过9个附件，仅支持通过上传附件资源接口获得的资源',
+		description: '商品图片列表，必须填写 1–9 个；仅支持通过“上传附件资源”操作获得的资源',
 		options: [
 			{
 				displayName: '图片',

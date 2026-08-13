@@ -28,6 +28,7 @@ export const addSmartsheetSheetDescription: INodeProperties[] = [
 				displayName: '智能表下标',
 				name: 'sheet_index',
 				type: 'number',
+				typeOptions: { minValue: 0 },
 				default: 0,
 			},
 		],

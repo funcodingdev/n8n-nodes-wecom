@@ -75,6 +75,7 @@ export const getScreenOperRecordDescription: INodeProperties[] = [
 		},
 		description: '截屏内容的类型，不设置默认为全部',
 		options: [
+			{ name: '全部', value: 0 },
 			{ name: '聊天', value: 1 },
 			{ name: '通讯录', value: 2 },
 			{ name: '邮件', value: 3 },
@@ -82,7 +83,7 @@ export const getScreenOperRecordDescription: INodeProperties[] = [
 			{ name: '日程', value: 5 },
 			{ name: '其他', value: 6 },
 		],
-		default: 1,
+		default: 0,
 	},
 	{
 		displayName: '游标',

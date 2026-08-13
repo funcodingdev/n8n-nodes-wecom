@@ -43,6 +43,10 @@ export const getAdminOperLogDescription: INodeProperties[] = [
 		description: '操作类型，不填表示全部',
 		options: [
 			{
+				name: '全部',
+				value: 0,
+			},
+			{
 				name: '权限管理变更',
 				value: 2,
 				description: '绑定/解绑手机、修改密保邮箱、修改登录密码、分级管理员管理等',
@@ -78,7 +82,7 @@ export const getAdminOperLogDescription: INodeProperties[] = [
 				description: '修改外部联系人权限设置等',
 			},
 		],
-		default: 2,
+		default: 0,
 	},
 	{
 		displayName: '操作者',

@@ -16,7 +16,7 @@ export const getFieldListDescription: INodeProperties[] = [
 			show: showOnlyForGetFieldList,
 		},
 		options: [],
-		description: '获取人事助手中员工花名册的字段配置信息，包括字段ID、字段名称、字段类型等。无需额外参数。<a href="https://developer.work.weixin.qq.com/document/path/99130" target="_blank">更多信息</a>',
+		description:
+			'获取人事助手中员工花名册的字段配置信息，包括字段ID、字段名称、字段类型等。无需额外参数。<a href="https://developer.work.weixin.qq.com/document/path/99130" target="_blank">更多信息</a>',
 	},
 ];
-

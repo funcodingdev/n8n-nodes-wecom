@@ -7,6 +7,16 @@ const showOnlyForDelServicer = {
 
 export const delServicerDescription: INodeProperties[] = [
 	{
+		displayName: '移除提示',
+		name: 'deleteServicerNotice',
+		type: 'notice',
+		displayOptions: {
+			show: showOnlyForDelServicer,
+		},
+		default: '',
+		description: '移除后，所选成员或部门将不再接待该客服账号的会话。接口会分别返回每个对象的处理结果。',
+	},
+	{
 		displayName: '客服账号',
 		name: 'open_kfid',
 		type: 'options',
@@ -18,30 +28,33 @@ export const delServicerDescription: INodeProperties[] = [
 			show: showOnlyForDelServicer,
 		},
 		default: '',
-		description: '客服账号的唯一标识ID。<a href="https://developer.work.weixin.qq.com/document/path/94647" target="_blank">官方文档</a>.',
+		description: '要移除接待人员的客服账号。<a href="https://developer.work.weixin.qq.com/document/path/94647" target="_blank">官方文档</a>',
 		placeholder: 'wkxxxxxxxxxxxxxxxxxx',
 	},
 	{
 		displayName: '接待人员列表',
 		name: 'userid_list',
-		type: 'string',
+		type: 'multiOptions',
+		typeOptions: {
+			loadOptionsMethod: 'getAllUsers',
+		},
 		displayOptions: {
 			show: showOnlyForDelServicer,
 		},
-		default: '',
-		description: '要删除的接待人员UserID列表，多个用英文逗号分隔，最多100个。与部门列表至少填其中一个。<a href="https://developer.work.weixin.qq.com/document/path/94647" target="_blank">官方文档</a>',
-		placeholder: 'zhangsan,lisi',
+		default: [],
+		description: '要移除的接待人员 UserID 列表，最多 100 人；第三方应用使用密文 UserID。与部门列表至少填写一项。<a href="https://developer.work.weixin.qq.com/document/path/94647" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '接待人员部门列表',
 		name: 'department_id_list',
-		type: 'string',
+		type: 'multiOptions',
+		typeOptions: {
+			loadOptionsMethod: 'getDepartments',
+		},
 		displayOptions: {
 			show: showOnlyForDelServicer,
 		},
-		default: '',
-		description: '接待人员部门ID列表，多个用英文逗号分隔，最多100个。与接待人员列表至少填其中一个。<a href="https://developer.work.weixin.qq.com/document/path/94647" target="_blank">官方文档</a>',
-		placeholder: '2,4',
+		default: [],
+		description: '要移除的接待人员部门列表，最多 100 个。与接待人员列表至少填写一项。<a href="https://developer.work.weixin.qq.com/document/path/94647" target="_blank">官方文档</a>',
 	},
 ];
-

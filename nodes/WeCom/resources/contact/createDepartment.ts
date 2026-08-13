@@ -48,7 +48,7 @@ export const createDepartmentDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForCreateDept,
 		},
-		default: 1,
+		default: 0,
 		description: '可选。在父部门中的次序值。order值大的排序靠前。有效的值范围是[0, 2^32)。<a href="https://developer.work.weixin.qq.com/document/path/90205" target="_blank">官方文档</a>',
 	},
 	{
@@ -63,4 +63,3 @@ export const createDepartmentDescription: INodeProperties[] = [
 		description: '可选。部门 ID，32位整型，指定时必须大于1。若不填该参数，将自动生成 ID。建议保证创建的部门和对应部门成员是串行化处理。<a href="https://developer.work.weixin.qq.com/document/path/90205" target="_blank">官方文档</a>',
 	},
 ];
-

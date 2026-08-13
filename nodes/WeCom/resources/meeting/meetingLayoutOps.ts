@@ -88,9 +88,7 @@ export const layoutOperationOptions = [
 
 const allLayoutOps = layoutOperationOptions.map((o) => o.value);
 
-const needLayoutId = ['advLayoutApply', 'advLayoutUpdate', 'basicLayoutUpdate'];
 const needLayoutIdList = ['advLayoutBatchDelete'];
-const needBackgroundId = ['layoutDeleteBackground', 'layoutSetDefaultBackground'];
 const needBackgroundIdList = ['layoutBatchDeleteBackground'];
 const needLayoutBody = [
 	'advLayoutAdd',
@@ -114,14 +112,26 @@ export const meetingLayoutOpsDescription: INodeProperties[] = [
 		displayName: '布局ID',
 		name: 'layout_id',
 		type: 'string',
-		displayOptions: { show: { resource: ['meeting'], operation: needLayoutId } },
+		required: true,
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['advLayoutUpdate', 'basicLayoutUpdate'] },
+		},
 		default: '',
-		description: '布局 ID；应用布局时传空字符串可恢复默认布局',
+		description: '要修改的布局 ID',
+	},
+	{
+		displayName: '布局ID',
+		name: 'layout_id',
+		type: 'string',
+		displayOptions: { show: { resource: ['meeting'], operation: ['advLayoutApply'] } },
+		default: '',
+		description: '要应用的布局 ID；留空恢复当前会议的默认布局',
 	},
 	{
 		displayName: '布局ID列表',
 		name: 'layout_id_list',
 		type: 'string',
+		required: true,
 		displayOptions: { show: { resource: ['meeting'], operation: needLayoutIdList } },
 		default: '',
 		placeholder: 'id1,id2',
@@ -131,33 +141,77 @@ export const meetingLayoutOpsDescription: INodeProperties[] = [
 		displayName: '背景ID',
 		name: 'background_id',
 		type: 'string',
-		displayOptions: { show: { resource: ['meeting'], operation: needBackgroundId } },
+		required: true,
+		displayOptions: { show: { resource: ['meeting'], operation: ['layoutDeleteBackground'] } },
 		default: '',
-		description: '背景 ID；设置默认背景时传空可恢复默认黑色背景',
+		description: '要删除的背景 ID',
+	},
+	{
+		displayName: '背景ID',
+		name: 'background_id',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['layoutSetDefaultBackground'] },
+		},
+		default: '',
+		description: '要应用的背景 ID；留空恢复会议默认黑色背景',
 	},
 	{
 		displayName: '背景ID列表',
 		name: 'background_id_list',
 		type: 'string',
+		required: true,
 		displayOptions: { show: { resource: ['meeting'], operation: needBackgroundIdList } },
 		default: '',
 		placeholder: 'id1,id2',
 		description: '要删除的背景 ID，逗号分隔',
 	},
 	{
-		displayName: '用户UserID',
-		name: 'layout_userid',
+		displayName: '用户临时OpenID列表',
+		name: 'layout_apply_tmp_openids',
 		type: 'string',
+		displayOptions: { show: { resource: ['meeting'], operation: ['advLayoutApply'] } },
+		default: '',
+		placeholder: 'tmp_openid1,tmp_openid2',
+		description: '只为指定用户设置个性布局；留空则为整个会议设置。最多 20 个',
+	},
+	{
+		displayName: '用户临时OpenID',
+		name: 'layout_tmp_openid',
+		type: 'string',
+		required: true,
 		displayOptions: {
 			show: { resource: ['meeting'], operation: ['advLayoutGetUserLayout'] },
 		},
 		default: '',
-		description: '查询目标用户的 userid（按官方文档需要时填写）',
+		description: '被查询用户在本场会议中的临时 OpenID',
+	},
+	{
+		displayName: '设备实例ID',
+		name: 'layout_instance_id',
+		type: 'number',
+		required: true,
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['advLayoutGetUserLayout'] },
+		},
+		default: 1,
+		description: '被查询用户的终端设备类型 ID',
+	},
+	{
+		displayName: '设为会议当前布局',
+		name: 'enable_set_default',
+		type: 'boolean',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['basicLayoutUpdate'] },
+		},
+		default: false,
+		description: 'enable_set_default：同时将修改后的基础布局设为会议当前布局',
 	},
 	{
 		displayName: '背景图片列表',
 		name: 'layoutBackgroundImages',
 		type: 'fixedCollection',
+		required: true,
 		displayOptions: {
 			show: { resource: ['meeting'], operation: ['layoutAddBackground'] },
 		},
@@ -174,12 +228,14 @@ export const meetingLayoutOpsDescription: INodeProperties[] = [
 						displayName: '图片MD5',
 						name: 'image_md5',
 						type: 'string',
+						required: true,
 						default: '',
 					},
 					{
 						displayName: '图片URL',
 						name: 'image_url',
 						type: 'string',
+						required: true,
 						default: '',
 					},
 				],
@@ -194,6 +250,7 @@ export const meetingLayoutOpsDescription: INodeProperties[] = [
 			show: { resource: ['meeting'], operation: ['layoutAddBackground'] },
 		},
 		default: 1,
+		typeOptions: { minValue: 1 },
 		description: 'default_image_order，从 1 开始',
 	},
 	{
@@ -203,11 +260,11 @@ export const meetingLayoutOpsDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['meeting'],
-				operation: ['advLayoutAdd', 'advLayoutUpdate', 'basicLayoutAdd', 'basicLayoutUpdate'],
+				operation: ['advLayoutAdd', 'advLayoutUpdate'],
 			},
 		},
 		default: '',
-		description: 'layout_name（高级布局常用）',
+		description: '高级布局名称',
 	},
 	{
 		displayName: '默认布局序号',
@@ -216,16 +273,18 @@ export const meetingLayoutOpsDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['meeting'],
-				operation: ['basicLayoutAdd', 'advLayoutAdd'],
+				operation: ['basicLayoutAdd'],
 			},
 		},
 		default: 1,
+		typeOptions: { minValue: 1 },
 		description: 'default_layout_order，从 1 开始',
 	},
 	{
 		displayName: '布局页面',
 		name: 'layoutPagesCollection',
 		type: 'fixedCollection',
+		required: true,
 		displayOptions: {
 			show: {
 				resource: ['meeting'],
@@ -245,6 +304,7 @@ export const meetingLayoutOpsDescription: INodeProperties[] = [
 						displayName: '布局模板ID',
 						name: 'layout_template_id',
 						type: 'string',
+						required: true,
 						default: '',
 						description: 'layout_template_id',
 					},
@@ -270,6 +330,7 @@ export const meetingLayoutOpsDescription: INodeProperties[] = [
 						name: 'polling_interval',
 						type: 'number',
 						default: 10,
+						typeOptions: { minValue: 1, maxValue: 999999 },
 						displayOptions: { show: { enable_polling: [true] } },
 					},
 					{
@@ -302,12 +363,14 @@ export const meetingLayoutOpsDescription: INodeProperties[] = [
 										displayName: '宫格ID',
 										name: 'grid_id',
 										type: 'string',
+										required: true,
 										default: '1',
 									},
 									{
 										displayName: '宫格类型',
 										name: 'grid_type',
 										type: 'options',
+										required: true,
 										options: [
 											{ name: '视频画面', value: 1 },
 											{ name: '共享画面', value: 2 },
@@ -328,11 +391,12 @@ export const meetingLayoutOpsDescription: INodeProperties[] = [
 										default: '',
 									},
 									{
-										displayName: '昵称',
+										displayName: '昵称/昵称Base64',
 										name: 'nick_name',
 										type: 'string',
 										default: '',
-										description: '视频画面时建议填写',
+										description:
+											'基础布局视频画面填写普通昵称；高级布局指定人员填写 Base64 编码昵称',
 									},
 									{
 										displayName: '拓展应用ID',
@@ -354,8 +418,7 @@ export const meetingLayoutOpsDescription: INodeProperties[] = [
 		type: 'json',
 		displayOptions: { show: { resource: ['meeting'], operation: needLayoutBody } },
 		default: '{}',
-		description:
-			'其余配置（完整 layout_list 等）与上方合并，JSON 优先',
+		description: '高级输入：添加接口可提供完整 layout_list，修改接口可提供完整 page_list',
 	},
 	{
 		displayName: '扩展请求JSON',

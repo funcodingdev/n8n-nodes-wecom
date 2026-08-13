@@ -41,7 +41,7 @@ export const sendTextCardDescription: INodeProperties[] = [
 			rows: 4,
 		},
 		default: '{}',
-		placeholder: '{"title":"标题","description":"描述","url":"https://example.com","btntxt":"详情","safe":0}',
+		placeholder: '{"title":"标题","description":"描述","url":"https://example.com","btntxt":"详情"}',
 		displayOptions: {
 			show: {
 				...showOnlyForSendTextCard,
@@ -49,7 +49,7 @@ export const sendTextCardDescription: INodeProperties[] = [
 			},
 		},
 		description:
-			'可选。使用JSON直接输入textcard对象。JSON输入模式下仅展示此字段。<a href="https://developer.work.weixin.qq.com/document/path/90248" target="_blank">官方文档</a>',
+			'使用 JSON 直接输入 textcard 对象。<a href="https://developer.work.weixin.qq.com/document/path/90248" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '标题',
@@ -121,12 +121,7 @@ export const sendTextCardDescription: INodeProperties[] = [
 		displayName: '保密消息',
 		name: 'safe',
 		type: 'boolean',
-		displayOptions: {
-			show: {
-				...showOnlyForSendTextCard,
-				textcard_input_mode: ['form'],
-			},
-		},
+		displayOptions: { show: showOnlyForSendTextCard },
 		default: false,
 		description:
 			'可选。表示是否是保密消息，0表示否，1表示是，默认0。<a href="https://developer.work.weixin.qq.com/document/path/90248" target="_blank">官方文档</a>',

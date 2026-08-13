@@ -8,17 +8,17 @@ const showOnlyForUpdateTemplateCard = {
 
 export const updateTemplateCardDescription: INodeProperties[] = [
 	{
-		displayName: '用户ID列表',
+		displayName: '用户 ID 列表',
 		name: 'userids',
 		type: 'string',
 		displayOptions: { show: showOnlyForUpdateTemplateCard },
 		default: '',
 		placeholder: 'USERID1,USERID2',
-		description: '要替换的 userid，逗号分隔；不填表示全部相关用户',
+		description: '要替换的 userid 列表，支持逗号、竖线或换行分隔；不填表示当前消息涉及的全部用户',
 	},
 	...templateCardFormProperties(showOnlyForUpdateTemplateCard),
 	{
-		displayName: '反馈ID',
+		displayName: '反馈 ID',
 		name: 'feedback_id',
 		type: 'string',
 		displayOptions: { show: showOnlyForUpdateTemplateCard },

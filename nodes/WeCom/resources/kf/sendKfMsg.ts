@@ -14,6 +14,7 @@ import type { INodeProperties } from 'n8n-workflow';
  * - miniprogram: 小程序消息
  * - msgmenu: 菜单消息
  * - location: 地理位置消息
+ * - ca_link: 获客链接消息
  */
 
 const showOnlyForSendKfMsg = {
@@ -37,7 +38,7 @@ export const sendKfMsgDescription: INodeProperties[] = [
 		description: '选择要使用的客服账号',
 	},
 	{
-		displayName: '外部联系人ID',
+		displayName: '客户 External UserID',
 		name: 'touser',
 		type: 'string',
 		required: true,
@@ -45,8 +46,25 @@ export const sendKfMsgDescription: INodeProperties[] = [
 			show: showOnlyForSendKfMsg,
 		},
 		default: '',
-		description: '接收消息的客户UserID（external_userid）',
+		description: '接收消息的微信客户 external_userid',
 		placeholder: 'wmxxxxxxxxxxxxxxxxxxxx',
+	},
+	{
+		displayName: '发送限制',
+		name: 'sendKfMsgNotice',
+		type: 'notice',
+		displayOptions: { show: showOnlyForSendKfMsg },
+		default: '',
+		description: '仅可在客户主动发消息后的 48 小时内发送，最多 5 条。接口返回成功不代表最终送达，还需关注消息发送失败回调。<a href="https://developer.work.weixin.qq.com/document/path/94677" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '消息 ID',
+		name: 'msgid',
+		type: 'string',
+		displayOptions: { show: showOnlyForSendKfMsg },
+		default: '',
+		description: '可选，最多 32 字节，仅支持数字、大小写字母、下划线和连字符；指定时须保证该客服账号内唯一',
+		placeholder: 'order_20260813_001',
 	},
 	{
 		displayName: '消息类型',
@@ -103,6 +121,11 @@ export const sendKfMsgDescription: INodeProperties[] = [
 				value: 'location',
 				description: '发送地理位置消息',
 			},
+			{
+				name: '获客链接',
+				value: 'ca_link',
+				description: '发送由获客助手创建的获客链接名片',
+			},
 		],
 		default: 'text',
 		description: '选择要发送的消息类型',
@@ -130,7 +153,7 @@ export const sendKfMsgDescription: INodeProperties[] = [
 
 	// ==================== 图片消息参数 ====================
 	{
-		displayName: '图片Media ID',
+		displayName: '图片 Media ID',
 		name: 'image_media_id',
 		type: 'string',
 		required: true,
@@ -147,7 +170,7 @@ export const sendKfMsgDescription: INodeProperties[] = [
 
 	// ==================== 语音消息参数 ====================
 	{
-		displayName: '语音Media ID',
+		displayName: '语音 Media ID',
 		name: 'voice_media_id',
 		type: 'string',
 		required: true,
@@ -164,7 +187,7 @@ export const sendKfMsgDescription: INodeProperties[] = [
 
 	// ==================== 视频消息参数 ====================
 	{
-		displayName: '视频Media ID',
+		displayName: '视频 Media ID',
 		name: 'video_media_id',
 		type: 'string',
 		required: true,
@@ -181,7 +204,7 @@ export const sendKfMsgDescription: INodeProperties[] = [
 
 	// ==================== 文件消息参数 ====================
 	{
-		displayName: '文件Media ID',
+		displayName: '文件 Media ID',
 		name: 'file_media_id',
 		type: 'string',
 		required: true,
@@ -209,7 +232,7 @@ export const sendKfMsgDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '图文链接标题',
+		description: '图文链接标题，最多 128 字节',
 		placeholder: '点击查看详情',
 	},
 	{
@@ -226,11 +249,11 @@ export const sendKfMsgDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '图文链接描述（可选）',
+		description: '可选，最多 512 字节',
 		placeholder: '这里是链接的详细描述...',
 	},
 	{
-		displayName: '链接URL',
+		displayName: '链接 URL',
 		name: 'link_url',
 		type: 'string',
 		required: true,
@@ -241,13 +264,14 @@ export const sendKfMsgDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '图文链接跳转URL',
+		description: '图文链接跳转 URL，最多 2048 字节，须包含 http/https 协议头',
 		placeholder: 'https://example.com',
 	},
 	{
-		displayName: '缩略图URL',
-		name: 'link_thumb_url',
+		displayName: '缩略图 Media ID',
+		name: 'link_thumb_media_id',
 		type: 'string',
+		required: true,
 		displayOptions: {
 			show: {
 				...showOnlyForSendKfMsg,
@@ -255,8 +279,8 @@ export const sendKfMsgDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '图文链接缩略图URL（可选）',
-		placeholder: 'https://example.com/image.jpg',
+		description: '必填，通过上传临时素材接口获取的缩略图 Media ID',
+		placeholder: 'MEDIA_ID',
 	},
 
 	// ==================== 小程序消息参数 ====================
@@ -264,7 +288,6 @@ export const sendKfMsgDescription: INodeProperties[] = [
 		displayName: '小程序标题',
 		name: 'miniprogram_title',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: {
 				...showOnlyForSendKfMsg,
@@ -272,11 +295,11 @@ export const sendKfMsgDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '小程序消息标题',
+		description: '可选，小程序消息标题，最多 64 字节',
 		placeholder: '点击打开小程序',
 	},
 	{
-		displayName: '小程序AppID',
+		displayName: '小程序 AppID',
 		name: 'miniprogram_appid',
 		type: 'string',
 		required: true,
@@ -302,11 +325,11 @@ export const sendKfMsgDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '小程序的页面路径',
-		placeholder: 'pages/index/index',
+		description: '小程序页面路径，需要以 .html 结尾',
+		placeholder: 'pages/index.html',
 	},
 	{
-		displayName: '缩略图Media ID',
+		displayName: '缩略图 Media ID',
 		name: 'miniprogram_thumb_media_id',
 		type: 'string',
 		required: true,
@@ -323,10 +346,9 @@ export const sendKfMsgDescription: INodeProperties[] = [
 
 	// ==================== 菜单消息参数 ====================
 	{
-		displayName: '菜单标题',
+		displayName: '菜单起始文本',
 		name: 'msgmenu_head_content',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: {
 				...showOnlyForSendKfMsg,
@@ -334,7 +356,7 @@ export const sendKfMsgDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '菜单消息头部文案',
+		description: '可选，最多 1024 字节；与菜单项、结束文本至少填写一项',
 		placeholder: '请选择以下选项：',
 	},
 	{
@@ -344,7 +366,6 @@ export const sendKfMsgDescription: INodeProperties[] = [
 		typeOptions: {
 			multipleValues: true,
 		},
-		required: true,
 		displayOptions: {
 			show: {
 				...showOnlyForSendKfMsg,
@@ -352,7 +373,7 @@ export const sendKfMsgDescription: INodeProperties[] = [
 			},
 		},
 		default: {},
-		description: '菜单项列表，最多3个',
+		description: '最多 50 个菜单项，其中点击、跳转链接和小程序类型合计不超过 10 个',
 		placeholder: '添加菜单项',
 		options: [
 			{
@@ -369,11 +390,11 @@ export const sendKfMsgDescription: INodeProperties[] = [
 								type: ['click'],
 							},
 						},
-						description: '点击菜单的唯一 ID，建议只使用字母、数字和下划线',
+						description: '可选，最多 128 字节；建议只使用字母、数字和下划线',
 						placeholder: 'menu_101',
 					},
 					{
-						displayName: '小程序AppID',
+						displayName: '小程序 AppID',
 						name: 'appid',
 						type: 'string',
 						default: '',
@@ -396,7 +417,7 @@ export const sendKfMsgDescription: INodeProperties[] = [
 							},
 						},
 						description: '小程序的页面路径',
-						placeholder: 'pages/index/index',
+						placeholder: 'pages/index.html',
 					},
 					{
 						displayName: '菜单文案',
@@ -437,7 +458,7 @@ export const sendKfMsgDescription: INodeProperties[] = [
 						description: '菜单项的类型',
 					},
 					{
-						displayName: '跳转URL',
+						displayName: '跳转 URL',
 						name: 'url',
 						type: 'string',
 						default: '',
@@ -476,7 +497,7 @@ export const sendKfMsgDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '菜单消息尾部文案（可选）',
+		description: '可选，最多 1024 字节；与起始文本、菜单项至少填写一项',
 		placeholder: '如有其他问题请直接回复',
 	},
 
@@ -485,7 +506,6 @@ export const sendKfMsgDescription: INodeProperties[] = [
 		displayName: '位置名称',
 		name: 'location_name',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: {
 				...showOnlyForSendKfMsg,
@@ -499,7 +519,6 @@ export const sendKfMsgDescription: INodeProperties[] = [
 		displayName: '详细地址',
 		name: 'location_address',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: {
 				...showOnlyForSendKfMsg,
@@ -547,5 +566,20 @@ export const sendKfMsgDescription: INodeProperties[] = [
 			minValue: -180,
 			maxValue: 180,
 		},
+	},
+	{
+		displayName: '获客链接 URL',
+		name: 'ca_link_url',
+		type: 'string',
+		required: true,
+		displayOptions: {
+			show: {
+				...showOnlyForSendKfMsg,
+				msgtype: ['ca_link'],
+			},
+		},
+		default: '',
+		description: '通过获客助手创建的获客链接，须包含 http/https 协议头',
+		placeholder: 'https://work.weixin.qq.com/ca/xxxxxx',
 	},
 ];

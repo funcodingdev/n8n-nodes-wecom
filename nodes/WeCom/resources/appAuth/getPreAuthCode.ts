@@ -21,7 +21,9 @@ export async function getPreAuthCode(
 	this: IExecuteFunctions,
 	index: number,
 ): Promise<IDataObject> {
-	const suiteAccessToken = this.getNodeParameter('suiteAccessToken', index) as string;
+	const suiteAccessToken = String(
+		this.getNodeParameter('suiteAccessToken', index) ?? '',
+	).trim();
 
 	if (!suiteAccessToken) {
 		throw new NodeOperationError(
@@ -53,6 +55,7 @@ export async function getPreAuthCode(
 
 		return response;
 	} catch (error) {
+		if (error instanceof NodeOperationError) throw error;
 		const err = error as Error;
 		throw new NodeOperationError(
 			this.getNode(),

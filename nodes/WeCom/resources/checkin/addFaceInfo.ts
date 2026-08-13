@@ -1,9 +1,6 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-const showOnlyForAddFaceInfo = {
-	resource: ['checkin'],
-	operation: ['addFaceInfo'],
-};
+const showOnly = { resource: ['checkin'], operation: ['addFaceInfo'] };
 
 export const addFaceInfoDescription: INodeProperties[] = [
 	{
@@ -11,22 +8,39 @@ export const addFaceInfoDescription: INodeProperties[] = [
 		name: 'userid',
 		type: 'string',
 		required: true,
-		displayOptions: {
-			show: showOnlyForAddFaceInfo,
-		},
+		displayOptions: { show: showOnly },
 		default: '',
-		description: '要添加人脸信息的员工UserID。<a href="https://developer.work.weixin.qq.com/document/path/93378" target="_blank">官方文档</a>',
+		description: '需要录入或覆盖人脸信息的成员 UserID',
 	},
 	{
-		displayName: '人脸图片Media ID',
-		name: 'mediaid',
+		displayName: '图片来源',
+		name: 'faceSource',
+		type: 'options',
+		displayOptions: { show: showOnly },
+		options: [
+			{ name: '输入 Base64', value: 'base64' },
+			{ name: '使用输入项二进制数据', value: 'binary' },
+		],
+		default: 'binary',
+		description: '接口要求直接传入图片 Base64 数据，并非素材 MediaID；图片解码后不能超过 1 MiB',
+	},
+	{
+		displayName: '二进制数据属性',
+		name: 'binaryProperty',
 		type: 'string',
 		required: true,
-		displayOptions: {
-			show: showOnlyForAddFaceInfo,
-		},
+		displayOptions: { show: { ...showOnly, faceSource: ['binary'] } },
+		default: 'data',
+		description: '包含人脸图片的输入项二进制属性名称',
+	},
+	{
+		displayName: '人脸图片Base64',
+		name: 'mediaid',
+		type: 'string',
+		typeOptions: { rows: 6 },
+		required: true,
+		displayOptions: { show: { ...showOnly, faceSource: ['base64'] } },
 		default: '',
-		description: '人脸图片的MediaID，需要先通过素材管理接口上传',
+		description: '图片文件的纯 Base64 内容，不要填写 data URL 前缀或素材 MediaID',
 	},
 ];
-

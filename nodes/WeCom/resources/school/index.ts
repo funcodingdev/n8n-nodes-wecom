@@ -121,10 +121,10 @@ export const schoolDescription: INodeProperties[] = [
 				action: '获取可使用的家长范围',
 			},
 			{
-				name: '[家校沟通] 获取家校访问用户身份',
+				name: '[家校沟通] 获取第三方访问用户身份',
 				value: 'getUserInfo3rd',
-				description: '获取家校访问用户身份',
-				action: '获取家校访问用户身份',
+				description: '使用 Suite Access Token 获取第三方网页授权访问用户身份',
+				action: '获取第三方访问用户身份',
 			},
 			{
 				name: '[家校沟通] 创建学生',

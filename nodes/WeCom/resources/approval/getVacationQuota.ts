@@ -18,4 +18,3 @@ export const getVacationQuotaDescription: INodeProperties[] = [
 		description: '要查询假期余额的成员UserID',
 	},
 ];
-

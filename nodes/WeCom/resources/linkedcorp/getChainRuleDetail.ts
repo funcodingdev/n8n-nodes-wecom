@@ -7,7 +7,7 @@ const showOnlyForGetRuleDetail = {
 
 export const getChainRuleDetailDescription: INodeProperties[] = [
 	{
-		displayName: '上下游ID',
+		displayName: '上下游 ID',
 		name: 'chain_id',
 		type: 'string',
 		required: true,
@@ -18,15 +18,15 @@ export const getChainRuleDetailDescription: INodeProperties[] = [
 		description: '上下游的唯一ID。',
 	},
 	{
-		displayName: '规则ID',
+		displayName: '规则 ID',
 		name: 'rule_id',
-		type: 'string',
+		type: 'number',
+		typeOptions: { minValue: 1 },
 		required: true,
 		displayOptions: {
 			show: showOnlyForGetRuleDetail,
 		},
-		default: '',
+		default: 1,
 		description: '对接规则的唯一ID。',
 	},
 ];
-

@@ -28,5 +28,13 @@ export const delCorpTagDescription: INodeProperties[] = [
 		description: '要删除的标签组ID列表，多个ID用英文逗号分隔，删除标签组会同时删除其下所有标签。<a href="https://developer.work.weixin.qq.com/document/path/92117" target="_blank">官方文档</a>。可选。标签组的ID列表，多个用逗号分隔',
 		placeholder: 'etXXXXXXXXXX,etYYYYYYYYYY',
 	},
+	{
+		displayName: '旧套件 AgentID',
+		name: 'agentid',
+		type: 'number',
+		typeOptions: { minValue: 0, numberStepSize: 1 },
+		default: 0,
+		displayOptions: { show: showOnly },
+		description: '仅旧的第三方多应用套件需要填写；0 表示不发送',
+	},
 ];
-

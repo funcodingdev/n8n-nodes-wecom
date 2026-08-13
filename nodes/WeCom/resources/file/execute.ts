@@ -1,13 +1,108 @@
-import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
-import { NodeOperationError } from 'n8n-workflow';
 import { createDecipheriv } from 'crypto';
+import type { IDataObject, IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
+import { NodeOperationError } from 'n8n-workflow';
+
+const WECOM_DOWNLOAD_HOST_SUFFIX = '.myqcloud.com';
+
+function fail(context: IExecuteFunctions, message: string, itemIndex: number): never {
+	throw new NodeOperationError(context.getNode(), message, { itemIndex });
+}
+
+function requireText(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	maxLength = 128,
+): string {
+	const text = String(value ?? '').trim();
+	if (!text) fail(context, `${label}不能为空`, itemIndex);
+	if (text.length > maxLength) {
+		fail(context, `${label}不能超过 ${maxLength} 个字符`, itemIndex);
+	}
+	return text;
+}
+
+function toBuffer(context: IExecuteFunctions, value: unknown, itemIndex: number): Buffer {
+	if (Buffer.isBuffer(value)) return value;
+	if (value instanceof ArrayBuffer) return Buffer.from(value);
+	if (ArrayBuffer.isView(value)) {
+		return Buffer.from(value.buffer, value.byteOffset, value.byteLength);
+	}
+	fail(context, '下载结果不是可解析的二进制数据', itemIndex);
+}
+
+function validateDownloadUrl(context: IExecuteFunctions, value: unknown, itemIndex: number): string {
+	const rawUrl = requireText(context, value, '文件 URL', itemIndex, 4096);
+	let parsed: URL;
+	try {
+		parsed = new URL(rawUrl);
+	} catch {
+		fail(context, '文件 URL 格式无效', itemIndex);
+	}
+	if (
+		parsed.protocol !== 'https:' ||
+		!parsed.hostname.endsWith(WECOM_DOWNLOAD_HOST_SUFFIX) ||
+		parsed.username ||
+		parsed.password ||
+		(parsed.port && parsed.port !== '443')
+	) {
+		fail(
+			context,
+			'文件 URL 必须是企业微信返回的 myqcloud.com HTTPS 下载地址',
+			itemIndex,
+		);
+	}
+	return parsed.toString();
+}
+
+function getAesKey(context: IExecuteFunctions, value: unknown, itemIndex: number): Buffer {
+	const encodingAesKey = String(value ?? '').trim();
+	if (!/^[A-Za-z0-9+/]{43}$/.test(encodingAesKey)) {
+		fail(context, '凭证中的 EncodingAESKey 必须是 43 位 Base64 字符串', itemIndex);
+	}
+	const key = Buffer.from(`${encodingAesKey}=`, 'base64');
+	if (key.length !== 32) {
+		fail(context, '凭证中的 EncodingAESKey 解码后必须为 32 字节', itemIndex);
+	}
+	return key;
+}
+
+function decryptFile(
+	context: IExecuteFunctions,
+	encryptedData: Buffer,
+	key: Buffer,
+	itemIndex: number,
+): Buffer {
+	if (encryptedData.length === 0) fail(context, '加密文件内容不能为空', itemIndex);
+	if (encryptedData.length % 16 !== 0) {
+		fail(context, '加密文件长度必须是 AES 块大小 16 字节的倍数', itemIndex);
+	}
+
+	let decrypted: Buffer;
+	try {
+		const decipher = createDecipheriv('aes-256-cbc', key, key.subarray(0, 16));
+		decipher.setAutoPadding(false);
+		decrypted = Buffer.concat([decipher.update(encryptedData), decipher.final()]);
+	} catch (error) {
+		fail(context, `文件解密失败: ${(error as Error).message}`, itemIndex);
+	}
+
+	const pad = decrypted[decrypted.length - 1];
+	if (pad < 1 || pad > 32 || pad > decrypted.length) {
+		fail(context, '文件解密失败：PKCS#7 填充长度无效', itemIndex);
+	}
+	for (let offset = 0; offset < pad; offset++) {
+		if (decrypted[decrypted.length - 1 - offset] !== pad) {
+			fail(context, '文件解密失败：PKCS#7 填充字节不一致', itemIndex);
+		}
+	}
+	return decrypted.subarray(0, decrypted.length - pad);
+}
 
 /**
- * 解密文件
- * 
- * 从URL下载加密文件并使用AES-256-CBC解密
- * 加密方式：AES-256-CBC，数据采用PKCS#7填充至32字节的倍数
- * IV初始向量大小为16字节，取AESKey前16字节
+ * 解密智能机器人回调中的图片、文件或视频。
+ * 企业微信使用 AES-256-CBC，IV 为 AESKey 前 16 字节，并以 PKCS#7 填充到 32 字节的倍数。
  */
 export async function executeFile(
 	this: IExecuteFunctions,
@@ -18,194 +113,122 @@ export async function executeFile(
 
 	for (let i = 0; i < items.length; i++) {
 		try {
-			if (operation === 'decryptFile') {
-				const inputType = this.getNodeParameter('inputType', i, 'url') as string;
-				const outputFormat = this.getNodeParameter('outputFormat', i, 'binary') as string;
-				const binaryPropertyName = 'data';
+			if (operation !== 'decryptFile') {
+				fail(this, `不支持的文件操作: ${operation}`, i);
+			}
 
-				// 从凭证中获取 EncodingAESKey
-				let encodingAESKey: string;
-				try {
-					const credentials = await this.getCredentials('weComReceiveApi');
-					encodingAESKey = (credentials as { encodingAESKey: string }).encodingAESKey;
-					if (!encodingAESKey) {
-						throw new NodeOperationError(
-							this.getNode(),
-							'凭证中未找到 EncodingAESKey，请检查"企业微信消息接收 API"凭证配置',
-							{ itemIndex: i },
-						);
-					}
-				} catch (error) {
-					if (error instanceof NodeOperationError) {
-						throw error;
-					}
-					throw new NodeOperationError(
-						this.getNode(),
-						`获取凭证失败: ${(error as Error).message}。请确保已配置"企业微信消息接收 API"凭证`,
-						{ itemIndex: i },
-					);
-				}
+			const inputType = String(this.getNodeParameter('inputType', i, 'url'));
+			if (!['url', 'binary'].includes(inputType)) {
+				fail(this, `不支持的输入方式: ${inputType}`, i);
+			}
+			const outputFormat = String(this.getNodeParameter('outputFormat', i, 'binary'));
+			if (!['binary', 'base64'].includes(outputFormat)) {
+				fail(this, `不支持的输出格式: ${outputFormat}`, i);
+			}
 
-				// 解析AESKey
-				// EncodingAESKey 是 Base64 编码的 43 位字符串，需要加上 '=' 补齐到 44 位
-				const aesKey = encodingAESKey + '=';
-				let key: Buffer;
-				try {
-					key = Buffer.from(aesKey, 'base64');
-				} catch (error) {
-					throw new NodeOperationError(
-						this.getNode(),
-						`EncodingAESKey格式错误: ${(error as Error).message}`,
-						{ itemIndex: i },
-					);
-				}
-
-				// 验证密钥长度
-				if (key.length !== 32) {
-					throw new NodeOperationError(
-						this.getNode(),
-						`EncodingAESKey解码后必须是32字节，实际为${key.length}字节`,
-						{ itemIndex: i },
-					);
-				}
-
-				// 获取加密文件数据
-				let encryptedData: Buffer;
-				if (inputType === 'url') {
-					// 从URL下载
-					const url = this.getNodeParameter('url', i) as string;
-					if (!url) {
-						throw new NodeOperationError(this.getNode(), '文件URL不能为空', { itemIndex: i });
-					}
-
-					try {
-						const downloadOptions = {
-							method: 'GET' as const,
-							url,
-							encoding: 'arraybuffer' as const,
-							returnFullResponse: false,
-						};
-
-						const response = await this.helpers.httpRequest(downloadOptions);
-						
-						if (Buffer.isBuffer(response)) {
-							encryptedData = response;
-						} else if (typeof response === 'string') {
-							encryptedData = Buffer.from(response, 'utf8');
-						} else if (response instanceof ArrayBuffer) {
-							encryptedData = Buffer.from(response);
-						} else {
-							throw new NodeOperationError(
-								this.getNode(),
-								'无法解析下载的文件数据',
-								{ itemIndex: i },
-							);
-						}
-					} catch (error) {
-						throw new NodeOperationError(
-							this.getNode(),
-							`下载文件失败: ${(error as Error).message}`,
-							{ itemIndex: i },
-						);
-					}
-				} else {
-					// 从二进制数据获取
-					const binaryProperty = this.getNodeParameter('binaryProperty', i, 'data') as string;
-					try {
-						this.helpers.assertBinaryData(i, binaryProperty);
-						encryptedData = await this.helpers.getBinaryDataBuffer(i, binaryProperty);
-					} catch (error) {
-						throw new NodeOperationError(
-							this.getNode(),
-							`获取二进制数据失败: ${(error as Error).message}。请确保输入数据中包含名为"${binaryProperty}"的二进制属性`,
-							{ itemIndex: i },
-						);
-					}
-				}
-
-				// 解密文件
-				let decryptedData: Buffer;
-				try {
-					// IV 为 AESKey 的前 16 字节
-					const iv = key.slice(0, 16);
-					const decipher = createDecipheriv('aes-256-cbc', key, iv);
-					decipher.setAutoPadding(false); // 手动处理 PKCS7 填充
-
-					const decrypted = Buffer.concat([decipher.update(encryptedData), decipher.final()]);
-
-					// 去除 PKCS7 填充
-					// PKCS7：填充字节的值等于填充字节的个数
-					const pad = decrypted[decrypted.length - 1];
-					if (pad < 1 || pad > 32) {
-						throw new NodeOperationError(
-							this.getNode(),
-							`无效的填充值: ${pad}`,
-							{ itemIndex: i },
-						);
-					}
-
-					// 验证所有填充字节的值是否一致
-					for (let j = 0; j < pad; j++) {
-						if (decrypted[decrypted.length - 1 - j] !== pad) {
-							throw new NodeOperationError(
-								this.getNode(),
-								'填充字节不一致',
-								{ itemIndex: i },
-							);
-						}
-					}
-
-					decryptedData = decrypted.slice(0, decrypted.length - pad);
-				} catch (error) {
-					if (error instanceof NodeOperationError) {
-						throw error;
-					}
-					throw new NodeOperationError(
-						this.getNode(),
-						`文件解密失败: ${(error as Error).message}`,
-						{ itemIndex: i },
-					);
-				}
-
-				// 根据输出格式返回数据
-				const result: INodeExecutionData = {
-					json: {} as IDataObject,
-					pairedItem: { item: i },
+			let credentials: { encodingAESKey?: unknown };
+			try {
+				credentials = (await this.getCredentials('weComReceiveApi')) as {
+					encodingAESKey?: unknown;
 				};
-
-				if (outputFormat === 'base64') {
-					// 输出为Base64字符串
-					result.json = {
-						data: decryptedData.toString('base64'),
-						size: decryptedData.length,
-					};
-				} else {
-					// 输出为二进制数据
-					result.json = {
-						size: decryptedData.length,
-					};
-					result.binary = {
-						[binaryPropertyName]: {
-							data: decryptedData.toString('base64'),
-							mimeType: 'application/octet-stream',
-						},
-					};
-				}
-
-				returnData.push(result);
-			} else {
-				throw new NodeOperationError(
-					this.getNode(),
-					`未知的操作: ${operation}`,
-					{ itemIndex: i },
+			} catch (error) {
+				if (error instanceof NodeOperationError) throw error;
+				fail(
+					this,
+					`获取企业微信消息接收 API 凭证失败: ${(error as Error).message}`,
+					i,
 				);
 			}
+			const key = getAesKey(this, credentials.encodingAESKey, i);
+
+			let encryptedData: Buffer;
+			if (inputType === 'url') {
+				const url = validateDownloadUrl(this, this.getNodeParameter('url', i), i);
+				try {
+					const response = (await this.helpers.httpRequest({
+						method: 'GET',
+						url,
+						encoding: 'arraybuffer',
+						returnFullResponse: false,
+						disableFollowRedirect: true,
+						timeout: 30000,
+					})) as unknown;
+					encryptedData = toBuffer(this, response, i);
+				} catch (error) {
+					if (error instanceof NodeOperationError) throw error;
+					fail(this, `下载加密文件失败: ${(error as Error).message}`, i);
+				}
+			} else {
+				const binaryProperty = requireText(
+					this,
+					this.getNodeParameter('binaryProperty', i, 'data'),
+					'加密文件二进制属性',
+					i,
+				);
+				try {
+					this.helpers.assertBinaryData(i, binaryProperty);
+					encryptedData = await this.helpers.getBinaryDataBuffer(i, binaryProperty);
+				} catch (error) {
+					if (error instanceof NodeOperationError) throw error;
+					fail(
+						this,
+						`读取二进制属性“${binaryProperty}”失败: ${(error as Error).message}`,
+						i,
+					);
+				}
+			}
+
+			const decryptedData = decryptFile(this, encryptedData, key, i);
+			const result: INodeExecutionData = {
+				json: { size: decryptedData.length },
+				pairedItem: { item: i },
+			};
+			if (outputFormat === 'base64') {
+				const outputProperty = requireText(
+					this,
+					this.getNodeParameter('outputProperty', i, 'data'),
+					'Base64 输出字段名',
+					i,
+				);
+				result.json[outputProperty] = decryptedData.toString('base64');
+			} else {
+				const outputBinaryProperty = requireText(
+					this,
+					this.getNodeParameter('outputBinaryProperty', i, 'data'),
+					'输出二进制属性',
+					i,
+				);
+				const outputFileName = requireText(
+					this,
+					this.getNodeParameter('outputFileName', i, 'decrypted-file'),
+					'输出文件名',
+					i,
+					255,
+				);
+				if (/[\0\r\n/\\]/.test(outputFileName)) {
+					fail(this, '输出文件名不能包含路径分隔符或换行符', i);
+				}
+				const outputMimeType = requireText(
+					this,
+					this.getNodeParameter('outputMimeType', i, 'application/octet-stream'),
+					'MIME 类型',
+					i,
+				);
+				if (!/^[^\s/]+\/[^\s/]+$/.test(outputMimeType)) {
+					fail(this, 'MIME 类型格式无效，例如 application/pdf', i);
+				}
+				const binaryData = await this.helpers.prepareBinaryData(
+					decryptedData,
+					outputFileName,
+					outputMimeType,
+				);
+				result.binary = { [outputBinaryProperty]: binaryData };
+			}
+			returnData.push(result);
 		} catch (error) {
 			if (this.continueOnFail()) {
 				returnData.push({
-					json: {
-						error: (error as Error).message,
-					},
+					json: { error: (error as Error).message } as IDataObject,
 					pairedItem: { item: i },
 				});
 				continue;

@@ -37,6 +37,7 @@ export const getGroupChatListDescription: INodeProperties[] = [
 		typeOptions: {
 			minValue: 1,
 			maxValue: 1000,
+			numberStepSize: 1,
 		},
 		default: 100,
 		displayOptions: { show: showOnly },
@@ -51,4 +52,3 @@ export const getGroupChatListDescription: INodeProperties[] = [
 		description: '用于分页查询的游标，由上一次调用返回，首次调用不填',
 	},
 ];
-

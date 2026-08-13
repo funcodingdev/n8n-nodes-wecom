@@ -15,7 +15,8 @@ export const getScheduleListDescription: INodeProperties[] = [
 			show: showOnlyForGetScheduleList,
 		},
 		default: '',
-		description: '查询排班的起始时间，使用Unix时间戳格式（秒级）。<a href="https://developer.work.weixin.qq.com/document/path/93380" target="_blank">官方文档</a>',
+		description:
+			'查询排班的起始时间，使用Unix时间戳格式（秒级）。<a href="https://developer.work.weixin.qq.com/document/path/93380" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '结束时间',
@@ -37,7 +38,7 @@ export const getScheduleListDescription: INodeProperties[] = [
 			show: showOnlyForGetScheduleList,
 		},
 		default: '',
-		description: '需要获取排班信息的成员UserID列表，多个UserID用逗号分隔',
+		description:
+			'需要获取排班信息的成员 UserID 列表，支持逗号、中文逗号、竖线或换行分隔，最多 100 个',
 	},
 ];
-

@@ -56,6 +56,7 @@ import { executeAccountId } from '../WeCom/resources/accountId/execute';
 import { executeFile } from '../WeCom/resources/file/execute';
 import { executeSecurity } from '../WeCom/resources/security/execute';
 import { weComApiRequest } from '../WeCom/shared/transport';
+import { weComReceiveApiTest } from '../WeCom/shared/credentialTest';
 import {
 	SEND_AND_WAIT_WAITING_TOOLTIP,
 	sendAndWaitWebhook,
@@ -116,9 +117,10 @@ export class WeComBase implements INodeType {
 				},
 			},
 			{
-				// 被动回复不需要凭证，因为加密信息从输入数据中获取
-				name: 'weComApi',
-				required: false,
+				// 被动回复直接使用接收消息凭证，避免将 Token/AESKey 暴露到执行数据。
+				name: 'weComReceiveApi',
+				required: true,
+				testedBy: 'weComReceiveApiTest',
 				displayOptions: {
 					show: {
 						resource: ['passiveReply'],
@@ -126,12 +128,14 @@ export class WeComBase implements INodeType {
 				},
 			},
 			{
-				// 智能机器人被动回复不需要凭证，因为使用response_url回复
-				name: 'weComApi',
-				required: false,
+				// 智能机器人被动回复需要同一套接收消息凭证；主动回复仅使用 response_url。
+				name: 'weComReceiveApi',
+				required: true,
+				testedBy: 'weComReceiveApiTest',
 				displayOptions: {
 					show: {
 						resource: ['aibotPassiveReply'],
+						operation: ['replyWelcome', 'replyMessage', 'updateTemplateCard'],
 					},
 				},
 			},
@@ -189,6 +193,7 @@ export class WeComBase implements INodeType {
 				// 文件解密可以使用 weComReceiveApi 凭证获取 EncodingAESKey
 				name: 'weComReceiveApi',
 				required: false,
+				testedBy: 'weComReceiveApiTest',
 				displayOptions: {
 					show: {
 						resource: ['file'],
@@ -246,7 +251,7 @@ export class WeComBase implements INodeType {
 					{
 						name: '智能机器人被动回复',
 						value: 'aibotPassiveReply',
-						description: '智能机器人被动回复管理（欢迎语、流式回复、模板卡片等，需配合机器人触发器）',
+						description: '智能机器人回复管理（欢迎语、流式回复、模板卡片与主动回复，需配合机器人触发器）',
 					},
 					{
 						name: '企业互联',
@@ -370,6 +375,9 @@ export class WeComBase implements INodeType {
 	};
 
 	methods = {
+		credentialTest: {
+			weComReceiveApiTest,
+		},
 		loadOptions: {
 			// 获取部门列表
 			async getDepartments(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
@@ -517,10 +525,17 @@ export class WeComBase implements INodeType {
 		let returnData: INodeExecutionData[] = [];
 
 		if (resource === 'system') {
-			// System resource doesn't have an operation parameter
 			for (let i = 0; i < items.length; i++) {
-				const responseData = await executeSystem.call(this, i);
-				returnData.push({ json: responseData[0] });
+				try {
+					const responseData = await executeSystem.call(this, i);
+					returnData.push({ json: responseData[0], pairedItem: { item: i } });
+				} catch (error) {
+					if (!this.continueOnFail()) throw error;
+					returnData.push({
+						json: { error: (error as Error).message },
+						pairedItem: { item: i },
+					});
+				}
 			}
 		} else if (resource === 'passiveReply') {
 			// passiveReply only has 'reply' operation, use it directly
@@ -572,10 +587,7 @@ export class WeComBase implements INodeType {
 			} else if (resource === 'file') {
 				returnData = await executeFile.call(this, operation, items);
 			} else if (resource === 'security') {
-				for (let i = 0; i < items.length; i++) {
-					const responseData = await executeSecurity.call(this, i);
-					returnData.push({ json: responseData[0], pairedItem: { item: i } });
-				}
+				returnData = await executeSecurity.call(this, operation, items);
 			}
 		}
 

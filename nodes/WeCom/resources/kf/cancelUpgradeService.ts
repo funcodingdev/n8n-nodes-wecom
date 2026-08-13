@@ -4,6 +4,14 @@ const showOnly = { resource: ['kf'], operation: ['cancelUpgradeService'] };
 
 export const cancelUpgradeServiceDescription: INodeProperties[] = [
 	{
+		displayName: '取消提示',
+		name: 'cancelUpgradeServiceNotice',
+		type: 'notice',
+		displayOptions: { show: showOnly },
+		default: '',
+		description: '调用后将清空此前为该客户指定的专员或客户群推荐，并移除企业微信中的对应状态提示。',
+	},
+	{
 		displayName: '客服账号',
 		name: 'open_kfid',
 		type: 'options',
@@ -18,7 +26,7 @@ export const cancelUpgradeServiceDescription: INodeProperties[] = [
 		placeholder: 'wkxxxxxxxxxxxxxxxxxx',
 	},
 	{
-		displayName: '外部联系人ID',
+		displayName: '客户 External UserID',
 		name: 'external_userid',
 		type: 'string',
 		required: true,

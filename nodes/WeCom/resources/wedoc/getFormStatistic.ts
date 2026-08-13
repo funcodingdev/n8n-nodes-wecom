@@ -47,6 +47,7 @@ export const getFormStatisticDescription: INodeProperties[] = [
 		type: 'number',
 		typeOptions: {
 			minValue: 1,
+			maxValue: 10000,
 		},
 
 		displayOptions: { show: { ...showOnly, req_type: [2, 3] } },

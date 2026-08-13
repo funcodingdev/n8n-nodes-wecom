@@ -1,32 +1,52 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-const showOnlyForGetAppShareInfo = {
-	resource: ['linkedcorp'],
-	operation: ['getAppShareInfo'],
-};
+const showOnly = { resource: ['linkedcorp'], operation: ['getAppShareInfo'] };
 
 export const getAppShareInfoDescription: INodeProperties[] = [
 	{
-		displayName: '应用AgentID',
+		displayName: '上级/上游应用 AgentID',
 		name: 'agentid',
 		type: 'string',
-		displayOptions: {
-			show: showOnlyForGetAppShareInfo,
-		},
+		displayOptions: { show: showOnly },
 		default: '',
-		description: '可选。上级/上游企业应用的agentid。如果不填，默认使用凭证中的agentid。<a href="https://developer.work.weixin.qq.com/document/path/93360" target="_blank">官方文档</a>',
 		placeholder: '1000001',
+		description: '留空时使用当前企业微信 API 凭证中的 AgentID',
 	},
 	{
-		displayName: '企业CorpID',
+		displayName: '业务类型',
+		name: 'business_type',
+		type: 'options',
+		displayOptions: { show: showOnly },
+		options: [
+			{ name: '企业互联/局校互联', value: 0 },
+			{ name: '上下游企业', value: 1 },
+		],
+		default: 1,
+	},
+	{
+		displayName: '下级/下游企业 CorpID',
 		name: 'corpid',
 		type: 'string',
-		displayOptions: {
-			show: showOnlyForGetAppShareInfo,
-		},
+		displayOptions: { show: showOnly },
 		default: '',
-		description: '可选。下级/下游企业的corpid。若需要获取自身企业的应用共享信息，则不需要填写。<a href="https://developer.work.weixin.qq.com/document/path/93360" target="_blank">官方文档</a>',
 		placeholder: 'ww1234567890abcdef',
+		description: '可选；填写后仅拉取该企业的应用共享信息',
+	},
+	{
+		displayName: '分页大小',
+		name: 'limit',
+		type: 'number',
+		typeOptions: { minValue: 0, maxValue: 100 },
+		displayOptions: { show: showOnly },
+		default: 100,
+		description: '最大 100；设为 0 时拉取全量数据',
+	},
+	{
+		displayName: '游标',
+		name: 'cursor',
+		type: 'string',
+		displayOptions: { show: showOnly },
+		default: '',
+		description: '首次请求留空，后续填写上一次返回的 next_cursor',
 	},
 ];
-

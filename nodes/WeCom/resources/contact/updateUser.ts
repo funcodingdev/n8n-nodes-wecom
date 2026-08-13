@@ -71,8 +71,8 @@ export const updateUserDescription: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: '保密',
-				value: '0',
+				name: '不修改',
+				value: '',
 			},
 			{
 				name: '男',
@@ -83,7 +83,7 @@ export const updateUserDescription: INodeProperties[] = [
 				value: '2',
 			},
 		],
-		default: '0',
+		default: '',
 		description: '可选。性别。<a href="https://developer.work.weixin.qq.com/document/path/90197" target="_blank">官方文档</a>',
 	},
 	{
@@ -150,6 +150,10 @@ export const updateUserDescription: INodeProperties[] = [
 		},
 		options: [
 			{
+				name: '不修改',
+				value: -1,
+			},
+			{
 				name: '启用',
 				value: 1,
 			},
@@ -158,7 +162,7 @@ export const updateUserDescription: INodeProperties[] = [
 				value: 0,
 			},
 		],
-		default: 1,
+		default: -1,
 		description: '是否启用成员。<a href="https://developer.work.weixin.qq.com/document/path/90197" target="_blank">官方文档</a>',
 	},
 	{
@@ -211,12 +215,48 @@ export const updateUserDescription: INodeProperties[] = [
 						default: 0,
 					},
 					{ displayName: '属性名称', name: 'name', type: 'string', default: '' },
-					{ displayName: '文本值', name: 'text_value', type: 'string', default: '' },
-					{ displayName: '网页标题', name: 'web_title', type: 'string', default: '' },
-					{ displayName: '网页URL', name: 'web_url', type: 'string', default: '' },
-					{ displayName: '小程序AppID', name: 'miniprogram_appid', type: 'string', default: '' },
-					{ displayName: '小程序页面', name: 'miniprogram_pagepath', type: 'string', default: '' },
-					{ displayName: '小程序标题', name: 'miniprogram_title', type: 'string', default: '' },
+					{
+						displayName: '文本值',
+						name: 'text_value',
+						type: 'string',
+						displayOptions: { show: { type: [0] } },
+						default: '',
+					},
+					{
+						displayName: '网页标题',
+						name: 'web_title',
+						type: 'string',
+						displayOptions: { show: { type: [1] } },
+						default: '',
+					},
+					{
+						displayName: '网页URL',
+						name: 'web_url',
+						type: 'string',
+						displayOptions: { show: { type: [1] } },
+						default: '',
+					},
+					{
+						displayName: '小程序AppID',
+						name: 'miniprogram_appid',
+						type: 'string',
+						displayOptions: { show: { type: [2] } },
+						default: '',
+					},
+					{
+						displayName: '小程序页面',
+						name: 'miniprogram_pagepath',
+						type: 'string',
+						displayOptions: { show: { type: [2] } },
+						default: '',
+					},
+					{
+						displayName: '小程序标题',
+						name: 'miniprogram_title',
+						type: 'string',
+						displayOptions: { show: { type: [2] } },
+						default: '',
+					},
 				],
 			},
 		],
@@ -296,9 +336,27 @@ export const updateUserDescription: INodeProperties[] = [
 						default: 0,
 					},
 					{ displayName: '属性名称', name: 'name', type: 'string', default: '' },
-					{ displayName: '文本值', name: 'text_value', type: 'string', default: '' },
-					{ displayName: '网页标题', name: 'web_title', type: 'string', default: '' },
-					{ displayName: '网页URL', name: 'web_url', type: 'string', default: '' },
+					{
+						displayName: '文本值',
+						name: 'text_value',
+						type: 'string',
+						displayOptions: { show: { type: [0] } },
+						default: '',
+					},
+					{
+						displayName: '网页标题',
+						name: 'web_title',
+						type: 'string',
+						displayOptions: { show: { type: [1] } },
+						default: '',
+					},
+					{
+						displayName: '网页URL',
+						name: 'web_url',
+						type: 'string',
+						displayOptions: { show: { type: [1] } },
+						default: '',
+					},
 				],
 			},
 		],
@@ -348,4 +406,3 @@ export const updateUserDescription: INodeProperties[] = [
 		description: '可选。如果userid由系统自动生成，则仅允许修改一次。新值可由new_userid字段指定。<a href="https://developer.work.weixin.qq.com/document/path/90197" target="_blank">官方文档</a>',
 	},
 ];
-

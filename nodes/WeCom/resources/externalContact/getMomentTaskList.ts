@@ -56,10 +56,9 @@ export const getMomentTaskListDescription: INodeProperties[] = [
 		displayName: '每页数量',
 		name: 'limit',
 		type: 'number',
-		typeOptions: { minValue: 1, maxValue: 20 },
+		typeOptions: { minValue: 1, maxValue: 20, numberStepSize: 1 },
 		default: 20,
 		displayOptions: { show: showOnly },
 		description: '返回的最大记录数，整型，最大值20，默认值20',
 	},
 ];
-

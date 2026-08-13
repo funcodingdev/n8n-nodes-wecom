@@ -7,15 +7,16 @@ const showOnlySetAgent = {
 
 export const setAgentDescription: INodeProperties[] = [
 	{
-		displayName: '应用ID',
+		displayName: '应用 ID',
 		name: 'agentid',
 		type: 'number',
 		required: true,
 		default: 0,
+		typeOptions: { minValue: 1, numberStepSize: 1 },
 		displayOptions: {
 			show: showOnlySetAgent,
 		},
-		description: '企业应用的唯一标识。<a href="https://developer.work.weixin.qq.com/document/path/90227" target="_blank">官方文档</a>',
+		description: '企业应用的唯一标识。<a href="https://developer.work.weixin.qq.com/document/path/90228" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '应用名称',
@@ -41,7 +42,7 @@ export const setAgentDescription: INodeProperties[] = [
 		description: '企业应用详情，长度为4至120个utf8字符',
 	},
 	{
-		displayName: '应用头像MediaID',
+		displayName: '应用头像 Media ID',
 		name: 'logo_mediaid',
 		type: 'string',
 		default: '',
@@ -51,7 +52,7 @@ export const setAgentDescription: INodeProperties[] = [
 		description: '企业应用头像的mediaid，通过素材管理接口上传图片获得mediaid，上传后会自动裁剪成方形和圆形两个头像',
 	},
 	{
-		displayName: '应用主页URL',
+		displayName: '应用主页 URL',
 		name: 'home_url',
 		type: 'string',
 		default: '',
@@ -76,6 +77,10 @@ export const setAgentDescription: INodeProperties[] = [
 		type: 'options',
 		options: [
 			{
+				name: '不修改',
+				value: '',
+			},
+			{
 				name: '不上报',
 				value: 0,
 			},
@@ -84,7 +89,7 @@ export const setAgentDescription: INodeProperties[] = [
 				value: 1,
 			},
 		],
-		default: 0,
+		default: '',
 		displayOptions: {
 			show: showOnlySetAgent,
 		},
@@ -96,6 +101,10 @@ export const setAgentDescription: INodeProperties[] = [
 		type: 'options',
 		options: [
 			{
+				name: '不修改',
+				value: '',
+			},
+			{
 				name: '不接收',
 				value: 0,
 			},
@@ -104,11 +113,10 @@ export const setAgentDescription: INodeProperties[] = [
 				value: 1,
 			},
 		],
-		default: 0,
+		default: '',
 		displayOptions: {
 			show: showOnlySetAgent,
 		},
 		description: '是否上报用户进入应用事件。0：不接收；1：接收',
 	},
 ];
-

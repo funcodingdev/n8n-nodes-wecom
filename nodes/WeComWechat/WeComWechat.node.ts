@@ -121,20 +121,29 @@ export class WeComWechat implements INodeType {
 			// 获取客服账号列表
 			async getKfAccounts(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
 				try {
-					const response = await weComApiRequest.call(
-						this,
-						'POST',
-						'/cgi-bin/kf/account/list',
-						{},
-					);
-
-					const accounts = response.account_list as Array<{
+					const accounts: Array<{
 						open_kfid: string;
 						name: string;
 						avatar?: string;
-					}>;
+					}> = [];
+					const limit = 100;
+					let offset = 0;
+					while (true) {
+						const response = await weComApiRequest.call(
+							this,
+							'POST',
+							'/cgi-bin/kf/account/list',
+							{ offset, limit },
+						);
+						const page = Array.isArray(response.account_list)
+							? (response.account_list as typeof accounts)
+							: [];
+						accounts.push(...page);
+						if (page.length < limit) break;
+						offset += page.length;
+					}
 
-					if (!accounts || !Array.isArray(accounts) || accounts.length === 0) {
+					if (accounts.length === 0) {
 						return [
 							{
 								name: '暂无客服账号，请先创建',

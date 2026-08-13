@@ -23,8 +23,8 @@ export async function getPermanentCode(
 	this: IExecuteFunctions,
 	index: number,
 ): Promise<IDataObject> {
-	const suiteAccessToken = this.getNodeParameter('suiteAccessToken', index) as string;
-	const authCode = this.getNodeParameter('authCode', index) as string;
+	const suiteAccessToken = String(this.getNodeParameter('suiteAccessToken', index) ?? '').trim();
+	const authCode = String(this.getNodeParameter('authCode', index) ?? '').trim();
 
 	if (!suiteAccessToken) {
 		throw new NodeOperationError(
@@ -38,6 +38,14 @@ export async function getPermanentCode(
 		throw new NodeOperationError(
 			this.getNode(),
 			'临时授权码不能为空',
+			{ itemIndex: index },
+		);
+	}
+	const authCodeBytes = Buffer.byteLength(authCode, 'utf8');
+	if (authCodeBytes < 64 || authCodeBytes > 512) {
+		throw new NodeOperationError(
+			this.getNode(),
+			'临时授权码长度必须为 64–512 个字节',
 			{ itemIndex: index },
 		);
 	}
@@ -67,6 +75,7 @@ export async function getPermanentCode(
 
 		return response;
 	} catch (error) {
+		if (error instanceof NodeOperationError) throw error;
 		const err = error as Error;
 		throw new NodeOperationError(
 			this.getNode(),

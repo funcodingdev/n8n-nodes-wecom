@@ -1,4 +1,5 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
+import { NodeOperationError } from 'n8n-workflow';
 import { createNewOrder } from './createNewOrder';
 import { createRenewOrderJob } from './createRenewOrderJob';
 import { submitOrderJob } from './submitOrderJob';
@@ -124,7 +125,9 @@ export async function executeLicense(
 					responseData = await supportPolicyQuery.call(this, i);
 					break;
 				default:
-					throw new Error(`未知操作: ${operation}`);
+					throw new NodeOperationError(this.getNode(), `未知操作: ${operation}`, {
+						itemIndex: i,
+					});
 			}
 
 			returnData.push({
@@ -141,7 +144,10 @@ export async function executeLicense(
 					pairedItem: { item: i },
 				});
 			} else {
-				throw error;
+				if (error instanceof NodeOperationError) throw error;
+				throw new NodeOperationError(this.getNode(), (error as Error).message, {
+					itemIndex: i,
+				});
 			}
 		}
 	}

@@ -20,8 +20,10 @@ export async function corpidToOpencorpid(
 	this: IExecuteFunctions,
 	index: number,
 ): Promise<IDataObject> {
-	const providerAccessToken = this.getNodeParameter('providerAccessToken', index) as string;
-	const corpid = this.getNodeParameter('corpid', index) as string;
+	const providerAccessToken = String(
+		this.getNodeParameter('providerAccessToken', index) ?? '',
+	).trim();
+	const corpid = String(this.getNodeParameter('corpid', index) ?? '').trim();
 
 	if (!providerAccessToken) {
 		throw new NodeOperationError(
@@ -64,6 +66,7 @@ export async function corpidToOpencorpid(
 
 		return response;
 	} catch (error) {
+		if (error instanceof NodeOperationError) throw error;
 		const err = error as Error;
 		throw new NodeOperationError(
 			this.getNode(),

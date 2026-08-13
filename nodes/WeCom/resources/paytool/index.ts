@@ -10,6 +10,14 @@ export const paytoolDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['paytool'],
+				operation: [
+					'createOrder',
+					'cancelOrder',
+					'getOrderList',
+					'getOrderDetail',
+					'getInvoiceList',
+					'markInvoiceStatus',
+				],
 			},
 		},
 		options: [
@@ -69,6 +77,14 @@ export const paytoolDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['paytool'],
+				operation: [
+					'createOrder',
+					'cancelOrder',
+					'getOrderList',
+					'getOrderDetail',
+					'getInvoiceList',
+					'markInvoiceStatus',
+				],
 			},
 		},
 		default: '',
@@ -85,6 +101,7 @@ export const paytoolDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['paytool'],
+				operation: ['createOrder', 'cancelOrder', 'getOrderList', 'getOrderDetail'],
 			},
 		},
 		default: '',
@@ -151,7 +168,36 @@ export const paytoolDescription: INodeProperties[] = [
 		default: 0,
 	},
 	{
-		displayName: '客户企业corpid（可选）',
+		displayName: '产品配置输入方式',
+		name: 'productInputMode',
+		type: 'options',
+		displayOptions: {
+			show: { resource: ['paytool'], operation: ['createOrder'] },
+		},
+		options: [
+			{ name: '逐项填写', value: 'form' },
+			{ name: 'JSON 对象', value: 'json' },
+		],
+		default: 'form',
+		description: '少量应用可逐项填写；复杂产品和大批量购买可直接提供与接口一致的 product_list JSON',
+	},
+	{
+		displayName: '产品配置（JSON）',
+		name: 'productListJson',
+		type: 'json',
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['paytool'],
+				operation: ['createOrder'],
+				productInputMode: ['json'],
+			},
+		},
+		default: '{"third_app":{"order_type":0,"buy_info_list":[{"suiteid":"SUITE_ID","edition_id":"EDITION_ID","user_count":1,"duration_days":31}],"notify_custom_corp":1}}',
+		description: '按业务类型填写 third_app、customized_app 或 promotion_case；节点会执行与表单模式相同的完整校验',
+	},
+	{
+		displayName: '客户企业 CorpID',
 		name: 'customCorpid',
 		type: 'string',
 		displayOptions: {
@@ -164,9 +210,10 @@ export const paytoolDescription: INodeProperties[] = [
 		description: '可以不指定，不多于64字节。代开发应用必须指定',
 	},
 	{
-		displayName: '银行收款回单media_id',
+		displayName: '银行收款回单素材 ID',
 		name: 'bankReceiptMediaId',
 		type: 'string',
+		required: true,
 		displayOptions: {
 			show: {
 				resource: ['paytool'],
@@ -201,6 +248,7 @@ export const paytoolDescription: INodeProperties[] = [
 				resource: ['paytool'],
 				operation: ['createOrder'],
 				businessType: [1],
+				productInputMode: ['form'],
 			},
 		},
 		default: {},
@@ -257,11 +305,21 @@ export const paytoolDescription: INodeProperties[] = [
 								description: '不多于64字节',
 							},
 							{
-								displayName: '应用ID',
+								displayName: '发送旧套件应用 ID',
+								name: 'includeAppid',
+								type: 'boolean',
+								default: false,
+								description: '是否发送仅旧的多应用套件需要的 appid 字段',
+							},
+							{
+								displayName: '旧套件应用 ID',
 								name: 'appid',
 								type: 'number',
+								required: true,
+								displayOptions: { show: { includeAppid: [true] } },
 								default: 1,
-								description: '应用ID（仅旧套件应用需要填）',
+								typeOptions: { minValue: 1, numberStepSize: 1 },
+								description: '应用 ID（仅旧套件应用需要填）',
 							},
 							{
 								displayName: '版本号ID',
@@ -277,6 +335,7 @@ export const paytoolDescription: INodeProperties[] = [
 								type: 'number',
 								default: 0,
 								description: '应用的购买人数，单位人。当购买类型是新购或扩容，且购买的版本非固定总价类型时，需要填。注意对于扩容类型，表示增加的人数。取值范围：1 ~ 1000000',
+								typeOptions: { minValue: 0, maxValue: 1000000, numberStepSize: 1 },
 							},
 							{
 								displayName: '购买时长（天）',
@@ -284,6 +343,7 @@ export const paytoolDescription: INodeProperties[] = [
 								type: 'number',
 								default: 0,
 								description: '应用的购买时长，单位天。当购买类型是新购或续期时必填。取值范围：1 ~ 1825',
+								typeOptions: { minValue: 0, maxValue: 1825, numberStepSize: 1 },
 							},
 							{
 								displayName: '生效日期',
@@ -326,6 +386,7 @@ export const paytoolDescription: INodeProperties[] = [
 										type: 'number',
 										default: 0,
 										description: '优惠金额，单位分',
+										typeOptions: { minValue: 0, maxValue: 10000000, numberStepSize: 1 },
 									},
 									{
 										displayName: '优惠折扣（%）',
@@ -333,6 +394,7 @@ export const paytoolDescription: INodeProperties[] = [
 										type: 'number',
 										default: 0,
 										description: '优惠折扣，单位%，如填75，表示75%优惠价，即7.5折',
+										typeOptions: { minValue: 0, maxValue: 99, numberStepSize: 1 },
 									},
 									{
 										displayName: '优惠原因',
@@ -376,6 +438,7 @@ export const paytoolDescription: INodeProperties[] = [
 				resource: ['paytool'],
 				operation: ['createOrder'],
 				businessType: [2],
+				productInputMode: ['form'],
 			},
 		},
 		default: {},
@@ -437,6 +500,7 @@ export const paytoolDescription: INodeProperties[] = [
 								required: true,
 								default: 0,
 								description: '应用总价，单位分。需大于0且不能超过500万',
+								typeOptions: { minValue: 1, maxValue: 5000000, numberStepSize: 1 },
 							},
 							{
 								displayName: '购买人数',
@@ -444,6 +508,7 @@ export const paytoolDescription: INodeProperties[] = [
 								type: 'number',
 								default: 0,
 								description: '应用的购买人数，单位人。当购买类型是新购或扩容时需要填。注意对于扩容类型，表示增加的人数。取值范围：1 ~ 1000000',
+								typeOptions: { minValue: 0, maxValue: 1000000, numberStepSize: 1 },
 							},
 							{
 								displayName: '购买时长（天）',
@@ -451,6 +516,7 @@ export const paytoolDescription: INodeProperties[] = [
 								type: 'number',
 								default: 0,
 								description: '应用的购买时长，单位天。当购买类型是新购或续期时必填。取值范围：1 ~ 1825',
+								typeOptions: { minValue: 0, maxValue: 1825, numberStepSize: 1 },
 							},
 							{
 								displayName: '生效日期',
@@ -492,6 +558,7 @@ export const paytoolDescription: INodeProperties[] = [
 				resource: ['paytool'],
 				operation: ['createOrder'],
 				businessType: [3],
+				productInputMode: ['form'],
 			},
 		},
 		default: {},
@@ -539,10 +606,11 @@ export const paytoolDescription: INodeProperties[] = [
 			},
 			{
 				displayName: '购买时长（天）',
-				name: 'durationDays',
-				type: 'number',
-				default: 0,
-				description: '应用的购买时长，单位天',
+			name: 'durationDays',
+			type: 'number',
+			default: 0,
+			description: '应用的购买时长，单位天',
+			typeOptions: { minValue: 0, maxValue: 1825, numberStepSize: 1 },
 			},
 			{
 				displayName: '生效日期',
@@ -574,11 +642,21 @@ export const paytoolDescription: INodeProperties[] = [
 								description: '不多于64字节',
 							},
 							{
-								displayName: '应用ID',
+								displayName: '发送旧套件应用 ID',
+								name: 'includeAppid',
+								type: 'boolean',
+								default: false,
+								description: '是否发送仅旧的多应用套件需要的 appid 字段',
+							},
+							{
+								displayName: '旧套件应用 ID',
 								name: 'appid',
 								type: 'number',
+								required: true,
+								displayOptions: { show: { includeAppid: [true] } },
 								default: 1,
-								description: '应用ID（仅旧套件应用需要填）',
+								typeOptions: { minValue: 1, numberStepSize: 1 },
+								description: '应用 ID（仅旧套件应用需要填）',
 							},
 							{
 								displayName: '购买人数',
@@ -586,6 +664,7 @@ export const paytoolDescription: INodeProperties[] = [
 								type: 'number',
 								default: 0,
 								description: '应用的购买人数，单位人。当购买类型是新购或扩容，且购买的版本非固定总价类型时，需要填。注意对于扩容类型，表示增加的人数。取值范围：1 ~ 1000000',
+								typeOptions: { minValue: 0, maxValue: 1000000, numberStepSize: 1 },
 							},
 						],
 					},
@@ -641,6 +720,7 @@ export const paytoolDescription: INodeProperties[] = [
 		typeOptions: {
 			minValue: 1,
 			maxValue: 2000,
+			numberStepSize: 1,
 		},
 	},
 	{
@@ -654,6 +734,11 @@ export const paytoolDescription: INodeProperties[] = [
 			},
 		},
 		options: [
+			{
+				name: '全部业务类型',
+				value: 0,
+				description: '不发送 business_type，返回全部业务类型',
+			},
 			{
 				name: '普通第三方应用',
 				value: 1,
@@ -670,7 +755,7 @@ export const paytoolDescription: INodeProperties[] = [
 				description: '行业解决方案',
 			},
 		],
-		default: 1,
+		default: 0,
 	},
 	{
 		displayName: '起始时间',
@@ -781,6 +866,7 @@ export const paytoolDescription: INodeProperties[] = [
 		typeOptions: {
 			minValue: 1,
 			maxValue: 100,
+			numberStepSize: 1,
 		},
 	},
 	// 标记开票状态相关参数

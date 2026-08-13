@@ -11,8 +11,9 @@ export const getClientPasswordListDescription: INodeProperties[] = [
 		name: 'id',
 		type: 'number',
 		required: true,
+		typeOptions: { minValue: 1 },
 		displayOptions: { show: showOnly },
-		default: 0,
+		default: 1,
 		description:
 			'公共邮箱 ID。<a href="https://developer.work.weixin.qq.com/document/path/100183" target="_blank">官方文档</a>',
 	},

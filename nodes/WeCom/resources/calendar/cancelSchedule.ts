@@ -48,6 +48,7 @@ export const cancelScheduleDescription: INodeProperties[] = [
 		displayName: '操作起始时间',
 		name: 'op_start_time',
 		type: 'dateTime',
+		required: true,
 		displayOptions: {
 			show: {
 				...showOnlyForCancel,
@@ -55,7 +56,7 @@ export const cancelScheduleDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '操作起始时间。仅当操作模式是"仅删除此日程"或"删除本次及后续日程"时有效。该时间必须是重复日程的某一次开始时间',
+		description:
+			'操作起始时间。仅当操作模式是"仅删除此日程"或"删除本次及后续日程"时有效。该时间必须是重复日程的某一次开始时间',
 	},
 ];
-

@@ -1,17 +1,563 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
+import { NodeOperationError } from 'n8n-workflow';
+import { parseQueryJson, parseRequestJson } from '../../shared/extraHttpOp';
 import { weComApiRequest } from '../../shared/transport';
-import { executeExtraHttpOp } from '../../shared/extraHttpOp';
-import { checkinExtraHttpOpsById } from './extraHttpOps';
 
-// 辅助函数：将dateTime转换为Unix时间戳（秒级）
-function dateTimeToUnixTimestamp(dateTime: string | number): number {
-	if (typeof dateTime === 'number') {
-		return dateTime;
+const LIST_SEPARATOR = /[,，|\n\r]+/;
+const MAX_UINT32 = 4294967295;
+const DAY_SECONDS = 86400;
+const WIFI_MAC = /^[A-Fa-f0-9]{2}(?::[A-Fa-f0-9]{2}){5}$/;
+
+function fail(context: IExecuteFunctions, message: string, itemIndex: number): never {
+	throw new NodeOperationError(context.getNode(), message, { itemIndex });
+}
+
+function text(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	maxBytes = 4096,
+	required = true,
+): string {
+	const normalized = String(value ?? '').trim();
+	if (required && !normalized) fail(context, `${label}不能为空`, itemIndex);
+	if (Buffer.byteLength(normalized, 'utf8') > maxBytes) {
+		fail(context, `${label}不能超过 ${maxBytes} 字节`, itemIndex);
 	}
-	if (!dateTime || dateTime === '') {
-		return 0;
+	return normalized;
+}
+
+function characterText(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	maxCharacters: number,
+	required = true,
+): string {
+	const normalized = String(value ?? '').trim();
+	if (required && !normalized) fail(context, `${label}不能为空`, itemIndex);
+	if ([...normalized].length > maxCharacters) {
+		fail(context, `${label}不能超过 ${maxCharacters} 个字符`, itemIndex);
 	}
-	return Math.floor(new Date(dateTime).getTime() / 1000);
+	return normalized;
+}
+
+function integer(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	min: number,
+	max: number,
+): number {
+	const normalized = Number(value);
+	if (!Number.isSafeInteger(normalized) || normalized < min || normalized > max) {
+		fail(context, `${label}必须是 ${min}–${max} 之间的整数`, itemIndex);
+	}
+	return normalized;
+}
+
+function timestamp(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): number {
+	if (value === undefined || value === null || String(value).trim() === '') {
+		fail(context, `${label}不能为空`, itemIndex);
+	}
+	const raw = String(value).trim();
+	const normalized = /^\d+$/.test(raw) ? Number(raw) : Math.floor(Date.parse(raw) / 1000);
+	if (!Number.isSafeInteger(normalized) || normalized < 1 || normalized > MAX_UINT32) {
+		fail(context, `${label}不是有效的日期时间`, itemIndex);
+	}
+	return normalized;
+}
+
+function stringList(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	min: number,
+	max: number,
+): string[] {
+	const source = Array.isArray(value) ? value : [value];
+	const values = source
+		.flatMap((entry) => String(entry ?? '').split(LIST_SEPARATOR))
+		.map((entry) => entry.trim())
+		.filter(Boolean);
+	const unique = [...new Set(values)];
+	if (unique.length < min || unique.length > max) {
+		fail(context, `${label}数量必须为 ${min}–${max} 个`, itemIndex);
+	}
+	return unique;
+}
+
+function userids(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): string[] {
+	return stringList(context, value, label, itemIndex, 1, 100).map((userid) =>
+		text(context, userid, `${label} UserID`, itemIndex, 64),
+	);
+}
+
+function timeRange(
+	context: IExecuteFunctions,
+	startValue: unknown,
+	endValue: unknown,
+	label: string,
+	itemIndex: number,
+	maxSpanSeconds?: number,
+): { starttime: number; endtime: number } {
+	const starttime = timestamp(context, startValue, `${label}开始时间`, itemIndex);
+	const endtime = timestamp(context, endValue, `${label}结束时间`, itemIndex);
+	if (endtime < starttime) fail(context, `${label}结束时间不能早于开始时间`, itemIndex);
+	if (maxSpanSeconds !== undefined && endtime - starttime > maxSpanSeconds) {
+		fail(
+			context,
+			`${label}时间跨度不能超过 ${Math.floor(maxSpanSeconds / DAY_SECONDS)} 天`,
+			itemIndex,
+		);
+	}
+	return { starttime, endtime };
+}
+
+function jsonValue(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): unknown {
+	try {
+		return JSON.parse(String(value));
+	} catch {
+		fail(context, `${label}不是有效的 JSON`, itemIndex);
+	}
+}
+
+function jsonObject(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): IDataObject {
+	const parsed = jsonValue(context, value, label, itemIndex);
+	if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+		fail(context, `${label}必须是 JSON 对象`, itemIndex);
+	}
+	return parsed as IDataObject;
+}
+
+function normalizeRecord(
+	context: IExecuteFunctions,
+	raw: IDataObject,
+	itemIndex: number,
+	recordIndex: number,
+): IDataObject {
+	const prefix = `第 ${recordIndex + 1} 条打卡记录`;
+	const record: IDataObject = {
+		userid: text(context, raw.userid, `${prefix}成员 UserID`, itemIndex, 64),
+		checkin_time: timestamp(context, raw.checkin_time, `${prefix}打卡时间`, itemIndex),
+		location_title: characterText(
+			context,
+			raw.location_title,
+			`${prefix}地点标题`,
+			itemIndex,
+			1024,
+		),
+		location_detail: characterText(
+			context,
+			raw.location_detail,
+			`${prefix}地点详情`,
+			itemIndex,
+			1024,
+		),
+		device_type: integer(context, raw.device_type, `${prefix}设备类型`, itemIndex, 1, 3),
+		device_detail: characterText(context, raw.device_detail, `${prefix}设备详情`, itemIndex, 40),
+	};
+	const notes = characterText(context, raw.notes, `${prefix}备注`, itemIndex, 1024, false);
+	if (notes) record.notes = notes;
+	if (raw.lng !== undefined) {
+		record.lng = integer(context, raw.lng, `${prefix}经度`, itemIndex, -180000000, 180000000);
+	}
+	if (raw.lat !== undefined) {
+		record.lat = integer(context, raw.lat, `${prefix}纬度`, itemIndex, -90000000, 90000000);
+	}
+	const wifiname = characterText(
+		context,
+		raw.wifiname,
+		`${prefix}WiFi 名称`,
+		itemIndex,
+		1024,
+		false,
+	);
+	const wifimac = text(context, raw.wifimac, `${prefix}WiFi MAC`, itemIndex, 17, false);
+	if (wifiname && !wifimac) fail(context, `${prefix}填写 WiFi 名称时必须填写 MAC 地址`, itemIndex);
+	if (wifimac && !WIFI_MAC.test(wifimac)) fail(context, `${prefix}WiFi MAC 格式不正确`, itemIndex);
+	if (wifiname) record.wifiname = wifiname;
+	if (wifimac) record.wifimac = wifimac;
+	const mediaids = stringList(context, raw.mediaids, `${prefix}附件 MediaID`, itemIndex, 0, 1);
+	if (mediaids.length)
+		record.mediaids = mediaids.map((id) => text(context, id, '附件 MediaID', itemIndex));
+	return record;
+}
+
+function normalizeBase64(context: IExecuteFunctions, value: unknown, itemIndex: number): string {
+	const encoded = String(value ?? '').replace(/\s+/g, '');
+	if (!encoded) fail(context, '人脸图片 Base64 不能为空', itemIndex);
+	if (encoded.startsWith('data:'))
+		fail(context, '人脸图片 Base64 不要包含 data URL 前缀', itemIndex);
+	if (!/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(encoded)) {
+		fail(context, '人脸图片不是有效的 Base64', itemIndex);
+	}
+	const buffer = Buffer.from(encoded, 'base64');
+	if (!buffer.length) fail(context, '人脸图片不能为空', itemIndex);
+	if (buffer.length > 1024 * 1024) fail(context, '人脸图片不能超过 1 MiB', itemIndex);
+	return encoded;
+}
+
+function minuteSecond(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): number {
+	const normalized = integer(context, value, label, itemIndex, 0, 172740);
+	if (normalized % 60 !== 0) fail(context, `${label}必须是 60 的倍数`, itemIndex);
+	return normalized;
+}
+
+function buildRuleGroup(
+	context: IExecuteFunctions,
+	action: 'create' | 'update',
+	itemIndex: number,
+): IDataObject {
+	const includeBasic =
+		action === 'create' ||
+		(context.getNodeParameter('includeBasicFields', itemIndex, false) as boolean);
+	const group: IDataObject = {};
+	if (includeBasic) {
+		if (action === 'create') {
+			group.grouptype = integer(
+				context,
+				context.getNodeParameter('grouptype', itemIndex, 1),
+				'规则类型',
+				itemIndex,
+				1,
+				3,
+			);
+		}
+		const groupname = characterText(
+			context,
+			context.getNodeParameter('groupname', itemIndex, ''),
+			'规则名称',
+			itemIndex,
+			40,
+			action === 'create',
+		);
+		if (groupname) group.groupname = groupname;
+		const checkinType = integer(
+			context,
+			context.getNodeParameter('checkin_type', itemIndex, 0),
+			'打卡方式',
+			itemIndex,
+			0,
+			3,
+		);
+		if (![0, 2, 3].includes(checkinType)) fail(context, '打卡方式只能是 0、2 或 3', itemIndex);
+		group.type = checkinType;
+		group.sync_holidays = context.getNodeParameter('sync_holidays', itemIndex, true) as boolean;
+		group.need_photo = context.getNodeParameter('need_photo', itemIndex, false) as boolean;
+		group.note_can_use_local_pic = context.getNodeParameter(
+			'note_can_use_local_pic',
+			itemIndex,
+			false,
+		) as boolean;
+		group.allow_checkin_offworkday = context.getNodeParameter(
+			'allow_checkin_offworkday',
+			itemIndex,
+			false,
+		) as boolean;
+		group.allow_apply_offworkday = context.getNodeParameter(
+			'allow_apply_offworkday',
+			itemIndex,
+			false,
+		) as boolean;
+		group.use_face_detect = context.getNodeParameter(
+			'use_face_detect',
+			itemIndex,
+			false,
+		) as boolean;
+		group.open_face_live_detect = context.getNodeParameter(
+			'open_face_live_detect',
+			itemIndex,
+			false,
+		) as boolean;
+		group.sync_out_checkin = context.getNodeParameter(
+			'sync_out_checkin',
+			itemIndex,
+			false,
+		) as boolean;
+		group.checkin_method_type = integer(
+			context,
+			context.getNodeParameter('checkin_method_type', itemIndex, 0),
+			'打卡交替方式',
+			itemIndex,
+			0,
+			2,
+		);
+
+		const range: IDataObject = {};
+		const rangeUsers = stringList(
+			context,
+			context.getNodeParameter('range_userids', itemIndex, ''),
+			'应用范围成员',
+			itemIndex,
+			0,
+			1000,
+		).map((userid) => text(context, userid, '应用范围成员 UserID', itemIndex, 64));
+		const rangeParties = stringList(
+			context,
+			context.getNodeParameter('range_partyids', itemIndex, ''),
+			'应用范围部门',
+			itemIndex,
+			0,
+			1000,
+		).map((id) => integer(context, id, '应用范围部门 ID', itemIndex, 1, MAX_UINT32));
+		const rangeTags = stringList(
+			context,
+			context.getNodeParameter('range_tagids', itemIndex, ''),
+			'应用范围标签',
+			itemIndex,
+			0,
+			1000,
+		).map((id) => integer(context, id, '应用范围标签 ID', itemIndex, 1, MAX_UINT32));
+		if (rangeUsers.length) range.userid = rangeUsers;
+		if (rangeParties.length) range.party_id = rangeParties;
+		if (rangeTags.length) range.tagid = rangeTags;
+		if (Object.keys(range).length) group.range = range;
+		const whiteUsers = stringList(
+			context,
+			context.getNodeParameter('white_users', itemIndex, ''),
+			'白名单成员',
+			itemIndex,
+			0,
+			1000,
+		).map((userid) => text(context, userid, '白名单成员 UserID', itemIndex, 64));
+		if (whiteUsers.length) group.white_users = whiteUsers;
+
+		const groupType = Number(group.grouptype ?? 1);
+		if (groupType === 1) {
+			const workdays = stringList(
+				context,
+				context.getNodeParameter('workdays', itemIndex, '1,2,3,4,5'),
+				'工作日',
+				itemIndex,
+				1,
+				7,
+			).map((day) => integer(context, day, '工作日', itemIndex, 0, 6));
+			const workSec = minuteSecond(
+				context,
+				context.getNodeParameter('work_sec', itemIndex, 32400),
+				'上班时间',
+				itemIndex,
+			);
+			const offWorkSec = minuteSecond(
+				context,
+				context.getNodeParameter('off_work_sec', itemIndex, 64800),
+				'下班时间',
+				itemIndex,
+			);
+			const earliestWork = minuteSecond(
+				context,
+				context.getNodeParameter('earliest_work_sec', itemIndex, 28800),
+				'最早上班打卡时间',
+				itemIndex,
+			);
+			const latestWork = minuteSecond(
+				context,
+				context.getNodeParameter('latest_work_sec', itemIndex, 36000),
+				'最晚上班打卡时间',
+				itemIndex,
+			);
+			const earliestOff = minuteSecond(
+				context,
+				context.getNodeParameter('earliest_off_work_sec', itemIndex, 61200),
+				'最早下班打卡时间',
+				itemIndex,
+			);
+			const latestOff = minuteSecond(
+				context,
+				context.getNodeParameter('latest_off_work_sec', itemIndex, 68400),
+				'最晚下班打卡时间',
+				itemIndex,
+			);
+			if (earliestWork > workSec || workSec > latestWork) {
+				fail(context, '上班时间必须位于最早和最晚打卡时间之间', itemIndex);
+			}
+			if (earliestOff > offWorkSec || offWorkSec > latestOff) {
+				fail(context, '下班时间必须位于最早和最晚打卡时间之间', itemIndex);
+			}
+			group.checkindate = [
+				{
+					workdays: [...new Set(workdays)],
+					checkintime: [
+						{
+							time_id: 1,
+							work_sec: workSec,
+							off_work_sec: offWorkSec,
+							remind_work_sec: Math.max(0, workSec - 600),
+							remind_off_work_sec: offWorkSec,
+							earliest_work_sec: earliestWork,
+							latest_work_sec: latestWork,
+							earliest_off_work_sec: earliestOff,
+							latest_off_work_sec: latestOff,
+						},
+					],
+				},
+			];
+		}
+
+		const locCollection = context.getNodeParameter(
+			'locInfosCollection',
+			itemIndex,
+			{},
+		) as IDataObject;
+		const rawLocations = (locCollection.locs as IDataObject[]) || [];
+		if (rawLocations.length) {
+			group.loc_infos = rawLocations.map((location, index) => ({
+				lat: integer(
+					context,
+					location.lat,
+					`第 ${index + 1} 个位置纬度`,
+					itemIndex,
+					-90000000,
+					90000000,
+				),
+				lng: integer(
+					context,
+					location.lng,
+					`第 ${index + 1} 个位置经度`,
+					itemIndex,
+					-180000000,
+					180000000,
+				),
+				loc_title: characterText(
+					context,
+					location.loc_title,
+					`第 ${index + 1} 个位置名称`,
+					itemIndex,
+					128,
+					false,
+				),
+				loc_detail: characterText(
+					context,
+					location.loc_detail,
+					`第 ${index + 1} 个详细地址`,
+					itemIndex,
+					512,
+					false,
+				),
+				distance: integer(
+					context,
+					location.distance ?? 300,
+					`第 ${index + 1} 个打卡范围`,
+					itemIndex,
+					1,
+					100000,
+				),
+			}));
+		}
+		const wifiCollection = context.getNodeParameter(
+			'wifiInfosCollection',
+			itemIndex,
+			{},
+		) as IDataObject;
+		const rawWifis = (wifiCollection.wifis as IDataObject[]) || [];
+		if (rawWifis.length) {
+			group.wifimac_infos = rawWifis.map((wifi, index) => {
+				const mac = text(context, wifi.wifimac, `第 ${index + 1} 个 WiFi MAC`, itemIndex, 17);
+				if (!WIFI_MAC.test(mac)) fail(context, `第 ${index + 1} 个 WiFi MAC 格式不正确`, itemIndex);
+				return {
+					wifiname: characterText(
+						context,
+						wifi.wifiname,
+						`第 ${index + 1} 个 WiFi 名称`,
+						itemIndex,
+						128,
+						false,
+					),
+					wifimac: mac,
+				};
+			});
+		}
+	}
+
+	if (context.getNodeParameter('useAdvancedConfig', itemIndex, false) as boolean) {
+		const config = jsonObject(
+			context,
+			context.getNodeParameter('advancedConfig', itemIndex, '{}'),
+			'高级配置',
+			itemIndex,
+		);
+		if (config.group !== undefined) {
+			if (!config.group || typeof config.group !== 'object' || Array.isArray(config.group)) {
+				fail(context, '高级配置中的 group 必须是对象', itemIndex);
+			}
+			Object.assign(group, config.group as IDataObject);
+		} else {
+			Object.assign(group, config);
+		}
+	}
+
+	if (action === 'update') {
+		group.groupid = integer(
+			context,
+			context.getNodeParameter('groupid', itemIndex),
+			'规则 ID',
+			itemIndex,
+			1,
+			MAX_UINT32,
+		);
+		if (Object.keys(group).length === 1)
+			fail(context, '更新规则时至少提供一个要修改的字段', itemIndex);
+	} else {
+		group.grouptype = integer(context, group.grouptype, '规则类型', itemIndex, 1, 3);
+		group.groupname = characterText(context, group.groupname, '规则名称', itemIndex, 40);
+		const range = group.range as IDataObject | undefined;
+		const hasRange =
+			range &&
+			['userid', 'party_id', 'tagid'].some(
+				(key) => Array.isArray(range[key]) && (range[key] as unknown[]).length > 0,
+			);
+		if (!hasRange) fail(context, '创建规则时应用范围至少要包含成员、部门或标签中的一种', itemIndex);
+		const hasLocations = Array.isArray(group.loc_infos) && group.loc_infos.length > 0;
+		const hasWifis = Array.isArray(group.wifimac_infos) && group.wifimac_infos.length > 0;
+		if (!hasLocations && !hasWifis)
+			fail(context, '创建规则时位置和 WiFi 打卡点不能同时为空', itemIndex);
+		if (group.grouptype === 1 && (!Array.isArray(group.checkindate) || !group.checkindate.length)) {
+			fail(context, '固定时间上下班规则必须提供 checkindate', itemIndex);
+		}
+		if (
+			group.grouptype === 2 &&
+			(!Array.isArray(group.schedulelist) || !group.schedulelist.length)
+		) {
+			fail(context, '按班次上下班规则必须通过高级配置提供 schedulelist', itemIndex);
+		}
+	}
+	if (group.type !== undefined && ![0, 2, 3].includes(Number(group.type))) {
+		fail(context, 'group.type 只能是 0、2 或 3', itemIndex);
+	}
+	if (group.open_face_live_detect === true && group.use_face_detect === false) {
+		fail(context, '开启人脸活体检测时必须同时开启人脸识别', itemIndex);
+	}
+	return group;
 }
 
 export async function executeCheckin(
@@ -23,385 +569,330 @@ export async function executeCheckin(
 
 	for (let i = 0; i < items.length; i++) {
 		try {
-			let responseData;
+			let response: IDataObject;
 
 			if (operation === 'getCorporationRules') {
-				// 获取企业所有打卡规则
-				// https://developer.work.weixin.qq.com/document/path/93384
-				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/checkin/getcorpcheckinoption', {});
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/checkin/getcorpcheckinoption',
+					{},
+				);
 			} else if (operation === 'getUserRules') {
-				// 获取员工打卡规则
-				// https://developer.work.weixin.qq.com/document/path/94204
-				const datetime = this.getNodeParameter('datetime', i) as number;
-				const useridlist = this.getNodeParameter('useridlist', i) as string;
-				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/checkin/getcheckinoption', {
-					datetime,
-					useridlist: useridlist.split(',').map((id) => id.trim()),
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/checkin/getcheckinoption', {
+					datetime: timestamp(this, this.getNodeParameter('datetime', i), '规则日期', i),
+					useridlist: userids(this, this.getNodeParameter('useridlist', i), '成员列表', i),
 				});
 			} else if (operation === 'getCheckinData') {
-				// 获取打卡记录数据
-				// https://developer.work.weixin.qq.com/document/path/90262
-				const starttime = dateTimeToUnixTimestamp(this.getNodeParameter('starttime', i) as string | number);
-				const endtime = dateTimeToUnixTimestamp(this.getNodeParameter('endtime', i) as string | number);
-				const useridlist = this.getNodeParameter('useridlist', i) as string;
-				const opencheckindatatype = this.getNodeParameter('opencheckindatatype', i) as number;
-
-				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/checkin/getcheckindata', {
-					opencheckindatatype,
-					starttime,
-					endtime,
-					useridlist: useridlist.split(',').map((id) => id.trim()),
+				const range = timeRange(
+					this,
+					this.getNodeParameter('starttime', i),
+					this.getNodeParameter('endtime', i),
+					'打卡记录',
+					i,
+					30 * DAY_SECONDS,
+				);
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/checkin/getcheckindata', {
+					opencheckindatatype: integer(
+						this,
+						this.getNodeParameter('opencheckindatatype', i, 3),
+						'打卡类型',
+						i,
+						1,
+						3,
+					),
+					...range,
+					useridlist: userids(this, this.getNodeParameter('useridlist', i), '成员列表', i),
 				});
-			} else if (operation === 'getDailyReport') {
-				// 获取打卡日报数据
-				// https://developer.work.weixin.qq.com/document/path/93374
-				const starttime = dateTimeToUnixTimestamp(this.getNodeParameter('starttime', i) as string | number);
-				const endtime = dateTimeToUnixTimestamp(this.getNodeParameter('endtime', i) as string | number);
-				const useridlist = this.getNodeParameter('useridlist', i) as string;
-
-				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/checkin/getcheckin_daydata', {
-					starttime,
-					endtime,
-					useridlist: useridlist.split(',').map((id) => id.trim()),
-				});
-			} else if (operation === 'getMonthlyReport') {
-				// 获取打卡月报数据
-				// https://developer.work.weixin.qq.com/document/path/94207
-				const starttime = dateTimeToUnixTimestamp(this.getNodeParameter('starttime', i) as string | number);
-				const endtime = dateTimeToUnixTimestamp(this.getNodeParameter('endtime', i) as string | number);
-				const useridlist = this.getNodeParameter('useridlist', i) as string;
-
-				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/checkin/getcheckin_monthdata', {
-					starttime,
-					endtime,
-					useridlist: useridlist.split(',').map((id) => id.trim()),
+			} else if (operation === 'getDailyReport' || operation === 'getMonthlyReport') {
+				const label = operation === 'getDailyReport' ? '打卡日报' : '打卡月报';
+				const endpoint =
+					operation === 'getDailyReport'
+						? '/cgi-bin/checkin/getcheckin_daydata'
+						: '/cgi-bin/checkin/getcheckin_monthdata';
+				response = await weComApiRequest.call(this, 'POST', endpoint, {
+					...timeRange(
+						this,
+						this.getNodeParameter('starttime', i),
+						this.getNodeParameter('endtime', i),
+						label,
+						i,
+					),
+					useridlist: userids(this, this.getNodeParameter('useridlist', i), '成员列表', i),
 				});
 			} else if (operation === 'getScheduleList') {
-				// 获取打卡人员排班信息
-				// https://developer.work.weixin.qq.com/document/path/93380
-				const starttime = dateTimeToUnixTimestamp(this.getNodeParameter('starttime', i) as string | number);
-				const endtime = dateTimeToUnixTimestamp(this.getNodeParameter('endtime', i) as string | number);
-				const useridlist = this.getNodeParameter('useridlist', i) as string;
-
-				responseData = await weComApiRequest.call(
+				response = await weComApiRequest.call(
 					this,
 					'POST',
 					'/cgi-bin/checkin/getcheckinschedulist',
 					{
-						starttime,
-						endtime,
-						useridlist: useridlist.split(',').map((id) => id.trim()),
+						...timeRange(
+							this,
+							this.getNodeParameter('starttime', i),
+							this.getNodeParameter('endtime', i),
+							'排班',
+							i,
+							31 * DAY_SECONDS,
+						),
+						useridlist: userids(this, this.getNodeParameter('useridlist', i), '成员列表', i),
 					},
 				);
 			} else if (operation === 'setScheduleList') {
-				// 为打卡人员排班
-				// https://developer.work.weixin.qq.com/document/path/93385
-				const groupid = this.getNodeParameter('groupid', i) as number;
-				const yearmonth = this.getNodeParameter('yearmonth', i) as number;
-				const scheduleCollection = this.getNodeParameter('scheduleCollection', i, {}) as { schedules?: Array<{ userid: string; day: number; schedule_id: number }> };
-
-				const items: Array<{ userid: string; day: number; schedule_id: number }> = [];
-				if (scheduleCollection.schedules) {
-					scheduleCollection.schedules.forEach((s) => {
-						items.push({
-							userid: s.userid,
-							day: s.day,
-							schedule_id: s.schedule_id,
-						});
-					});
+				const groupid = integer(
+					this,
+					this.getNodeParameter('groupid', i),
+					'打卡规则 ID',
+					i,
+					1,
+					MAX_UINT32,
+				);
+				const yearmonth = integer(
+					this,
+					this.getNodeParameter('yearmonth', i),
+					'年月',
+					i,
+					197001,
+					999912,
+				);
+				const year = Math.floor(yearmonth / 100);
+				const month = yearmonth % 100;
+				if (month < 1 || month > 12) fail(this, '年月必须使用有效的 YYYYMM 格式', i);
+				const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+				const collection = this.getNodeParameter('scheduleCollection', i, {}) as IDataObject;
+				const rawSchedules = (collection.schedules as IDataObject[]) || [];
+				if (!rawSchedules.length) fail(this, '至少添加一条排班信息', i);
+				const schedules = new Map<string, IDataObject>();
+				for (const [index, raw] of rawSchedules.entries()) {
+					const userid = text(this, raw.userid, `第 ${index + 1} 条排班成员 UserID`, i, 64);
+					const day = integer(this, raw.day, `第 ${index + 1} 条排班日期`, i, 1, daysInMonth);
+					const scheduleId = integer(
+						this,
+						raw.schedule_id,
+						`第 ${index + 1} 条排班班次 ID`,
+						i,
+						0,
+						MAX_UINT32,
+					);
+					schedules.set(`${userid}:${day}`, { userid, day, schedule_id: scheduleId });
 				}
-
-				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/checkin/setcheckinschedulist', {
-					groupid,
-					items,
-					yearmonth,
-				});
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/checkin/setcheckinschedulist',
+					{
+						groupid,
+						items: [...schedules.values()],
+						yearmonth,
+					},
+				);
 			} else if (operation === 'addCheckin') {
-				// 为打卡人员补卡
-				// https://developer.work.weixin.qq.com/document/path/95803
-				// 官方路径：/cgi-bin/checkin/punch_correction
-				const userid = this.getNodeParameter('userid', i) as string;
-				const schedule_date_time = dateTimeToUnixTimestamp(
-					this.getNodeParameter('schedule_date_time', i) as string | number,
-				);
-				const checkin_time = dateTimeToUnixTimestamp(
-					this.getNodeParameter('checkin_time', i) as string | number,
-				);
-				const schedule_checkin_time = this.getNodeParameter('schedule_checkin_time', i, 0) as number;
-				const remark = this.getNodeParameter('remark', i, '') as string;
-
 				const body: IDataObject = {
-					userid,
-					schedule_date_time,
-					checkin_time,
+					userid: text(this, this.getNodeParameter('userid', i), '成员 UserID', i, 64),
+					schedule_date_time: timestamp(
+						this,
+						this.getNodeParameter('schedule_date_time', i),
+						'应打卡日期',
+						i,
+					),
+					checkin_time: timestamp(
+						this,
+						this.getNodeParameter('checkin_time', i),
+						'实际打卡时间',
+						i,
+					),
 				};
-				if (schedule_checkin_time) body.schedule_checkin_time = schedule_checkin_time;
-				if (remark) body.remark = remark;
-
-				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/checkin/punch_correction', body);
-			} else if (operation === 'addCheckinRecord') {
-				// 添加打卡记录
-				// https://developer.work.weixin.qq.com/document/path/99647
-				// 官方路径：/cgi-bin/checkin/add_checkin_record，请求体为 records 数组
-				const userid = this.getNodeParameter('userid', i) as string;
-				const checkin_time = dateTimeToUnixTimestamp(
-					this.getNodeParameter('checkin_time', i) as string | number,
-				);
-				const location_title = this.getNodeParameter('location_title', i) as string;
-				const location_detail = this.getNodeParameter('location_detail', i) as string;
-				const notes = this.getNodeParameter('notes', i, '') as string;
-				const lng = this.getNodeParameter('lng', i, 0) as number;
-				const lat = this.getNodeParameter('lat', i, 0) as number;
-				const device_type = this.getNodeParameter('device_type', i, 0) as number;
-				const device_detail = this.getNodeParameter('device_detail', i, '') as string;
-				const wifiname = this.getNodeParameter('wifiname', i, '') as string;
-				const wifimac = this.getNodeParameter('wifimac', i, '') as string;
-				const mediaidsRaw = this.getNodeParameter('mediaids', i, '') as string;
-
-				const record: IDataObject = {
-					userid,
-					checkin_time,
-					location_title,
-					location_detail,
-				};
-				if (notes) record.notes = notes;
-				if (lng) record.lng = lng;
-				if (lat) record.lat = lat;
-				if (device_type) record.device_type = device_type;
-				if (device_detail) record.device_detail = device_detail;
-				if (wifiname) record.wifiname = wifiname;
-				if (wifimac) record.wifimac = wifimac;
-				if (mediaidsRaw) {
-					record.mediaids = mediaidsRaw
-						.split(',')
-						.map((id) => id.trim())
-						.filter(Boolean);
+				if (this.getNodeParameter('include_schedule_checkin_time', i, false) as boolean) {
+					body.schedule_checkin_time = integer(
+						this,
+						this.getNodeParameter('schedule_checkin_time', i, 0),
+						'应打卡时间点偏移',
+						i,
+						0,
+						MAX_UINT32,
+					);
 				}
-
-				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/checkin/add_checkin_record', {
-					records: [record],
+				const remark = text(this, this.getNodeParameter('remark', i, ''), '备注', i, 512, false);
+				if (remark) body.remark = remark;
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/checkin/punch_correction',
+					body,
+				);
+			} else if (operation === 'addCheckinRecord') {
+				let records: IDataObject[];
+				const inputMode = this.getNodeParameter('recordInputMode', i, 'single') as string;
+				if (inputMode === 'single') {
+					const raw: IDataObject = {
+						userid: this.getNodeParameter('userid', i),
+						checkin_time: this.getNodeParameter('checkin_time', i),
+						location_title: this.getNodeParameter('location_title', i),
+						location_detail: this.getNodeParameter('location_detail', i),
+						device_type: this.getNodeParameter('device_type', i),
+						device_detail: this.getNodeParameter('device_detail', i),
+						notes: this.getNodeParameter('notes', i, ''),
+						wifiname: this.getNodeParameter('wifiname', i, ''),
+						wifimac: this.getNodeParameter('wifimac', i, ''),
+						mediaids: this.getNodeParameter('mediaids', i, ''),
+					};
+					if (this.getNodeParameter('includeCoordinates', i, false) as boolean) {
+						raw.lng = this.getNodeParameter('lng', i);
+						raw.lat = this.getNodeParameter('lat', i);
+					}
+					records = [normalizeRecord(this, raw, i, 0)];
+				} else if (inputMode === 'json') {
+					const parsed = jsonValue(
+						this,
+						this.getNodeParameter('recordsJson', i, '[]'),
+						'打卡记录',
+						i,
+					);
+					if (!Array.isArray(parsed) || parsed.length < 1 || parsed.length > 200) {
+						fail(this, '打卡记录 JSON 必须是包含 1–200 个对象的数组', i);
+					}
+					records = parsed.map((raw, index) => {
+						if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+							fail(this, `第 ${index + 1} 条打卡记录必须是对象`, i);
+						}
+						return normalizeRecord(this, raw as IDataObject, i, index);
+					});
+				} else {
+					fail(this, '打卡记录输入方式只能是单条表单或批量 JSON', i);
+				}
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/checkin/add_checkin_record', {
+					records,
 				});
 			} else if (operation === 'addFaceInfo') {
-				// 录入打卡人员人脸信息
-				// https://developer.work.weixin.qq.com/document/path/93378
-				const userid = this.getNodeParameter('userid', i) as string;
-				const mediaid = this.getNodeParameter('mediaid', i) as string;
-
-				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/checkin/addcheckinuserface', {
-					userid,
-					userface: mediaid,
+				const source = this.getNodeParameter('faceSource', i, 'binary') as string;
+				let userface: string;
+				if (source === 'binary') {
+					const binaryProperty = text(
+						this,
+						this.getNodeParameter('binaryProperty', i, 'data'),
+						'二进制数据属性',
+						i,
+					);
+					this.helpers.assertBinaryData(i, binaryProperty);
+					const buffer = await this.helpers.getBinaryDataBuffer(i, binaryProperty);
+					if (!buffer.length) fail(this, '人脸图片不能为空', i);
+					if (buffer.length > 1024 * 1024) fail(this, '人脸图片不能超过 1 MiB', i);
+					userface = buffer.toString('base64');
+				} else if (source === 'base64') {
+					userface = normalizeBase64(this, this.getNodeParameter('mediaid', i), i);
+				} else {
+					fail(this, '图片来源只能是 Base64 或二进制数据', i);
+				}
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/checkin/addcheckinuserface', {
+					userid: text(this, this.getNodeParameter('userid', i), '成员 UserID', i, 64),
+					userface,
 				});
 			} else if (operation === 'getDeviceCheckinData') {
-				// 获取设备打卡数据
-				// https://developer.work.weixin.qq.com/document/path/94126
-				const starttime = dateTimeToUnixTimestamp(this.getNodeParameter('starttime', i) as string | number);
-				const endtime = dateTimeToUnixTimestamp(this.getNodeParameter('endtime', i) as string | number);
-				const useridlist = this.getNodeParameter('useridlist', i) as string;
-
-				responseData = await weComApiRequest.call(
+				response = await weComApiRequest.call(
 					this,
 					'POST',
 					'/cgi-bin/hardware/get_hardware_checkin_data',
 					{
-						starttime,
-						endtime,
-						useridlist: useridlist.split(',').map((id) => id.trim()),
+						filter_type: integer(
+							this,
+							this.getNodeParameter('filter_type', i, 1),
+							'过滤时间类型',
+							i,
+							1,
+							2,
+						),
+						...timeRange(
+							this,
+							this.getNodeParameter('starttime', i),
+							this.getNodeParameter('endtime', i),
+							'设备打卡记录',
+							i,
+							31 * DAY_SECONDS,
+						),
+						useridlist: userids(this, this.getNodeParameter('useridlist', i), '成员列表', i),
 					},
 				);
 			} else if (operation === 'manageRules') {
-				// 管理打卡规则
-				// https://developer.work.weixin.qq.com/document/path/98041
-				// 官方结构：{ effective_now, group: { ... } }
 				const action = this.getNodeParameter('action', i) as string;
-				const effective_now = this.getNodeParameter('effective_now', i, false) as boolean;
-
-				const endpoint =
-					action === 'create'
-						? '/cgi-bin/checkin/add_checkin_option'
-						: action === 'update'
-							? '/cgi-bin/checkin/update_checkin_option'
-							: '/cgi-bin/checkin/del_checkin_option';
-
-				let body: IDataObject = {};
-
+				if (!['create', 'update', 'delete'].includes(action)) {
+					fail(this, '规则操作类型只能是创建、更新或删除', i);
+				}
+				const effectiveNow = this.getNodeParameter('effective_now', i, false) as boolean;
 				if (action === 'delete') {
-					const groupid = this.getNodeParameter('groupid', i) as number;
-					body = { groupid };
-					if (effective_now) body.effective_now = true;
+					response = await weComApiRequest.call(
+						this,
+						'POST',
+						'/cgi-bin/checkin/del_checkin_option',
+						{
+							groupid: integer(
+								this,
+								this.getNodeParameter('groupid', i),
+								'规则 ID',
+								i,
+								1,
+								MAX_UINT32,
+							),
+							effective_now: effectiveNow,
+						},
+					);
 				} else {
-					const group: IDataObject = {};
-					const groupname = this.getNodeParameter('groupname', i, '') as string;
-					const useAdvancedConfig = this.getNodeParameter('useAdvancedConfig', i, false) as boolean;
-					const checkin_type = this.getNodeParameter('checkin_type', i, 0) as number;
-					const range_userids = this.getNodeParameter('range_userids', i, '') as string;
-					const range_partyids = this.getNodeParameter('range_partyids', i, '') as string;
-					const range_tagids = this.getNodeParameter('range_tagids', i, '') as string;
-					const white_users = this.getNodeParameter('white_users', i, '') as string;
-					const sync_holidays = this.getNodeParameter('sync_holidays', i, true) as boolean;
-					const need_photo = this.getNodeParameter('need_photo', i, false) as boolean;
-					const note_can_use_local_pic = this.getNodeParameter(
-						'note_can_use_local_pic',
-						i,
-						false,
-					) as boolean;
-					const allow_checkin_offworkday = this.getNodeParameter(
-						'allow_checkin_offworkday',
-						i,
-						false,
-					) as boolean;
-					const allow_apply_offworkday = this.getNodeParameter(
-						'allow_apply_offworkday',
-						i,
-						false,
-					) as boolean;
-					const use_face_detect = this.getNodeParameter('use_face_detect', i, false) as boolean;
-					const open_face_live_detect = this.getNodeParameter(
-						'open_face_live_detect',
-						i,
-						false,
-					) as boolean;
-					const sync_out_checkin = this.getNodeParameter('sync_out_checkin', i, false) as boolean;
-					const checkin_method_type = this.getNodeParameter('checkin_method_type', i, 0) as number;
-					const workdaysRaw = this.getNodeParameter('workdays', i, '1,2,3,4,5') as string;
-					const work_sec = this.getNodeParameter('work_sec', i, 32400) as number;
-					const off_work_sec = this.getNodeParameter('off_work_sec', i, 64800) as number;
-
-					if (action === 'update') {
-						const groupid = this.getNodeParameter('groupid', i) as number;
-						group.groupid = groupid;
-					}
-					if (action === 'create') {
-						const grouptype = this.getNodeParameter('grouptype', i, 1) as number;
-						group.grouptype = grouptype;
-					}
-					if (groupname) group.groupname = groupname;
-					group.type = checkin_type;
-					group.sync_holidays = sync_holidays;
-					group.need_photo = need_photo;
-					group.note_can_use_local_pic = note_can_use_local_pic;
-					group.allow_checkin_offworkday = allow_checkin_offworkday;
-					group.allow_apply_offworkday = allow_apply_offworkday;
-					group.use_face_detect = use_face_detect;
-					group.open_face_live_detect = open_face_live_detect;
-					group.sync_out_checkin = sync_out_checkin;
-					group.checkin_method_type = checkin_method_type;
-
-					const range: IDataObject = {};
-					const userids = range_userids.split(',').map((s) => s.trim()).filter(Boolean);
-					const partyids = range_partyids
-						.split(',')
-						.map((s) => s.trim())
-						.filter(Boolean)
-						.map((n) => Number(n));
-					const tagids = range_tagids
-						.split(',')
-						.map((s) => s.trim())
-						.filter(Boolean)
-						.map((n) => Number(n));
-					if (userids.length) range.userid = userids;
-					if (partyids.length) range.party_id = partyids;
-					if (tagids.length) range.tagid = tagids;
-					if (Object.keys(range).length) group.range = range;
-
-					const whiteUsers = white_users.split(',').map((s) => s.trim()).filter(Boolean);
-					if (whiteUsers.length) group.white_users = whiteUsers;
-
-					const workdays = workdaysRaw
-						.split(',')
-						.map((s) => Number(s.trim()))
-						.filter((n) => n >= 1 && n <= 7);
-					if (workdays.length && work_sec && off_work_sec) {
-						group.checkindate = [
-							{
-								workdays,
-								checkintime: [
-									{
-										time_id: 1,
-										work_sec,
-										off_work_sec,
-										remind_work_sec: Math.max(0, work_sec - 600),
-										remind_off_work_sec: off_work_sec,
-									},
-								],
-							},
-						];
-					}
-
-					const locCollection = this.getNodeParameter('locInfosCollection', i, {}) as IDataObject;
-					const locs = ((locCollection?.locs as IDataObject[]) || [])
-						.filter((l) => l.lat || l.lng)
-						.map((l) => ({
-							lat: l.lat,
-							lng: l.lng,
-							loc_title: l.loc_title || '',
-							loc_detail: l.loc_detail || '',
-							distance: l.distance || 300,
-						}));
-					if (locs.length) group.loc_infos = locs;
-
-					const wifiCollection = this.getNodeParameter('wifiInfosCollection', i, {}) as IDataObject;
-					const wifis = ((wifiCollection?.wifis as IDataObject[]) || [])
-						.filter((w) => w.wifimac)
-						.map((w) => ({
-							wifiname: w.wifiname || '',
-							wifimac: w.wifimac,
-						}));
-					if (wifis.length) group.wifimac_infos = wifis;
-
-					if (useAdvancedConfig) {
-						const advancedConfig = this.getNodeParameter('advancedConfig', i, '{}') as string;
-						try {
-							const config = JSON.parse(advancedConfig) as IDataObject;
-							// 允许 advanced 直接给完整 group，或只给 group 内字段
-							if (config.group && typeof config.group === 'object') {
-								Object.assign(group, config.group as IDataObject);
-							} else {
-								Object.assign(group, config);
-							}
-						} catch {
-							// 忽略 JSON 解析错误
-						}
-					}
-
-					body = { group };
-					if (effective_now) body.effective_now = true;
+					const typedAction = action as 'create' | 'update';
+					response = await weComApiRequest.call(
+						this,
+						'POST',
+						typedAction === 'create'
+							? '/cgi-bin/checkin/add_checkin_option'
+							: '/cgi-bin/checkin/update_checkin_option',
+						{ effective_now: effectiveNow, group: buildRuleGroup(this, typedAction, i) },
+					);
 				}
-
-				responseData = await weComApiRequest.call(this, 'POST', endpoint, body);
-			} else if (checkinExtraHttpOpsById[operation]) {
-				const bodyDefaults: IDataObject = {};
-				const checkin_groupid = this.getNodeParameter('checkin_groupid', i, 0) as number;
-				const clear_field_ids = this.getNodeParameter('clear_field_ids', i, []) as number[];
-				const clear_effective_now = this.getNodeParameter('clear_effective_now', i, false) as boolean;
-				if (checkin_groupid) bodyDefaults.groupid = checkin_groupid;
-				if (Array.isArray(clear_field_ids) && clear_field_ids.length) {
-					bodyDefaults.clear_field = clear_field_ids.map((n) => Number(n));
-				}
-				if (clear_effective_now) bodyDefaults.effective_now = true;
-				responseData = await executeExtraHttpOp.call(
+			} else if (operation === 'clearCheckinOptionArrayField') {
+				const requestBody = parseRequestJson.call(this, i);
+				const requestQuery = parseQueryJson.call(this, i);
+				const clearFields = stringList(
 					this,
-					checkinExtraHttpOpsById[operation],
+					requestBody.clear_field ?? this.getNodeParameter('clear_field_ids', i, []),
+					'要清空的字段',
 					i,
-					bodyDefaults,
+					1,
+					4,
+				).map((field) => integer(this, field, '要清空的字段标识', i, 1, 4));
+				const body: IDataObject = {
+					...requestBody,
+					groupid: integer(
+						this,
+						requestBody.groupid ?? this.getNodeParameter('checkin_groupid', i),
+						'规则 ID',
+						i,
+						1,
+						MAX_UINT32,
+					),
+					clear_field: [...new Set(clearFields)],
+					effective_now: Boolean(
+						requestBody.effective_now ?? this.getNodeParameter('clear_effective_now', i, false),
+					),
+				};
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/checkin/clear_checkin_option_array_field',
+					body,
+					requestQuery,
 				);
+			} else {
+				fail(this, `不支持的打卡操作：${operation}`, i);
 			}
 
-			returnData.push({
-				json: responseData || {},
-				pairedItem: { item: i },
-			});
+			returnData.push({ json: response, pairedItem: { item: i } });
 		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
 			if (this.continueOnFail()) {
-				returnData.push({
-					json: { error: error.message },
-					pairedItem: { item: i },
-				});
+				returnData.push({ json: { error: message }, pairedItem: { item: i } });
 				continue;
 			}
-			throw error;
+			if (error instanceof NodeOperationError) throw error;
+			throw new NodeOperationError(this.getNode(), message, { itemIndex: i });
 		}
 	}
 
 	return returnData;
 }
-

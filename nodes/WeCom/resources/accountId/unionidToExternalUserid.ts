@@ -1,13 +1,14 @@
 import type { IExecuteFunctions, IDataObject } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
+import { requireEnum, requireText } from './utils';
 
 export async function unionidToExternalUserid(
 	this: IExecuteFunctions,
 	index: number,
 ): Promise<IDataObject> {
-	const unionid = this.getNodeParameter('unionid', index) as string;
-	const openid = this.getNodeParameter('openid', index) as string;
-	const subjectType = this.getNodeParameter('subjectType', index, 0) as number;
+	const unionid = requireText(this, this.getNodeParameter('unionid', index), 'UnionID', index);
+	const openid = requireText(this, this.getNodeParameter('openid', index), 'OpenID', index);
+	const subjectType = requireEnum(this, this.getNodeParameter('subjectType', index, 0), '主体类型', [0, 1], index);
 
 	const body: IDataObject = {
 		unionid,

@@ -1,250 +1,395 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
+import { NodeOperationError } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
 
-/**
- * 执行应用管理相关操作
- * 官方文档：https://developer.work.weixin.qq.com/document/path/90227
- */
+const WORKBENCH_TYPES = ['keydata', 'image', 'list', 'webview'] as const;
+const MENU_EVENT_TYPES = [
+	'click',
+	'scancode_push',
+	'scancode_waitmsg',
+	'pic_sysphoto',
+	'pic_photo_or_album',
+	'pic_weixin',
+	'location_select',
+];
+const MENU_ACTION_TYPES = [...MENU_EVENT_TYPES, 'view', 'view_miniprogram'];
+
 export async function executeAgent(
 	this: IExecuteFunctions,
 	operation: string,
 	items: INodeExecutionData[],
 ): Promise<INodeExecutionData[]> {
 	const returnData: INodeExecutionData[] = [];
+	const fail = (message: string, itemIndex: number): never => {
+		throw new NodeOperationError(this.getNode(), message, { itemIndex });
+	};
+	const requireText = (
+		value: unknown,
+		label: string,
+		itemIndex: number,
+		limits: { maxBytes?: number; minChars?: number; maxChars?: number } = {},
+	): string => {
+		const text = String(value ?? '').trim();
+		if (!text) fail(`${label}不能为空`, itemIndex);
+		const characterLength = Array.from(text).length;
+		if (limits.minChars !== undefined && characterLength < limits.minChars) {
+			fail(`${label}不能少于 ${limits.minChars} 个字符`, itemIndex);
+		}
+		if (limits.maxChars !== undefined && characterLength > limits.maxChars) {
+			fail(`${label}不能超过 ${limits.maxChars} 个字符`, itemIndex);
+		}
+		if (limits.maxBytes !== undefined && Buffer.byteLength(text, 'utf8') > limits.maxBytes) {
+			fail(`${label}不能超过 ${limits.maxBytes} 个字节`, itemIndex);
+		}
+		return text;
+	};
+	const getAgentId = (itemIndex: number): number => {
+		const agentId = Number(this.getNodeParameter('agentid', itemIndex));
+		if (!Number.isSafeInteger(agentId) || agentId <= 0) {
+			fail('应用 ID 必须是正整数', itemIndex);
+		}
+		return agentId;
+	};
+	const ensureHttpUrl = (
+		value: unknown,
+		label: string,
+		itemIndex: number,
+		maxBytes?: number,
+	): string => {
+		const text = requireText(value, label, itemIndex, { maxBytes });
+		try {
+			const url = new URL(text);
+			if (!['http:', 'https:'].includes(url.protocol)) throw new Error();
+		} catch {
+			fail(`${label}必须是有效的 HTTP(S) 链接`, itemIndex);
+		}
+		return text;
+	};
+	const parseJson = (value: unknown, label: string, itemIndex: number): unknown => {
+		if (typeof value !== 'string') return value;
+		try {
+			return JSON.parse(value);
+		} catch (error) {
+			return fail(`${label} JSON 解析失败: ${(error as Error).message}`, itemIndex);
+		}
+	};
+	const asObject = (value: unknown, label: string, itemIndex: number): IDataObject => {
+		if (!value || typeof value !== 'object' || Array.isArray(value)) {
+			fail(`${label}必须是对象`, itemIndex);
+		}
+		return value as IDataObject;
+	};
+	const addDestination = (
+		source: IDataObject,
+		target: IDataObject,
+		label: string,
+		itemIndex: number,
+		jumpDisabled = false,
+	) => {
+		const jumpUrl = String(source.jump_url ?? '').trim();
+		const pagepath = String(source.pagepath ?? '').trim();
+		if (jumpUrl && pagepath) fail(`${label}的跳转 URL 与小程序页面路径不能同时设置`, itemIndex);
+		if (jumpDisabled && jumpUrl) {
+			fail(`${label}开启 Webview 内链接跳转时不能再设置外层跳转 URL`, itemIndex);
+		}
+		if (jumpUrl) target.jump_url = ensureHttpUrl(jumpUrl, `${label}跳转 URL`, itemIndex, 1024);
+		if (pagepath) {
+			target.pagepath = requireText(pagepath, `${label}小程序页面路径`, itemIndex, {
+				maxBytes: 1024,
+			});
+		}
+	};
+	const normalizeWorkbenchData = (
+		type: string,
+		value: unknown,
+		itemIndex: number,
+	): IDataObject => {
+		if (!WORKBENCH_TYPES.includes(type as (typeof WORKBENCH_TYPES)[number])) {
+			fail('工作台模版类型不受支持', itemIndex);
+		}
+		const data = asObject(value, '模版数据', itemIndex);
+		if (type === 'keydata') {
+			const keyDataItems = data.items;
+			if (!Array.isArray(keyDataItems) || keyDataItems.length < 1 || keyDataItems.length > 4) {
+				throw new NodeOperationError(this.getNode(), '关键数据项必须包含 1–4 项', {
+					itemIndex,
+				});
+			}
+			return {
+				items: keyDataItems.map((entry: unknown, entryIndex: number) => {
+					const item = asObject(entry, `关键数据第 ${entryIndex + 1} 项`, itemIndex);
+					const result: IDataObject = {
+						data: requireText(item.data, `关键数据第 ${entryIndex + 1} 项的数据`, itemIndex, {
+							maxChars: 64,
+						}),
+					};
+					const key = String(item.key ?? '').trim();
+					if (key) {
+						if (Array.from(key).length > 64) fail(`关键数据第 ${entryIndex + 1} 项的名称不能超过 64 个字符`, itemIndex);
+						result.key = key;
+					}
+					addDestination(item, result, `关键数据第 ${entryIndex + 1} 项`, itemIndex);
+					return result;
+				}),
+			};
+		}
+		if (type === 'image') {
+			const result: IDataObject = {
+				url: ensureHttpUrl(data.url, '图片 URL', itemIndex),
+			};
+			addDestination(data, result, '图片', itemIndex);
+			return result;
+		}
+		if (type === 'list') {
+			const listItems = data.items;
+			if (!Array.isArray(listItems) || listItems.length < 1 || listItems.length > 3) {
+				throw new NodeOperationError(this.getNode(), '列表项必须包含 1–3 项', {
+					itemIndex,
+				});
+			}
+			return {
+				items: listItems.map((entry: unknown, entryIndex: number) => {
+					const item = asObject(entry, `列表第 ${entryIndex + 1} 项`, itemIndex);
+					const result: IDataObject = {
+						title: requireText(item.title, `列表第 ${entryIndex + 1} 项标题`, itemIndex, {
+							maxBytes: 128,
+						}),
+					};
+					addDestination(item, result, `列表第 ${entryIndex + 1} 项`, itemIndex);
+					return result;
+				}),
+			};
+		}
+
+		const height = String(data.height ?? 'double_row');
+		if (!['single_row', 'double_row'].includes(height)) fail('Webview 高度不受支持', itemIndex);
+		for (const [field, label] of [
+			['hide_title', '隐藏应用标题'],
+			['enable_webview_click', '允许 Webview 内链接跳转'],
+		] as const) {
+			if (data[field] !== undefined && typeof data[field] !== 'boolean') {
+				fail(`${label}必须是布尔值`, itemIndex);
+			}
+		}
+		const result: IDataObject = {
+			url: ensureHttpUrl(data.url, 'Webview URL', itemIndex),
+			height,
+			hide_title: Boolean(data.hide_title),
+			enable_webview_click: Boolean(data.enable_webview_click),
+		};
+		addDestination(data, result, 'Webview', itemIndex, result.enable_webview_click === true);
+		return result;
+	};
+	const getWorkbenchData = (type: string, itemIndex: number): IDataObject => {
+		const inputMode = this.getNodeParameter('workbenchInputMode', itemIndex, 'form') as string;
+		if (inputMode === 'json') {
+			return normalizeWorkbenchData(
+				type,
+				parseJson(this.getNodeParameter('workbenchDataJson', itemIndex, '{}'), '模版数据', itemIndex),
+				itemIndex,
+			);
+		}
+		if (inputMode !== 'form') fail('模版数据输入方式不受支持', itemIndex);
+
+		let raw: IDataObject = {};
+		if (type === 'keydata') {
+			const collection = this.getNodeParameter('keydataItems', itemIndex, {}) as IDataObject;
+			raw = {
+				items: ((collection.items as IDataObject[]) || []).map((entry) => {
+					const item: IDataObject = { key: entry.key, data: entry.data };
+					if (entry.linkType === 'url') item.jump_url = entry.jump_url;
+					if (entry.linkType === 'pagepath') item.pagepath = entry.pagepath;
+					return item;
+				}),
+			};
+		} else if (type === 'image') {
+			raw = { url: this.getNodeParameter('image_url', itemIndex, '') as string };
+			const linkType = this.getNodeParameter('imageLinkType', itemIndex, 'none') as string;
+			if (linkType === 'url') raw.jump_url = this.getNodeParameter('image_jump_url', itemIndex, '') as string;
+			if (linkType === 'pagepath') raw.pagepath = this.getNodeParameter('image_pagepath', itemIndex, '') as string;
+		} else if (type === 'list') {
+			const collection = this.getNodeParameter('listItems', itemIndex, {}) as IDataObject;
+			raw = {
+				items: ((collection.items as IDataObject[]) || []).map((entry) => {
+					const item: IDataObject = { title: entry.title };
+					if (entry.linkType === 'url') item.jump_url = entry.jump_url;
+					if (entry.linkType === 'pagepath') item.pagepath = entry.pagepath;
+					return item;
+				}),
+			};
+		} else if (type === 'webview') {
+			raw = {
+				url: this.getNodeParameter('webview_url', itemIndex, '') as string,
+				height: this.getNodeParameter('webview_height', itemIndex, 'double_row') as string,
+				hide_title: this.getNodeParameter('webview_hide_title', itemIndex, false) as boolean,
+				enable_webview_click: this.getNodeParameter('webview_enable_click', itemIndex, false) as boolean,
+			};
+			const linkType = this.getNodeParameter('webviewLinkType', itemIndex, 'none') as string;
+			if (linkType === 'url' && raw.enable_webview_click !== true) {
+				raw.jump_url = this.getNodeParameter('webview_jump_url', itemIndex, '') as string;
+			}
+			if (linkType === 'pagepath') raw.pagepath = this.getNodeParameter('webview_pagepath', itemIndex, '') as string;
+		} else {
+			fail('工作台模版类型不受支持', itemIndex);
+		}
+		return normalizeWorkbenchData(type, raw, itemIndex);
+	};
+	const normalizeMenuButtons = (value: unknown, itemIndex: number): IDataObject[] => {
+		if (!Array.isArray(value) || value.length < 1 || value.length > 3) {
+			throw new NodeOperationError(this.getNode(), '一级菜单必须包含 1–3 项', {
+				itemIndex,
+			});
+		}
+		const normalizeEntry = (entry: unknown, entryIndex: number, isSubMenu: boolean): IDataObject => {
+			const source = asObject(
+				entry,
+				`${isSubMenu ? '二级' : '一级'}菜单第 ${entryIndex + 1} 项`,
+				itemIndex,
+			);
+			const label = `${isSubMenu ? '二级' : '一级'}菜单第 ${entryIndex + 1} 项`;
+			const result: IDataObject = {
+				name: requireText(source.name, `${label}名称`, itemIndex, {
+					maxBytes: isSubMenu ? 40 : 16,
+				}),
+			};
+			const subButtons = Array.isArray(source.sub_button) ? source.sub_button : [];
+			const hasSubMenu = !isSubMenu && (source.type === 'sub' || subButtons.length > 0);
+			if (hasSubMenu) {
+				if (subButtons.length < 1 || subButtons.length > 5) {
+					fail(`${label}的子菜单必须包含 1–5 项`, itemIndex);
+				}
+				result.sub_button = subButtons.map((sub, subIndex) => normalizeEntry(sub, subIndex, true));
+				return result;
+			}
+			if (isSubMenu && subButtons.length > 0) fail('二级菜单不能继续包含子菜单', itemIndex);
+			const type = String(source.type ?? '');
+			if (!MENU_ACTION_TYPES.includes(type)) fail(`${label}类型不受支持`, itemIndex);
+			result.type = type;
+			if (MENU_EVENT_TYPES.includes(type)) {
+				result.key = requireText(source.key, `${label}事件 Key`, itemIndex, { maxBytes: 128 });
+			} else if (type === 'view') {
+				result.url = ensureHttpUrl(source.url, `${label}网页 URL`, itemIndex, 1024);
+			} else {
+				result.appid = requireText(source.appid, `${label}小程序 AppID`, itemIndex);
+				result.pagepath = requireText(source.pagepath, `${label}小程序页面路径`, itemIndex);
+			}
+			return result;
+		};
+		return value.map((entry: unknown, entryIndex: number) =>
+			normalizeEntry(entry, entryIndex, false),
+		);
+	};
+	const getMenuButtons = (itemIndex: number): IDataObject[] => {
+		const mode = this.getNodeParameter('menuConfigMode', itemIndex, 'form') as string;
+		let raw: unknown;
+		if (mode === 'json') {
+			raw = parseJson(this.getNodeParameter('button', itemIndex, '[]'), '一级菜单', itemIndex);
+		} else if (mode === 'form') {
+			const collection = this.getNodeParameter('menuButtonCollection', itemIndex, {}) as IDataObject;
+			raw = ((collection.buttons as IDataObject[]) || []).map((entry) => {
+				if (entry.type !== 'sub') return entry;
+				const subCollection = (entry.subButtonsCollection as IDataObject) || {};
+				return { name: entry.name, type: 'sub', sub_button: subCollection.items || [] };
+			});
+		} else {
+			fail('菜单配置方式不受支持', itemIndex);
+		}
+		return normalizeMenuButtons(raw, itemIndex);
+	};
+	const ensureSuccess = (response: IDataObject, label: string, itemIndex: number) => {
+		if (response.errcode !== undefined && Number(response.errcode) !== 0) {
+			fail(`${label}失败: ${response.errmsg} (错误码: ${response.errcode})`, itemIndex);
+		}
+	};
 
 	for (let i = 0; i < items.length; i++) {
 		try {
-			let responseData: IDataObject;
-
+			let responseData: IDataObject | undefined;
 			switch (operation) {
-				// 获取应用详情
-				case 'getAgent': {
-					const agentid = this.getNodeParameter('agentid', i) as number;
-					responseData = await weComApiRequest.call(
-						this,
-						'GET',
-						'/cgi-bin/agent/get',
-						{},
-						{ agentid },
-					);
+				case 'getAgent':
+					responseData = await weComApiRequest.call(this, 'GET', '/cgi-bin/agent/get', {}, {
+						agentid: getAgentId(i),
+					});
 					break;
-				}
-
-				// 获取应用列表
-				case 'listAgents': {
-					responseData = await weComApiRequest.call(
-						this,
-						'GET',
-						'/cgi-bin/agent/list',
-					);
+				case 'listAgents':
+					responseData = await weComApiRequest.call(this, 'GET', '/cgi-bin/agent/list');
 					break;
-				}
-
-				// 设置应用
 				case 'setAgent': {
-					const agentid = this.getNodeParameter('agentid', i) as number;
-					const name = this.getNodeParameter('name', i, '') as string;
-					const description = this.getNodeParameter('description', i, '') as string;
-					const logo_mediaid = this.getNodeParameter('logo_mediaid', i, '') as string;
-					const home_url = this.getNodeParameter('home_url', i, '') as string;
-					const redirect_domain = this.getNodeParameter('redirect_domain', i, '') as string;
-					const report_location_flag = this.getNodeParameter('report_location_flag', i, undefined) as number | undefined;
-					const isreportenter = this.getNodeParameter('isreportenter', i, undefined) as number | undefined;
-
-					const body: IDataObject = {
-						agentid,
-					};
-
-					// 只添加非空的可选参数
-					if (name) body.name = name;
-					if (description) body.description = description;
-					if (logo_mediaid) body.logo_mediaid = logo_mediaid;
-					if (home_url) body.home_url = home_url;
-					if (redirect_domain) body.redirect_domain = redirect_domain;
-					if (report_location_flag !== undefined) body.report_location_flag = report_location_flag;
-					if (isreportenter !== undefined) body.isreportenter = isreportenter;
-
-					responseData = await weComApiRequest.call(
-						this,
-						'POST',
-						'/cgi-bin/agent/set',
-						body,
-					);
+					const body: IDataObject = { agentid: getAgentId(i) };
+					const name = String(this.getNodeParameter('name', i, '') ?? '').trim();
+					const description = String(this.getNodeParameter('description', i, '') ?? '').trim();
+					const logoMediaId = String(this.getNodeParameter('logo_mediaid', i, '') ?? '').trim();
+					const homeUrl = String(this.getNodeParameter('home_url', i, '') ?? '').trim();
+					const redirectDomain = String(this.getNodeParameter('redirect_domain', i, '') ?? '').trim();
+					if (name) body.name = requireText(name, '应用名称', i, { maxChars: 32 });
+					if (description) {
+						body.description = requireText(description, '应用详情', i, { minChars: 4, maxChars: 120 });
+					}
+					if (logoMediaId) body.logo_mediaid = logoMediaId;
+					if (homeUrl) body.home_url = ensureHttpUrl(homeUrl, '应用主页 URL', i);
+					if (redirectDomain) {
+						const normalizedDomain = redirectDomain.toLowerCase();
+						if (/[:/\s]/.test(normalizedDomain)) fail('可信域名只能填写不含协议和路径的域名', i);
+						try {
+							const parsed = new URL(`https://${normalizedDomain}`);
+							if (parsed.hostname !== normalizedDomain) throw new Error();
+						} catch {
+							fail('可信域名格式不正确', i);
+						}
+						body.redirect_domain = normalizedDomain;
+					}
+					for (const [parameter, label] of [
+						['report_location_flag', '地理位置上报'],
+						['isreportenter', '进入应用事件上报'],
+					] as const) {
+						const raw = this.getNodeParameter(parameter, i, '') as string | number;
+						if (raw !== '') {
+							const value = Number(raw);
+							if (![0, 1].includes(value)) fail(`${label}仅支持 0 或 1`, i);
+							body[parameter] = value;
+						}
+					}
+					if (Object.keys(body).length === 1) fail('请至少填写一项需要修改的应用设置', i);
+					responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/agent/set', body);
 					break;
 				}
-
-				// 创建菜单
-				case 'createMenu': {
-					const agentid = this.getNodeParameter('agentid', i) as number;
-					const menuConfigMode = this.getNodeParameter('menuConfigMode', i, 'form') as string;
-					let button: IDataObject[] = [];
-
-					if (menuConfigMode === 'json') {
-						const buttonJson = this.getNodeParameter('button', i) as string;
-						try {
-							button = typeof buttonJson === 'string' ? JSON.parse(buttonJson) : buttonJson;
-						} catch {
-							throw new Error('菜单配置JSON格式错误，请检查JSON语法');
-						}
-					} else {
-						const collection = this.getNodeParameter('menuButtonCollection', i, {}) as IDataObject;
-						const items = (collection?.buttons as IDataObject[]) || [];
-						button = items
-							.filter((b) => b.name)
-							.map((b) => {
-								const item: IDataObject = { name: b.name };
-								if (b.type === 'sub') {
-									const subCol = (b.subButtonsCollection as IDataObject) || {};
-									let subs: IDataObject[] = ((subCol.items as IDataObject[]) || [])
-										.filter((s) => s.name)
-										.map((s) => {
-											const sub: IDataObject = {
-												name: s.name,
-												type: s.type || 'click',
-											};
-											if (s.key) sub.key = s.key;
-											if (s.url) sub.url = s.url;
-											if (s.appid) sub.appid = s.appid;
-											if (s.pagepath) sub.pagepath = s.pagepath;
-											return sub;
-										});
-									try {
-										const fromJson = JSON.parse(String(b.sub_button_json || '[]'));
-										if (Array.isArray(fromJson) && fromJson.length) {
-											subs = fromJson as IDataObject[];
-										}
-									} catch {
-										/* ignore */
-									}
-									if (subs.length) item.sub_button = subs.slice(0, 5);
-								} else {
-									item.type = b.type;
-									if (b.key) item.key = b.key;
-									if (b.url) item.url = b.url;
-									if (b.appid) item.appid = b.appid;
-									if (b.pagepath) item.pagepath = b.pagepath;
-								}
-								return item;
-							});
-					}
-
-					if (!Array.isArray(button) || !button.length) {
-						throw new Error('请至少配置一个一级菜单');
-					}
-
+				case 'createMenu':
 					responseData = await weComApiRequest.call(
 						this,
 						'POST',
 						'/cgi-bin/menu/create',
-						{ button },
-						{ agentid },
+						{ button: getMenuButtons(i) },
+						{ agentid: getAgentId(i) },
 					);
 					break;
-				}
-
-				// 获取菜单
-				case 'getMenu': {
-					const agentid = this.getNodeParameter('agentid', i) as number;
-					responseData = await weComApiRequest.call(
-						this,
-						'GET',
-						'/cgi-bin/menu/get',
-						{},
-						{ agentid },
-					);
-					break;
-				}
-
-				// 删除菜单
+				case 'getMenu':
 				case 'deleteMenu': {
-					const agentid = this.getNodeParameter('agentid', i) as number;
+					const menuPath =
+						operation === 'getMenu' ? '/cgi-bin/menu/get' : '/cgi-bin/menu/delete';
 					responseData = await weComApiRequest.call(
 						this,
 						'GET',
-						'/cgi-bin/menu/delete',
+						menuPath,
 						{},
-						{ agentid },
+						{ agentid: getAgentId(i) },
 					);
 					break;
 				}
-
-				// 设置工作台模版
 				case 'setWorkbenchTemplate': {
-					const agentid = this.getNodeParameter('agentid', i) as number;
-					const type = this.getNodeParameter('type', i) as string;
-
-					const body: IDataObject = {
-						agentid,
-						type,
-					};
-
+					const agentid = getAgentId(i);
+					const type = String(this.getNodeParameter('type', i));
+					if (![...WORKBENCH_TYPES, 'normal'].includes(type as (typeof WORKBENCH_TYPES)[number] | 'normal')) {
+						fail('工作台模版类型不受支持', i);
+					}
+					const body: IDataObject = { agentid, type };
 					if (type !== 'normal') {
-						let templateData: IDataObject = {};
-						if (type === 'keydata') {
-							const collection = this.getNodeParameter('keydataItems', i, {}) as IDataObject;
-							const items = ((collection?.items as IDataObject[]) || [])
-								.filter((it) => it.key)
-								.slice(0, 4)
-								.map((it) => {
-									const item: IDataObject = { key: it.key, data: it.data || '' };
-									if (it.jump_url) item.jump_url = it.jump_url;
-									if (it.pagepath) item.pagepath = it.pagepath;
-									return item;
-								});
-							templateData = { items };
-						} else if (type === 'image') {
-							const url = this.getNodeParameter('image_url', i, '') as string;
-							const jump_url = this.getNodeParameter('image_jump_url', i, '') as string;
-							const pagepath = this.getNodeParameter('image_pagepath', i, '') as string;
-							if (url) templateData.url = url;
-							if (jump_url) templateData.jump_url = jump_url;
-							if (pagepath) templateData.pagepath = pagepath;
-						} else if (type === 'list') {
-							const collection = this.getNodeParameter('listItems', i, {}) as IDataObject;
-							const items = ((collection?.items as IDataObject[]) || [])
-								.filter((it) => it.title)
-								.slice(0, 3)
-								.map((it) => {
-									const item: IDataObject = { title: it.title };
-									if (it.jump_url) item.jump_url = it.jump_url;
-									if (it.pagepath) item.pagepath = it.pagepath;
-									return item;
-								});
-							templateData = { items };
-						} else if (type === 'webview') {
-							const url = this.getNodeParameter('webview_url', i, '') as string;
-							const jump_url = this.getNodeParameter('webview_jump_url', i, '') as string;
-							const height = this.getNodeParameter('webview_height', i, 'double_row') as string;
-							const hide_title = this.getNodeParameter('webview_hide_title', i, false) as boolean;
-							const enable_webview_click = this.getNodeParameter(
-								'webview_enable_click',
-								i,
-								false,
-							) as boolean;
-							if (url) templateData.url = url;
-							if (jump_url) templateData.jump_url = jump_url;
-							templateData.height = height;
-							templateData.hide_title = hide_title;
-							templateData.enable_webview_click = enable_webview_click;
+						if (this.getNodeParameter('setDefaultData', i, false) as boolean) {
+							body[type] = getWorkbenchData(type, i);
 						}
-
-						try {
-							const extra = JSON.parse(
-								this.getNodeParameter('templateExtraJson', i, '{}') as string,
-							) as IDataObject;
-							if (extra && typeof extra === 'object') Object.assign(templateData, extra);
-						} catch {
-							/* ignore */
-						}
-
-						body[type] = templateData;
-
-						const replace_user_data = this.getNodeParameter('replace_user_data', i, false) as boolean;
-						if (replace_user_data) {
-							body.replace_user_data = replace_user_data;
+						if (this.getNodeParameter('replace_user_data', i, false) as boolean) {
+							body.replace_user_data = true;
 						}
 					}
-
 					responseData = await weComApiRequest.call(
 						this,
 						'POST',
@@ -253,127 +398,80 @@ export async function executeAgent(
 					);
 					break;
 				}
-
-				// 获取工作台模版
-				case 'getWorkbenchTemplate': {
-					const agentid = this.getNodeParameter('agentid', i) as number;
+				case 'getWorkbenchTemplate':
 					responseData = await weComApiRequest.call(
 						this,
 						'POST',
 						'/cgi-bin/agent/get_workbench_template',
-						{ agentid },
+						{ agentid: getAgentId(i) },
 					);
 					break;
-				}
-
-				// 设置用户工作台数据
 				case 'setWorkbenchData':
 				case 'batchSetWorkbenchData': {
-					const agentid = this.getNodeParameter('agentid', i) as number;
-					const type = this.getNodeParameter('type', i) as string;
-					let templateData: IDataObject = {};
-					if (type === 'keydata') {
-						const collection = this.getNodeParameter('keydataItems', i, {}) as IDataObject;
-						templateData = {
-							items: ((collection?.items as IDataObject[]) || [])
-								.filter((it) => it.key)
-								.slice(0, 4)
-								.map((it) => {
-									const item: IDataObject = { key: it.key, data: it.data || '' };
-									if (it.jump_url) item.jump_url = it.jump_url;
-									if (it.pagepath) item.pagepath = it.pagepath;
-									return item;
-								}),
-						};
-					} else if (type === 'image') {
-						const url = this.getNodeParameter('image_url', i, '') as string;
-						const jump_url = this.getNodeParameter('image_jump_url', i, '') as string;
-						const pagepath = this.getNodeParameter('image_pagepath', i, '') as string;
-						if (url) templateData.url = url;
-						if (jump_url) templateData.jump_url = jump_url;
-						if (pagepath) templateData.pagepath = pagepath;
-					} else if (type === 'list') {
-						const collection = this.getNodeParameter('listItems', i, {}) as IDataObject;
-						templateData = {
-							items: ((collection?.items as IDataObject[]) || [])
-								.filter((it) => it.title)
-								.slice(0, 3)
-								.map((it) => {
-									const item: IDataObject = { title: it.title };
-									if (it.jump_url) item.jump_url = it.jump_url;
-									if (it.pagepath) item.pagepath = it.pagepath;
-									return item;
-								}),
-						};
-					} else if (type === 'webview') {
-						const url = this.getNodeParameter('webview_url', i, '') as string;
-						const jump_url = this.getNodeParameter('webview_jump_url', i, '') as string;
-						if (url) templateData.url = url;
-						if (jump_url) templateData.jump_url = jump_url;
-					}
-					try {
-						const extra = JSON.parse(
-							this.getNodeParameter('templateExtraJson', i, '{}') as string,
-						) as IDataObject;
-						if (extra && typeof extra === 'object') Object.assign(templateData, extra);
-					} catch {
-						/* ignore */
-					}
-
+					const agentid = getAgentId(i);
+					const type = String(this.getNodeParameter('type', i));
+					const templateData = getWorkbenchData(type, i);
 					if (operation === 'setWorkbenchData') {
-						const userid = this.getNodeParameter('userid', i) as string;
 						responseData = await weComApiRequest.call(
 							this,
 							'POST',
 							'/cgi-bin/agent/set_workbench_data',
-							{ agentid, userid, type, [type]: templateData },
+							{
+								agentid,
+								userid: requireText(this.getNodeParameter('userid', i), '用户 ID', i),
+								type,
+								[type]: templateData,
+							},
 						);
 					} else {
-						const useridListStr = this.getNodeParameter('userid_list', i) as string;
-						const userid_list = useridListStr
-							.split(',')
-							.map((id) => id.trim())
-							.filter((id) => id);
+						const selected = this.getNodeParameter('userid_list_selected', i, []) as string[];
+						const manual = String(this.getNodeParameter('userid_list', i, '') ?? '')
+							.split(/[,|\n]/)
+							.map((userid) => userid.trim())
+							.filter(Boolean);
+						const selectedUserIds = selected.map(String).map((userid) => userid.trim()).filter(Boolean);
+						const useridList = [...new Set([...selectedUserIds, ...manual])];
+						if (useridList.length < 1 || useridList.length > 1000) {
+							fail('用户列表合并后必须包含 1–1000 人', i);
+						}
 						responseData = await weComApiRequest.call(
 							this,
 							'POST',
 							'/cgi-bin/agent/batch_set_workbench_data',
-							{
-								agentid,
-								userid_list,
-								data: { type, [type]: templateData },
-							},
+							{ agentid, userid_list: useridList, data: { type, [type]: templateData } },
 						);
 					}
 					break;
 				}
-
-				// 获取用户工作台数据
-				case 'getWorkbenchData': {
-					const agentid = this.getNodeParameter('agentid', i) as number;
-					const userid = this.getNodeParameter('userid', i) as string;
+				case 'getWorkbenchData':
 					responseData = await weComApiRequest.call(
 						this,
 						'POST',
 						'/cgi-bin/agent/get_workbench_data',
-						{ agentid, userid },
+						{
+							agentid: getAgentId(i),
+							userid: requireText(this.getNodeParameter('userid', i), '用户 ID', i),
+						},
 					);
 					break;
-				}
-
 				case 'listAppShareInfo': {
-					const agentid = this.getNodeParameter('agentid', i) as number;
-					const business_type = this.getNodeParameter('business_type', i, 0) as number;
-					const corpid = this.getNodeParameter('corpid', i, '') as string;
-					const limit = this.getNodeParameter('limit', i, 0) as number;
-					const cursor = this.getNodeParameter('cursor', i, '') as string;
-
-					const body: IDataObject = { agentid };
-					if (business_type !== undefined) body.business_type = business_type;
-					if (corpid) body.corpid = corpid;
-					if (limit) body.limit = limit;
-					if (cursor) body.cursor = cursor;
-
+					const businessType = Number(this.getNodeParameter('business_type', i, 0));
+					if (![0, 1].includes(businessType)) fail('业务类型仅支持 0 或 1', i);
+					const body: IDataObject = { agentid: getAgentId(i), business_type: businessType };
+					const mode = this.getNodeParameter('shareInfoQueryMode', i, 'list') as string;
+					if (mode === 'corp') {
+						body.corpid = requireText(this.getNodeParameter('corpid', i), '企业 CorpID', i);
+					} else if (mode === 'list') {
+						const limit = Number(this.getNodeParameter('limit', i, 0));
+						if (!Number.isInteger(limit) || limit < 0 || limit > 100) {
+							fail('返回数量必须是 0–100 的整数', i);
+						}
+						if (limit > 0) body.limit = limit;
+						const cursor = String(this.getNodeParameter('cursor', i, '') ?? '').trim();
+						if (cursor) body.cursor = cursor;
+					} else {
+						fail('应用共享信息查询方式不受支持', i);
+					}
 					responseData = await weComApiRequest.call(
 						this,
 						'POST',
@@ -383,24 +481,26 @@ export async function executeAgent(
 					break;
 				}
 				default:
-					throw new Error(`未知操作: ${operation}`);
+					fail(`未知操作: ${operation}`, i);
 			}
 
-			returnData.push({
-				json: responseData,
-				pairedItem: { item: i },
-			});
+			if (!responseData) {
+				throw new NodeOperationError(this.getNode(), `操作 ${operation} 未返回结果`, {
+					itemIndex: i,
+				});
+			}
+			ensureSuccess(responseData, '应用管理操作', i);
+			returnData.push({ json: responseData, pairedItem: { item: i } });
 		} catch (error) {
 			if (this.continueOnFail()) {
 				returnData.push({
-					json: {
-						error: (error as Error).message,
-					},
+					json: { error: (error as Error).message },
 					pairedItem: { item: i },
 				});
 				continue;
 			}
-			throw error;
+			if (error instanceof NodeOperationError) throw error;
+			throw new NodeOperationError(this.getNode(), (error as Error).message, { itemIndex: i });
 		}
 	}
 

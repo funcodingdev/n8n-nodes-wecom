@@ -1,34 +1,50 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
-import { NodeOperationError } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
-
-// 辅助函数：将dateTime转换为Unix时间戳（秒级）
-function dateTimeToUnixTimestamp(dateTime: string | number): number {
-	if (typeof dateTime === 'number') {
-		return dateTime;
-	}
-	if (!dateTime || dateTime === '') {
-		return 0;
-	}
-	return Math.floor(new Date(dateTime).getTime() / 1000);
-}
+import {
+	fail,
+	dateTimeToUnixTimestamp,
+	integerList,
+	optionalByteText,
+	optionalText,
+	requireByteText,
+	requireHttpUrl,
+	requireInteger,
+	requireNumber,
+	requireText,
+	stringList,
+	validateStatisticWindow,
+} from './utils';
 
 function buildMsgMenuMessage(
-	menuItems: IDataObject[],
-	head_content: string,
-	tail_content: string,
+	context: IExecuteFunctions,
+	menuItemsValue: unknown,
+	headContentValue: unknown,
+	tailContentValue: unknown,
+	itemIndex: number,
+	maximumItems: number,
 ): IDataObject {
-	const list = menuItems.map((item: IDataObject) => {
+	const menuItems = Array.isArray(menuItemsValue) ? (menuItemsValue as IDataObject[]) : [];
+	if (menuItems.length > maximumItems) {
+		fail(context, `菜单项不能超过 ${maximumItems} 个`, itemIndex);
+	}
+	const interactiveItems = menuItems.filter((item) => String(item.type ?? '') !== 'text').length;
+	if (interactiveItems > 10) {
+		fail(context, '点击、跳转链接和小程序菜单项合计不能超过 10 个', itemIndex);
+	}
+
+	const list = menuItems.map((item: IDataObject, menuIndex: number) => {
 		const type = String(item.type || '');
-		const content = String(item.content || '');
+		const label = `第 ${menuIndex + 1} 个菜单项`;
 
 		if (type === 'click') {
+			const click: IDataObject = {
+				content: requireByteText(context, item.content, `${label}文案`, itemIndex, 128),
+			};
+			const id = optionalByteText(context, item.reply_content, `${label} ID`, itemIndex, 128);
+			if (id) click.id = id;
 			return {
 				type,
-				click: {
-					id: String(item.reply_content || ''),
-					content,
-				},
+				click,
 			};
 		}
 
@@ -36,8 +52,8 @@ function buildMsgMenuMessage(
 			return {
 				type,
 				view: {
-					url: String(item.url || ''),
-					content,
+					url: requireHttpUrl(context, item.url, `${label}跳转 URL`, itemIndex),
+					content: requireByteText(context, item.content, `${label}文案`, itemIndex, 1024),
 				},
 			};
 		}
@@ -46,21 +62,25 @@ function buildMsgMenuMessage(
 			return {
 				type,
 				miniprogram: {
-					appid: String(item.appid || ''),
-					pagepath: String(item.pagepath || ''),
-					content,
+					appid: requireByteText(context, item.appid, `${label}小程序 AppID`, itemIndex, 32),
+					pagepath: requireByteText(
+						context,
+						item.pagepath,
+						`${label}小程序页面路径`,
+						itemIndex,
+						1024,
+					),
+					content: requireByteText(context, item.content, `${label}文案`, itemIndex, 1024),
 				},
 			};
 		}
 
 		if (type === 'text') {
 			const text: IDataObject = {
-				content,
+				content: requireByteText(context, item.content, `${label}文本`, itemIndex, 256),
 			};
 
-			if (item.no_newline !== undefined) {
-				text.no_newline = item.no_newline ? 1 : 0;
-			}
+			text.no_newline = item.no_newline ? 1 : 0;
 
 			return {
 				type,
@@ -68,24 +88,270 @@ function buildMsgMenuMessage(
 			};
 		}
 
-		return {
-			type,
-		};
+		fail(context, `${label}类型无效`, itemIndex);
 	});
 
-	const messageContent: IDataObject = {
-		list,
-	};
+	const messageContent: IDataObject = {};
+	const headContent = optionalByteText(context, headContentValue, '菜单起始文本', itemIndex, 1024);
+	const tailContent = optionalByteText(context, tailContentValue, '菜单结束文本', itemIndex, 1024);
 
-	if (head_content) {
-		messageContent.head_content = head_content;
-	}
-
-	if (tail_content) {
-		messageContent.tail_content = tail_content;
+	if (headContent) messageContent.head_content = headContent;
+	if (list.length > 0) messageContent.list = list;
+	if (tailContent) messageContent.tail_content = tailContent;
+	if (!headContent && list.length === 0 && !tailContent) {
+		fail(context, '菜单起始文本、菜单项和结束文本至少需要填写一项', itemIndex);
 	}
 
 	return messageContent;
+}
+
+function objectValue(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): IDataObject {
+	let parsed = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+		fail(context, `${label}必须是 JSON 对象`, itemIndex);
+	}
+	return parsed as IDataObject;
+}
+
+function collectionRows(value: unknown, key: string): IDataObject[] {
+	if (Array.isArray(value)) return value.filter((row) => row && typeof row === 'object') as IDataObject[];
+	if (value && typeof value === 'object') {
+		const rows = (value as IDataObject)[key];
+		if (Array.isArray(rows)) {
+			return rows.filter((row) => row && typeof row === 'object') as IDataObject[];
+		}
+	}
+	return [];
+}
+
+function normalizeKnowledgeQuestion(
+	context: IExecuteFunctions,
+	value: unknown,
+	itemIndex: number,
+): IDataObject {
+	const question = objectValue(context, value, '主问题', itemIndex);
+	const textValue = question.text;
+	const content =
+		textValue && typeof textValue === 'object' && !Array.isArray(textValue)
+			? (textValue as IDataObject).content
+			: textValue;
+	return {
+		text: {
+			content: requireText(context, content, '主问题文本', itemIndex, 200),
+		},
+	};
+}
+
+function normalizeKnowledgeSimilarQuestions(
+	context: IExecuteFunctions,
+	value: unknown,
+	itemIndex: number,
+): IDataObject {
+	const similarQuestions = objectValue(context, value, '相似问法', itemIndex);
+	const rawItems = similarQuestions.items ?? [];
+	if (!Array.isArray(rawItems)) fail(context, '相似问法 items 必须是数组', itemIndex);
+	if (rawItems.length > 100) fail(context, '相似问法不能超过 100 个', itemIndex);
+	return {
+		items: rawItems.map((rawItem, questionIndex) => {
+			const item = objectValue(
+				context,
+				rawItem,
+				`第 ${questionIndex + 1} 个相似问法`,
+				itemIndex,
+			);
+			const textValue = item.text;
+			const content =
+				textValue && typeof textValue === 'object' && !Array.isArray(textValue)
+					? (textValue as IDataObject).content
+					: textValue;
+			return {
+				text: {
+					content: requireText(
+						context,
+						content,
+						`第 ${questionIndex + 1} 个相似问法`,
+						itemIndex,
+						200,
+					),
+				},
+			};
+		}),
+	};
+}
+
+function normalizeKnowledgeAttachments(
+	context: IExecuteFunctions,
+	value: unknown,
+	itemIndex: number,
+): IDataObject[] {
+	if (!Array.isArray(value)) fail(context, '回答附件必须是数组', itemIndex);
+	if (value.length > 4) fail(context, '回答附件不能超过 4 个', itemIndex);
+	return value.map((rawAttachment, attachmentIndex) => {
+		const attachment = objectValue(
+			context,
+			rawAttachment,
+			`第 ${attachmentIndex + 1} 个回答附件`,
+			itemIndex,
+		);
+		const msgtype = String(attachment.msgtype ?? '');
+		const label = `第 ${attachmentIndex + 1} 个回答附件`;
+		if (msgtype === 'image' || msgtype === 'video') {
+			const contentValue = attachment[msgtype];
+			const content =
+				contentValue && typeof contentValue === 'object' && !Array.isArray(contentValue)
+					? (contentValue as IDataObject)
+					: attachment;
+			return {
+				msgtype,
+				[msgtype]: {
+					media_id: requireText(context, content.media_id, `${label} Media ID`, itemIndex),
+				},
+			};
+		}
+		if (msgtype === 'link') {
+			const linkValue = attachment.link;
+			const link =
+				linkValue && typeof linkValue === 'object' && !Array.isArray(linkValue)
+					? (linkValue as IDataObject)
+					: attachment;
+			const normalized: IDataObject = {
+				title: requireText(context, link.title ?? link.link_title, `${label}标题`, itemIndex),
+				url: requireHttpUrl(context, link.url ?? link.link_url, `${label} URL`, itemIndex),
+			};
+			const desc = optionalText(context, link.desc ?? link.link_desc, `${label}描述`, itemIndex);
+			const picUrl = optionalText(
+				context,
+				link.pic_url ?? link.link_pic_url,
+				`${label}缩略图 URL`,
+				itemIndex,
+			);
+			if (desc) normalized.desc = desc;
+			if (picUrl) normalized.pic_url = requireHttpUrl(context, picUrl, `${label}缩略图 URL`, itemIndex);
+			return { msgtype, link: normalized };
+		}
+		if (msgtype === 'miniprogram') {
+			const miniValue = attachment.miniprogram;
+			const mini =
+				miniValue && typeof miniValue === 'object' && !Array.isArray(miniValue)
+					? (miniValue as IDataObject)
+					: attachment;
+			const normalized: IDataObject = {
+				thumb_media_id: requireText(
+					context,
+					mini.thumb_media_id ?? mini.miniprogram_thumb_media_id,
+					`${label}封面 Media ID`,
+					itemIndex,
+				),
+				appid: requireText(
+					context,
+					mini.appid ?? mini.miniprogram_appid,
+					`${label}小程序 AppID`,
+					itemIndex,
+				),
+				pagepath: requireText(
+					context,
+					mini.pagepath ?? mini.miniprogram_pagepath,
+					`${label}小程序页面路径`,
+					itemIndex,
+				),
+			};
+			const title = optionalByteText(
+				context,
+				mini.title ?? mini.miniprogram_title,
+				`${label}小程序标题`,
+				itemIndex,
+				64,
+			);
+			if (title) normalized.title = title;
+			return { msgtype, miniprogram: normalized };
+		}
+		fail(context, `${label}类型无效`, itemIndex);
+	});
+}
+
+function normalizeKnowledgeAnswers(
+	context: IExecuteFunctions,
+	value: unknown,
+	itemIndex: number,
+): IDataObject[] {
+	if (!Array.isArray(value) || value.length !== 1) {
+		fail(context, '回答列表目前必须且只能包含 1 个回答', itemIndex);
+	}
+	const answer = objectValue(context, value[0], '回答', itemIndex);
+	const textValue = answer.text;
+	const content =
+		textValue && typeof textValue === 'object' && !Array.isArray(textValue)
+			? (textValue as IDataObject).content
+			: textValue;
+	const normalized: IDataObject = {
+		text: {
+			content: requireText(context, content, '回答文本', itemIndex, 500),
+		},
+	};
+	if (Object.prototype.hasOwnProperty.call(answer, 'attachments')) {
+		normalized.attachments = normalizeKnowledgeAttachments(
+			context,
+			answer.attachments,
+			itemIndex,
+		);
+	}
+	return [normalized];
+}
+
+function normalizeKnowledgeIntentBody(
+	context: IExecuteFunctions,
+	value: unknown,
+	actionType: 'add' | 'mod',
+	itemIndex: number,
+): IDataObject {
+	const raw = objectValue(context, value, '问答请求 JSON', itemIndex);
+	const body: IDataObject = {};
+	if (actionType === 'add') {
+		body.group_id = requireText(context, raw.group_id, '分组 ID', itemIndex);
+		body.question = normalizeKnowledgeQuestion(context, raw.question, itemIndex);
+		if (Object.prototype.hasOwnProperty.call(raw, 'similar_questions')) {
+			body.similar_questions = normalizeKnowledgeSimilarQuestions(
+				context,
+				raw.similar_questions,
+				itemIndex,
+			);
+		}
+		body.answers = normalizeKnowledgeAnswers(context, raw.answers, itemIndex);
+		return body;
+	}
+
+	body.intent_id = requireText(context, raw.intent_id, '问答 ID', itemIndex);
+	let sectionCount = 0;
+	if (Object.prototype.hasOwnProperty.call(raw, 'question')) {
+		body.question = normalizeKnowledgeQuestion(context, raw.question, itemIndex);
+		sectionCount++;
+	}
+	if (Object.prototype.hasOwnProperty.call(raw, 'similar_questions')) {
+		body.similar_questions = normalizeKnowledgeSimilarQuestions(
+			context,
+			raw.similar_questions,
+			itemIndex,
+		);
+		sectionCount++;
+	}
+	if (Object.prototype.hasOwnProperty.call(raw, 'answers')) {
+		body.answers = normalizeKnowledgeAnswers(context, raw.answers, itemIndex);
+		sectionCount++;
+	}
+	if (sectionCount === 0) fail(context, '请至少选择或提供一个要修改的问答部分', itemIndex);
+	return body;
 }
 
 export async function executeKf(
@@ -101,40 +367,104 @@ export async function executeKf(
 
 			// 客服账号管理
 			if (operation === 'addKfAccount') {
-				const name = this.getNodeParameter('name', i) as string;
-				const media_id = this.getNodeParameter('media_id', i) as string;
+				const name = requireText(this, this.getNodeParameter('name', i), '客服名称', i, 16);
+				const media_id = requireByteText(
+					this,
+					this.getNodeParameter('media_id', i),
+					'客服头像 Media ID',
+					i,
+					128,
+				);
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/kf/account/add', {
 					name,
 					media_id,
 				});
 			} else if (operation === 'delKfAccount') {
-				const open_kfid = this.getNodeParameter('open_kfid', i) as string;
+				const open_kfid = requireByteText(
+					this,
+					this.getNodeParameter('open_kfid', i),
+					'客服账号 ID',
+					i,
+					64,
+				);
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/kf/account/del', {
 					open_kfid,
 				});
 			} else if (operation === 'updateKfAccount') {
-				const open_kfid = this.getNodeParameter('open_kfid', i) as string;
-				const name = this.getNodeParameter('name', i, '') as string;
-				const media_id = this.getNodeParameter('media_id', i, '') as string;
+				const open_kfid = requireByteText(
+					this,
+					this.getNodeParameter('open_kfid', i),
+					'客服账号 ID',
+					i,
+					64,
+				);
+				const updateName = this.getNodeParameter('updateName', i, false) as boolean;
+				const updateMediaId = this.getNodeParameter('updateMediaId', i, false) as boolean;
 
 				const body: IDataObject = { open_kfid };
-				if (name) body.name = name;
-				if (media_id) body.media_id = media_id;
+				if (updateName) {
+					body.name = requireText(
+						this,
+						this.getNodeParameter('name', i, ''),
+						'客服名称',
+						i,
+						16,
+					);
+				}
+				if (updateMediaId) {
+					body.media_id = requireByteText(
+						this,
+						this.getNodeParameter('media_id', i, ''),
+						'客服头像 Media ID',
+						i,
+						128,
+					);
+				}
+				if (!updateName && !updateMediaId) fail(this, '请至少选择一个要修改的字段', i);
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/kf/account/update', body);
 			} else if (operation === 'listKfAccount') {
-				const limit = this.getNodeParameter('limit', i, 50) as number;
-				const cursor = this.getNodeParameter('cursor', i, '') as string;
+				const offset = requireInteger(
+					this,
+					this.getNodeParameter('offset', i, 0),
+					'偏移量',
+					i,
+					0,
+					4294967295,
+				);
+				const limit = requireInteger(
+					this,
+					this.getNodeParameter('limit', i, 100),
+					'返回数量',
+					i,
+					1,
+					100,
+				);
 
-				const body: IDataObject = { limit };
-				if (cursor) body.cursor = cursor;
-
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/kf/account/list', body);
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/kf/account/list', {
+					offset,
+					limit,
+				});
 			} else if (operation === 'getKfAccountLink') {
-				const open_kfid = this.getNodeParameter('open_kfid', i) as string;
-				const scene = this.getNodeParameter('scene', i, '') as string;
+				const open_kfid = requireByteText(
+					this,
+					this.getNodeParameter('open_kfid', i),
+					'客服账号 ID',
+					i,
+					64,
+				);
+				const scene = optionalByteText(
+					this,
+					this.getNodeParameter('scene', i, ''),
+					'场景值',
+					i,
+					32,
+				);
+				if (scene && !/^[0-9A-Za-z_-]*$/.test(scene)) {
+					fail(this, '场景值只能包含数字、大小写字母、下划线和连字符', i);
+				}
 
 				const body: IDataObject = { open_kfid };
 				if (scene) body.scene = scene;
@@ -143,57 +473,75 @@ export async function executeKf(
 			}
 			// 接待人员管理
 			else if (operation === 'addServicer') {
-				const open_kfid = this.getNodeParameter('open_kfid', i) as string;
-				const userid_list = this.getNodeParameter('userid_list', i, '') as string;
-				const department_id_list = this.getNodeParameter('department_id_list', i, '') as string;
-
-				// 验证至少提供一个列表
-				if (!userid_list && !department_id_list) {
-					throw new NodeOperationError(
-						this.getNode(),
-						'接待人员列表和部门列表至少需要填其中一个',
-						{ itemIndex: i },
-					);
+				const open_kfid = requireByteText(
+					this,
+					this.getNodeParameter('open_kfid', i),
+					'客服账号 ID',
+					i,
+					64,
+				);
+				const userid_list = stringList(
+					this,
+					this.getNodeParameter('userid_list', i, []),
+					'接待人员列表',
+					i,
+					100,
+				);
+				const department_id_list = integerList(
+					this,
+					this.getNodeParameter('department_id_list', i, []),
+					'接待人员部门列表',
+					i,
+					20,
+				);
+				if (userid_list.length === 0 && department_id_list.length === 0) {
+					fail(this, '接待人员列表和部门列表至少需要填写一项', i);
 				}
 
 				const body: IDataObject = { open_kfid };
-
-				if (userid_list) {
-					body.userid_list = userid_list.split(',').map((id) => id.trim());
-				}
-
-				if (department_id_list) {
-					body.department_id_list = department_id_list.split(',').map((id) => parseInt(id.trim(), 10));
-				}
+				if (userid_list.length > 0) body.userid_list = userid_list;
+				if (department_id_list.length > 0) body.department_id_list = department_id_list;
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/kf/servicer/add', body);
 			} else if (operation === 'delServicer') {
-				const open_kfid = this.getNodeParameter('open_kfid', i) as string;
-				const userid_list = this.getNodeParameter('userid_list', i, '') as string;
-				const department_id_list = this.getNodeParameter('department_id_list', i, '') as string;
-
-				// 验证至少提供一个列表
-				if (!userid_list && !department_id_list) {
-					throw new NodeOperationError(
-						this.getNode(),
-						'接待人员列表和部门列表至少需要填其中一个',
-						{ itemIndex: i },
-					);
+				const open_kfid = requireByteText(
+					this,
+					this.getNodeParameter('open_kfid', i),
+					'客服账号 ID',
+					i,
+					64,
+				);
+				const userid_list = stringList(
+					this,
+					this.getNodeParameter('userid_list', i, []),
+					'接待人员列表',
+					i,
+					100,
+				);
+				const department_id_list = integerList(
+					this,
+					this.getNodeParameter('department_id_list', i, []),
+					'接待人员部门列表',
+					i,
+					100,
+				);
+				if (userid_list.length === 0 && department_id_list.length === 0) {
+					fail(this, '接待人员列表和部门列表至少需要填写一项', i);
 				}
 
 				const body: IDataObject = { open_kfid };
-
-				if (userid_list) {
-					body.userid_list = userid_list.split(',').map((id) => id.trim());
-				}
-
-				if (department_id_list) {
-					body.department_id_list = department_id_list.split(',').map((id) => parseInt(id.trim(), 10));
-				}
+				if (userid_list.length > 0) body.userid_list = userid_list;
+				if (department_id_list.length > 0) body.department_id_list = department_id_list;
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/kf/servicer/del', body);
 			} else if (operation === 'listServicer') {
-				const open_kfid = this.getNodeParameter('open_kfid', i) as string;
+				const open_kfid = requireByteText(
+					this,
+					this.getNodeParameter('open_kfid', i),
+					'客服账号 ID',
+					i,
+					64,
+				);
 
 				response = await weComApiRequest.call(
 					this,
@@ -207,18 +555,46 @@ export async function executeKf(
 			else if (operation === 'getServiceState') {
 				// 获取会话状态
 				// https://developer.work.weixin.qq.com/document/path/94669
-				const open_kfid = this.getNodeParameter('open_kfid', i) as string;
-				const external_userid = this.getNodeParameter('external_userid', i) as string;
+				const open_kfid = requireByteText(
+					this,
+					this.getNodeParameter('open_kfid', i),
+					'客服账号 ID',
+					i,
+					64,
+				);
+				const external_userid = requireText(
+					this,
+					this.getNodeParameter('external_userid', i),
+					'客户 External UserID',
+					i,
+				);
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/kf/service_state/get', {
 					open_kfid,
 					external_userid,
 				});
 			} else if (operation === 'transServiceState') {
-				const open_kfid = this.getNodeParameter('open_kfid', i) as string;
-				const external_userid = this.getNodeParameter('external_userid', i) as string;
-				const service_state = this.getNodeParameter('service_state', i) as number;
-				const servicer_userid = this.getNodeParameter('servicer_userid', i, '') as string;
+				const open_kfid = requireByteText(
+					this,
+					this.getNodeParameter('open_kfid', i),
+					'客服账号 ID',
+					i,
+					64,
+				);
+				const external_userid = requireText(
+					this,
+					this.getNodeParameter('external_userid', i),
+					'客户 External UserID',
+					i,
+				);
+				const service_state = requireInteger(
+					this,
+					this.getNodeParameter('service_state', i),
+					'目标服务状态',
+					i,
+					2,
+					4,
+				);
 
 				const body: IDataObject = {
 					open_kfid,
@@ -226,109 +602,287 @@ export async function executeKf(
 					service_state,
 				};
 
-				if (servicer_userid) body.servicer_userid = servicer_userid;
-
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/kf/service_state/trans', body);
-			} else if (operation === 'sendKfMsg') {
-				const open_kfid = this.getNodeParameter('open_kfid', i) as string;
-				const touser = this.getNodeParameter('touser', i) as string;
-				const msgtype = this.getNodeParameter('msgtype', i) as string;
-
-				// 根据消息类型构建消息内容
-				let messageContent: IDataObject = {};
-
-				if (msgtype === 'text') {
-					const content = this.getNodeParameter('text_content', i) as string;
-					messageContent = { content };
-				} else if (msgtype === 'image') {
-					const media_id = this.getNodeParameter('image_media_id', i) as string;
-					messageContent = { media_id };
-				} else if (msgtype === 'voice') {
-					const media_id = this.getNodeParameter('voice_media_id', i) as string;
-					messageContent = { media_id };
-				} else if (msgtype === 'video') {
-					const media_id = this.getNodeParameter('video_media_id', i) as string;
-					messageContent = { media_id };
-				} else if (msgtype === 'file') {
-					const media_id = this.getNodeParameter('file_media_id', i) as string;
-					messageContent = { media_id };
-				} else if (msgtype === 'link') {
-					const title = this.getNodeParameter('link_title', i) as string;
-					const desc = this.getNodeParameter('link_desc', i, '') as string;
-					const url = this.getNodeParameter('link_url', i) as string;
-					const thumb_url = this.getNodeParameter('link_thumb_url', i, '') as string;
-
-					messageContent = { title, url };
-					if (desc) messageContent.desc = desc;
-					if (thumb_url) messageContent.thumb_url = thumb_url;
-				} else if (msgtype === 'miniprogram') {
-					const title = this.getNodeParameter('miniprogram_title', i) as string;
-					const appid = this.getNodeParameter('miniprogram_appid', i) as string;
-					const pagepath = this.getNodeParameter('miniprogram_pagepath', i) as string;
-					const thumb_media_id = this.getNodeParameter('miniprogram_thumb_media_id', i) as string;
-
-					messageContent = { title, appid, pagepath, thumb_media_id };
-				} else if (msgtype === 'msgmenu') {
-					const head_content = this.getNodeParameter('msgmenu_head_content', i) as string;
-					const tail_content = this.getNodeParameter('msgmenu_tail_content', i, '') as string;
-					const menuItems = this.getNodeParameter('msgmenu_list.items', i, []) as IDataObject[];
-					messageContent = buildMsgMenuMessage(menuItems, head_content, tail_content);
-				} else if (msgtype === 'location') {
-					const name = this.getNodeParameter('location_name', i) as string;
-					const address = this.getNodeParameter('location_address', i) as string;
-					const latitude = this.getNodeParameter('location_latitude', i) as number;
-					const longitude = this.getNodeParameter('location_longitude', i) as number;
-
-					messageContent = { name, address, latitude, longitude };
-				} else {
-					throw new NodeOperationError(
-						this.getNode(),
-						`不支持的消息类型: ${msgtype}`,
-						{ itemIndex: i },
+				if (service_state === 3) {
+					body.servicer_userid = requireText(
+						this,
+						this.getNodeParameter('servicer_userid', i, ''),
+						'接待人员 UserID',
+						i,
 					);
 				}
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/kf/send_msg', {
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/kf/service_state/trans', body);
+			} else if (operation === 'sendKfMsg') {
+				const open_kfid = requireByteText(
+					this,
+					this.getNodeParameter('open_kfid', i),
+					'客服账号 ID',
+					i,
+					64,
+				);
+				const touser = requireText(
+					this,
+					this.getNodeParameter('touser', i),
+					'客户 External UserID',
+					i,
+				);
+				const msgtype = this.getNodeParameter('msgtype', i) as string;
+				const msgid = optionalByteText(
+					this,
+					this.getNodeParameter('msgid', i, ''),
+					'消息 ID',
+					i,
+					32,
+				);
+				if (msgid && !/^[0-9A-Za-z_-]*$/.test(msgid)) {
+					fail(this, '消息 ID 只能包含数字、大小写字母、下划线和连字符', i);
+				}
+
+				let messageContent: IDataObject = {};
+
+				if (msgtype === 'text') {
+					messageContent = {
+						content: requireByteText(
+							this,
+							this.getNodeParameter('text_content', i),
+							'消息内容',
+							i,
+							2048,
+						),
+					};
+				} else if (msgtype === 'image') {
+					messageContent = {
+						media_id: requireText(
+							this,
+							this.getNodeParameter('image_media_id', i),
+							'图片 Media ID',
+							i,
+						),
+					};
+				} else if (msgtype === 'voice') {
+					messageContent = {
+						media_id: requireText(
+							this,
+							this.getNodeParameter('voice_media_id', i),
+							'语音 Media ID',
+							i,
+						),
+					};
+				} else if (msgtype === 'video') {
+					messageContent = {
+						media_id: requireText(
+							this,
+							this.getNodeParameter('video_media_id', i),
+							'视频 Media ID',
+							i,
+						),
+					};
+				} else if (msgtype === 'file') {
+					messageContent = {
+						media_id: requireText(
+							this,
+							this.getNodeParameter('file_media_id', i),
+							'文件 Media ID',
+							i,
+						),
+					};
+				} else if (msgtype === 'link') {
+					const title = requireByteText(
+						this,
+						this.getNodeParameter('link_title', i),
+						'链接标题',
+						i,
+						128,
+					);
+					const desc = optionalByteText(
+						this,
+						this.getNodeParameter('link_desc', i, ''),
+						'链接描述',
+						i,
+						512,
+					);
+					const url = requireHttpUrl(
+						this,
+						this.getNodeParameter('link_url', i),
+						'链接 URL',
+						i,
+					);
+					const thumb_media_id = requireText(
+						this,
+						this.getNodeParameter('link_thumb_media_id', i),
+						'缩略图 Media ID',
+						i,
+					);
+
+					messageContent = { title, url, thumb_media_id };
+					if (desc) messageContent.desc = desc;
+				} else if (msgtype === 'miniprogram') {
+					const title = optionalByteText(
+						this,
+						this.getNodeParameter('miniprogram_title', i, ''),
+						'小程序标题',
+						i,
+						64,
+					);
+					const appid = requireText(
+						this,
+						this.getNodeParameter('miniprogram_appid', i),
+						'小程序 AppID',
+						i,
+					);
+					const pagepath = requireText(
+						this,
+						this.getNodeParameter('miniprogram_pagepath', i),
+						'小程序页面路径',
+						i,
+					);
+					if (!pagepath.split(/[?#]/, 1)[0].endsWith('.html')) {
+						fail(this, '小程序页面路径需要以 .html 结尾', i);
+					}
+					const thumb_media_id = requireText(
+						this,
+						this.getNodeParameter('miniprogram_thumb_media_id', i),
+						'小程序缩略图 Media ID',
+						i,
+					);
+
+					messageContent = { appid, pagepath, thumb_media_id };
+					if (title) messageContent.title = title;
+				} else if (msgtype === 'msgmenu') {
+					messageContent = buildMsgMenuMessage(
+						this,
+						this.getNodeParameter('msgmenu_list.items', i, []),
+						this.getNodeParameter('msgmenu_head_content', i, ''),
+						this.getNodeParameter('msgmenu_tail_content', i, ''),
+						i,
+						50,
+					);
+				} else if (msgtype === 'location') {
+					const name = optionalText(
+						this,
+						this.getNodeParameter('location_name', i, ''),
+						'位置名称',
+						i,
+					);
+					const address = optionalText(
+						this,
+						this.getNodeParameter('location_address', i, ''),
+						'详细地址',
+						i,
+					);
+					const latitude = requireNumber(
+						this,
+						this.getNodeParameter('location_latitude', i),
+						'纬度',
+						i,
+						-90,
+						90,
+					);
+					const longitude = requireNumber(
+						this,
+						this.getNodeParameter('location_longitude', i),
+						'经度',
+						i,
+						-180,
+						180,
+					);
+
+					messageContent = { latitude, longitude };
+					if (name) messageContent.name = name;
+					if (address) messageContent.address = address;
+				} else if (msgtype === 'ca_link') {
+					messageContent = {
+						link_url: requireHttpUrl(
+							this,
+							this.getNodeParameter('ca_link_url', i),
+							'获客链接 URL',
+							i,
+						),
+					};
+				} else {
+					fail(this, `不支持的消息类型: ${msgtype}`, i);
+				}
+
+				const body: IDataObject = {
 					touser,
 					open_kfid,
 					msgtype,
 					[msgtype]: messageContent,
-				});
+				};
+				if (msgid) body.msgid = msgid;
+				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/kf/send_msg', body);
 			} else if (operation === 'sendKfEventMsg') {
-				const code = this.getNodeParameter('code', i) as string;
+				const code = requireText(this, this.getNodeParameter('code', i), '事件响应 Code', i);
 				const msgtype = this.getNodeParameter('msgtype', i) as string;
+				const msgid = optionalByteText(
+					this,
+					this.getNodeParameter('msgid', i, ''),
+					'消息 ID',
+					i,
+					32,
+				);
+				if (msgid && !/^[0-9A-Za-z_-]*$/.test(msgid)) {
+					fail(this, '消息 ID 只能包含数字、大小写字母、下划线和连字符', i);
+				}
 
-				// 根据消息类型构建消息内容
 				let messageContent: IDataObject = {};
 
 				if (msgtype === 'text') {
-					const content = this.getNodeParameter('text_content', i) as string;
-					messageContent = { content };
+					messageContent = {
+						content: requireByteText(
+							this,
+							this.getNodeParameter('text_content', i),
+							'消息内容',
+							i,
+							2048,
+						),
+					};
 				} else if (msgtype === 'msgmenu') {
-					const head_content = this.getNodeParameter('msgmenu_head_content', i) as string;
-					const tail_content = this.getNodeParameter('msgmenu_tail_content', i, '') as string;
-					const menuItems = this.getNodeParameter('msgmenu_list.items', i, []) as IDataObject[];
-					messageContent = buildMsgMenuMessage(menuItems, head_content, tail_content);
-				} else {
-					throw new NodeOperationError(
-						this.getNode(),
-						`不支持的消息类型: ${msgtype}`,
-						{ itemIndex: i },
+					messageContent = buildMsgMenuMessage(
+						this,
+						this.getNodeParameter('msgmenu_list.items', i, []),
+						this.getNodeParameter('msgmenu_head_content', i, ''),
+						this.getNodeParameter('msgmenu_tail_content', i, ''),
+						i,
+						10,
 					);
+				} else {
+					fail(this, `不支持的消息类型: ${msgtype}`, i);
 				}
 
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/kf/send_msg_on_event', {
+				const body: IDataObject = {
 					code,
 					msgtype,
 					[msgtype]: messageContent,
-				});
+				};
+				if (msgid) body.msgid = msgid;
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/kf/send_msg_on_event',
+					body,
+				);
 			} else if (operation === 'setUpgradeService') {
 				// 为客户升级为专员或客户群服务
 				// https://developer.work.weixin.qq.com/document/path/94674
 				// 官方路径：/cgi-bin/kf/customer/upgrade_service
-				const open_kfid = this.getNodeParameter('open_kfid', i) as string;
-				const external_userid = this.getNodeParameter('external_userid', i) as string;
+				const open_kfid = requireByteText(
+					this,
+					this.getNodeParameter('open_kfid', i),
+					'客服账号 ID',
+					i,
+					64,
+				);
+				const external_userid = requireText(
+					this,
+					this.getNodeParameter('external_userid', i),
+					'客户 External UserID',
+					i,
+				);
 				const upgradeType = this.getNodeParameter('upgradeType', i) as string;
+				if (upgradeType !== 'member' && upgradeType !== 'groupchat') {
+					fail(this, '升级类型无效', i);
+				}
 
 				const body: IDataObject = {
 					open_kfid,
@@ -337,14 +891,34 @@ export async function executeKf(
 				};
 
 				if (upgradeType === 'member') {
-					const member_userid = this.getNodeParameter('member_userid', i) as string;
-					const member_wording = this.getNodeParameter('member_wording', i, '') as string;
+					const member_userid = requireText(
+						this,
+						this.getNodeParameter('member_userid', i),
+						'服务专员 UserID',
+						i,
+					);
+					const member_wording = optionalText(
+						this,
+						this.getNodeParameter('member_wording', i, ''),
+						'专员推荐语',
+						i,
+					);
 					const member: IDataObject = { userid: member_userid };
 					if (member_wording) member.wording = member_wording;
 					body.member = member;
 				} else {
-					const groupchat_chat_id = this.getNodeParameter('groupchat_chat_id', i) as string;
-					const groupchat_wording = this.getNodeParameter('groupchat_wording', i, '') as string;
+					const groupchat_chat_id = requireText(
+						this,
+						this.getNodeParameter('groupchat_chat_id', i),
+						'客户群 ID',
+						i,
+					);
+					const groupchat_wording = optionalText(
+						this,
+						this.getNodeParameter('groupchat_wording', i, ''),
+						'客户群推荐语',
+						i,
+					);
 					const groupchat: IDataObject = { chat_id: groupchat_chat_id };
 					if (groupchat_wording) groupchat.wording = groupchat_wording;
 					body.groupchat = groupchat;
@@ -354,8 +928,19 @@ export async function executeKf(
 			} else if (operation === 'cancelUpgradeService') {
 				// 为客户取消升级服务推荐
 				// https://developer.work.weixin.qq.com/document/path/94674
-				const open_kfid = this.getNodeParameter('open_kfid', i) as string;
-				const external_userid = this.getNodeParameter('external_userid', i) as string;
+				const open_kfid = requireByteText(
+					this,
+					this.getNodeParameter('open_kfid', i),
+					'客服账号 ID',
+					i,
+					64,
+				);
+				const external_userid = requireText(
+					this,
+					this.getNodeParameter('external_userid', i),
+					'客户 External UserID',
+					i,
+				);
 
 				response = await weComApiRequest.call(
 					this,
@@ -376,12 +961,48 @@ export async function executeKf(
 					{},
 				);
 			} else if (operation === 'syncMsg') {
-				const open_kfid = this.getNodeParameter('open_kfid', i) as string;
-				const cursor = this.getNodeParameter('cursor', i, '') as string;
-				const token = this.getNodeParameter('token', i, '') as string;
-				const limit = this.getNodeParameter('limit', i, 100) as number;
-				const voice_format = this.getNodeParameter('voice_format', i, 0) as number;
-				const parse_message_types = this.getNodeParameter('parse_message_types', i, true) as boolean;
+				const open_kfid = requireByteText(
+					this,
+					this.getNodeParameter('open_kfid', i),
+					'客服账号 ID',
+					i,
+					64,
+				);
+				const cursor = optionalByteText(
+					this,
+					this.getNodeParameter('cursor', i, ''),
+					'游标',
+					i,
+					64,
+				);
+				const token = optionalByteText(
+					this,
+					this.getNodeParameter('token', i, ''),
+					'Token',
+					i,
+					128,
+				);
+				const limit = requireInteger(
+					this,
+					this.getNodeParameter('limit', i, 1000),
+					'拉取条数',
+					i,
+					1,
+					1000,
+				);
+				const voice_format = requireInteger(
+					this,
+					this.getNodeParameter('voice_format', i, 0),
+					'语音格式',
+					i,
+					0,
+					1,
+				);
+				const parse_message_types = this.getNodeParameter(
+					'parse_message_types',
+					i,
+					false,
+				) as boolean;
 
 				const body: IDataObject = {
 					open_kfid,
@@ -447,17 +1068,22 @@ export async function executeKf(
 				// 获取客户基础信息
 				// https://developer.work.weixin.qq.com/document/path/95159
 				// 官方路径：/cgi-bin/kf/customer/batchget
-				const external_userid_list_raw = this.getNodeParameter('external_userid_list', i) as string;
+				const external_userid_list = stringList(
+					this,
+					this.getNodeParameter('external_userid_list', i),
+					'客户 External UserID 列表',
+					i,
+					100,
+				);
 				const need_enter_session_context = this.getNodeParameter(
 					'need_enter_session_context',
 					i,
 					false,
 				) as boolean;
 
-				const external_userid_list = external_userid_list_raw
-					.split(',')
-					.map((id) => id.trim())
-					.filter(Boolean);
+				if (external_userid_list.length === 0) {
+					fail(this, '客户 External UserID 列表至少需要填写 1 个', i);
+				}
 
 				const body: IDataObject = { external_userid_list };
 				if (need_enter_session_context) {
@@ -468,9 +1094,26 @@ export async function executeKf(
 			}
 			// 统计管理
 			else if (operation === 'getCorpStatistic') {
-				const open_kfid = this.getNodeParameter('open_kfid', i) as string;
-				const start_time = dateTimeToUnixTimestamp(this.getNodeParameter('start_time', i) as string | number);
-				const end_time = dateTimeToUnixTimestamp(this.getNodeParameter('end_time', i) as string | number);
+				const open_kfid = requireByteText(
+					this,
+					this.getNodeParameter('open_kfid', i),
+					'客服账号 ID',
+					i,
+					64,
+				);
+				const start_time = dateTimeToUnixTimestamp(
+					this,
+					this.getNodeParameter('start_time', i),
+					'起始日期',
+					i,
+				);
+				const end_time = dateTimeToUnixTimestamp(
+					this,
+					this.getNodeParameter('end_time', i),
+					'结束日期',
+					i,
+				);
+				validateStatisticWindow(this, start_time, end_time, i);
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/kf/get_corp_statistic', {
 					open_kfid,
@@ -478,117 +1121,245 @@ export async function executeKf(
 					end_time,
 				});
 			} else if (operation === 'getServicerStatistic') {
-				const open_kfid = this.getNodeParameter('open_kfid', i) as string;
-				const servicer_userid = this.getNodeParameter('servicer_userid', i) as string;
-				const start_time = dateTimeToUnixTimestamp(this.getNodeParameter('start_time', i) as string | number);
-				const end_time = dateTimeToUnixTimestamp(this.getNodeParameter('end_time', i) as string | number);
-
-				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/kf/get_servicer_statistic', {
+				const open_kfid = requireByteText(
+					this,
+					this.getNodeParameter('open_kfid', i),
+					'客服账号 ID',
+					i,
+					64,
+				);
+				const servicer_userid = optionalText(
+					this,
+					this.getNodeParameter('servicer_userid', i, ''),
+					'接待人员 UserID',
+					i,
+				);
+				const start_time = dateTimeToUnixTimestamp(
+					this,
+					this.getNodeParameter('start_time', i),
+					'起始日期',
+					i,
+				);
+				const end_time = dateTimeToUnixTimestamp(
+					this,
+					this.getNodeParameter('end_time', i),
+					'结束日期',
+					i,
+				);
+				validateStatisticWindow(this, start_time, end_time, i);
+				const body: IDataObject = {
 					open_kfid,
-					servicer_userid,
 					start_time,
 					end_time,
-				});
+				};
+				if (servicer_userid) body.servicer_userid = servicer_userid;
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/kf/get_servicer_statistic',
+					body,
+				);
 			}
 			// 机器人管理
 			else if (operation === 'manageKnowledgeGroup') {
 				const action_type = this.getNodeParameter('action_type', i) as string;
 
-				let endpoint = '';
+				let endpoint: string;
 				const body: IDataObject = {};
 
 				if (action_type === 'add') {
 					endpoint = '/cgi-bin/kf/knowledge/add_group';
-					const group_name = this.getNodeParameter('group_name', i) as string;
-					body.name = group_name;
+					body.name = requireText(
+						this,
+						this.getNodeParameter('group_name', i),
+						'分组名称',
+						i,
+						12,
+					);
 				} else if (action_type === 'del') {
 					endpoint = '/cgi-bin/kf/knowledge/del_group';
-					const group_id = this.getNodeParameter('group_id', i) as string;
-					body.group_id = group_id;
+					body.group_id = requireText(
+						this,
+						this.getNodeParameter('group_id', i),
+						'分组 ID',
+						i,
+					);
 				} else if (action_type === 'mod') {
 					endpoint = '/cgi-bin/kf/knowledge/mod_group';
-					const group_id = this.getNodeParameter('group_id', i) as string;
-					const new_group_name = this.getNodeParameter('new_group_name', i) as string;
-					body.group_id = group_id;
-					body.name = new_group_name;
+					body.group_id = requireText(
+						this,
+						this.getNodeParameter('group_id', i),
+						'分组 ID',
+						i,
+					);
+					body.name = requireText(
+						this,
+						this.getNodeParameter('new_group_name', i),
+						'新分组名称',
+						i,
+						12,
+					);
 				} else if (action_type === 'list') {
 					endpoint = '/cgi-bin/kf/knowledge/list_group';
-					const cursor = this.getNodeParameter('cursor', i, '') as string;
-					const limit = this.getNodeParameter('limit', i, 100) as number;
+					const cursor = optionalText(
+						this,
+						this.getNodeParameter('cursor', i, ''),
+						'分页游标',
+						i,
+					);
+					const group_id = optionalText(
+						this,
+						this.getNodeParameter('list_group_id', i, ''),
+						'分组 ID 筛选',
+						i,
+					);
+					const limit = requireInteger(
+						this,
+						this.getNodeParameter('limit', i, 500),
+						'每页数量',
+						i,
+						1,
+						1000,
+					);
 					if (cursor) body.cursor = cursor;
 					body.limit = limit;
+					if (group_id) body.group_id = group_id;
+				} else {
+					fail(this, '知识库分组操作类型无效', i);
 				}
 
 				response = await weComApiRequest.call(this, 'POST', endpoint, body);
 			} else if (operation === 'manageKnowledgeIntent') {
 				const action_type = this.getNodeParameter('action_type', i) as string;
 
-				let endpoint = '';
-				const body: IDataObject = {};
+				let endpoint: string;
+				let body: IDataObject;
 
-				if (action_type === 'add') {
-					endpoint = '/cgi-bin/kf/knowledge/add_intent';
-					const group_id = this.getNodeParameter('group_id', i) as string;
-					const question_text = this.getNodeParameter('question_text', i) as string;
-					const answer_type = this.getNodeParameter('answer_type', i) as string;
-					const answer_text = this.getNodeParameter('answer_text', i) as string;
-					const similarQuestionsCollection = this.getNodeParameter('similarQuestionsCollection', i, {}) as IDataObject;
-
-					// 构建问题
-					const question: IDataObject = { text: question_text };
-					if (similarQuestionsCollection.questions) {
-						const similarList = similarQuestionsCollection.questions as IDataObject[];
-						if (similarList.length > 0) {
-							question.similar_questions = similarList.map((q) => ({ text: q.text }));
+				if (action_type === 'add' || action_type === 'mod') {
+					endpoint =
+						action_type === 'add'
+							? '/cgi-bin/kf/knowledge/add_intent'
+							: '/cgi-bin/kf/knowledge/mod_intent';
+					const inputMode = String(this.getNodeParameter('intentInputMode', i, 'form'));
+					if (inputMode === 'json') {
+						body = normalizeKnowledgeIntentBody(
+							this,
+							this.getNodeParameter('intentBodyJson', i, '{}'),
+							action_type,
+							i,
+						);
+					} else if (inputMode === 'form' && action_type === 'add') {
+						const rawBody: IDataObject = {
+							group_id: this.getNodeParameter('group_id', i),
+							question: {
+								text: { content: this.getNodeParameter('question_text', i) },
+							},
+						};
+						const similarRows = collectionRows(
+							this.getNodeParameter('similarQuestionsCollection', i, {}),
+							'questions',
+						);
+						if (similarRows.length > 0) {
+							rawBody.similar_questions = {
+								items: similarRows.map((row) => ({ text: { content: row.text } })),
+							};
 						}
+						const answer: IDataObject = {
+							text: { content: this.getNodeParameter('answer_text', i) },
+						};
+						const attachmentRows = collectionRows(
+							this.getNodeParameter('attachmentsCollection', i, {}),
+							'attachments',
+						);
+						if (attachmentRows.length > 0) answer.attachments = attachmentRows;
+						rawBody.answers = [answer];
+						body = normalizeKnowledgeIntentBody(this, rawBody, 'add', i);
+					} else if (inputMode === 'form') {
+						const rawBody: IDataObject = {
+							intent_id: this.getNodeParameter('mod_intent_id', i),
+						};
+						if (this.getNodeParameter('updateQuestion', i, false) as boolean) {
+							rawBody.question = {
+								text: { content: this.getNodeParameter('updated_question_text', i, '') },
+							};
+						}
+						if (this.getNodeParameter('updateSimilarQuestions', i, false) as boolean) {
+							const similarRows = collectionRows(
+								this.getNodeParameter('updatedSimilarQuestionsCollection', i, {}),
+								'questions',
+							);
+							rawBody.similar_questions = {
+								items: similarRows.map((row) => ({ text: { content: row.text } })),
+							};
+						}
+						if (this.getNodeParameter('updateAnswer', i, false) as boolean) {
+							const attachmentRows = collectionRows(
+								this.getNodeParameter('updatedAttachmentsCollection', i, {}),
+								'attachments',
+							);
+							rawBody.answers = [
+								{
+									text: {
+										content: this.getNodeParameter('updated_answer_text', i, ''),
+									},
+									attachments: attachmentRows,
+								},
+							];
+						}
+						body = normalizeKnowledgeIntentBody(this, rawBody, 'mod', i);
+					} else {
+						fail(this, '问答输入方式无效', i);
 					}
-
-					// 构建回答
-					const answer: IDataObject[] = [{ msgtype: answer_type, [answer_type]: { content: answer_text } }];
-
-					body.group_id = group_id;
-					body.question = question;
-					body.answer = answer;
 				} else if (action_type === 'del') {
 					endpoint = '/cgi-bin/kf/knowledge/del_intent';
-					const intent_id = this.getNodeParameter('intent_id', i) as string;
-					body.intent_id = intent_id;
-				} else if (action_type === 'mod') {
-					endpoint = '/cgi-bin/kf/knowledge/mod_intent';
-					const intent_id = this.getNodeParameter('intent_id', i) as string;
-					const question_text = this.getNodeParameter('question_text', i) as string;
-					const answer_type = this.getNodeParameter('answer_type', i) as string;
-					const answer_text = this.getNodeParameter('answer_text', i) as string;
-					const similarQuestionsCollection = this.getNodeParameter('similarQuestionsCollection', i, {}) as IDataObject;
-
-					// 构建问题
-					const question: IDataObject = { text: question_text };
-					if (similarQuestionsCollection.questions) {
-						const similarList = similarQuestionsCollection.questions as IDataObject[];
-						if (similarList.length > 0) {
-							question.similar_questions = similarList.map((q) => ({ text: q.text }));
-						}
-					}
-
-					// 构建回答
-					const answer: IDataObject[] = [{ msgtype: answer_type, [answer_type]: { content: answer_text } }];
-
-					body.intent_id = intent_id;
-					body.question = question;
-					body.answer = answer;
+					body = {
+						intent_id: requireText(
+							this,
+							this.getNodeParameter('intent_id', i),
+							'问答 ID',
+							i,
+						),
+					};
 				} else if (action_type === 'list') {
 					endpoint = '/cgi-bin/kf/knowledge/list_intent';
-					const group_id = this.getNodeParameter('group_id', i) as string;
-					const cursor = this.getNodeParameter('cursor', i, '') as string;
-					const limit = this.getNodeParameter('limit', i, 100) as number;
-					body.group_id = group_id;
+					body = {};
+					const group_id = optionalText(
+						this,
+						this.getNodeParameter('list_intent_group_id', i, ''),
+						'分组 ID 筛选',
+						i,
+					);
+					const intent_id = optionalText(
+						this,
+						this.getNodeParameter('list_intent_id', i, ''),
+						'问答 ID 筛选',
+						i,
+					);
+					const cursor = optionalText(
+						this,
+						this.getNodeParameter('cursor', i, ''),
+						'分页游标',
+						i,
+					);
+					const limit = requireInteger(
+						this,
+						this.getNodeParameter('limit', i, 500),
+						'每页数量',
+						i,
+						1,
+						1000,
+					);
+					if (group_id) body.group_id = group_id;
+					if (intent_id) body.intent_id = intent_id;
 					if (cursor) body.cursor = cursor;
 					body.limit = limit;
+				} else {
+					fail(this, '知识库问答操作类型无效', i);
 				}
 
 				response = await weComApiRequest.call(this, 'POST', endpoint, body);
 			} else {
-				response = {};
+				fail(this, `不支持的微信客服操作: ${operation}`, i);
 			}
 
 			returnData.push({

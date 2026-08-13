@@ -17,7 +17,7 @@ export const updateAppChatDescription: INodeProperties[] = [
 		placeholder: 'mychat001',
 		required: true,
 		description:
-			'群聊的唯一标识。<a href="https://developer.work.weixin.qq.com/document/path/90246" target="_blank">官方文档</a>',
+			'群聊的唯一标识。<a href="https://developer.work.weixin.qq.com/document/path/98913" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '更新类型',
@@ -50,7 +50,7 @@ export const updateAppChatDescription: INodeProperties[] = [
 	],
 		default: 'name',
 		description:
-			'选择要更新的内容。可以单独更新或组合更新多个字段。<a href="https://developer.work.weixin.qq.com/document/path/90246" target="_blank">官方文档</a>',
+			'选择要更新的内容。可以单独更新或组合更新多个字段。<a href="https://developer.work.weixin.qq.com/document/path/98913" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '群聊名称',
@@ -65,12 +65,15 @@ export const updateAppChatDescription: INodeProperties[] = [
 		default: '',
 		placeholder: '请输入新的群聊名称',
 		description:
-			'可选。新的群聊名称。若不需更新，请忽略此参数。最多50个utf8字符，超过将自动截断。<a href="https://developer.work.weixin.qq.com/document/path/90246" target="_blank">官方文档</a>',
+			'单独修改群名称时必填；组合更新时按需填写。最多 50 个 UTF-8 字符。<a href="https://developer.work.weixin.qq.com/document/path/98913" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '群主ID',
 		name: 'owner',
-		type: 'string',
+		type: 'options',
+		typeOptions: {
+			loadOptionsMethod: 'getAllUsers',
+		},
 		displayOptions: {
 			show: {
 				...showOnlyForUpdateAppChat,
@@ -80,10 +83,26 @@ export const updateAppChatDescription: INodeProperties[] = [
 		default: '',
 		placeholder: 'userid',
 		description:
-			'可选。新的群主 ID。若不需更新，请忽略此参数。新群主的ID，必须是群成员之一。注意：当删除成员列表中包含群主时，本字段必填。课程群聊群主必须拥有课程群创建权限。<a href="https://developer.work.weixin.qq.com/document/path/90246" target="_blank">官方文档</a>',
+			'单独修改群主时必填；组合更新时按需填写。新群主必须是群成员；删除当前群主时也必须填写。<a href="https://developer.work.weixin.qq.com/document/path/98913" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '添加成员列表',
+		displayName: '选择要添加的成员',
+		name: 'add_user_list_selected',
+		type: 'multiOptions',
+		typeOptions: {
+			loadOptionsMethod: 'getAllUsers',
+		},
+		displayOptions: {
+			show: {
+				...showOnlyForUpdateAppChat,
+				updateType: ['addUsers', 'combined'],
+			},
+		},
+		default: [],
+		description: '从通讯录选择，将与下方手动输入合并并去重。',
+	},
+	{
+		displayName: '添加成员 ID（手动）',
 		name: 'add_user_list',
 		type: 'string',
 		displayOptions: {
@@ -95,10 +114,26 @@ export const updateAppChatDescription: INodeProperties[] = [
 		default: '',
 		placeholder: 'user1,user2,user3',
 		description:
-			'可选。要添加的成员 ID 列表。用逗号分隔。群成员总数不可超过2000人。<a href="https://developer.work.weixin.qq.com/document/path/90246" target="_blank">官方文档</a>',
+			'单独添加成员时必填；多个成员 ID 用逗号或 | 分隔。群成员总数不可超过 2000 人。<a href="https://developer.work.weixin.qq.com/document/path/98913" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '删除成员列表',
+		displayName: '选择要删除的成员',
+		name: 'del_user_list_selected',
+		type: 'multiOptions',
+		typeOptions: {
+			loadOptionsMethod: 'getAllUsers',
+		},
+		displayOptions: {
+			show: {
+				...showOnlyForUpdateAppChat,
+				updateType: ['delUsers', 'combined'],
+			},
+		},
+		default: [],
+		description: '从通讯录选择，将与下方手动输入合并并去重。',
+	},
+	{
+		displayName: '删除成员 ID（手动）',
 		name: 'del_user_list',
 		type: 'string',
 		displayOptions: {
@@ -110,6 +145,6 @@ export const updateAppChatDescription: INodeProperties[] = [
 		default: '',
 		placeholder: 'user4,user5',
 		description:
-			'可选。要删除的成员 ID 列表。用逗号分隔。注意：如果删除列表中包含群主，则owner字段必填。<a href="https://developer.work.weixin.qq.com/document/path/90246" target="_blank">官方文档</a>',
+			'单独删除成员时必填；多个成员 ID 用逗号或 | 分隔。删除当前群主时必须同时指定新群主。<a href="https://developer.work.weixin.qq.com/document/path/98913" target="_blank">官方文档</a>',
 	},
 ];

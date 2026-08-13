@@ -23,7 +23,7 @@ export const sendTaskCardDescription: INodeProperties[] = [
 		description: '选择任务卡片的输入方式',
 	},
 	{
-		displayName: '任务卡片（JSON）',
+		displayName: '互动任务卡片（JSON）',
 		name: 'taskcard_json',
 		type: 'json',
 		typeOptions: {
@@ -39,7 +39,7 @@ export const sendTaskCardDescription: INodeProperties[] = [
 		},
 
 		description:
-			'可选。使用JSON直接输入taskcard对象。<a href="https://developer.work.weixin.qq.com/document/path/90236#任务卡片消息" target="_blank">官方文档</a>',
+			'使用 JSON 直接输入 interactive_taskcard 对象。<a href="https://developer.work.weixin.qq.com/document/path/90236#任务卡片消息" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '标题',
@@ -64,7 +64,6 @@ export const sendTaskCardDescription: INodeProperties[] = [
 		typeOptions: {
 			rows: 4,
 		},
-		required: true,
 		default: '',
 		placeholder: '请输入描述',
 		displayOptions: {
@@ -89,7 +88,7 @@ export const sendTaskCardDescription: INodeProperties[] = [
 			},
 		},
 		description:
-			'可选。点击后跳转的链接。最长2048字节，请确保包含了协议头(http/https)。小程序或者URL必须填写一个。<a href="https://developer.work.weixin.qq.com/document/path/90236#任务卡片消息" target="_blank">官方文档</a>',
+			'可选。点击后跳转的链接，最长 2048 字节，必须包含 http 或 https 协议头。<a href="https://developer.work.weixin.qq.com/document/path/90236#任务卡片消息" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '任务ID',
@@ -176,15 +175,6 @@ export const sendTaskCardDescription: INodeProperties[] = [
 						description:
 							'可选。按钮字体颜色，可选red或者blue，默认为blue。<a href="https://developer.work.weixin.qq.com/document/path/90236#任务卡片消息" target="_blank">官方文档</a>',
 					},
-					{
-						displayName: '点击按钮后替换文案',
-						name: 'replace_name',
-						type: 'string',
-						default: '',
-						placeholder: '已同意',
-						description:
-							'可选。点击按钮后显示的名称，默认为\'已处理\'。<a href="https://developer.work.weixin.qq.com/document/path/90236#任务卡片消息" target="_blank">官方文档</a>',
-					},
 				],
 			},
 		],
@@ -197,7 +187,6 @@ export const sendTaskCardDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				...showOnlySendTaskCard,
-				taskcard_input_mode: ['form'],
 			},
 		},
 		description:
@@ -211,7 +200,6 @@ export const sendTaskCardDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				...showOnlySendTaskCard,
-				taskcard_input_mode: ['form'],
 			},
 		},
 		description:
@@ -226,7 +214,6 @@ export const sendTaskCardDescription: INodeProperties[] = [
 			show: {
 				...showOnlySendTaskCard,
 				enable_duplicate_check: [true],
-				taskcard_input_mode: ['form'],
 			},
 		},
 		typeOptions: {

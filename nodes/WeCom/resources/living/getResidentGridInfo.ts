@@ -13,7 +13,8 @@ export const getResidentGridInfoDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForGetResidentGridInfo,
 		},
-		default:
-			'无需额外参数。调用 GET /cgi-bin/report/resident/get_grid_info。详见：https://developer.work.weixin.qq.com/document/path/93514',
+		default: '',
+		description:
+			'无需额外参数。调用 GET /cgi-bin/report/resident/get_grid_info。<a href="https://developer.work.weixin.qq.com/document/path/93514" target="_blank">官方文档</a>',
 	},
 ];

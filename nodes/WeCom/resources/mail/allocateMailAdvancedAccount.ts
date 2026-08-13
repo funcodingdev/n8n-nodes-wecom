@@ -15,6 +15,6 @@ export const allocateMailAdvancedAccountDescription: INodeProperties[] = [
 		default: '',
 		placeholder: 'zhangsan,lisi,wangwu',
 		description:
-			'要分配高级功能的企业成员 userid 列表，逗号分隔，单次最多 100 个。<a href="https://developer.work.weixin.qq.com/document/path/99316" target="_blank">官方文档</a>',
+			'要分配高级功能的企业成员 userid 列表，可用逗号、中文逗号、竖线或换行分隔，单次最多 100 个。<a href="https://developer.work.weixin.qq.com/document/path/99316" target="_blank">官方文档</a>',
 	},
 ];

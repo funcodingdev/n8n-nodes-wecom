@@ -4,7 +4,7 @@ import { getWeComBaseUrl } from '../../shared/transport';
 
 /**
  * 获取订单列表
- * 官方文档：https://developer.work.weixin.qq.com/document/path/90600
+ * 官方文档：https://developer.work.weixin.qq.com/document/path/91910
  *
  * 用途：
  * - 服务商可以使用该接口查询指定时间段内的订单列表
@@ -19,26 +19,27 @@ import { getWeComBaseUrl } from '../../shared/transport';
  */
 function dateTimeToUnixTimestamp(dateTime: string | number): number {
 	if (typeof dateTime === 'number') {
-		return dateTime;
+		return Number.isFinite(dateTime) ? Math.floor(dateTime) : 0;
 	}
 	if (!dateTime || dateTime === '') {
 		return 0;
 	}
-	return Math.floor(new Date(dateTime).getTime() / 1000);
+	const timestamp = new Date(dateTime).getTime();
+	return Number.isFinite(timestamp) ? Math.floor(timestamp / 1000) : 0;
 }
 
 export async function getOrderList(
 	this: IExecuteFunctions,
 	index: number,
 ): Promise<IDataObject> {
-	const suiteAccessToken = this.getNodeParameter('suiteAccessToken', index) as string;
+	const suiteAccessToken = String(this.getNodeParameter('suiteAccessToken', index) ?? '').trim();
 	const startTime = dateTimeToUnixTimestamp(
 		this.getNodeParameter('startTime', index) as string | number,
 	);
 	const endTime = dateTimeToUnixTimestamp(
 		this.getNodeParameter('endTime', index) as string | number,
 	);
-	const testMode = this.getNodeParameter('testMode', index) as number | undefined;
+	const testMode = Number(this.getNodeParameter('testMode', index, 0));
 
 	if (!suiteAccessToken) {
 		throw new NodeOperationError(
@@ -63,15 +64,23 @@ export async function getOrderList(
 			{ itemIndex: index },
 		);
 	}
+	if (startTime > endTime) {
+		throw new NodeOperationError(this.getNode(), '起始时间不能晚于终止时间', {
+			itemIndex: index,
+		});
+	}
+	if (![0, 1].includes(testMode)) {
+		throw new NodeOperationError(this.getNode(), '测试模式仅支持正式授权或测试授权', {
+			itemIndex: index,
+		});
+	}
 
 	const body: IDataObject = {
 		start_time: startTime,
 		end_time: endTime,
 	};
 
-	if (testMode !== undefined) {
-		body.test_mode = testMode;
-	}
+	body.test_mode = testMode;
 
 	const options: IHttpRequestOptions = {
 		method: 'POST',
@@ -96,6 +105,7 @@ export async function getOrderList(
 
 		return response;
 	} catch (error) {
+		if (error instanceof NodeOperationError) throw error;
 		const err = error as Error;
 		throw new NodeOperationError(
 			this.getNode(),

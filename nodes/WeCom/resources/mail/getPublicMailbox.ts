@@ -15,6 +15,6 @@ export const getPublicMailboxDescription: INodeProperties[] = [
 		default: '',
 		placeholder: '1,2',
 		description:
-			'公共邮箱 ID 列表，逗号分隔。<a href="https://developer.work.weixin.qq.com/document/path/98002" target="_blank">官方文档</a>',
+			'公共邮箱 ID 列表，可用逗号、中文逗号、竖线或换行分隔。<a href="https://developer.work.weixin.qq.com/document/path/98002" target="_blank">官方文档</a>',
 	},
 ];

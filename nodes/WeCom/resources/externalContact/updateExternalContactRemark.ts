@@ -70,12 +70,25 @@ export const updateExternalContactRemarkDescription: INodeProperties[] = [
 		placeholder: 'XX科技有限公司',
 	},
 	{
+		displayName: '清空所有备注手机号',
+		name: 'clearRemarkMobiles',
+		type: 'boolean',
+		default: false,
+		displayOptions: {
+			show: showOnly,
+		},
+		description: '开启后发送官方要求的空字符串数组，覆盖并清空已有备注手机号',
+	},
+	{
 		displayName: '备注手机号',
 		name: 'remark_mobiles',
 		type: 'string',
 		default: '',
 		displayOptions: {
-			show: showOnly,
+			show: {
+				...showOnly,
+				clearRemarkMobiles: [false],
+			},
 		},
 		description: '此客户的手机号列表，多个号码用英文逗号分隔。<a href="https://developer.work.weixin.qq.com/document/path/92115" target="_blank">官方文档</a>。可选。多个手机号用逗号分隔，最多5个',
 		placeholder: '13800138000,13900139000',
@@ -92,4 +105,3 @@ export const updateExternalContactRemarkDescription: INodeProperties[] = [
 		placeholder: 'MEDIA_ID',
 	},
 ];
-

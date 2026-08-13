@@ -39,6 +39,7 @@ export const addEventCategoryDescription: INodeProperties[] = [
 		displayName: '所属一级分类ID',
 		name: 'parent_category_id',
 		type: 'string',
+		required: true,
 		displayOptions: {
 			show: {
 				...showOnlyForAddEventCategory,

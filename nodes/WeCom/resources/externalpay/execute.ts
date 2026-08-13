@@ -1,27 +1,125 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
+import { NodeOperationError } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
 
-function dateTimeToUnixTimestamp(dateTime: string | number): number {
-	if (typeof dateTime === 'number') {
-		return dateTime;
-	}
-	if (!dateTime || dateTime === '') {
-		return 0;
-	}
-	return Math.floor(new Date(dateTime).getTime() / 1000);
+function fail(context: IExecuteFunctions, message: string, itemIndex: number): never {
+	throw new NodeOperationError(context.getNode(), message, { itemIndex });
 }
 
-function splitCsv(value: string): string[] {
-	return value
-		.split(',')
-		.map((s) => s.trim())
+function requireText(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): string {
+	const text = String(value ?? '').trim();
+	if (!text) fail(context, `${label}不能为空`, itemIndex);
+	return text;
+}
+
+function requireMerchantId(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): string {
+	const merchantId = requireText(context, value, label, itemIndex);
+	if (Buffer.byteLength(merchantId, 'utf8') > 32) {
+		fail(context, `${label}不能超过 32 个 UTF-8 字节`, itemIndex);
+	}
+	return merchantId;
+}
+
+function optionalText(value: unknown): string | undefined {
+	const text = String(value ?? '').trim();
+	return text || undefined;
+}
+
+function requireUnixSeconds(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): number {
+	if (typeof value === 'number') {
+		if (!Number.isInteger(value) || value < 0 || value > 4294967295) {
+			fail(context, `${label}必须是有效的 Unix 秒`, itemIndex);
+		}
+		return value;
+	}
+	const text = requireText(context, value, label, itemIndex);
+	const milliseconds = Date.parse(text);
+	if (!Number.isFinite(milliseconds)) fail(context, `${label}必须是有效的日期时间`, itemIndex);
+	const seconds = Math.floor(milliseconds / 1000);
+	if (seconds < 0 || seconds > 4294967295) {
+		fail(context, `${label}必须在 Unix 秒可表示的范围内`, itemIndex);
+	}
+	return seconds;
+}
+
+function requireInteger(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	minimum: number,
+	maximum: number,
+): number {
+	const number = typeof value === 'number' ? value : Number(value);
+	if (!Number.isInteger(number) || number < minimum || number > maximum) {
+		fail(context, `${label}必须是 ${minimum}–${maximum} 之间的整数`, itemIndex);
+	}
+	return number;
+}
+
+function splitList(value: unknown): string[] {
+	const entries = String(value ?? '')
+		.split(/[,，|\n\r]+/)
+		.map((entry) => entry.trim())
 		.filter(Boolean);
+	const seen = new Set<string>();
+	return entries.filter((entry) => {
+		const identity = entry.toLowerCase();
+		if (seen.has(identity)) return false;
+		seen.add(identity);
+		return true;
+	});
 }
 
-function splitCsvNumbers(value: string): number[] {
-	return splitCsv(value)
-		.map((s) => Number(s))
-		.filter((n) => !Number.isNaN(n));
+function splitIntegerList(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): number[] {
+	return splitList(value).map((entry, index) =>
+		requireInteger(context, entry, `${label}第 ${index + 1} 项`, itemIndex, 1, 4294967295),
+	);
+}
+
+function getTimeRange(
+	context: IExecuteFunctions,
+	itemIndex: number,
+	operation: 'getBillList' | 'getFundFlow',
+): { beginTime: number; endTime: number } {
+	const beginTime = requireUnixSeconds(
+		context,
+		context.getNodeParameter('begin_time', itemIndex),
+		'开始时间',
+		itemIndex,
+	);
+	const endTime = requireUnixSeconds(
+		context,
+		context.getNodeParameter('end_time', itemIndex),
+		'结束时间',
+		itemIndex,
+	);
+	if (endTime < beginTime) fail(context, '结束时间不能早于开始时间', itemIndex);
+	if (endTime - beginTime > 31 * 86400) fail(context, '起止时间间隔不能超过 31 天', itemIndex);
+	if (operation === 'getFundFlow' && beginTime < Date.UTC(2022, 11, 1) / 1000) {
+		fail(context, '资金流水开始时间不能早于 2022-12-01', itemIndex);
+	}
+	return { beginTime, endTime };
 }
 
 export async function executeExternalpay(
@@ -33,96 +131,103 @@ export async function executeExternalpay(
 
 	for (let i = 0; i < items.length; i++) {
 		try {
-			let responseData: IDataObject = {};
+			let responseData: IDataObject;
 
 			if (operation === 'getMerchant') {
-				// https://developer.work.weixin.qq.com/document/path/93666
-				const mch_id = this.getNodeParameter('mch_id', i) as string;
-				responseData = await weComApiRequest.call(this, 'POST', '/cgi-bin/externalpay/getmerchant', {
-					mch_id,
-				});
+				responseData = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/externalpay/getmerchant',
+					{ mch_id: requireMerchantId(this, this.getNodeParameter('mch_id', i), '商户号', i) },
+				);
 			} else if (operation === 'setMchUseScope') {
-				const mch_id = this.getNodeParameter('mch_id', i) as string;
-				const scope_users = this.getNodeParameter('scope_users', i, '') as string;
-				const scope_partyids = this.getNodeParameter('scope_partyids', i, '') as string;
-				const scope_tagids = this.getNodeParameter('scope_tagids', i, '') as string;
-
-				const allow_use_scope: IDataObject = {};
-				if (scope_users) allow_use_scope.user = splitCsv(scope_users);
-				if (scope_partyids) allow_use_scope.partyid = splitCsvNumbers(scope_partyids);
-				if (scope_tagids) allow_use_scope.tagid = splitCsvNumbers(scope_tagids);
-
+				const allowUseScope: IDataObject = {};
+				const users = splitList(this.getNodeParameter('scope_users', i, ''));
+				const partyIds = splitIntegerList(
+					this,
+					this.getNodeParameter('scope_partyids', i, ''),
+					'部门 ID 列表',
+					i,
+				);
+				const tagIds = splitIntegerList(
+					this,
+					this.getNodeParameter('scope_tagids', i, ''),
+					'标签 ID 列表',
+					i,
+				);
+				if (users.length > 0) allowUseScope.user = users;
+				if (partyIds.length > 0) allowUseScope.partyid = partyIds;
+				if (tagIds.length > 0) allowUseScope.tagid = tagIds;
 				responseData = await weComApiRequest.call(
 					this,
 					'POST',
 					'/cgi-bin/externalpay/set_mch_use_scope',
-					{ mch_id, allow_use_scope },
+					{
+						mch_id: requireMerchantId(this, this.getNodeParameter('mch_id', i), '商户号', i),
+						allow_use_scope: allowUseScope,
+					},
 				);
-			} else if (operation === 'getBillList') {
-				// https://developer.work.weixin.qq.com/document/path/93667
-				const begin_time = dateTimeToUnixTimestamp(
-					this.getNodeParameter('begin_time', i) as string | number,
-				);
-				const end_time = dateTimeToUnixTimestamp(
-					this.getNodeParameter('end_time', i) as string | number,
-				);
-				const payee_userid = this.getNodeParameter('payee_userid', i, '') as string;
-				const cursor = this.getNodeParameter('cursor', i, '') as string;
-				const limit = this.getNodeParameter('limit', i, 10) as number;
-
-				const body: IDataObject = { begin_time, end_time, limit };
-				if (payee_userid) body.payee_userid = payee_userid;
-				if (cursor) body.cursor = cursor;
-
-				responseData = await weComApiRequest.call(
-					this,
-					'POST',
-					'/cgi-bin/externalpay/get_bill_list',
-					body,
-				);
+			} else if (operation === 'getBillList' || operation === 'getFundFlow') {
+				const { beginTime, endTime } = getTimeRange(this, i, operation);
+				const maximumLimit = operation === 'getBillList' ? 1000 : 200;
+				const defaultLimit = operation === 'getBillList' ? 10 : 100;
+				const body: IDataObject = {
+					begin_time: beginTime,
+					end_time: endTime,
+					limit: requireInteger(
+						this,
+						this.getNodeParameter('limit', i, defaultLimit),
+						'返回数量',
+						i,
+						1,
+						maximumLimit,
+					),
+				};
+				const cursor = optionalText(this.getNodeParameter('cursor', i, ''));
+				if (cursor !== undefined) body.cursor = cursor;
+				if (operation === 'getBillList') {
+					const payeeUserid = optionalText(this.getNodeParameter('payee_userid', i, ''));
+					if (payeeUserid !== undefined) body.payee_userid = payeeUserid;
+					responseData = await weComApiRequest.call(
+						this,
+						'POST',
+						'/cgi-bin/externalpay/get_bill_list',
+						body,
+					);
+				} else {
+					const merchantId = optionalText(this.getNodeParameter('mch_id', i, ''));
+					if (merchantId !== undefined) {
+						body.mch_id = requireMerchantId(this, merchantId, '商户号', i);
+					}
+					responseData = await weComApiRequest.call(
+						this,
+						'POST',
+						'/cgi-bin/externalpay/get_fund_flow',
+						body,
+					);
+				}
 			} else if (operation === 'getPaymentInfo') {
-				// https://developer.work.weixin.qq.com/document/path/95944
-				const payment_id = this.getNodeParameter('payment_id', i) as string;
 				responseData = await weComApiRequest.call(
 					this,
 					'POST',
 					'/cgi-bin/externalpay/get_payment_info',
-					{ payment_id },
+					{
+						payment_id: requireText(
+							this,
+							this.getNodeParameter('payment_id', i),
+							'收款项目单号',
+							i,
+						),
+					},
 				);
-			} else if (operation === 'getFundFlow') {
-				// https://developer.work.weixin.qq.com/document/path/98100
-				const begin_time = dateTimeToUnixTimestamp(
-					this.getNodeParameter('begin_time', i) as string | number,
-				);
-				const end_time = dateTimeToUnixTimestamp(
-					this.getNodeParameter('end_time', i) as string | number,
-				);
-				const mch_id = this.getNodeParameter('mch_id', i, '') as string;
-				const cursor = this.getNodeParameter('cursor', i, '') as string;
-				const limit = this.getNodeParameter('limit', i, 10) as number;
-
-				const body: IDataObject = { begin_time, end_time, limit };
-				if (mch_id) body.mch_id = mch_id;
-				if (cursor) body.cursor = cursor;
-
-				responseData = await weComApiRequest.call(
-					this,
-					'POST',
-					'/cgi-bin/externalpay/get_fund_flow',
-					body,
-				);
+			} else {
+				fail(this, `不支持的对外收款操作: ${operation}`, i);
 			}
 
-			returnData.push({
-				json: responseData,
-				pairedItem: { item: i },
-			});
+			returnData.push({ json: responseData, pairedItem: { item: i } });
 		} catch (error) {
 			if (this.continueOnFail()) {
-				returnData.push({
-					json: { error: (error as Error).message },
-					pairedItem: { item: i },
-				});
+				returnData.push({ json: { error: (error as Error).message }, pairedItem: { item: i } });
 				continue;
 			}
 			throw error;

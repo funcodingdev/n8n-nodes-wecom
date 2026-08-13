@@ -1,126 +1,35 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { getWorkbenchFields } from './workbenchFields';
 
 const showOnly = { resource: ['agent'], operation: ['batchSetWorkbenchData'] };
 
 export const batchSetWorkbenchDataDescription: INodeProperties[] = [
 	{
-		displayName: '应用ID',
+		displayName: '应用 ID',
 		name: 'agentid',
 		type: 'number',
 		required: true,
 		default: 0,
+		typeOptions: { minValue: 1, numberStepSize: 1 },
 		displayOptions: { show: showOnly },
 	},
 	{
-		displayName: '用户ID列表',
+		displayName: '选择用户',
+		name: 'userid_list_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		default: [],
+		displayOptions: { show: showOnly },
+		description: '从通讯录选择用户，将与下方手动输入合并、去重',
+	},
+	{
+		displayName: '用户 ID 列表（手动）',
 		name: 'userid_list',
 		type: 'string',
-		required: true,
 		default: '',
 		placeholder: 'zhangsan,lisi',
 		displayOptions: { show: showOnly },
-		description: '逗号分隔',
+		description: '使用逗号、竖线或换行分隔；合并后至少 1 人、最多 1000 人',
 	},
-	{
-		displayName: '模版类型',
-		name: 'type',
-		type: 'options',
-		required: true,
-		options: [
-			{ name: '关键数据型', value: 'keydata' },
-			{ name: '图片型', value: 'image' },
-			{ name: '列表型', value: 'list' },
-			{ name: 'Webview型', value: 'webview' },
-		],
-		default: 'keydata',
-		displayOptions: { show: showOnly },
-	},
-
-	{
-		displayName: '关键数据项',
-		name: 'keydataItems',
-		type: 'fixedCollection',
-		displayOptions: { show: { ...showOnly, type: ['keydata'] } },
-		default: {},
-		placeholder: '添加数据项',
-		typeOptions: { multipleValues: true },
-		description: '最多 4 项',
-		options: [
-			{
-				displayName: '数据项',
-				name: 'items',
-				values: [
-					{ displayName: '名称', name: 'key', type: 'string', default: '' },
-					{ displayName: '数值', name: 'data', type: 'string', default: '' },
-					{ displayName: '跳转URL', name: 'jump_url', type: 'string', default: '' },
-					{ displayName: '小程序路径', name: 'pagepath', type: 'string', default: '' },
-				],
-			},
-		],
-	},
-	{
-		displayName: '图片URL',
-		name: 'image_url',
-		type: 'string',
-		displayOptions: { show: { ...showOnly, type: ['image'] } },
-		default: '',
-	},
-	{
-		displayName: '图片跳转URL',
-		name: 'image_jump_url',
-		type: 'string',
-		displayOptions: { show: { ...showOnly, type: ['image'] } },
-		default: '',
-	},
-	{
-		displayName: '图片小程序路径',
-		name: 'image_pagepath',
-		type: 'string',
-		displayOptions: { show: { ...showOnly, type: ['image'] } },
-		default: '',
-	},
-	{
-		displayName: '列表项',
-		name: 'listItems',
-		type: 'fixedCollection',
-		displayOptions: { show: { ...showOnly, type: ['list'] } },
-		default: {},
-		placeholder: '添加列表项',
-		typeOptions: { multipleValues: true },
-		description: '最多 3 项',
-		options: [
-			{
-				displayName: '列表项',
-				name: 'items',
-				values: [
-					{ displayName: '标题', name: 'title', type: 'string', default: '' },
-					{ displayName: '跳转URL', name: 'jump_url', type: 'string', default: '' },
-					{ displayName: '小程序路径', name: 'pagepath', type: 'string', default: '' },
-				],
-			},
-		],
-	},
-	{
-		displayName: 'Webview URL',
-		name: 'webview_url',
-		type: 'string',
-		displayOptions: { show: { ...showOnly, type: ['webview'] } },
-		default: '',
-	},
-	{
-		displayName: 'Webview 跳转URL',
-		name: 'webview_jump_url',
-		type: 'string',
-		displayOptions: { show: { ...showOnly, type: ['webview'] } },
-		default: '',
-	},
-	{
-		displayName: '模版扩展JSON',
-		name: 'templateExtraJson',
-		type: 'json',
-		displayOptions: { show: showOnly },
-		default: '{}',
-		description: '合并进对应 type 配置，JSON 优先',
-	},
-
+	...getWorkbenchFields(showOnly),
 ];

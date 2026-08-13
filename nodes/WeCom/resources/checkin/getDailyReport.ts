@@ -15,7 +15,8 @@ export const getDailyReportDescription: INodeProperties[] = [
 			show: showOnlyForGetDailyReport,
 		},
 		default: '',
-		description: '查询的起始日期，使用Unix时间戳格式（秒级）。<a href="https://developer.work.weixin.qq.com/document/path/93374" target="_blank">官方文档</a>',
+		description:
+			'查询的起始日期，使用Unix时间戳格式（秒级）。<a href="https://developer.work.weixin.qq.com/document/path/93374" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '结束时间',
@@ -37,7 +38,6 @@ export const getDailyReportDescription: INodeProperties[] = [
 			show: showOnlyForGetDailyReport,
 		},
 		default: '',
-		description: '需要获取日报的成员UserID列表，多个UserID用逗号分隔',
+		description: '需要获取日报的成员 UserID 列表，支持逗号、中文逗号、竖线或换行分隔，最多 100 个',
 	},
 ];
-

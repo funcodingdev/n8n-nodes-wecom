@@ -1,4 +1,5 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
+import { NodeOperationError } from 'n8n-workflow';
 import { getSuiteToken } from './getSuiteToken';
 import { getPreAuthCode } from './getPreAuthCode';
 import { setSessionInfo } from './setSessionInfo';
@@ -73,7 +74,9 @@ export async function executeAppAuth(
 					responseData = await prolongTry.call(this, i);
 					break;
 				default:
-					throw new Error(`未知操作: ${operation}`);
+					throw new NodeOperationError(this.getNode(), `未知操作: ${operation}`, {
+						itemIndex: i,
+					});
 			}
 
 			returnData.push({
@@ -90,7 +93,10 @@ export async function executeAppAuth(
 					pairedItem: { item: i },
 				});
 			} else {
-				throw error;
+				if (error instanceof NodeOperationError) throw error;
+				throw new NodeOperationError(this.getNode(), (error as Error).message, {
+					itemIndex: i,
+				});
 			}
 		}
 	}

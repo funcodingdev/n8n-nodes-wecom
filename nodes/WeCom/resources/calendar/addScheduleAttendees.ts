@@ -17,6 +17,7 @@ export const addScheduleAttendeesDescription: INodeProperties[] = [
 		displayName: '参与者',
 		name: 'attendeesCollection',
 		type: 'fixedCollection',
+		required: true,
 		displayOptions: { show: showOnly },
 		default: {},
 		placeholder: '添加参与者',

@@ -10,7 +10,7 @@ const showOnlyForReplyTemplateCard = {
 export const replyTemplateCardDescription: INodeProperties[] = [
 	...templateCardFormProperties(showOnlyForReplyTemplateCard),
 	{
-		displayName: '反馈ID',
+		displayName: '反馈 ID',
 		name: 'feedback_id',
 		type: 'string',
 		displayOptions: {

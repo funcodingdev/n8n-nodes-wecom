@@ -15,7 +15,8 @@ export const getMonthlyReportDescription: INodeProperties[] = [
 			show: showOnlyForGetMonthlyReport,
 		},
 		default: '',
-		description: '获取月报的开始时间（月首0点），秒级Unix时间戳。<a href="https://developer.work.weixin.qq.com/document/path/94207" target="_blank">官方文档</a>',
+		description:
+			'获取月报的开始时间（月首0点），秒级Unix时间戳。<a href="https://developer.work.weixin.qq.com/document/path/94207" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '结束时间',
@@ -26,7 +27,8 @@ export const getMonthlyReportDescription: INodeProperties[] = [
 			show: showOnlyForGetMonthlyReport,
 		},
 		default: '',
-		description: '获取月报的结束时间（月末），秒级Unix时间戳。<a href="https://developer.work.weixin.qq.com/document/path/94207" target="_blank">官方文档</a>',
+		description:
+			'获取月报的结束时间（月末），秒级Unix时间戳。<a href="https://developer.work.weixin.qq.com/document/path/94207" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '成员UserID列表',
@@ -37,7 +39,7 @@ export const getMonthlyReportDescription: INodeProperties[] = [
 			show: showOnlyForGetMonthlyReport,
 		},
 		default: '',
-		description: '需要获取月报的成员UserID列表，多个UserID用逗号分隔，最多100个。<a href="https://developer.work.weixin.qq.com/document/path/94207" target="_blank">官方文档</a>',
+		description:
+			'需要获取月报的成员UserID列表，多个UserID用逗号分隔，最多100个。<a href="https://developer.work.weixin.qq.com/document/path/94207" target="_blank">官方文档</a>',
 	},
 ];
-

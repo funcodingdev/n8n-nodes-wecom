@@ -93,6 +93,7 @@ export const getGroupMsgListV2Description: INodeProperties[] = [
 		typeOptions: {
 			minValue: 1,
 			maxValue: 100,
+			numberStepSize: 1,
 		},
 		default: 50,
 		displayOptions: {
@@ -111,4 +112,3 @@ export const getGroupMsgListV2Description: INodeProperties[] = [
 		description: '用于分页查询的游标，由上一次调用返回，首次调用可不填',
 	},
 ];
-

@@ -19,9 +19,9 @@ import { getWeComBaseUrl } from '../../shared/transport';
  * @returns 第三方应用凭证信息
  */
 export async function getSuiteToken(this: IExecuteFunctions, index: number): Promise<IDataObject> {
-	const suiteId = this.getNodeParameter('suiteId', index) as string;
-	const suiteSecret = this.getNodeParameter('suiteSecret', index) as string;
-	const suiteTicket = this.getNodeParameter('suiteTicket', index) as string;
+	const suiteId = String(this.getNodeParameter('suiteId', index) ?? '').trim();
+	const suiteSecret = String(this.getNodeParameter('suiteSecret', index) ?? '').trim();
+	const suiteTicket = String(this.getNodeParameter('suiteTicket', index) ?? '').trim();
 
 	if (!suiteId) {
 		throw new NodeOperationError(this.getNode(), '第三方应用ID不能为空', { itemIndex: index });
@@ -60,6 +60,7 @@ export async function getSuiteToken(this: IExecuteFunctions, index: number): Pro
 
 		return response;
 	} catch (error) {
+		if (error instanceof NodeOperationError) throw error;
 		const err = error as Error;
 		throw new NodeOperationError(
 			this.getNode(),

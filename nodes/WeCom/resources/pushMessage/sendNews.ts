@@ -28,6 +28,7 @@ export const sendNewsDescription: INodeProperties[] = [
 			rows: 4,
 		},
 		default: '[]',
+		required: true,
 		placeholder: '[{"title":"标题","description":"摘要","url":"https://example.com","picurl":"https://example.com/image.jpg"}]',
 		displayOptions: {
 			show: {
@@ -36,7 +37,7 @@ export const sendNewsDescription: INodeProperties[] = [
 			},
 		},
 		description:
-			'可选。使用JSON直接输入图文列表（数组）或对象（包含articles）。<a href="https://developer.work.weixin.qq.com/document/path/99110#%E5%9B%BE%E6%96%87%E7%B1%BB%E5%9E%8B" target="_blank">官方文档</a>',
+			'使用 JSON 直接输入 1 到 8 条图文的数组，或包含 articles 的对象。<a href="https://developer.work.weixin.qq.com/document/path/99110#%E5%9B%BE%E6%96%87%E7%B1%BB%E5%9E%8B" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '图文列表',
@@ -52,6 +53,7 @@ export const sendNewsDescription: INodeProperties[] = [
 			},
 		},
 		default: {},
+		required: true,
 		placeholder: '添加图文',
 		description: '图文消息列表，一个图文消息支持1到8条图文。<a href="https://developer.work.weixin.qq.com/document/path/99110#%E5%9B%BE%E6%96%87%E7%B1%BB%E5%9E%8B" target="_blank">官方文档</a>',
 		options: [

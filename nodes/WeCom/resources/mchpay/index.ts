@@ -11,25 +11,25 @@ export const mchpayDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly },
 		options: [
 			{
-				name: '[企业红包] 发放企业红包',
+				name: '[兼容旧商户·企业红包] 发放企业红包',
 				value: 'sendRedpack',
 				action: '发放企业红包',
 				description: '向成员发放企业红包',
 			},
 			{
-				name: '[企业红包] 查询红包记录',
+				name: '[兼容旧商户·企业红包] 查询红包记录',
 				value: 'queryRedpack',
 				action: '查询红包记录',
 				description: '查询企业红包发放结果',
 			},
 			{
-				name: '[向员工付款] 付款',
+				name: '[兼容旧商户·向员工付款] 付款',
 				value: 'payToEmployee',
 				action: '向员工付款',
 				description: '向员工发起企业付款',
 			},
 			{
-				name: '[向员工付款] 查询付款记录',
+				name: '[兼容旧商户·向员工付款] 查询付款记录',
 				value: 'queryPayToEmployee',
 				action: '查询付款记录',
 				description: '查询向员工付款的结果',
@@ -44,7 +44,7 @@ export const mchpayDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly },
 		default: '',
 		description:
-			'使用前请配置「企业微信商户支付」凭证（商户号、密钥与证书）。收款人 OpenID 可先用通讯录「userid 与 openid 互换」获取。',
+			'这些是旧版企业红包/企业付款 XML 接口，全新创建的企业微信通常不可用。使用前请配置「企业微信商户支付」凭证（商户号、密钥与证书）；收款人 OpenID 可先用通讯录「userid 与 openid 互换」获取。',
 	},
 	// --- 红包 ---
 	{
@@ -54,6 +54,7 @@ export const mchpayDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { ...showOnly, operation: ['sendRedpack', 'queryRedpack'] } },
 		default: '',
+		typeOptions: { maxLength: 28 },
 		description: '商户订单号，需保证唯一；超时重试时请使用原单号',
 	},
 	{
@@ -63,6 +64,7 @@ export const mchpayDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { ...showOnly, operation: ['sendRedpack'] } },
 		default: '',
+		typeOptions: { maxLength: 32 },
 		description: '收款用户在企业微信下的 OpenID',
 	},
 	{
@@ -72,6 +74,7 @@ export const mchpayDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { ...showOnly, operation: ['sendRedpack'] } },
 		default: 100,
+		typeOptions: { minValue: 1, numberStepSize: 1 },
 		description: '红包金额，单位：分（默认单笔不小于 1 元）',
 	},
 	{
@@ -81,14 +84,25 @@ export const mchpayDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { ...showOnly, operation: ['sendRedpack'] } },
 		default: '恭喜发财',
+		typeOptions: { maxLength: 128 },
 	},
 	{
 		displayName: '项目名称',
 		name: 'act_name',
 		type: 'string',
 		required: true,
-		displayOptions: { show: { ...showOnly, operation: ['sendRedpack', 'payToEmployee'] } },
+		displayOptions: { show: { ...showOnly, operation: ['sendRedpack'] } },
 		default: '',
+		typeOptions: { maxLength: 32 },
+	},
+	{
+		displayName: '项目名称',
+		name: 'act_name',
+		type: 'string',
+		required: true,
+		displayOptions: { show: { ...showOnly, operation: ['payToEmployee'] } },
+		default: '',
+		typeOptions: { maxLength: 50 },
 	},
 	{
 		displayName: '备注',
@@ -97,6 +111,7 @@ export const mchpayDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { ...showOnly, operation: ['sendRedpack'] } },
 		default: '',
+		typeOptions: { maxLength: 256 },
 	},
 	{
 		displayName: '应用 AgentID',
@@ -104,6 +119,7 @@ export const mchpayDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: { show: { ...showOnly, operation: ['sendRedpack', 'payToEmployee'] } },
 		default: '',
+		typeOptions: { maxLength: 20 },
 		description: '以企业应用名义发红包时填写；与「发送者名称」二选一，空则使用凭证中的默认应用',
 	},
 	{
@@ -112,6 +128,7 @@ export const mchpayDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: { show: { ...showOnly, operation: ['sendRedpack'] } },
 		default: '',
+		typeOptions: { maxLength: 128 },
 		description: '以个人名义发红包时填写；与「应用 AgentID」二选一',
 	},
 	{
@@ -139,6 +156,7 @@ export const mchpayDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: { show: { ...showOnly, operation: ['sendRedpack'] } },
 		default: '',
+		typeOptions: { maxLength: 128 },
 		description: '以个人名义发红包时可选，素材 media_id',
 	},
 	{
@@ -147,7 +165,25 @@ export const mchpayDescription: INodeProperties[] = [
 		type: 'json',
 		displayOptions: { show: showOnly },
 		default: '{}',
-		description: '额外业务字段，按企业微信支付文档填写（如发送者头像素材 ID）',
+		description: '额外业务字段，仅接受安全 XML 字段名及字符串/数字值；表单中的核心字段始终优先',
+	},
+	{
+		displayName: '红包资金风险提示',
+		name: 'redpackRiskNotice',
+		type: 'notice',
+		displayOptions: { show: { ...showOnly, operation: ['sendRedpack'] } },
+		default: '',
+		description: '该操作会实际发放资金。系统错误或超时时必须使用原商户订单号查询或重试，不能更换单号，否则可能重复发放。',
+	},
+	{
+		displayName: '查询时效提示',
+		name: 'queryAgeNotice',
+		type: 'notice',
+		displayOptions: {
+			show: { ...showOnly, operation: ['queryRedpack', 'queryPayToEmployee'] },
+		},
+		default: '',
+		description: '查询接口仅支持最近 30 天内的订单。查无记录不等于发放失败，请保留原单号并稍后重试。',
 	},
 	// --- 付款 ---
 	{
@@ -159,6 +195,7 @@ export const mchpayDescription: INodeProperties[] = [
 			show: { ...showOnly, operation: ['payToEmployee', 'queryPayToEmployee'] },
 		},
 		default: '',
+		typeOptions: { maxLength: 32 },
 	},
 	{
 		displayName: '员工 OpenID',
@@ -167,6 +204,7 @@ export const mchpayDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { ...showOnly, operation: ['payToEmployee'] } },
 		default: '',
+		typeOptions: { maxLength: 64 },
 	},
 	{
 		displayName: '金额(分)',
@@ -175,6 +213,7 @@ export const mchpayDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { ...showOnly, operation: ['payToEmployee'] } },
 		default: 100,
+		typeOptions: { minValue: 1, numberStepSize: 1 },
 	},
 	{
 		displayName: '付款说明',
@@ -183,6 +222,7 @@ export const mchpayDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { ...showOnly, operation: ['payToEmployee'] } },
 		default: '',
+		typeOptions: { maxLength: 81 },
 	},
 	{
 		displayName: '调用方 IP',
@@ -207,8 +247,11 @@ export const mchpayDescription: INodeProperties[] = [
 		displayName: '收款人姓名',
 		name: 're_user_name',
 		type: 'string',
-		displayOptions: { show: { ...showOnly, operation: ['payToEmployee'] } },
+		displayOptions: {
+			show: { ...showOnly, operation: ['payToEmployee'], check_name: ['FORCE_CHECK'] },
+		},
 		default: '',
+		typeOptions: { maxLength: 64 },
 		description: 'check_name=FORCE_CHECK 时必填',
 	},
 	{
@@ -226,8 +269,19 @@ export const mchpayDescription: INodeProperties[] = [
 		displayName: '审批单号',
 		name: 'approval_number',
 		type: 'string',
+		displayOptions: {
+			show: { ...showOnly, operation: ['payToEmployee'], ww_msg_type: ['APPROVAL_MSG'] },
+		},
+		default: '',
+		typeOptions: { maxLength: 128 },
+		description: 'ww_msg_type=APPROVAL_MSG 时填写',
+	},
+	{
+		displayName: '付款资金风险提示',
+		name: 'payRiskNotice',
+		type: 'notice',
 		displayOptions: { show: { ...showOnly, operation: ['payToEmployee'] } },
 		default: '',
-		description: 'ww_msg_type=APPROVAL_MSG 时填写',
+		description: '该操作会实际向员工付款。业务结果不明确时先用原商户订单号查询；重试必须保持原单号和原参数，避免重复付款。',
 	},
 ];

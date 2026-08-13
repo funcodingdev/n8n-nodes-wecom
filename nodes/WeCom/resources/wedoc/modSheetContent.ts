@@ -85,19 +85,19 @@ export const modSheetContentDescription: INodeProperties[] = [
 						displayName: '起始行号',
 						name: 'start_row',
 						type: 'number',
-						default: 1,
+						default: 0,
 						displayOptions: { show: { request_type: ['update_range'] } },
-						description: '更新范围的起始行号（从1开始，范围行数 <=1000）',
-						typeOptions: { minValue: 1 },
+						description: '更新范围的起始行号（从0开始，范围行数 <=1000）',
+						typeOptions: { minValue: 0 },
 					},
 					{
 						displayName: '起始列号',
 						name: 'start_column',
 						type: 'number',
-						default: 1,
+						default: 0,
 						displayOptions: { show: { request_type: ['update_range'] } },
-						description: '更新范围的起始列号（从1开始，范围列数 <=200）',
-						typeOptions: { minValue: 1 },
+						description: '更新范围的起始列号（从0开始，范围列数 <=200）',
+						typeOptions: { minValue: 0 },
 					},
 					{
 						displayName: '行数',
@@ -126,6 +126,17 @@ export const modSheetContentDescription: INodeProperties[] = [
 						description: '单元格值：多值用逗号分隔，多行用分号分隔',
 						placeholder: '例如: 值1,值2,值3;值4,值5,值6',
 						typeOptions: { rows: 3 },
+					},
+					{
+						displayName: 'Grid Data JSON',
+						name: 'grid_data_json',
+						type: 'json',
+						default: '{}',
+						displayOptions: { show: { request_type: ['update_range'] } },
+						description:
+							'高级模式：填写官方 grid_data 对象（需含非空 rows）；填写后覆盖上方简单单元格值，起始行列仍以上方为准',
+						placeholder:
+							'{"rows":[{"values":[{"cell_value":{"text":"示例"}}]}]}',
 					},
 					{
 						displayName: '删除维度',

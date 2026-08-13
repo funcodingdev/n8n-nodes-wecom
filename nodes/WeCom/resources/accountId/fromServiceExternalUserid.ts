@@ -1,12 +1,13 @@
 import type { IExecuteFunctions, IDataObject } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
+import { requirePositiveInteger, requireText } from './utils';
 
 export async function fromServiceExternalUserid(
 	this: IExecuteFunctions,
 	index: number,
 ): Promise<IDataObject> {
-	const sourceAgentid = this.getNodeParameter('sourceAgentid', index) as number;
-	const externalUserid = this.getNodeParameter('externalUserid', index) as string;
+	const sourceAgentid = requirePositiveInteger(this, this.getNodeParameter('sourceAgentid', index), '源应用 ID', index);
+	const externalUserid = requireText(this, this.getNodeParameter('externalUserid', index), 'External UserID', index);
 
 	const body: IDataObject = {
 		external_userid: externalUserid,

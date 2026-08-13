@@ -12,4 +12,14 @@ export const updateSmartsheetViewDescription: INodeProperties[] = [
 		default: '',
 		description: '新的视图名称，最多255个字符。留空则不修改。',
 	},
+	{
+		displayName: '视图配置JSON',
+		name: 'viewPropertyJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '{}',
+		description:
+			'官方 property 对象，支持排序、过滤、分组、字段可见性、冻结列与填色配置；与标题至少填写一项',
+		placeholder: '{"auto_sort":false,"frozen_field_count":1}',
+	},
 ];

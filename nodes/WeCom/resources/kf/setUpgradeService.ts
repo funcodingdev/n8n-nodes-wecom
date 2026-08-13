@@ -18,13 +18,13 @@ export const setUpgradeServiceDescription: INodeProperties[] = [
 		placeholder: 'wkxxxxxxxxxxxxxxxxxx',
 	},
 	{
-		displayName: '外部联系人ID',
+		displayName: '客户 External UserID',
 		name: 'external_userid',
 		type: 'string',
 		required: true,
 		displayOptions: { show: showOnly },
 		default: '',
-		description: '微信客户的 external_userid',
+		description: '要推荐升级服务的微信客户 external_userid',
 		placeholder: 'wmxxxxxxxxxxxxxxxxxx',
 	},
 	{
@@ -41,13 +41,14 @@ export const setUpgradeServiceDescription: INodeProperties[] = [
 		description: '升级到专员服务或客户群服务',
 	},
 	{
-		displayName: '专员UserID',
+		displayName: '服务专员',
 		name: 'member_userid',
-		type: 'string',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
 		required: true,
 		displayOptions: { show: { ...showOnly, upgradeType: ['member'] } },
 		default: '',
-		description: '服务专员 userid（须已配置在升级服务专员范围中）',
+		description: '服务专员须已配置在升级服务专员范围，并在应用与客户联系可见范围内',
 	},
 	{
 		displayName: '专员推荐语',
@@ -56,6 +57,7 @@ export const setUpgradeServiceDescription: INodeProperties[] = [
 		displayOptions: { show: { ...showOnly, upgradeType: ['member'] } },
 		default: '',
 		description: '推荐语（可选）',
+		typeOptions: { rows: 3 },
 	},
 	{
 		displayName: '客户群ID',
@@ -73,5 +75,6 @@ export const setUpgradeServiceDescription: INodeProperties[] = [
 		displayOptions: { show: { ...showOnly, upgradeType: ['groupchat'] } },
 		default: '',
 		description: '推荐语（可选）',
+		typeOptions: { rows: 3 },
 	},
 ];

@@ -43,4 +43,3 @@ export const hrDescription: INodeProperties[] = [
 	...getStaffInfoDescription,
 	...updateStaffInfoDescription,
 ];
-

@@ -3,9 +3,30 @@ import type { ExtraHttpOp } from '../../shared/extraHttpOp';
 import { extraHttpOpOptions } from '../../shared/extraHttpOp';
 
 export const approvalExtraHttpOps: ExtraHttpOp[] = [
-	{ id: 'getapprovaldata', name: '[审批] 获取审批数据(旧版)', action: '获取审批数据（旧版）', description: '获取审批数据（旧版）', path: '/cgi-bin/corp/getapprovaldata', method: 'POST' },
-	{ id: 'advancedFeatureGetApplyIdList', name: '[高级功能] 获取申请单列表', action: '获取高级功能申请单列表', description: '获取高级功能申请单列表', path: '/cgi-bin/advanced_feature/get_apply_id_list', method: 'POST' },
-	{ id: 'advancedFeatureSetApprovalDetail', name: '[高级功能] 设置审批详情', action: '设置高级功能审批详情', description: '设置高级功能审批详情', path: '/cgi-bin/advanced_feature/set_approval_detail', method: 'POST' },
+	{
+		id: 'getapprovaldata',
+		name: '[审批] 获取审批数据(旧版)',
+		action: '获取审批数据（旧版）',
+		description: '获取审批数据（旧版）',
+		path: '/cgi-bin/corp/getapprovaldata',
+		method: 'POST',
+	},
+	{
+		id: 'advancedFeatureGetApplyIdList',
+		name: '[高级功能] 获取申请单列表',
+		action: '获取高级功能申请单列表',
+		description: '获取高级功能申请单列表',
+		path: '/cgi-bin/advanced_feature/get_apply_id_list',
+		method: 'POST',
+	},
+	{
+		id: 'advancedFeatureSetApprovalDetail',
+		name: '[高级功能] 设置审批详情',
+		action: '设置高级功能审批详情',
+		description: '设置高级功能审批详情',
+		path: '/cgi-bin/advanced_feature/set_approval_detail',
+		method: 'POST',
+	},
 ];
 
 export const approvalExtraHttpOpsById: Record<string, ExtraHttpOp> = Object.fromEntries(
@@ -23,6 +44,7 @@ export const approvalExtraHttpOpsDescription: INodeProperties[] = [
 		displayName: '开始时间',
 		name: 'appr_starttime',
 		type: 'dateTime',
+		required: true,
 		displayOptions: {
 			show: { resource: ['approval'], operation: ['getapprovaldata'] },
 		},
@@ -33,6 +55,7 @@ export const approvalExtraHttpOpsDescription: INodeProperties[] = [
 		displayName: '结束时间',
 		name: 'appr_endtime',
 		type: 'dateTime',
+		required: true,
 		displayOptions: {
 			show: { resource: ['approval'], operation: ['getapprovaldata'] },
 		},
@@ -72,6 +95,7 @@ export const approvalExtraHttpOpsDescription: INodeProperties[] = [
 		displayName: '申请人UserID',
 		name: 'af_userid',
 		type: 'string',
+		required: true,
 		displayOptions: {
 			show: {
 				resource: ['approval'],
@@ -92,6 +116,7 @@ export const approvalExtraHttpOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: 100,
+		typeOptions: { minValue: 1, maxValue: 200 },
 		description: '默认 100，最大 200',
 	},
 	{
@@ -129,6 +154,7 @@ export const approvalExtraHttpOpsDescription: INodeProperties[] = [
 		displayName: '申请ID',
 		name: 'af_apply_id',
 		type: 'string',
+		required: true,
 		displayOptions: {
 			show: {
 				resource: ['approval'],
@@ -142,6 +168,7 @@ export const approvalExtraHttpOpsDescription: INodeProperties[] = [
 		displayName: '审批ID',
 		name: 'af_approval_id',
 		type: 'string',
+		required: true,
 		displayOptions: {
 			show: {
 				resource: ['approval'],
@@ -173,6 +200,7 @@ export const approvalExtraHttpOpsDescription: INodeProperties[] = [
 		displayName: '审批跳转链接',
 		name: 'af_approval_url',
 		type: 'string',
+		required: true,
 		displayOptions: {
 			show: {
 				resource: ['approval'],

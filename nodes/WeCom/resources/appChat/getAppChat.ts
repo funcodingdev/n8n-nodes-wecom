@@ -17,6 +17,6 @@ export const getAppChatDescription: INodeProperties[] = [
 		placeholder: 'mychat001',
 		required: true,
 		description:
-			'群聊的唯一标识。<a href="https://developer.work.weixin.qq.com/document/path/90227" target="_blank">官方文档</a>',
+			'群聊的唯一标识。<a href="https://developer.work.weixin.qq.com/document/path/98914" target="_blank">官方文档</a>',
 	},
 ];

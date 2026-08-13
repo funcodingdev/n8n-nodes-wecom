@@ -7,6 +7,14 @@ const showOnly = {
 
 export const getUserInfo3rdDescription: INodeProperties[] = [
 	{
+		displayName: '第三方应用限制',
+		name: 'getUserInfo3rdNotice',
+		type: 'notice',
+		displayOptions: { show: showOnly },
+		default: '',
+		description: '仅第三方应用使用，代开发自建应用不可调用。授权 Code 只能使用一次，5 分钟内有效，且跳转域名须完全匹配应用可信域名。',
+	},
+	{
 		displayName: 'Suite Access Token',
 		name: 'suiteAccessToken',
 		type: 'string',
@@ -16,7 +24,7 @@ export const getUserInfo3rdDescription: INodeProperties[] = [
 			show: showOnly,
 		},
 		default: '',
-		description: '第三方应用的suite_access_token',
+		description: '第三方应用的 suite_access_token',
 	},
 	{
 		displayName: '授权码',
@@ -27,6 +35,6 @@ export const getUserInfo3rdDescription: INodeProperties[] = [
 			show: showOnly,
 		},
 		default: '',
-		description: '通过成员授权获取到的code，最大为512字节',
+		description: '通过网页授权获取的 Code，最大 512 字节。<a href="https://developer.work.weixin.qq.com/document/path/91121" target="_blank">官方文档</a>',
 	},
 ];

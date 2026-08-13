@@ -4,7 +4,7 @@ import { getWeComBaseUrl } from '../../shared/transport';
 
 /**
  * 延长试用期
- * 官方文档：https://developer.work.weixin.qq.com/document/path/90600
+ * 官方文档：https://developer.work.weixin.qq.com/document/path/91913
  *
  * 用途：
  * - 服务商可以使用该接口延长应用的试用期
@@ -21,10 +21,10 @@ export async function prolongTry(
 	this: IExecuteFunctions,
 	index: number,
 ): Promise<IDataObject> {
-	const suiteAccessToken = this.getNodeParameter('suiteAccessToken', index) as string;
-	const buyerCorpid = this.getNodeParameter('buyerCorpid', index) as string;
-	const prolongDays = this.getNodeParameter('prolongDays', index) as number;
-	const appid = this.getNodeParameter('appid', index) as number | undefined;
+	const suiteAccessToken = String(this.getNodeParameter('suiteAccessToken', index) ?? '').trim();
+	const buyerCorpid = String(this.getNodeParameter('buyerCorpid', index) ?? '').trim();
+	const prolongDays = Number(this.getNodeParameter('prolongDays', index));
+	const includeAppid = this.getNodeParameter('includeAppid', index, false) as boolean;
 
 	if (!suiteAccessToken) {
 		throw new NodeOperationError(
@@ -42,10 +42,10 @@ export async function prolongTry(
 		);
 	}
 
-	if (!prolongDays || prolongDays <= 0) {
+	if (!Number.isSafeInteger(prolongDays) || prolongDays < 1 || prolongDays > 60) {
 		throw new NodeOperationError(
 			this.getNode(),
-			'延长天数必须大于0',
+			'延长天数必须是 1–60 的整数',
 			{ itemIndex: index },
 		);
 	}
@@ -55,7 +55,13 @@ export async function prolongTry(
 		prolong_days: prolongDays,
 	};
 
-	if (appid !== undefined) {
+	if (includeAppid) {
+		const appid = Number(this.getNodeParameter('appid', index));
+		if (!Number.isSafeInteger(appid) || appid <= 0) {
+			throw new NodeOperationError(this.getNode(), '旧套件应用 ID 必须是正整数', {
+				itemIndex: index,
+			});
+		}
 		body.appid = appid;
 	}
 
@@ -82,6 +88,7 @@ export async function prolongTry(
 
 		return response;
 	} catch (error) {
+		if (error instanceof NodeOperationError) throw error;
 		const err = error as Error;
 		throw new NodeOperationError(
 			this.getNode(),

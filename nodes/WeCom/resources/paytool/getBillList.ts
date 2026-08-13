@@ -1,118 +1,74 @@
 import type { IExecuteFunctions, IDataObject, IHttpRequestOptions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { getWeComBaseUrl } from '../../shared/transport';
+import {
+	dateTimeToUnixTimestamp,
+	fail,
+	optionalText,
+	requireInteger,
+	requireText,
+} from './utils';
 
-/**
- * 获取代支付流水
- * 官方文档：https://developer.work.weixin.qq.com/document/path/99602
- *
- * 用途：
- * - 服务商可通过此接口获取使用量代付流水
- * - 企业通过代付产生使用量后，次日可在获客助手中查看代付的订单记录
- *
- * 注意事项：
- * - 需要suite_access_token（获客助手组件的应用凭证）
- * - 流水的起止间隔不能超过31天
- * - 若需要与企业侧使用量统计周期一致，请按当天的0时0分01秒到第二天的0时0分0秒的时间戳查询
- *
- * @returns 代支付流水记录列表
- */
+/** 获取代支付流水：https://developer.work.weixin.qq.com/document/path/99602 */
 export async function getBillList(
 	this: IExecuteFunctions,
 	index: number,
 ): Promise<IDataObject> {
-	// 辅助函数：将dateTime转换为Unix时间戳（秒级）
-	function dateTimeToUnixTimestamp(dateTime: string | number): number {
-		if (typeof dateTime === 'number') {
-			return dateTime;
-		}
-		if (!dateTime || dateTime === '') {
-			return 0;
-		}
-		return Math.floor(new Date(dateTime).getTime() / 1000);
+	const suiteAccessToken = requireText(
+		this,
+		this.getNodeParameter('suiteAccessToken', index),
+		'Suite Access Token',
+		index,
+	);
+	const beginTime = dateTimeToUnixTimestamp(this.getNodeParameter('beginTime', index));
+	const endTime = dateTimeToUnixTimestamp(this.getNodeParameter('endTime', index));
+	if (!beginTime) fail(this, '流水记录开始时间无效', index);
+	if (!endTime) fail(this, '流水记录结束时间无效', index);
+	if (beginTime > endTime) fail(this, '流水记录开始时间不能晚于结束时间', index);
+	if (endTime - beginTime > 31 * 86400) {
+		fail(this, '流水记录起止间隔不能超过 31 天', index);
 	}
-
-	const suiteAccessToken = this.getNodeParameter('suiteAccessToken', index) as string;
-	const beginTime = dateTimeToUnixTimestamp(this.getNodeParameter('beginTime', index) as string | number);
-	const endTime = dateTimeToUnixTimestamp(this.getNodeParameter('endTime', index) as string | number);
-	const authCorpid = this.getNodeParameter('authCorpid', index) as string;
-	const cursor = this.getNodeParameter('cursor', index, '') as string | undefined;
-	const limit = this.getNodeParameter('limit', index, 100) as number | undefined;
-
-	if (!suiteAccessToken) {
-		throw new NodeOperationError(
-			this.getNode(),
-			'Suite Access Token不能为空',
-			{ itemIndex: index },
-		);
-	}
-
-	if (!beginTime) {
-		throw new NodeOperationError(
-			this.getNode(),
-			'流水记录开始时间不能为空',
-			{ itemIndex: index },
-		);
-	}
-
-	if (!endTime) {
-		throw new NodeOperationError(
-			this.getNode(),
-			'流水记录结束时间不能为空',
-			{ itemIndex: index },
-		);
-	}
-
-	if (!authCorpid) {
-		throw new NodeOperationError(
-			this.getNode(),
-			'授权企业corpid不能为空',
-			{ itemIndex: index },
-		);
-	}
-
+	const authCorpid = requireText(
+		this,
+		this.getNodeParameter('authCorpid', index),
+		'授权企业 CorpID',
+		index,
+	);
+	const limit = requireInteger(
+		this,
+		this.getNodeParameter('limit', index, 100),
+		'返回数量',
+		index,
+		1,
+		1000,
+	);
 	const body: IDataObject = {
 		begin_time: beginTime,
 		end_time: endTime,
 		auth_corpid: authCorpid,
+		limit,
 	};
-
-	if (cursor) {
-		body.cursor = cursor;
-	}
-
-	if (limit) {
-		body.limit = limit;
-	}
-
-	const options: IHttpRequestOptions = {
+	const cursor = optionalText(this, this.getNodeParameter('cursor', index, ''), '分页游标', index);
+	if (cursor) body.cursor = cursor;
+	const request: IHttpRequestOptions = {
 		method: 'POST',
 		url: `${await getWeComBaseUrl.call(this)}/cgi-bin/service/customer_acquisition/get_bill_list`,
-		qs: {
-			suite_access_token: suiteAccessToken,
-		},
+		qs: { suite_access_token: suiteAccessToken },
 		body,
 		json: true,
 	};
-
 	try {
-		const response = (await this.helpers.httpRequest(options)) as IDataObject;
-
-		if (response.errcode !== undefined && response.errcode !== 0) {
-			throw new NodeOperationError(
-				this.getNode(),
+		const response = (await this.helpers.httpRequest(request)) as IDataObject;
+		if (response.errcode !== undefined && Number(response.errcode) !== 0) {
+			fail(
+				this,
 				`获取代支付流水失败: ${response.errmsg} (错误码: ${response.errcode})`,
-				{ itemIndex: index },
+				index,
 			);
 		}
-
 		return response;
 	} catch (error) {
-		const err = error as Error;
-		throw new NodeOperationError(
-			this.getNode(),
-			`获取代支付流水失败: ${err.message}`,
-			{ itemIndex: index },
-		);
+		if (error instanceof NodeOperationError) throw error;
+		fail(this, `获取代支付流水失败: ${(error as Error).message}`, index);
 	}
 }

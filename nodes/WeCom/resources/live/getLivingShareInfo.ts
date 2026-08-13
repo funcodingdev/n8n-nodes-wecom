@@ -4,25 +4,12 @@ const showOnly = { resource: ['live'], operation: ['getLivingShareInfo'] };
 
 export const getLivingShareInfoDescription: INodeProperties[] = [
 	{
-		displayName: '直播ID',
-		name: 'livingid',
+		displayName: '直播分享码',
+		name: 'ww_share_code',
 		type: 'string',
 		required: true,
 		displayOptions: { show: showOnly },
 		default: '',
-		placeholder: 'livingid',
-	},
-	{
-		displayName: '分享类型',
-		name: 'wwshare',
-		type: 'options',
-		required: true,
-		displayOptions: { show: showOnly },
-		options: [
-			{ name: '微信分享链接', value: 0 },
-			{ name: '企业微信分享链接', value: 1 },
-		],
-		default: 0,
-		description: '是否获取企业微信分享链接',
+		description: '小程序商城路径中的 ww_share_code，五分钟内有效',
 	},
 ];

@@ -7,11 +7,12 @@ const showOnlyGetAgent = {
 
 export const getAgentDescription: INodeProperties[] = [
 	{
-		displayName: '应用ID',
+		displayName: '应用 ID',
 		name: 'agentid',
 		type: 'number',
 		required: true,
 		default: 0,
+		typeOptions: { minValue: 1, numberStepSize: 1 },
 		displayOptions: {
 			show: showOnlyGetAgent,
 		},

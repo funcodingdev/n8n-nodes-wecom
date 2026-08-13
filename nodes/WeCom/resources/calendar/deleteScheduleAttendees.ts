@@ -17,6 +17,7 @@ export const deleteScheduleAttendeesDescription: INodeProperties[] = [
 		displayName: '参与者',
 		name: 'attendeesCollection',
 		type: 'fixedCollection',
+		required: true,
 		displayOptions: { show: showOnly },
 		default: {},
 		placeholder: '添加要删除的参与者',

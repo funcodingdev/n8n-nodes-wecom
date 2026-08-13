@@ -18,11 +18,11 @@ export const transServiceStateDescription: INodeProperties[] = [
 			show: showOnlyForTransServiceState,
 		},
 		default: '',
-		description: '客服账号的唯一标识ID。<a href="https://developer.work.weixin.qq.com/document/path/94669" target="_blank">官方文档</a>.',
+		description: '要变更会话状态的客服账号。<a href="https://developer.work.weixin.qq.com/document/path/94669" target="_blank">官方文档</a>',
 		placeholder: 'wkxxxxxxxxxxxxxxxxxx',
 	},
 	{
-		displayName: '外部联系人ID',
+		displayName: '客户 External UserID',
 		name: 'external_userid',
 		type: 'string',
 		required: true,
@@ -30,7 +30,7 @@ export const transServiceStateDescription: INodeProperties[] = [
 			show: showOnlyForTransServiceState,
 		},
 		default: '',
-		description: '客户的外部联系人UserID，以"wm"开头。<a href="https://developer.work.weixin.qq.com/document/path/94669" target="_blank">官方文档</a>',
+		description: '要变更会话状态的微信客户 external_userid。<a href="https://developer.work.weixin.qq.com/document/path/94669" target="_blank">官方文档</a>',
 		placeholder: 'wmxxxxxxxxxxxxxxxxxx',
 	},
 	{
@@ -43,15 +43,7 @@ export const transServiceStateDescription: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: '未处理',
-				value: 0,
-			},
-			{
-				name: '由智能助手接待',
-				value: 1,
-			},
-			{
-				name: '待人工接待',
+				name: '转入待接入池',
 				value: 2,
 			},
 			{
@@ -64,18 +56,21 @@ export const transServiceStateDescription: INodeProperties[] = [
 			},
 		],
 		default: 3,
-		description: '变更后的服务状态。0-未处理 1-由智能助手接待 2-待人工接待 3-由人工接待 4-已结束。<a href="https://developer.work.weixin.qq.com/document/path/94669" target="_blank">官方文档</a>',
+		description: '目标状态。实际可用流转取决于当前状态；状态 4 不允许继续变更。<a href="https://developer.work.weixin.qq.com/document/path/94669" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '接待人员UserID',
+		displayName: '接待人员',
 		name: 'servicer_userid',
-		type: 'string',
+		type: 'options',
+		typeOptions: {
+			loadOptionsMethod: 'getAllUsers',
+		},
+		required: true,
 		displayOptions: {
-			show: showOnlyForTransServiceState,
+			show: { ...showOnlyForTransServiceState, service_state: [3] },
 		},
 		default: '',
-		description: '接待人员的UserID，当service_state为3（由人工接待）时必填。<a href="https://developer.work.weixin.qq.com/document/path/94669" target="_blank">官方文档</a>',
+		description: '目标状态为“由人工接待”时必填；接待人员必须已激活且正在接待。第三方应用使用密文 UserID。<a href="https://developer.work.weixin.qq.com/document/path/94669" target="_blank">官方文档</a>',
 		placeholder: 'zhangsan',
 	},
 ];
-
