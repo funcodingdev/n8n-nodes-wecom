@@ -82,6 +82,15 @@ export const updateRecurringScheduleDescription: INodeProperties[] = [
 		description: '最多 1000 人；与上方 UserID 列表合并',
 	},
 	{
+		displayName: '参与者列表 JSON',
+		name: 'attendeesJson',
+		type: 'json',
+		displayOptions: { show: showOnlyForUpdateRecurring },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '管理员UserID列表',
 		name: 'admin_userids',
 		type: 'string',
@@ -98,6 +107,15 @@ export const updateRecurringScheduleDescription: INodeProperties[] = [
 		typeOptions: { loadOptionsMethod: 'getAllUsers' },
 		default: [],
 		description: '最多 3 人；与上方 UserID 列表合并',
+	},
+	{
+		displayName: '管理员列表 JSON',
+		name: 'adminsJson',
+		type: 'json',
+		displayOptions: { show: showOnlyForUpdateRecurring },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重，最多 3 人。支持 ["userid1"] 或 [{"userid":"userid1"}]',
 	},
 	{
 		displayName: '日程扩展JSON',

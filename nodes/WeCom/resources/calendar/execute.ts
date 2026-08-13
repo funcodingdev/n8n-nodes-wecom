@@ -157,16 +157,69 @@ function normalizeUserIdSources(
 	});
 }
 
+function parseSharesJson(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): IDataObject[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	const rows: IDataObject[] = [];
+	for (const [index, entry] of parsed.entries()) {
+		if (typeof entry === 'string' || typeof entry === 'number') {
+			const userid = text(context, entry, `${label}第 ${index + 1} 项`, itemIndex, 64);
+			rows.push({ userid, permission: 1 });
+			continue;
+		}
+		if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+			const row = entry as IDataObject;
+			const userid = text(
+				context,
+				row.userid || row.userid_selected || row.user_id,
+				`${label}第 ${index + 1} 项 UserID`,
+				itemIndex,
+				64,
+			);
+			const permission = integer(
+				context,
+				row.permission ?? 1,
+				`${label}第 ${index + 1} 项权限`,
+				itemIndex,
+				1,
+				3,
+			);
+			if (permission !== 1 && permission !== 3) fail(context, '通知成员权限只能是 1 或 3', itemIndex);
+			rows.push({ userid, permission });
+			continue;
+		}
+		fail(context, `${label}第 ${index + 1} 项必须是字符串或含 userid 的对象`, itemIndex);
+	}
+	return rows;
+}
+
 function calendarShares(
 	context: IExecuteFunctions,
 	collection: IDataObject,
 	itemIndex: number,
 	extraUserids: unknown = '',
+	sharesJson: unknown = '[]',
 ): IDataObject[] {
 	const shares = new Map<string, IDataObject>();
 	for (const userid of stringList(context, extraUserids, '通知成员', itemIndex, 0, 2000)) {
 		const id = text(context, userid, '通知成员 UserID', itemIndex, 64);
 		shares.set(id, { userid: id, permission: 1 });
+	}
+	for (const share of parseSharesJson(context, sharesJson, '通知范围 JSON', itemIndex)) {
+		shares.set(String(share.userid), share);
 	}
 	const rawShares = (collection.shares as IDataObject[]) || [];
 	for (const [index, rawShare] of rawShares.entries()) {
@@ -333,6 +386,12 @@ export async function executeCalendar(
 					[
 						this.getNodeParameter('admin_userids', i, ''),
 						...(this.getNodeParameter('admins', i, []) as string[]),
+						...normalizeUserIdSources(
+							this,
+							this.getNodeParameter('adminsJson', i, '[]'),
+							'管理员列表 JSON',
+							i,
+						),
 					],
 					'日历管理员',
 					i,
@@ -349,6 +408,12 @@ export async function executeCalendar(
 					[
 						this.getNodeParameter('public_userids', i, ''),
 						this.getNodeParameter('public_userids_selected', i, []),
+						...normalizeUserIdSources(
+							this,
+							this.getNodeParameter('publicUseridsJson', i, '[]'),
+							'公开成员 JSON',
+							i,
+						),
 					],
 					[
 						this.getNodeParameter('public_partyids', i, ''),
@@ -364,6 +429,7 @@ export async function executeCalendar(
 						this.getNodeParameter('share_userids', i, ''),
 						this.getNodeParameter('share_userids_selected', i, []),
 					],
+					this.getNodeParameter('sharesJson', i, '[]'),
 				);
 				if (admins.length) {
 					const shareUserids = new Set(shares.map((share) => String(share.userid)));
@@ -445,6 +511,12 @@ export async function executeCalendar(
 					[
 						this.getNodeParameter('admin_userids', i, ''),
 						...(this.getNodeParameter('admins', i, []) as string[]),
+						...normalizeUserIdSources(
+							this,
+							this.getNodeParameter('adminsJson', i, '[]'),
+							'管理员列表 JSON',
+							i,
+						),
 					],
 					'日历管理员',
 					i,
@@ -460,6 +532,7 @@ export async function executeCalendar(
 						this.getNodeParameter('share_userids', i, ''),
 						this.getNodeParameter('share_userids_selected', i, []),
 					],
+					this.getNodeParameter('sharesJson', i, '[]'),
 				);
 				if (shares.length) calendar.shares = shares;
 				const skipRange = this.getNodeParameter('skip_public_range', i, false) as boolean;
@@ -471,6 +544,12 @@ export async function executeCalendar(
 						[
 							this.getNodeParameter('public_userids', i, ''),
 							this.getNodeParameter('public_userids_selected', i, []),
+							...normalizeUserIdSources(
+								this,
+								this.getNodeParameter('publicUseridsJson', i, '[]'),
+								'公开成员 JSON',
+								i,
+							),
 						],
 						[
 							this.getNodeParameter('public_partyids', i, ''),
@@ -511,6 +590,12 @@ export async function executeCalendar(
 					[
 						this.getNodeParameter('admin_userids', i, ''),
 						...(this.getNodeParameter('admins', i, []) as string[]),
+						...normalizeUserIdSources(
+							this,
+							this.getNodeParameter('adminsJson', i, '[]'),
+							'管理员列表 JSON',
+							i,
+						),
 					],
 					'日程管理员',
 					i,
@@ -522,6 +607,12 @@ export async function executeCalendar(
 					[
 						this.getNodeParameter('attendee_userids', i, ''),
 						...(this.getNodeParameter('attendees', i, []) as string[]),
+						...normalizeUserIdSources(
+							this,
+							this.getNodeParameter('attendeesJson', i, '[]'),
+							'参与者列表 JSON',
+							i,
+						),
 						...admins,
 					],
 					'日程参与者',
@@ -604,6 +695,12 @@ export async function executeCalendar(
 					[
 						this.getNodeParameter('admin_userids', i, ''),
 						...(this.getNodeParameter('admins', i, []) as string[]),
+						...normalizeUserIdSources(
+							this,
+							this.getNodeParameter('adminsJson', i, '[]'),
+							'管理员列表 JSON',
+							i,
+						),
 					],
 					'日程管理员',
 					i,
@@ -615,6 +712,12 @@ export async function executeCalendar(
 					[
 						this.getNodeParameter('attendee_userids', i, ''),
 						...(this.getNodeParameter('attendees', i, []) as string[]),
+						...normalizeUserIdSources(
+							this,
+							this.getNodeParameter('attendeesJson', i, '[]'),
+							'参与者列表 JSON',
+							i,
+						),
 					],
 					'日程参与者',
 					i,
@@ -755,6 +858,12 @@ export async function executeCalendar(
 					[
 						this.getNodeParameter('admin_userids', i, ''),
 						...(this.getNodeParameter('admins', i, []) as string[]),
+						...normalizeUserIdSources(
+							this,
+							this.getNodeParameter('adminsJson', i, '[]'),
+							'管理员列表 JSON',
+							i,
+						),
 					],
 					'日程管理员',
 					i,
@@ -768,6 +877,12 @@ export async function executeCalendar(
 						[
 							this.getNodeParameter('attendee_userids', i, ''),
 							...(this.getNodeParameter('attendees', i, []) as string[]),
+							...normalizeUserIdSources(
+								this,
+								this.getNodeParameter('attendeesJson', i, '[]'),
+								'参与者列表 JSON',
+								i,
+							),
 							...admins,
 						],
 						'日程参与者',

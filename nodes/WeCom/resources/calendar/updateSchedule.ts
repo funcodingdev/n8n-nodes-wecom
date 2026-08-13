@@ -98,6 +98,15 @@ export const updateScheduleDescription: INodeProperties[] = [
 			'日程参与者列表。最多支持1000人。注意：更新操作是覆盖式，如果需要增量式更新成员，可使用"新增日程参与者"与"删除日程参与者"接口',
 	},
 	{
+		displayName: '参与者列表 JSON',
+		name: 'attendeesJson',
+		type: 'json',
+		displayOptions: { show: showOnlyForUpdate },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '管理员UserID列表',
 		name: 'admin_userids',
 		type: 'string',
@@ -116,6 +125,15 @@ export const updateScheduleDescription: INodeProperties[] = [
 		},
 		default: [],
 		description: '日程管理员，最多 3 人；须在参与者中',
+	},
+	{
+		displayName: '管理员列表 JSON',
+		name: 'adminsJson',
+		type: 'json',
+		displayOptions: { show: showOnlyForUpdate },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重，最多 3 人。支持 ["userid1"] 或 [{"userid":"userid1"}]',
 	},
 	{
 		displayName: '跳过参与者更新',

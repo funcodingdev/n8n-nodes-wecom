@@ -90,6 +90,17 @@ export const updateCalendarDescription: INodeProperties[] = [
 		description: '日历的管理员，最多 3 人',
 	},
 	{
+		displayName: '管理员列表 JSON',
+		name: 'adminsJson',
+		type: 'json',
+		displayOptions: {
+			show: showOnlyForUpdate,
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重，最多 3 人。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '是否不更新可订阅范围',
 		name: 'skip_public_range',
 		type: 'boolean',
@@ -126,6 +137,20 @@ export const updateCalendarDescription: INodeProperties[] = [
 		},
 		default: [],
 		description: '与上方公开成员列表合并去重',
+	},
+	{
+		displayName: '公开成员 JSON',
+		name: 'publicUseridsJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				...showOnlyForUpdate,
+				skip_public_range: [false],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
 	},
 	{
 		displayName: '公开部门ID列表',
@@ -212,6 +237,17 @@ export const updateCalendarDescription: INodeProperties[] = [
 		},
 		default: [],
 		description: '与上方列表合并去重；默认权限「可查看」',
+	},
+	{
+		displayName: '通知范围 JSON',
+		name: 'sharesJson',
+		type: 'json',
+		displayOptions: {
+			show: showOnlyForUpdate,
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择/集合合并去重。支持 ["userid1"] 或 [{"userid":"userid1","permission":1}]',
 	},
 	{
 		displayName: '日历通知范围(兼容集合)',

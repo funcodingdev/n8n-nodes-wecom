@@ -78,6 +78,15 @@ export const createScheduleDescription: INodeProperties[] = [
 		description: '日程参与者，最多 1000 人',
 	},
 	{
+		displayName: '参与者列表 JSON',
+		name: 'attendeesJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '管理员UserID列表',
 		name: 'admin_userids',
 		type: 'string',
@@ -96,6 +105,15 @@ export const createScheduleDescription: INodeProperties[] = [
 		},
 		default: [],
 		description: '日程管理员，最多 3 人；须在参与者中',
+	},
+	{
+		displayName: '管理员列表 JSON',
+		name: 'adminsJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重，最多 3 人。支持 ["userid1"] 或 [{"userid":"userid1"}]',
 	},
 	{
 		displayName: '提醒设置',
