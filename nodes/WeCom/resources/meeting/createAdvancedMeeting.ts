@@ -10,7 +10,7 @@ export const createAdvancedMeetingDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly },
 		default: '',
 		description:
-			'admin_userid。<a href="https://developer.work.weixin.qq.com/document/path/98148" target="_blank">官方文档</a>；可与下方选择二选一；可与下方选择二选一',
+			'admin_userid。<a href="https://developer.work.weixin.qq.com/document/path/98148" target="_blank">官方文档</a>；可与下方选择二选一',
 	},
 	{
 		displayName: '管理员(选择)',

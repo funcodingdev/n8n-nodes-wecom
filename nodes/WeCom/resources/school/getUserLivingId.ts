@@ -16,7 +16,7 @@ export const getUserLivingIdDescription: INodeProperties[] = [
 		default: '',
 		placeholder: 'teacher_001',
 		description:
-			'创建直播的企业成员 UserID；只能获取本应用创建的直播。<a href="https://developer.work.weixin.qq.com/document/path/93739" target="_blank">官方文档</a>；可与下方选择二选一；可与下方选择二选一',
+			'创建直播的企业成员 UserID；只能获取本应用创建的直播。<a href="https://developer.work.weixin.qq.com/document/path/93739" target="_blank">官方文档</a>；可与下方选择二选一',
 	},
 	{
 		displayName: '成员(选择)',
