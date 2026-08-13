@@ -336,7 +336,7 @@ export async function executeContact(
 					i,
 					100,
 				);
-				if (department) {
+				if (departmentArray.length) {
 					body.department = departmentArray;
 				}
 				const position = this.getNodeParameter('position', i, '') as string;
