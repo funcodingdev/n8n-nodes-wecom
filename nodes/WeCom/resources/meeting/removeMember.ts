@@ -30,7 +30,7 @@ export const removeMemberDescription: INodeProperties[] = [
 		default: {},
 		placeholder: '添加要移除的成员',
 		typeOptions: { multipleValues: true },
-		description: 'operated_users：tmp_openid + instance_id',
+		description: 'operated_users：tmp_openid + instance_id；下方 JSON 非空时覆盖表单',
 		options: [
 			{
 				displayName: '成员',
@@ -54,5 +54,14 @@ export const removeMemberDescription: INodeProperties[] = [
 				],
 			},
 		],
+	},
+	{
+		displayName: '被操作用户 JSON',
+		name: 'membersJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方表单，1–100 项。支持 [{"tmp_openid":"...","instance_id":1}]',
 	},
 ];

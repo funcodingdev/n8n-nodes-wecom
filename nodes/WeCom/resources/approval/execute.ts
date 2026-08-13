@@ -961,7 +961,21 @@ export async function executeApproval(
 				};
 				if (this.getNodeParameter('enableFilters', i, false) as boolean) {
 					const collection = this.getNodeParameter('filtersCollection', i, {}) as IDataObject;
-					const rawFilters = (collection.filters as IDataObject[]) || [];
+					const formFilters = (collection.filters as IDataObject[]) || [];
+					const jsonRaw = this.getNodeParameter('filtersJson', i, '[]');
+					let rawFilters = formFilters;
+					if (jsonRaw !== undefined && jsonRaw !== null && String(jsonRaw).trim() !== '') {
+						let parsed: unknown = jsonRaw;
+						if (typeof jsonRaw === 'string') {
+							try {
+								parsed = JSON.parse(jsonRaw);
+							} catch {
+								fail(this, '筛选条件 JSON 不是有效的 JSON', i);
+							}
+						}
+						if (!Array.isArray(parsed)) fail(this, '筛选条件 JSON 必须是数组', i);
+						if (parsed.length > 0) rawFilters = parsed as IDataObject[];
+					}
 					if (!rawFilters.length) fail(this, '启用筛选后至少添加一个筛选条件', i);
 					const seen = new Set<string>();
 					body.filters = rawFilters.map((raw) => {

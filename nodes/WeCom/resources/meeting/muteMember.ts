@@ -35,7 +35,7 @@ export const muteMemberDescription: INodeProperties[] = [
 		default: {},
 		placeholder: '填写成员',
 		typeOptions: { multipleValues: false },
-		description: 'operated_user：接口每次只接受一个会中成员',
+		description: 'operated_user：接口每次只接受一个会中成员；下方 JSON 非空时覆盖表单',
 		options: [
 			{
 				displayName: '成员',
@@ -59,5 +59,14 @@ export const muteMemberDescription: INodeProperties[] = [
 				],
 			},
 		],
+	},
+	{
+		displayName: '被操作用户 JSON',
+		name: 'membersJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方表单，且须恰好 1 项。支持 [{"tmp_openid":"...","instance_id":1}]',
 	},
 ];

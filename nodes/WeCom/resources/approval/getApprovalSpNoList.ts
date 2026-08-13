@@ -54,7 +54,7 @@ export const getApprovalSpNoListDescription: INodeProperties[] = [
 		default: {},
 		placeholder: '添加筛选条件',
 		typeOptions: { multipleValues: true },
-		description: '审批申请的筛选条件',
+		description: '审批申请的筛选条件；下方 JSON 非空时覆盖表单',
 		options: [
 			{
 				displayName: '筛选项',
@@ -82,5 +82,14 @@ export const getApprovalSpNoListDescription: INodeProperties[] = [
 				],
 			},
 		],
+	},
+	{
+		displayName: '筛选条件 JSON',
+		name: 'filtersJson',
+		type: 'json',
+		displayOptions: { show: { ...showOnly, enableFilters: [true] } },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方筛选表单。支持 [{"key":"template_id","value":"..."}]',
 	},
 ];

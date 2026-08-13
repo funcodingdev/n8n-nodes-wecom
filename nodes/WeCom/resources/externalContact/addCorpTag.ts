@@ -31,7 +31,7 @@ export const addCorpTagDescription: INodeProperties[] = [
 		default: {},
 		placeholder: '添加标签',
 		typeOptions: { multipleValues: true },
-		description: '要添加的标签列表',
+		description: '要添加的标签列表；下方 JSON 非空时覆盖表单',
 		options: [
 			{
 				displayName: '标签',
@@ -58,6 +58,15 @@ export const addCorpTagDescription: INodeProperties[] = [
 				],
 			},
 		],
+	},
+	{
+		displayName: '标签列表 JSON',
+		name: 'tagListJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方标签表单。支持 [{"name":"重要客户","order":0}]',
 	},
 	{
 		displayName: '标签组排序',

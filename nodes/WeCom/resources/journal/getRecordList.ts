@@ -54,7 +54,7 @@ export const getRecordListDescription: INodeProperties[] = [
 		default: {},
 		placeholder: '添加筛选条件',
 		typeOptions: { multipleValues: true },
-		description: '筛选条件列表',
+		description: '筛选条件列表；下方 JSON 非空时覆盖表单',
 		options: [
 			{
 				displayName: '筛选项',
@@ -100,5 +100,14 @@ export const getRecordListDescription: INodeProperties[] = [
 				],
 			},
 		],
+	},
+	{
+		displayName: '筛选条件 JSON',
+		name: 'filtersJson',
+		type: 'json',
+		displayOptions: { show: { ...showOnly, enableFilters: [true] } },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方筛选表单。支持 [{"key":"creator","value":"zhangsan"}]',
 	},
 ];

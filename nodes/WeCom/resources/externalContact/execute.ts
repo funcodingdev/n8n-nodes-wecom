@@ -263,8 +263,22 @@ export async function executeExternalContact(
 				);
 				if (!group_id && !group_name) fail(this, '标签组 ID 和标签组名称至少填写一个', i);
 
-				// 构建标签列表
-				const tag = collectionRows(tagCollection, 'tags').map((entry, tagIndex) => ({
+				// 构建标签列表（JSON 非空时覆盖表单）
+				const tagJsonRaw = this.getNodeParameter('tagListJson', i, '[]');
+				let tagEntries = collectionRows(tagCollection, 'tags');
+				if (tagJsonRaw !== undefined && tagJsonRaw !== null && String(tagJsonRaw).trim() !== '') {
+					let parsed: unknown = tagJsonRaw;
+					if (typeof tagJsonRaw === 'string') {
+						try {
+							parsed = JSON.parse(tagJsonRaw);
+						} catch {
+							fail(this, '标签列表 JSON 不是有效的 JSON', i);
+						}
+					}
+					if (!Array.isArray(parsed)) fail(this, '标签列表 JSON 必须是数组', i);
+					if (parsed.length > 0) tagEntries = parsed as IDataObject[];
+				}
+				const tag = tagEntries.map((entry, tagIndex) => ({
 					name: requireText(this, entry.name, `第 ${tagIndex + 1} 个标签名称`, i, 30),
 					order: requireInteger(
 						this,
@@ -2033,13 +2047,36 @@ export async function executeExternalContact(
 					body.text = { content: text_content };
 				}
 
-				// 附件列表
+				// 附件列表（JSON 非空时覆盖表单）
 				if (enableAttachments) {
-					body.attachments = buildMessageAttachments(
-						this,
-						i,
-						this.getNodeParameter('attachments', i, {}),
-					);
+					const attachmentsJson = this.getNodeParameter('attachmentsJson', i, '[]');
+					let usedJson = false;
+					if (
+						attachmentsJson !== undefined &&
+						attachmentsJson !== null &&
+						String(attachmentsJson).trim() !== ''
+					) {
+						let parsed: unknown = attachmentsJson;
+						if (typeof attachmentsJson === 'string') {
+							try {
+								parsed = JSON.parse(attachmentsJson);
+							} catch {
+								fail(this, '附件列表 JSON 不是有效的 JSON', i);
+							}
+						}
+						if (!Array.isArray(parsed)) fail(this, '附件列表 JSON 必须是数组', i);
+						if (parsed.length > 0) {
+							body.attachments = parsed as IDataObject[];
+							usedJson = true;
+						}
+					}
+					if (!usedJson) {
+						body.attachments = buildMessageAttachments(
+							this,
+							i,
+							this.getNodeParameter('attachments', i, {}),
+						);
+					}
 				}
 				if (!body.text && !body.attachments) fail(this, '欢迎语文本和附件不能同时为空', i);
 
@@ -2328,7 +2365,13 @@ export async function executeExternalContact(
 				const body: IDataObject = {
 					description,
 					price,
-					attachments: productImageAttachments(this, attachmentCollection, '商品图片', i),
+					attachments: productImageAttachments(
+						this,
+						attachmentCollection,
+						'商品图片',
+						i,
+						this.getNodeParameter('attachmentsJson', i, '[]'),
+					),
 				};
 				if (product_sn) body.product_sn = product_sn;
 
@@ -2381,7 +2424,13 @@ export async function executeExternalContact(
 				}
 				if (updateAttachments) {
 					const attachmentCollection = this.getNodeParameter('attachmentCollection', i, {}) as IDataObject;
-					body.attachments = productImageAttachments(this, attachmentCollection, '商品图片', i);
+					body.attachments = productImageAttachments(
+						this,
+						attachmentCollection,
+						'商品图片',
+						i,
+						this.getNodeParameter('attachmentsJson', i, '[]'),
+					);
 				}
 				if (!updateDescription && !updatePrice && !updateProductSn && !updateAttachments) {
 					fail(this, '至少选择一个要更新的商品字段', i);

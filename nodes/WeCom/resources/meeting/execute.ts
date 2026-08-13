@@ -1851,13 +1851,19 @@ export async function executeMeeting(
 					2,
 				);
 				const membersCollection = this.getNodeParameter('membersCollection', i, {}) as IDataObject;
-
+				const jsonMembers = jsonArray(
+					this,
+					this.getNodeParameter('membersJson', i, '[]'),
+					'被操作用户 JSON',
+					i,
+				);
 				const rawMembers = membersCollection.members;
-				const members = Array.isArray(rawMembers)
+				const formMembers = Array.isArray(rawMembers)
 					? (rawMembers as IDataObject[])
 					: rawMembers && typeof rawMembers === 'object'
 						? [rawMembers as IDataObject]
 						: [];
+				const members = jsonMembers.length ? (jsonMembers as IDataObject[]) : formMembers;
 				if (members.length !== 1) fail(this, '静音操作每次必须且只能指定一个成员', i);
 				const member = members[0];
 				const operated_user: IDataObject = {
@@ -1881,8 +1887,14 @@ export async function executeMeeting(
 				const meetingid = text(this, this.getNodeParameter('meetingid', i), '会议 ID', i, 128);
 				const membersCollection = this.getNodeParameter('membersCollection', i, {}) as IDataObject;
 				const allow_rejoin = this.getNodeParameter('allow_rejoin', i, true) as boolean;
-
-				const members = (membersCollection.members as IDataObject[]) || [];
+				const jsonMembers = jsonArray(
+					this,
+					this.getNodeParameter('membersJson', i, '[]'),
+					'被操作用户 JSON',
+					i,
+				);
+				const formMembers = (membersCollection.members as IDataObject[]) || [];
+				const members = jsonMembers.length ? (jsonMembers as IDataObject[]) : formMembers;
 				if (members.length < 1 || members.length > 100) {
 					fail(this, '被移出成员数量必须为 1–100 个', i);
 				}

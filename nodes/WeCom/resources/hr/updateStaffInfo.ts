@@ -156,6 +156,24 @@ export const updateStaffInfoDescription: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: '更新字段 JSON',
+		name: 'updateItemsJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方「更新字段」表单。支持 [{"fieldid":1,"sub_idx":0,"value_string":"..."}]',
+	},
+	{
+		displayName: '删除字段组 JSON',
+		name: 'removeItemsJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方「删除可重复字段组」表单。支持 [{"group_type":1,"sub_idx":0}]',
+	},
+	{
 		displayName: '插入字段组JSON',
 		name: 'insertItemsJson',
 		type: 'json',

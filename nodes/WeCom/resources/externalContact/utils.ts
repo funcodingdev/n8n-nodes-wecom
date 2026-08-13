@@ -522,8 +522,31 @@ export function productImageAttachments(
 	value: unknown,
 	label: string,
 	itemIndex: number,
+	jsonOverride?: unknown,
 ): IDataObject[] {
-	const rows = collectionRows(value, 'attachments');
+	let rows = collectionRows(value, 'attachments');
+	if (jsonOverride !== undefined && jsonOverride !== null && String(jsonOverride).trim() !== '') {
+		let parsed: unknown = jsonOverride;
+		if (typeof jsonOverride === 'string') {
+			try {
+				parsed = JSON.parse(jsonOverride);
+			} catch {
+				fail(context, `${label} JSON 不是有效的 JSON`, itemIndex);
+			}
+		}
+		if (!Array.isArray(parsed)) fail(context, `${label} JSON 必须是数组`, itemIndex);
+		if (parsed.length > 0) {
+			rows = (parsed as unknown[]).map((entry, index) => {
+				if (typeof entry === 'string' || typeof entry === 'number') {
+					return { media_id: entry };
+				}
+				if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+					return entry as IDataObject;
+				}
+				fail(context, `${label} JSON 第 ${index + 1} 项必须是字符串或含 media_id 的对象`, itemIndex);
+			});
+		}
+	}
 	if (rows.length < 1 || rows.length > 9) {
 		fail(context, `${label}数量必须为 1–9 个`, itemIndex);
 	}

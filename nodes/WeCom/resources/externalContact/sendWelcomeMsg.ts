@@ -50,7 +50,7 @@ export const sendWelcomeMsgDescription: INodeProperties[] = [
 		default: {},
 		displayOptions: { show: { ...showOnly, enableAttachments: [true] } },
 		placeholder: '添加附件',
-		description: '最多可添加9个附件，可以是图片、链接、小程序、视频或文件',
+		description: '最多可添加9个附件，可以是图片、链接、小程序、视频或文件；下方 JSON 非空时覆盖表单',
 		options: [
 			{
 				displayName: '图片附件',
@@ -176,5 +176,14 @@ export const sendWelcomeMsgDescription: INodeProperties[] = [
 				],
 			},
 		],
+	},
+	{
+		displayName: '附件列表 JSON',
+		name: 'attachmentsJson',
+		type: 'json',
+		displayOptions: { show: { ...showOnly, enableAttachments: [true] } },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方附件表单。支持官方 attachments 结构，例如 [{"msgtype":"image","image":{"media_id":"..."}}]',
 	},
 ];

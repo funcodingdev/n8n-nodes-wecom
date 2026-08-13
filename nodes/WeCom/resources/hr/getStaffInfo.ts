@@ -38,6 +38,7 @@ export const getStaffInfoDescription: INodeProperties[] = [
 		default: {},
 		placeholder: '添加字段',
 		typeOptions: { multipleValues: true },
+		description: '下方 JSON 非空时覆盖此表单',
 		options: [
 			{
 				displayName: '字段',
@@ -64,5 +65,14 @@ export const getStaffInfoDescription: INodeProperties[] = [
 				],
 			},
 		],
+	},
+	{
+		displayName: '指定字段 JSON',
+		name: 'fieldidsJson',
+		type: 'json',
+		displayOptions: { show: { ...showOnly, get_all: [false] } },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方表单。支持 [{"fieldid":1,"sub_idx":0}]',
 	},
 ];

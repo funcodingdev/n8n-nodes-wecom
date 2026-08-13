@@ -301,7 +301,21 @@ export async function executeHr(
 				};
 				if (!getAll) {
 					const collection = this.getNodeParameter('fieldidsCollection', i, {}) as IDataObject;
-					const rawFields = (collection.fields as IDataObject[]) || [];
+					const formFields = (collection.fields as IDataObject[]) || [];
+					const jsonRaw = this.getNodeParameter('fieldidsJson', i, '[]');
+					let rawFields = formFields;
+					if (jsonRaw !== undefined && jsonRaw !== null && String(jsonRaw).trim() !== '') {
+						let parsed: unknown = jsonRaw;
+						if (typeof jsonRaw === 'string') {
+							try {
+								parsed = JSON.parse(jsonRaw);
+							} catch {
+								fail(this, '指定字段 JSON 不是有效的 JSON', i);
+							}
+						}
+						if (!Array.isArray(parsed)) fail(this, '指定字段 JSON 必须是数组', i);
+						if (parsed.length > 0) rawFields = parsed as IDataObject[];
+					}
 					if (!rawFields.length) fail(this, '不获取全部字段时必须指定至少一个字段', i);
 					const seen = new Set<string>();
 					body.fieldids = rawFields.map((raw, index) => {
@@ -326,20 +340,44 @@ export async function executeHr(
 					this.getNodeParameter('fieldsCollection', i, {}) as IDataObject,
 					i,
 				);
+				const updateJson = jsonValue(
+					this,
+					this.getNodeParameter('updateItemsJson', i, '[]'),
+					'更新字段 JSON',
+					i,
+				);
 				const removeCollection = this.getNodeParameter(
 					'removeItemsCollection',
 					i,
 					{},
 				) as IDataObject;
 				const formRemoves = (removeCollection.items as IDataObject[]) || [];
+				const removeJson = jsonValue(
+					this,
+					this.getNodeParameter('removeItemsJson', i, '[]'),
+					'删除字段组 JSON',
+					i,
+				);
 				const insertJson = jsonValue(
 					this,
 					this.getNodeParameter('insertItemsJson', i, '[]'),
 					'插入字段组',
 					i,
 				);
-				const updateItems = normalizeUpdateItems(this, extra.update_items ?? formUpdates, i);
-				const removeItems = normalizeRemoveItems(this, extra.remove_items ?? formRemoves, i);
+				const updateFromJson =
+					Array.isArray(updateJson) && updateJson.length > 0 ? updateJson : formUpdates;
+				const removeFromJson =
+					Array.isArray(removeJson) && removeJson.length > 0 ? removeJson : formRemoves;
+				const updateItems = normalizeUpdateItems(
+					this,
+					extra.update_items ?? updateFromJson,
+					i,
+				);
+				const removeItems = normalizeRemoveItems(
+					this,
+					extra.remove_items ?? removeFromJson,
+					i,
+				);
 				const insertItems = normalizeInsertItems(this, extra.insert_items ?? insertJson, i);
 				if (!updateItems.length && !removeItems.length && !insertItems.length) {
 					fail(this, '更新字段、删除字段组和插入字段组不能全部为空', i);

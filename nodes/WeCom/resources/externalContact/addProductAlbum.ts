@@ -42,7 +42,8 @@ export const addProductAlbumDescription: INodeProperties[] = [
 		default: {},
 		placeholder: '添加图片',
 		typeOptions: { multipleValues: true },
-		description: '商品图片列表，必须填写 1–9 个；仅支持通过“上传附件资源”操作获得的资源',
+		description:
+			'商品图片列表，必须填写 1–9 个；下方 JSON 非空时覆盖表单；仅支持通过“上传附件资源”操作获得的资源',
 		options: [
 			{
 				displayName: '图片',
@@ -59,5 +60,14 @@ export const addProductAlbumDescription: INodeProperties[] = [
 				],
 			},
 		],
+	},
+	{
+		displayName: '商品图片 JSON',
+		name: 'attachmentsJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方图片表单。支持 [{"media_id":"..."}] 或 ["media_id"]',
 	},
 ];
