@@ -1250,8 +1250,23 @@ export const licenseDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '激活码列表，最多 1000 个；支持使用逗号、竖线或换行分隔，重复值会自动去除',
+		description:
+			'激活码列表，最多 1000 个；支持使用逗号、竖线或换行分隔，重复值会自动去除；与下方 JSON 合并',
 		placeholder: '例如：code1,code2,code3',
+	},
+	{
+		displayName: '激活码列表 JSON',
+		name: 'activeCodeListJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['license'],
+				operation: ['batchGetActiveInfoByCode'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["code1"] 或 [{"active_code":"code1"}]',
 	},
 	{
 		displayName: '企业ID',

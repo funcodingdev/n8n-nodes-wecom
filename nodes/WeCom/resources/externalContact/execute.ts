@@ -3188,8 +3188,26 @@ export async function executeExternalContact(
 					}
 				}
 				if (operation === 'externalcontactGetStrategyTagList' || operation === 'externalcontactDelStrategyTag') {
-					bodyDefaults.tag_id = this.getNodeParameter('strategy_tag_ids', i, '') as string;
-					bodyDefaults.group_id = this.getNodeParameter('strategy_group_ids', i, '') as string;
+					bodyDefaults.tag_id = [
+						this.getNodeParameter('strategy_tag_ids', i, ''),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('strategyTagIdsJson', i, '[]'),
+							'标签 ID 列表 JSON',
+							i,
+							['tag_id', 'tagid', 'id'],
+						),
+					];
+					bodyDefaults.group_id = [
+						this.getNodeParameter('strategy_group_ids', i, ''),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('strategyGroupIdsJson', i, '[]'),
+							'标签组 ID 列表 JSON',
+							i,
+							['group_id', 'groupid', 'id'],
+						),
+					];
 				}
 				if (operation === 'externalcontactSetSubscribeMode') {
 					bodyDefaults.subscribe_mode = this.getNodeParameter('subscribe_mode', i, 1) as number;
@@ -3260,7 +3278,16 @@ export async function executeExternalContact(
 				if (operation === 'crmAddMsgTemplate') {
 					const crmMsgText = optionalByteText(this, this.getNodeParameter('crm_msg_text', i, ''), '群发文本内容', i, 4000);
 					if (crmMsgText) bodyDefaults.text = { content: crmMsgText };
-					bodyDefaults.external_userid = this.getNodeParameter('crm_external_userid_list', i, '') as string;
+					bodyDefaults.external_userid = [
+						this.getNodeParameter('crm_external_userid_list', i, ''),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('crmExternalUseridListJson', i, '[]'),
+							'群发接收客户 JSON',
+							i,
+							['external_userid', 'externalUserid', 'userid', 'id'],
+						),
+					];
 					bodyDefaults.sender =
 						(this.getNodeParameter('crm_sender', i, '') as string) ||
 						(this.getNodeParameter('crm_sender_selected', i, '') as string);

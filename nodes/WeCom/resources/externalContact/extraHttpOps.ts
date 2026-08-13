@@ -689,7 +689,21 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'etXXX,etYYY',
-		description: '支持逗号、竖线或换行分隔，自动去重',
+		description: '支持逗号、竖线或换行分隔，自动去重；与下方 JSON 合并',
+	},
+	{
+		displayName: '标签 ID 列表 JSON',
+		name: 'strategyTagIdsJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactGetStrategyTagList', 'externalcontactDelStrategyTag'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["etxxx"] 或 [{"tag_id":"etxxx"}]',
 	},
 	{
 		displayName: '标签组 ID 列表',
@@ -703,7 +717,22 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'etZZZ,etWWW',
-		description: '支持逗号、竖线或换行分隔，自动去重；查询时填写后会忽略标签 ID，删除时两者不可同时为空',
+		description:
+			'支持逗号、竖线或换行分隔，自动去重；与下方 JSON 合并；查询时填写后会忽略标签 ID，删除时两者不可同时为空',
+	},
+	{
+		displayName: '标签组 ID 列表 JSON',
+		name: 'strategyGroupIdsJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactGetStrategyTagList', 'externalcontactDelStrategyTag'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["etxxx"] 或 [{"group_id":"etxxx"}]',
 	},
 	{
 		displayName: '关注模式',
@@ -761,7 +790,22 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'wmXXX,wmYYY',
-		description: '支持逗号、竖线或换行分隔，自动去重，最多 10000 个；与发送成员不能同时为空',
+		description:
+			'支持逗号、竖线或换行分隔，自动去重；与下方 JSON 合并，最多 10000 个；与发送成员不能同时为空',
+	},
+	{
+		displayName: '群发接收客户 JSON',
+		name: 'crmExternalUseridListJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['crmAddMsgTemplate'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["wmxxx"] 或 [{"external_userid":"wmxxx"}]',
 	},
 	{
 		displayName: '群发发送成员 UserID',
