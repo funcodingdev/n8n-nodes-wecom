@@ -45,12 +45,22 @@ export const getDeviceCheckinDataDescription: INodeProperties[] = [
 		displayName: '成员UserID列表',
 		name: 'useridlist',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: showOnlyForGetDeviceCheckinData,
 		},
 		default: '',
+		placeholder: 'zhangsan,lisi',
 		description:
-			'需要获取设备打卡数据的成员 UserID 列表，支持逗号、中文逗号、竖线或换行分隔，最多 100 个',
+			'需要获取设备打卡数据的成员 UserID，支持逗号/竖线/换行分隔，最多 100 个；与下方选择合并',
+	},
+	{
+		displayName: '成员(选择)',
+		name: 'useridlist_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: { show: showOnlyForGetDeviceCheckinData },
+		default: [],
+		description: '与上方列表合并去重，合计最多 100 个',
 	},
 ];
+

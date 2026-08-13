@@ -34,14 +34,22 @@ export const getCheckinDataDescription: INodeProperties[] = [
 		displayName: '成员UserID列表',
 		name: 'useridlist',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: showOnlyForGetCheckinData,
 		},
 		default: '',
 		description:
-			'需要获取打卡数据的成员UserID列表，用逗号分隔，最多100个。<a href="https://developer.work.weixin.qq.com/document/path/90262" target="_blank">官方文档</a>',
+			'需要获取打卡数据的成员 UserID，逗号分隔，最多 100 个；与下方选择合并。<a href="https://developer.work.weixin.qq.com/document/path/90262" target="_blank">官方文档</a>',
 		placeholder: 'zhangsan,lisi,wangwu',
+	},
+	{
+		displayName: '成员(选择)',
+		name: 'useridlist_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: { show: showOnlyForGetCheckinData },
+		default: [],
+		description: '与上方列表合并去重，合计最多 100 个',
 	},
 	{
 		displayName: '打卡类型',

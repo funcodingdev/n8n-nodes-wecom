@@ -581,7 +581,7 @@ export async function executeCheckin(
 			} else if (operation === 'getUserRules') {
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/checkin/getcheckinoption', {
 					datetime: timestamp(this, this.getNodeParameter('datetime', i), '规则日期', i),
-					useridlist: userids(this, this.getNodeParameter('useridlist', i), '成员列表', i),
+					useridlist: userids(this, [this.getNodeParameter('useridlist', i, ''), this.getNodeParameter('useridlist_selected', i, [])], '成员列表', i),
 				});
 			} else if (operation === 'getCheckinData') {
 				const range = timeRange(
@@ -602,7 +602,7 @@ export async function executeCheckin(
 						3,
 					),
 					...range,
-					useridlist: userids(this, this.getNodeParameter('useridlist', i), '成员列表', i),
+					useridlist: userids(this, [this.getNodeParameter('useridlist', i, ''), this.getNodeParameter('useridlist_selected', i, [])], '成员列表', i),
 				});
 			} else if (operation === 'getDailyReport' || operation === 'getMonthlyReport') {
 				const label = operation === 'getDailyReport' ? '打卡日报' : '打卡月报';
@@ -618,7 +618,7 @@ export async function executeCheckin(
 						label,
 						i,
 					),
-					useridlist: userids(this, this.getNodeParameter('useridlist', i), '成员列表', i),
+					useridlist: userids(this, [this.getNodeParameter('useridlist', i, ''), this.getNodeParameter('useridlist_selected', i, [])], '成员列表', i),
 				});
 			} else if (operation === 'getScheduleList') {
 				response = await weComApiRequest.call(
@@ -634,7 +634,7 @@ export async function executeCheckin(
 							i,
 							31 * DAY_SECONDS,
 						),
-						useridlist: userids(this, this.getNodeParameter('useridlist', i), '成员列表', i),
+						useridlist: userids(this, [this.getNodeParameter('useridlist', i, ''), this.getNodeParameter('useridlist_selected', i, [])], '成员列表', i),
 					},
 				);
 			} else if (operation === 'setScheduleList') {
@@ -808,7 +808,7 @@ export async function executeCheckin(
 							i,
 							31 * DAY_SECONDS,
 						),
-						useridlist: userids(this, this.getNodeParameter('useridlist', i), '成员列表', i),
+						useridlist: userids(this, [this.getNodeParameter('useridlist', i, ''), this.getNodeParameter('useridlist_selected', i, [])], '成员列表', i),
 					},
 				);
 			} else if (operation === 'manageRules') {
