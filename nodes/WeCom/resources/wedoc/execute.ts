@@ -178,6 +178,40 @@ function parseUserIdJson(
 	);
 }
 
+function parseStringIdJson(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	keys: string[],
+): string[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	if (parsed.length === 0) return [];
+	return listValues(
+		parsed.map((entry) => {
+			if (typeof entry === 'string' || typeof entry === 'number') return entry;
+			if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+				const row = entry as IDataObject;
+				for (const key of keys) {
+					if (row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== '') {
+						return row[key];
+					}
+				}
+			}
+			return '';
+		}),
+	);
+}
+
 function integerInRange(
 	context: IExecuteFunctions,
 	value: unknown,
@@ -1806,7 +1840,16 @@ export async function executeWedoc(
 				const sheet_id = requiredText(this, this.getNodeParameter('sheet_id', i), '子表 ID', i);
 				const view_ids = stringList(
 					this,
-					this.getNodeParameter('view_ids', i, this.getNodeParameter('view_id', i, '')),
+					[
+						this.getNodeParameter('view_ids', i, this.getNodeParameter('view_id', i, '')),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('viewIdsJson', i, '[]'),
+							'视图ID列表 JSON',
+							i,
+							['view_id', 'viewid', 'id'],
+						),
+					],
 					'视图 ID 列表',
 					i,
 					1,
@@ -1938,7 +1981,16 @@ export async function executeWedoc(
 				const sheet_id = requiredText(this, this.getNodeParameter('sheet_id', i), '子表 ID', i);
 				const field_ids = stringList(
 					this,
-					this.getNodeParameter('field_ids', i),
+					[
+						this.getNodeParameter('field_ids', i),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('fieldIdsJson', i, '[]'),
+							'字段ID列表 JSON',
+							i,
+							['field_id', 'fieldid', 'id'],
+						),
+					],
 					'字段 ID 列表',
 					i,
 					1,
@@ -2086,7 +2138,16 @@ export async function executeWedoc(
 				const sheet_id = requiredText(this, this.getNodeParameter('sheet_id', i), '子表 ID', i);
 				const record_ids = stringList(
 					this,
-					this.getNodeParameter('record_ids', i),
+					[
+						this.getNodeParameter('record_ids', i),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('recordIdsJson', i, '[]'),
+							'记录ID列表 JSON',
+							i,
+							['record_id', 'recordid', 'id'],
+						),
+					],
 					'记录 ID 列表',
 					i,
 					1,
@@ -2327,12 +2388,22 @@ export async function executeWedoc(
 			} else if (operation === 'querySmartsheetView') {
 				const docid = requiredText(this, this.getNodeParameter('docid', i), '文档 ID', i);
 				const sheet_id = requiredText(this, this.getNodeParameter('sheet_id', i), '子表 ID', i);
-				const view_ids_str = optionalText(
+				const view_ids = stringList(
 					this,
-					this.getNodeParameter('view_ids', i, ''),
+					[
+						this.getNodeParameter('view_ids', i, ''),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('viewIdsJson', i, '[]'),
+							'视图ID列表 JSON',
+							i,
+							['view_id', 'viewid', 'id'],
+						),
+					],
 					'视图 ID 列表',
 					i,
-					100000,
+					0,
+					1000,
 				);
 				const offset = integerInRange(
 					this,
@@ -2352,9 +2423,7 @@ export async function executeWedoc(
 				);
 
 				const body: IDataObject = { docid, sheet_id, offset, limit };
-				if (view_ids_str) {
-					body.view_ids = stringList(this, view_ids_str, '视图 ID 列表', i, 1, 1000);
-				}
+				if (view_ids.length) body.view_ids = view_ids;
 
 				response = await weComApiRequest.call(
 					this,
@@ -2365,12 +2434,22 @@ export async function executeWedoc(
 			} else if (operation === 'querySmartsheetField') {
 				const docid = requiredText(this, this.getNodeParameter('docid', i), '文档 ID', i);
 				const sheet_id = requiredText(this, this.getNodeParameter('sheet_id', i), '子表 ID', i);
-				const field_ids_str = optionalText(
+				const field_ids = stringList(
 					this,
-					this.getNodeParameter('field_ids', i, ''),
+					[
+						this.getNodeParameter('field_ids', i, ''),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('fieldIdsJson', i, '[]'),
+							'字段ID列表 JSON',
+							i,
+							['field_id', 'fieldid', 'id'],
+						),
+					],
 					'字段 ID 列表',
 					i,
-					100000,
+					0,
+					1000,
 				);
 				const offset = integerInRange(
 					this,
@@ -2390,9 +2469,7 @@ export async function executeWedoc(
 				);
 
 				const body: IDataObject = { docid, sheet_id, offset, limit };
-				if (field_ids_str) {
-					body.field_ids = stringList(this, field_ids_str, '字段 ID 列表', i, 1, 1000);
-				}
+				if (field_ids.length) body.field_ids = field_ids;
 
 				response = await weComApiRequest.call(
 					this,
@@ -2412,11 +2489,21 @@ export async function executeWedoc(
 				if (!['CELL_VALUE_KEY_TYPE_FIELD_TITLE', 'CELL_VALUE_KEY_TYPE_FIELD_ID'].includes(key_type)) {
 					fail(this, `不支持的单元格 Key 类型: ${key_type}`, i);
 				}
-				const record_ids_str = optionalText(
+				const record_ids = stringList(
 					this,
-					this.getNodeParameter('record_ids', i, ''),
+					[
+						this.getNodeParameter('record_ids', i, ''),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('recordIdsJson', i, '[]'),
+							'记录ID列表 JSON',
+							i,
+							['record_id', 'recordid', 'id'],
+						),
+					],
 					'记录 ID 列表',
 					i,
+					0,
 					100000,
 				);
 
@@ -2424,12 +2511,7 @@ export async function executeWedoc(
 				if (view_id) body.view_id = view_id;
 
 				// 处理记录ID
-				if (record_ids_str) {
-					const record_ids = stringList(this, record_ids_str, '记录 ID 列表', i, 1, 100000);
-					if (record_ids.length > 0) {
-						body.record_ids = record_ids;
-					}
-				}
+				if (record_ids.length > 0) body.record_ids = record_ids;
 
 				// 处理筛选条件
 				const filterConditions = this.getNodeParameter('filterConditions', i, {}) as IDataObject;
@@ -3437,7 +3519,16 @@ export async function executeWedoc(
 				);
 				const answer_ids = stringList(
 					this,
-					this.getNodeParameter('answer_ids', i),
+					[
+						this.getNodeParameter('answer_ids', i),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('answerIdsJson', i, '[]'),
+							'答案ID列表 JSON',
+							i,
+							['answer_id', 'answerid', 'id'],
+						),
+					],
 					'答案 ID 列表',
 					i,
 					1,

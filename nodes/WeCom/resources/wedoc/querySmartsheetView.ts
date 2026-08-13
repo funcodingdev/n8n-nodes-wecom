@@ -9,7 +9,17 @@ export const querySmartsheetViewDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: { show: showOnly },
 		default: '',
-		description: '指定要查询的视图ID列表，用逗号分隔。不填则查询所有视图。留空查询所有视图',
+		description:
+			'指定要查询的视图ID列表，用逗号分隔；与下方 JSON 合并。不填则查询所有视图',
+	},
+	{
+		displayName: '视图ID列表 JSON',
+		name: 'viewIdsJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["id1"] 或 [{"view_id":"id1"}]',
 	},
 	{
 		displayName: '偏移量',

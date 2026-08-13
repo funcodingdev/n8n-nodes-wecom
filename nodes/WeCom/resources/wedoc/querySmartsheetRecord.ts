@@ -53,8 +53,18 @@ export const querySmartsheetRecordDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: { show: showOnly },
 		default: '',
-		description: '指定要查询的记录ID列表，用逗号分隔。不填则查询所有符合条件的记录。',
+		description:
+			'指定要查询的记录ID列表，用逗号分隔；与下方 JSON 合并。不填则查询所有符合条件的记录。',
 		placeholder: '如: record_001,record_002',
+	},
+	{
+		displayName: '记录ID列表 JSON',
+		name: 'recordIdsJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["id1"] 或 [{"record_id":"id1"}]',
 	},
 	{
 		displayName: '筛选条件',

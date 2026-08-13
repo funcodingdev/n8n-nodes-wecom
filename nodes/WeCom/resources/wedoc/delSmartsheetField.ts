@@ -10,7 +10,16 @@ export const delSmartsheetFieldDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: showOnly },
 		default: '',
-		description: '要删除的字段ID列表，多个用逗号分隔。字段ID列表',
+		description: '要删除的字段ID列表，多个用逗号分隔；与下方 JSON 合并去重',
 		placeholder: '如: field_001,field_002',
+	},
+	{
+		displayName: '字段ID列表 JSON',
+		name: 'fieldIdsJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["id1"] 或 [{"field_id":"id1"}]',
 	},
 ];

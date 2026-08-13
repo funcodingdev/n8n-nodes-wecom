@@ -10,6 +10,15 @@ export const delSmartsheetViewDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: showOnly },
 		default: '',
-		description: '要删除的视图 ID，支持逗号、中文逗号、竖线或换行分隔',
+		description: '要删除的视图 ID；与下方 JSON 合并去重；支持逗号、中文逗号、竖线或换行分隔',
+	},
+	{
+		displayName: '视图ID列表 JSON',
+		name: 'viewIdsJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["id1"] 或 [{"view_id":"id1"}]',
 	},
 ];
