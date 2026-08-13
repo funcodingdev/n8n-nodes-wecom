@@ -313,7 +313,12 @@ function buildDepartmentAdmins(
 		}
 		const admin = rawAdmin as IDataObject;
 		const prefix = `${label}第 ${index + 1} 项`;
-		const userid = requireSchoolContactId(context, admin.userid, `${prefix}的成员 UserID`, itemIndex);
+		const userid = requireSchoolContactId(
+			context,
+			admin.userid || admin.userid_selected,
+			`${prefix}的成员 UserID`,
+			itemIndex,
+		);
 		const output: IDataObject = { userid };
 		let identity: string;
 

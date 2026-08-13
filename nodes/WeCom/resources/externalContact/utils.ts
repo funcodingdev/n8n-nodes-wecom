@@ -501,10 +501,15 @@ export function rangeNodes(
 		const node: IDataObject = { type };
 		const identity =
 			type === 1
-				? `1:${requireText(context, row.userid, `${label}第 ${rowIndex + 1} 项的成员 UserID`, itemIndex)}`
+				? `1:${requireText(
+						context,
+						row.userid || row.userid_selected,
+						`${label}第 ${rowIndex + 1} 项的成员 UserID`,
+						itemIndex,
+					)}`
 				: `2:${requireInteger(
 						context,
-						row.partyid,
+						row.partyid || row.partyid_selected,
 						`${label}第 ${rowIndex + 1} 项的部门 ID`,
 						itemIndex,
 						1,

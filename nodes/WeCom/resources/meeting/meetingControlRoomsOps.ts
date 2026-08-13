@@ -951,12 +951,22 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		displayName: '检查成员UserID',
 		name: 'device_check_userid',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: { resource: ['meeting'], operation: ['checkDeviceInMeeting'] },
 		},
 		default: '',
-		description: 'userid，企业成员',
+		description: 'userid，企业成员；可与下方选择二选一',
+	},
+	{
+		displayName: '检查成员(选择)',
+		name: 'device_check_userid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['checkDeviceInMeeting'] },
+		},
+		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '会议ID列表',

@@ -126,11 +126,23 @@ function buildAuthInfo(
 		const info: IDataObject = { type };
 		let identity: string;
 		if (type === 1) {
-			const userid = text(context, member.userid, '成员 UserID', itemIndex);
+			const userid = text(
+				context,
+				member.userid || member.userid_selected,
+				'成员 UserID',
+				itemIndex,
+			);
 			info.userid = userid;
 			identity = `user:${userid}`;
 		} else {
-			const departmentid = integer(context, member.departmentid, '部门 ID', itemIndex, 0, MAX_UINT32);
+			const departmentid = integer(
+				context,
+				member.departmentid || member.departmentid_selected,
+				'部门 ID',
+				itemIndex,
+				0,
+				MAX_UINT32,
+			);
 			info.departmentid = departmentid;
 			identity = `department:${departmentid}`;
 		}
@@ -580,7 +592,7 @@ export async function executeWefile(
 					[
 						this.getNodeParameter('vip_userids', i, ''),
 						...(this.getNodeParameter('userid_list', i, []) as string[]),
-						...members.map((member) => member.userid),
+						...members.map((member) => member.userid || member.userid_selected),
 					],
 					'成员 UserID 列表',
 					i,

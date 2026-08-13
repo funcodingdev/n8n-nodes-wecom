@@ -1127,7 +1127,12 @@ function buildDocMember(
 	const idType = String(member.id_type ?? 'userid');
 	const info: IDataObject = { type: 1 };
 	if (idType === 'userid') {
-		info.userid = requiredText(context, member.userid, '成员 UserID', itemIndex);
+		info.userid = requiredText(
+			context,
+			member.userid || member.userid_selected,
+			'成员 UserID',
+			itemIndex,
+		);
 	} else if (idType === 'tmp_external_userid') {
 		info.tmp_external_userid = requiredText(
 			context,

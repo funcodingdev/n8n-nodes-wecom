@@ -78,14 +78,34 @@ const rangeNodeValues: INodeProperties[] = [
 		name: 'userid',
 		type: 'string',
 		default: '',
-		description: 'type 为成员时填写',
+		displayOptions: { show: { type: [1] } },
+		description: 'type 为成员时填写；可与下方选择二选一',
+	},
+	{
+		displayName: '成员(选择)',
+		name: 'userid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		default: '',
+		displayOptions: { show: { type: [1] } },
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '部门 ID',
 		name: 'partyid',
 		type: 'number',
 		default: 0,
+		displayOptions: { show: { type: [2] } },
 		description: 'type 为部门时填写',
+	},
+	{
+		displayName: '部门(选择)',
+		name: 'partyid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getDepartments' },
+		default: '',
+		displayOptions: { show: { type: [2] } },
+		description: '与上方部门 ID 二选一；均填写时以数字字段为准',
 	},
 ];
 
@@ -190,7 +210,6 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		displayName: '成员 UserID',
 		name: 'ec_userid',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: {
 				resource: ['externalContact'],
@@ -198,13 +217,26 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '企业成员 UserID',
+		description: '企业成员 UserID；可与下方选择二选一',
+	},
+	{
+		displayName: '成员(选择)',
+		name: 'ec_userid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['crmGetExternalContactList'],
+			},
+		},
+		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '成员 UserID 列表',
 		name: 'ec_userid',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: {
 				resource: ['externalContact'],
@@ -214,7 +246,22 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'zhangsan,lisi',
-		description: '支持逗号、竖线或换行分隔，自动去重，最多 100 个',
+		description: '支持逗号、竖线或换行分隔；与下方选择合并，自动去重，最多 100 个',
+	},
+	{
+		displayName: '成员(选择)',
+		name: 'ec_userid_list_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['crmGetUserBehaviorData'],
+				behaviorFilterType: ['user'],
+			},
+		},
+		default: [],
+		description: '与上方列表合并去重，合计最多 100 个',
 	},
 	{
 		displayName: '游标',
@@ -825,7 +872,6 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		displayName: '原跟进成员 UserID',
 		name: 'handover_userid',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: {
 				resource: ['externalContact'],
@@ -833,12 +879,26 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
+		description: '可与下方选择二选一',
+	},
+	{
+		displayName: '原跟进成员(选择)',
+		name: 'handover_userid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactTransfer', 'crmTransferExternalContact'],
+			},
+		},
+		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '接替成员 UserID',
 		name: 'takeover_userid',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: {
 				resource: ['externalContact'],
@@ -846,6 +906,21 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
+		description: '可与下方选择二选一',
+	},
+	{
+		displayName: '接替成员(选择)',
+		name: 'takeover_userid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactTransfer', 'crmTransferExternalContact'],
+			},
+		},
+		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '请求体 JSON（高级）',

@@ -2857,12 +2857,18 @@ export async function executeExternalContact(
 					bodyDefaults.external_userid = this.getNodeParameter('ec_external_userid', i, '') as string;
 				}
 				if (operation === 'crmGetExternalContactList') {
-					bodyDefaults.userid = this.getNodeParameter('ec_userid', i, '') as string;
+					bodyDefaults.userid =
+						(this.getNodeParameter('ec_userid', i, '') as string) ||
+						(this.getNodeParameter('ec_userid_selected', i, '') as string);
 				}
 				if (operation === 'externalcontactTransfer' || operation === 'crmTransferExternalContact') {
 					bodyDefaults.external_userid = this.getNodeParameter('ec_external_userid', i, '') as string;
-					bodyDefaults.handover_userid = this.getNodeParameter('handover_userid', i, '') as string;
-					bodyDefaults.takeover_userid = this.getNodeParameter('takeover_userid', i, '') as string;
+					bodyDefaults.handover_userid =
+						(this.getNodeParameter('handover_userid', i, '') as string) ||
+						(this.getNodeParameter('handover_userid_selected', i, '') as string);
+					bodyDefaults.takeover_userid =
+						(this.getNodeParameter('takeover_userid', i, '') as string) ||
+						(this.getNodeParameter('takeover_userid_selected', i, '') as string);
 				}
 				if (operation === 'externalcontactGetGroupMsgResult' || operation === 'crmGetGroupMsgResult') {
 					bodyDefaults.msgid = this.getNodeParameter('msgid', i, '') as string;
@@ -2874,8 +2880,12 @@ export async function executeExternalContact(
 				}
 				if (operation === 'crmGetUserBehaviorData') {
 					const filterType = String(this.getNodeParameter('behaviorFilterType', i, 'user'));
-					if (filterType === 'user') bodyDefaults.userid = this.getNodeParameter('ec_userid', i, '') as string;
-					else bodyDefaults.partyid = this.getNodeParameter('behavior_partyid', i, '') as string;
+					if (filterType === 'user') {
+						bodyDefaults.userid = [
+							this.getNodeParameter('ec_userid', i, ''),
+							this.getNodeParameter('ec_userid_list_selected', i, []),
+						];
+					} else bodyDefaults.partyid = this.getNodeParameter('behavior_partyid', i, '') as string;
 					bodyDefaults.start_time = dateTimeToUnixTimestamp(
 						this,
 						this.getNodeParameter('behavior_start_time', i, ''),

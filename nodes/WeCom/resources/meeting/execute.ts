@@ -4007,7 +4007,8 @@ export async function executeMeeting(
 				} else if (operation === 'checkDeviceInMeeting') {
 					body.userid = text(
 						this,
-						this.getNodeParameter('device_check_userid', i, ''),
+						this.getNodeParameter('device_check_userid', i, '') ||
+							this.getNodeParameter('device_check_userid_selected', i, ''),
 						'成员 UserID',
 						i,
 						64,

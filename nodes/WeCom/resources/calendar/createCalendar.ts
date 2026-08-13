@@ -163,9 +163,16 @@ export const createCalendarDescription: INodeProperties[] = [
 						name: 'userid',
 						type: 'string',
 						default: '',
-						required: true,
 						placeholder: 'zhangsan',
-						description: '日历通知范围成员 UserID',
+						description: '日历通知范围成员 UserID；可与下方选择二选一',
+					},
+					{
+						displayName: '成员(选择)',
+						name: 'userid_selected',
+						type: 'options',
+						typeOptions: { loadOptionsMethod: 'getAllUsers' },
+						default: '',
+						description: '与上方字符串二选一；均填写时以字符串为准',
 					},
 					{
 						displayName: '权限',

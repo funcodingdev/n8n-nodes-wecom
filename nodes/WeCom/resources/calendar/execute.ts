@@ -136,7 +136,7 @@ function calendarShares(
 	for (const [index, rawShare] of rawShares.entries()) {
 		const userid = text(
 			context,
-			rawShare.userid,
+			rawShare.userid || rawShare.userid_selected,
 			`第 ${index + 1} 个通知成员 UserID`,
 			itemIndex,
 			64,
@@ -752,7 +752,7 @@ export async function executeCalendar(
 					[
 						this.getNodeParameter('attendee_userids', i, ''),
 						this.getNodeParameter('attendee_userids_selected', i, []),
-						...rawAttendees.map((attendee) => attendee.userid),
+						...rawAttendees.map((attendee) => attendee.userid || attendee.userid_selected),
 					],
 					'日程参与者',
 					i,
