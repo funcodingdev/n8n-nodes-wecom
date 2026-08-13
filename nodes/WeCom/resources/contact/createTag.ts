@@ -27,7 +27,19 @@ export const createTagDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: '12',
-		description: '可选。标签ID，非负整型，指定此参数时新增的标签会生成对应的标签ID，不指定时则以目前最大的ID自增。<a href="https://developer.work.weixin.qq.com/document/path/90210" target="_blank">官方文档</a>',
+		description:
+			'可选。标签ID，非负整型，指定此参数时新增的标签会生成对应的标签ID，不指定时则以目前最大的ID自增；可与下方选择二选一。<a href="https://developer.work.weixin.qq.com/document/path/90210" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '标签(选择)',
+		name: 'tagid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getTags' },
+		displayOptions: {
+			show: showOnlyForCreateTag,
+		},
+		default: '',
+		description: '与上方字符串二选一；创建时通常手填新 ID，若需复用已有 ID 可从此选择；均填写时以字符串为准',
 	},
 ];
 

@@ -1442,10 +1442,47 @@ export async function executeKf(
 								text: { content: this.getNodeParameter('question_text', i) },
 							},
 						};
-						const similarRows = collectionRows(
-							this.getNodeParameter('similarQuestionsCollection', i, {}),
-							'questions',
-						);
+						const similarJsonRaw = this.getNodeParameter('similarQuestionsJson', i, '[]');
+						let similarRows: IDataObject[] = [];
+						if (
+							similarJsonRaw !== undefined &&
+							similarJsonRaw !== null &&
+							String(similarJsonRaw).trim() !== ''
+						) {
+							let parsed: unknown = similarJsonRaw;
+							if (typeof similarJsonRaw === 'string') {
+								try {
+									parsed = JSON.parse(similarJsonRaw);
+								} catch {
+									fail(this, '相似问法 JSON 不是有效的 JSON', i);
+								}
+							}
+							if (!Array.isArray(parsed)) fail(this, '相似问法 JSON 必须是数组', i);
+							if (parsed.length > 0) {
+								similarRows = (parsed as unknown[]).map((item) => {
+									if (typeof item === 'string') return { text: item };
+									if (item && typeof item === 'object' && !Array.isArray(item)) {
+										const row = item as IDataObject;
+										if (row.text && typeof row.text === 'object') {
+											return {
+												text:
+													((row.text as IDataObject).content as string) ??
+													(row.text as unknown as string),
+											};
+										}
+										return row;
+									}
+									fail(this, '相似问法 JSON 每项必须是字符串或对象', i);
+									return {};
+								});
+							}
+						}
+						if (similarRows.length === 0) {
+							similarRows = collectionRows(
+								this.getNodeParameter('similarQuestionsCollection', i, {}),
+								'questions',
+							);
+						}
 						if (similarRows.length > 0) {
 							rawBody.similar_questions = {
 								items: similarRows.map((row) => ({ text: { content: row.text } })),
@@ -1454,10 +1491,30 @@ export async function executeKf(
 						const answer: IDataObject = {
 							text: { content: this.getNodeParameter('answer_text', i) },
 						};
-						const attachmentRows = collectionRows(
-							this.getNodeParameter('attachmentsCollection', i, {}),
-							'attachments',
-						);
+						const attachmentsJsonRaw = this.getNodeParameter('attachmentsJson', i, '[]');
+						let attachmentRows: IDataObject[] = [];
+						if (
+							attachmentsJsonRaw !== undefined &&
+							attachmentsJsonRaw !== null &&
+							String(attachmentsJsonRaw).trim() !== ''
+						) {
+							let parsed: unknown = attachmentsJsonRaw;
+							if (typeof attachmentsJsonRaw === 'string') {
+								try {
+									parsed = JSON.parse(attachmentsJsonRaw);
+								} catch {
+									fail(this, '回答附件 JSON 不是有效的 JSON', i);
+								}
+							}
+							if (!Array.isArray(parsed)) fail(this, '回答附件 JSON 必须是数组', i);
+							if (parsed.length > 0) attachmentRows = parsed as IDataObject[];
+						}
+						if (attachmentRows.length === 0) {
+							attachmentRows = collectionRows(
+								this.getNodeParameter('attachmentsCollection', i, {}),
+								'attachments',
+							);
+						}
 						if (attachmentRows.length > 0) answer.attachments = attachmentRows;
 						rawBody.answers = [answer];
 						body = normalizeKnowledgeIntentBody(this, rawBody, 'add', i);
@@ -1471,19 +1528,84 @@ export async function executeKf(
 							};
 						}
 						if (this.getNodeParameter('updateSimilarQuestions', i, false) as boolean) {
-							const similarRows = collectionRows(
-								this.getNodeParameter('updatedSimilarQuestionsCollection', i, {}),
-								'questions',
+							const similarJsonRaw = this.getNodeParameter(
+								'updatedSimilarQuestionsJson',
+								i,
+								'[]',
 							);
+							let similarRows: IDataObject[] = [];
+							if (
+								similarJsonRaw !== undefined &&
+								similarJsonRaw !== null &&
+								String(similarJsonRaw).trim() !== ''
+							) {
+								let parsed: unknown = similarJsonRaw;
+								if (typeof similarJsonRaw === 'string') {
+									try {
+										parsed = JSON.parse(similarJsonRaw);
+									} catch {
+										fail(this, '新相似问法 JSON 不是有效的 JSON', i);
+									}
+								}
+								if (!Array.isArray(parsed)) fail(this, '新相似问法 JSON 必须是数组', i);
+								if (parsed.length > 0) {
+									similarRows = (parsed as unknown[]).map((item) => {
+										if (typeof item === 'string') return { text: item };
+										if (item && typeof item === 'object' && !Array.isArray(item)) {
+											const row = item as IDataObject;
+											if (row.text && typeof row.text === 'object') {
+												return {
+													text:
+														((row.text as IDataObject).content as string) ??
+														(row.text as unknown as string),
+												};
+											}
+											return row;
+										}
+										fail(this, '新相似问法 JSON 每项必须是字符串或对象', i);
+										return {};
+									});
+								}
+							}
+							if (similarRows.length === 0) {
+								similarRows = collectionRows(
+									this.getNodeParameter('updatedSimilarQuestionsCollection', i, {}),
+									'questions',
+								);
+							}
 							rawBody.similar_questions = {
 								items: similarRows.map((row) => ({ text: { content: row.text } })),
 							};
 						}
 						if (this.getNodeParameter('updateAnswer', i, false) as boolean) {
-							const attachmentRows = collectionRows(
-								this.getNodeParameter('updatedAttachmentsCollection', i, {}),
-								'attachments',
+							const attachmentsJsonRaw = this.getNodeParameter(
+								'updatedAttachmentsJson',
+								i,
+								'[]',
 							);
+							let attachmentRows: IDataObject[] = [];
+							if (
+								attachmentsJsonRaw !== undefined &&
+								attachmentsJsonRaw !== null &&
+								String(attachmentsJsonRaw).trim() !== ''
+							) {
+								let parsed: unknown = attachmentsJsonRaw;
+								if (typeof attachmentsJsonRaw === 'string') {
+									try {
+										parsed = JSON.parse(attachmentsJsonRaw);
+									} catch {
+										fail(this, '新回答附件 JSON 不是有效的 JSON', i);
+									}
+								}
+								if (!Array.isArray(parsed)) fail(this, '新回答附件 JSON 必须是数组', i);
+								if (parsed.length > 0) attachmentRows = parsed as IDataObject[];
+							}
+							if (attachmentRows.length === 0) {
+								attachmentRows = collectionRows(
+									this.getNodeParameter('updatedAttachmentsCollection', i, {}),
+									'attachments',
+								);
+							}
 							rawBody.answers = [
 								{
 									text: {

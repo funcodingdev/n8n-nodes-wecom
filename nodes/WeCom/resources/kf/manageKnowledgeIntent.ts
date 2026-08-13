@@ -237,6 +237,17 @@ export const manageKnowledgeIntentDescription: INodeProperties[] = [
 		show: { ...showOnly, action_type: ['add'], intentInputMode: ['form'] },
 	}),
 	{
+		displayName: '相似问法 JSON',
+		name: 'similarQuestionsJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: {
+			show: { ...showOnly, action_type: ['add'], intentInputMode: ['form'] },
+		},
+		description:
+			'可选。非空数组时覆盖上方相似问法表单。支持 ["问题1"] 或 [{"text":"问题1"}]，最多 100 个',
+	},
+	{
 		displayName: '回答文本',
 		name: 'answer_text',
 		type: 'string',
@@ -252,6 +263,17 @@ export const manageKnowledgeIntentDescription: INodeProperties[] = [
 	attachmentsProperty('attachmentsCollection', {
 		show: { ...showOnly, action_type: ['add'], intentInputMode: ['form'] },
 	}),
+	{
+		displayName: '回答附件 JSON',
+		name: 'attachmentsJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: {
+			show: { ...showOnly, action_type: ['add'], intentInputMode: ['form'] },
+		},
+		description:
+			'可选。非空数组时覆盖上方附件表单。支持官方 attachments 数组结构，最多 4 个',
+	},
 	{
 		displayName: '问答 ID',
 		name: 'mod_intent_id',
@@ -307,6 +329,22 @@ export const manageKnowledgeIntentDescription: INodeProperties[] = [
 		},
 	}),
 	{
+		displayName: '新相似问法 JSON',
+		name: 'updatedSimilarQuestionsJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: {
+			show: {
+				...showOnly,
+				action_type: ['mod'],
+				intentInputMode: ['form'],
+				updateSimilarQuestions: [true],
+			},
+		},
+		description:
+			'可选。非空数组时覆盖上方新相似问法表单。支持 ["问题1"] 或 [{"text":"问题1"}]',
+	},
+	{
 		displayName: '修改回答',
 		name: 'updateAnswer',
 		type: 'boolean',
@@ -341,6 +379,22 @@ export const manageKnowledgeIntentDescription: INodeProperties[] = [
 			updateAnswer: [true],
 		},
 	}),
+	{
+		displayName: '新回答附件 JSON',
+		name: 'updatedAttachmentsJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: {
+			show: {
+				...showOnly,
+				action_type: ['mod'],
+				intentInputMode: ['form'],
+				updateAnswer: [true],
+			},
+		},
+		description:
+			'可选。非空数组时覆盖上方新附件表单。支持官方 attachments 数组结构，最多 4 个',
+	},
 	{
 		displayName: '分组 ID 筛选',
 		name: 'list_intent_group_id',
