@@ -618,12 +618,26 @@ export async function executeExternalContact(
 			else if (operation === 'addContactWay') {
 				const type = requireOption(this, this.getNodeParameter('type', i), '联系方式类型', i, [1, 2]);
 				const scene = requireOption(this, this.getNodeParameter('scene', i), '场景', i, [1, 2]);
-				const users = stringList(this, this.getNodeParameter('user', i, ''), '成员 UserID', i, {
-					maximum: 100,
-				});
-				const parties = type === 2
-					? integerList(this, this.getNodeParameter('party', i, ''), '部门 ID', i, { maximum: 100 })
-					: [];
+				const users = stringList(
+					this,
+					[this.getNodeParameter('user', i, ''), this.getNodeParameter('user_selected', i, [])],
+					'成员 UserID',
+					i,
+					{ maximum: 100 },
+				);
+				const parties =
+					type === 2
+						? integerList(
+								this,
+								[
+									this.getNodeParameter('party', i, ''),
+									this.getNodeParameter('party_selected', i, []),
+								],
+								'部门 ID',
+								i,
+								{ maximum: 100 },
+							)
+						: [];
 				if (type === 1 && users.length !== 1) fail(this, '单人联系方式必须且只能配置 1 名成员', i);
 				if (type === 2 && users.length === 0 && parties.length === 0) {
 					fail(this, '多人联系方式的成员和部门不能同时为空', i);
@@ -715,15 +729,26 @@ export async function executeExternalContact(
 				const body: IDataObject = { config_id };
 				let updatedFields = 0;
 				if (this.getNodeParameter('updateUsers', i, false) as boolean) {
-					body.user = stringList(this, this.getNodeParameter('user', i, ''), '成员 UserID', i, {
-						maximum: 100,
-					});
+					body.user = stringList(
+						this,
+						[this.getNodeParameter('user', i, ''), this.getNodeParameter('user_selected', i, [])],
+						'成员 UserID',
+						i,
+						{ maximum: 100 },
+					);
 					updatedFields++;
 				}
 				if (this.getNodeParameter('updateParty', i, false) as boolean) {
-					body.party = integerList(this, this.getNodeParameter('party', i, ''), '部门 ID', i, {
-						maximum: 100,
-					});
+					body.party = integerList(
+						this,
+						[
+							this.getNodeParameter('party', i, ''),
+							this.getNodeParameter('party_selected', i, []),
+						],
+						'部门 ID',
+						i,
+						{ maximum: 100 },
+					);
 					updatedFields++;
 				}
 				if (this.getNodeParameter('updateRemark', i, false) as boolean) {
