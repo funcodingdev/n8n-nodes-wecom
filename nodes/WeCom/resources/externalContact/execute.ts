@@ -1303,7 +1303,10 @@ export async function executeExternalContact(
 				);
 				const adminList = stringList(
 					this,
-					this.getNodeParameter('admin_list', i),
+					[
+						this.getNodeParameter('admin_list', i, ''),
+						this.getNodeParameter('admin_list_selected', i, []),
+					],
 					'管理员列表',
 					i,
 					{ minimum: 1, maximum: 20 },
@@ -1317,7 +1320,12 @@ export async function executeExternalContact(
 					'ranges',
 					'管理范围',
 					i,
-					{ minimum: 1, maximum: 3000 },
+					{
+						minimum: 1,
+						maximum: 3000,
+						extraUserids: this.getNodeParameter('range_userids', i, ''),
+						extraPartyids: this.getNodeParameter('range_partyids', i, ''),
+					},
 				);
 
 				const body: IDataObject = {
@@ -1359,7 +1367,11 @@ export async function executeExternalContact(
 					'ranges',
 					'添加管理范围',
 					i,
-					{ maximum: 3000 },
+					{
+						maximum: 3000,
+						extraUserids: this.getNodeParameter('range_add_userids', i, ''),
+						extraPartyids: this.getNodeParameter('range_add_partyids', i, ''),
+					},
 				);
 				const rangeDel = rangeNodes(
 					this,
@@ -1367,7 +1379,11 @@ export async function executeExternalContact(
 					'ranges',
 					'删除管理范围',
 					i,
-					{ maximum: 3000 },
+					{
+						maximum: 3000,
+						extraUserids: this.getNodeParameter('range_del_userids', i, ''),
+						extraPartyids: this.getNodeParameter('range_del_partyids', i, ''),
+					},
 				);
 				if (rangeAdd.length + rangeDel.length > 3000) {
 					fail(this, '单次添加和删除的管理范围节点合计不能超过 3000 个', i);
@@ -1394,7 +1410,10 @@ export async function executeExternalContact(
 				if (updateAdminList) {
 					body.admin_list = stringList(
 						this,
-						this.getNodeParameter('admin_list', i, ''),
+						[
+							this.getNodeParameter('admin_list', i, ''),
+							this.getNodeParameter('admin_list_selected', i, []),
+						],
 						'管理员列表',
 						i,
 						{ minimum: 1, maximum: 20 },
@@ -2007,7 +2026,10 @@ export async function executeExternalContact(
 				if (applicableRangeType === 'user' || applicableRangeType === 'both') {
 					applicable_range.user_list = stringList(
 						this,
-						this.getNodeParameter('applicable_user_list', i, ''),
+						[
+							this.getNodeParameter('applicable_user_list', i, ''),
+							this.getNodeParameter('applicable_user_list_selected', i, []),
+						],
 						'适用成员 UserID 列表',
 						i,
 						{ minimum: applicableRangeType === 'user' ? 1 : 0, maximum: 1000 },
@@ -2016,7 +2038,10 @@ export async function executeExternalContact(
 				if (applicableRangeType === 'department' || applicableRangeType === 'both') {
 					applicable_range.department_list = integerList(
 						this,
-						this.getNodeParameter('applicable_department_list', i, ''),
+						[
+							this.getNodeParameter('applicable_department_list', i, ''),
+							this.getNodeParameter('applicable_department_list_selected', i, []),
+						],
 						'适用部门 ID 列表',
 						i,
 						{ minimum: applicableRangeType === 'department' ? 1 : 0, maximum: 1000 },
@@ -2090,8 +2115,26 @@ export async function executeExternalContact(
 				let addUsers: string[] = [];
 				let addDepartments: number[] = [];
 				if (enableAddRange) {
-					addUsers = stringList(this, this.getNodeParameter('add_user_list', i, ''), '新增成员 UserID 列表', i, { maximum: 1000 });
-					addDepartments = integerList(this, this.getNodeParameter('add_department_list', i, ''), '新增部门 ID 列表', i, { maximum: 1000 });
+					addUsers = stringList(
+						this,
+						[
+							this.getNodeParameter('add_user_list', i, ''),
+							this.getNodeParameter('add_user_list_selected', i, []),
+						],
+						'新增成员 UserID 列表',
+						i,
+						{ maximum: 1000 },
+					);
+					addDepartments = integerList(
+						this,
+						[
+							this.getNodeParameter('add_department_list', i, ''),
+							this.getNodeParameter('add_department_list_selected', i, []),
+						],
+						'新增部门 ID 列表',
+						i,
+						{ maximum: 1000 },
+					);
 					if (addUsers.length + addDepartments.length < 1 || addUsers.length + addDepartments.length > 1000) fail(this, '新增适用范围节点数量必须为 1–1000 个', i);
 					body.add_applicable_range = {
 						...(addUsers.length > 0 ? { user_list: addUsers } : {}),
@@ -2102,8 +2145,26 @@ export async function executeExternalContact(
 				let removeUsers: string[] = [];
 				let removeDepartments: number[] = [];
 				if (enableRemoveRange) {
-					removeUsers = stringList(this, this.getNodeParameter('remove_user_list', i, ''), '删除成员 UserID 列表', i, { maximum: 1000 });
-					removeDepartments = integerList(this, this.getNodeParameter('remove_department_list', i, ''), '删除部门 ID 列表', i, { maximum: 1000 });
+					removeUsers = stringList(
+						this,
+						[
+							this.getNodeParameter('remove_user_list', i, ''),
+							this.getNodeParameter('remove_user_list_selected', i, []),
+						],
+						'删除成员 UserID 列表',
+						i,
+						{ maximum: 1000 },
+					);
+					removeDepartments = integerList(
+						this,
+						[
+							this.getNodeParameter('remove_department_list', i, ''),
+							this.getNodeParameter('remove_department_list_selected', i, []),
+						],
+						'删除部门 ID 列表',
+						i,
+						{ maximum: 1000 },
+					);
 					if (removeUsers.length + removeDepartments.length < 1 || removeUsers.length + removeDepartments.length > 1000) fail(this, '删除适用范围节点数量必须为 1–1000 个', i);
 					body.remove_applicable_range = {
 						...(removeUsers.length > 0 ? { user_list: removeUsers } : {}),
@@ -2250,17 +2311,35 @@ export async function executeExternalContact(
 
 				const range: IDataObject = {};
 				if (rangeType === 'user' || rangeType === 'both') {
-					const users = stringList(this, this.getNodeParameter('user_list', i, ''), '使用范围成员 UserID 列表', i, {
-						minimum: rangeType === 'user' ? 1 : 0,
-						maximum: 500,
-					});
+					const users = stringList(
+						this,
+						[
+							this.getNodeParameter('user_list', i, ''),
+							this.getNodeParameter('user_list_selected', i, []),
+						],
+						'使用范围成员 UserID 列表',
+						i,
+						{
+							minimum: rangeType === 'user' ? 1 : 0,
+							maximum: 500,
+						},
+					);
 					if (users.length > 0) range.user_list = users;
 				}
 				if (rangeType === 'department' || rangeType === 'both') {
-					const departments = integerList(this, this.getNodeParameter('department_list', i, ''), '使用范围部门 ID 列表', i, {
-						minimum: rangeType === 'department' ? 1 : 0,
-						maximum: 500,
-					});
+					const departments = integerList(
+						this,
+						[
+							this.getNodeParameter('department_list', i, ''),
+							this.getNodeParameter('department_list_selected', i, []),
+						],
+						'使用范围部门 ID 列表',
+						i,
+						{
+							minimum: rangeType === 'department' ? 1 : 0,
+							maximum: 500,
+						},
+					);
 					if (departments.length > 0) range.department_list = departments;
 				}
 				if (!['user', 'department', 'both'].includes(rangeType)) fail(this, '使用范围类型无效', i);
@@ -2276,7 +2355,10 @@ export async function executeExternalContact(
 					if (priority_type === 2) {
 						priority_option.priority_userid_list = stringList(
 							this,
-							this.getNodeParameter('priority_userid_list', i, ''),
+							[
+								this.getNodeParameter('priority_userid_list', i, ''),
+								this.getNodeParameter('priority_userid_list_selected', i, []),
+							],
 							'优先分配成员 UserID 列表',
 							i,
 							{ minimum: 1, maximum: 1000 },
@@ -2308,17 +2390,35 @@ export async function executeExternalContact(
 					const rangeType = this.getNodeParameter('rangeType', i) as string;
 					const range: IDataObject = {};
 					if (rangeType === 'user' || rangeType === 'both') {
-						const users = stringList(this, this.getNodeParameter('user_list', i, ''), '使用范围成员 UserID 列表', i, {
-							minimum: rangeType === 'user' ? 1 : 0,
-							maximum: 500,
-						});
+						const users = stringList(
+							this,
+							[
+								this.getNodeParameter('user_list', i, ''),
+								this.getNodeParameter('user_list_selected', i, []),
+							],
+							'使用范围成员 UserID 列表',
+							i,
+							{
+								minimum: rangeType === 'user' ? 1 : 0,
+								maximum: 500,
+							},
+						);
 						if (users.length > 0) range.user_list = users;
 					}
 					if (rangeType === 'department' || rangeType === 'both') {
-						const departments = integerList(this, this.getNodeParameter('department_list', i, ''), '使用范围部门 ID 列表', i, {
-							minimum: rangeType === 'department' ? 1 : 0,
-							maximum: 500,
-						});
+						const departments = integerList(
+							this,
+							[
+								this.getNodeParameter('department_list', i, ''),
+								this.getNodeParameter('department_list_selected', i, []),
+							],
+							'使用范围部门 ID 列表',
+							i,
+							{
+								minimum: rangeType === 'department' ? 1 : 0,
+								maximum: 500,
+							},
+						);
 						if (departments.length > 0) range.department_list = departments;
 					}
 					if (!['user', 'department', 'both'].includes(rangeType)) fail(this, '使用范围类型无效', i);
@@ -2334,7 +2434,10 @@ export async function executeExternalContact(
 					if (priority_type === 2) {
 						priority_option.priority_userid_list = stringList(
 							this,
-							this.getNodeParameter('priority_userid_list', i, ''),
+							[
+								this.getNodeParameter('priority_userid_list', i, ''),
+								this.getNodeParameter('priority_userid_list_selected', i, []),
+							],
 							'优先分配成员 UserID 列表',
 							i,
 							{ minimum: 1, maximum: 1000 },

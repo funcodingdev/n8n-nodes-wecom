@@ -57,8 +57,17 @@ export const addInterceptRuleDescription: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		displayOptions: { show: { ...showOnly, applicableRangeType: ['user', 'both'] } },
-		description: '可使用的userid列表，用逗号分隔。必须为应用可见范围内的成员；最多支持传1000个节点',
+		description: '可使用的 UserID，逗号分隔；与下方选择合并；须在应用可见范围内，最多 1000 个节点',
 		placeholder: 'zhangsan,lisi',
+	},
+	{
+		displayName: '成员(选择)',
+		name: 'applicable_user_list_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		default: [],
+		displayOptions: { show: { ...showOnly, applicableRangeType: ['user', 'both'] } },
+		description: '与上方列表合并去重',
 	},
 	{
 		displayName: '部门ID列表',
@@ -66,8 +75,17 @@ export const addInterceptRuleDescription: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		displayOptions: { show: { ...showOnly, applicableRangeType: ['department', 'both'] } },
-		description: '可使用的部门ID列表，用逗号分隔。必须为应用可见范围内的部门；最多支持传1000个节点',
+		description: '可使用的部门 ID，逗号分隔；与下方选择合并；须在应用可见范围内，最多 1000 个节点',
 		placeholder: '1,2,3',
+	},
+	{
+		displayName: '部门(选择)',
+		name: 'applicable_department_list_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getDepartments' },
+		default: [],
+		displayOptions: { show: { ...showOnly, applicableRangeType: ['department', 'both'] } },
+		description: '与上方列表合并去重',
 	},
 	// 额外拦截语义
 	{

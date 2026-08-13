@@ -446,16 +446,45 @@ export function rangeNodes(
 	group: string,
 	label: string,
 	itemIndex: number,
-	options: { minimum?: number; maximum?: number } = {},
+	options: {
+		minimum?: number;
+		maximum?: number;
+		extraUserids?: unknown;
+		extraPartyids?: unknown;
+	} = {},
 ): IDataObject[] {
 	const rows = collectionRows(value, group);
+	const bulkUsers = stringList(context, options.extraUserids ?? '', `${label}成员列表`, itemIndex, {
+		maximum: options.maximum ?? 3000,
+	});
+	const bulkParties = integerList(
+		context,
+		options.extraPartyids ?? '',
+		`${label}部门列表`,
+		itemIndex,
+		{ maximum: options.maximum ?? 3000 },
+	);
 	const minimum = options.minimum ?? 0;
 	const maximum = options.maximum ?? 3000;
-	if (rows.length < minimum || rows.length > maximum) {
+	const total = rows.length + bulkUsers.length + bulkParties.length;
+	if (total < minimum || total > maximum) {
 		fail(context, `${label}数量必须为 ${minimum}–${maximum} 个`, itemIndex);
 	}
 	const identities = new Set<string>();
-	return rows.map((row, rowIndex) => {
+	const result: IDataObject[] = [];
+	for (const userid of bulkUsers) {
+		const identity = `1:${userid}`;
+		if (identities.has(identity)) fail(context, `${label}不能包含重复节点 ${userid}`, itemIndex);
+		identities.add(identity);
+		result.push({ type: 1, userid });
+	}
+	for (const partyid of bulkParties) {
+		const identity = `2:${partyid}`;
+		if (identities.has(identity)) fail(context, `${label}不能包含重复节点 ${partyid}`, itemIndex);
+		identities.add(identity);
+		result.push({ type: 2, partyid });
+	}
+	for (const [rowIndex, row] of rows.entries()) {
 		const type = requireOption(
 			context,
 			row.type,
@@ -464,22 +493,24 @@ export function rangeNodes(
 			[1, 2],
 		);
 		const node: IDataObject = { type };
-		const identity = type === 1
-			? `1:${requireText(context, row.userid, `${label}第 ${rowIndex + 1} 项的成员 UserID`, itemIndex)}`
-			: `2:${requireInteger(
-					context,
-					row.partyid,
-					`${label}第 ${rowIndex + 1} 项的部门 ID`,
-					itemIndex,
-					1,
-					Number.MAX_SAFE_INTEGER,
-				)}`;
+		const identity =
+			type === 1
+				? `1:${requireText(context, row.userid, `${label}第 ${rowIndex + 1} 项的成员 UserID`, itemIndex)}`
+				: `2:${requireInteger(
+						context,
+						row.partyid,
+						`${label}第 ${rowIndex + 1} 项的部门 ID`,
+						itemIndex,
+						1,
+						Number.MAX_SAFE_INTEGER,
+					)}`;
 		if (identities.has(identity)) fail(context, `${label}不能包含重复节点 ${identity.slice(2)}`, itemIndex);
 		identities.add(identity);
 		if (type === 1) node.userid = identity.slice(2);
 		else node.partyid = Number(identity.slice(2));
-		return node;
-	});
+		result.push(node);
+	}
+	return result;
 }
 
 export function dateTimeToUnixTimestamp(value: unknown): number;
