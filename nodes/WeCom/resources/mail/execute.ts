@@ -670,8 +670,21 @@ export async function executeMail(
 				const authCodeId = integer(this, this.getNodeParameter('auth_code_id', i, this.getNodeParameter('password_id', i, 0)), '客户端专用密码 ID', i, 1, MAX_UINT32);
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/publicmail/delete_auth_code', { id, auth_code_id: authCodeId });
 			} else if (operation === 'allocateMailAdvancedAccount' || operation === 'deallocateMailAdvancedAccount') {
-				const userids = stringList(this, this.getNodeParameter('userid_list', i, this.getNodeParameter('mailbox_list', i, '')), '成员 UserID 列表', i, 1, 100);
-				const path = operation === 'allocateMailAdvancedAccount' ? '/cgi-bin/exmail/vip/batch_add' : '/cgi-bin/exmail/vip/batch_del';
+				const userids = stringList(
+					this,
+					[
+						this.getNodeParameter('userid_list', i, this.getNodeParameter('mailbox_list', i, '')),
+						this.getNodeParameter('userid_list_selected', i, []),
+					],
+					'成员 UserID 列表',
+					i,
+					1,
+					100,
+				);
+				const path =
+					operation === 'allocateMailAdvancedAccount'
+						? '/cgi-bin/exmail/vip/batch_add'
+						: '/cgi-bin/exmail/vip/batch_del';
 				response = await weComApiRequest.call(this, 'POST', path, { userid_list: userids });
 			} else if (operation === 'getMailAdvancedAccountList') {
 				const body: IDataObject = { limit: integer(this, this.getNodeParameter('limit', i, 100), '每页数量', i, 1, 200) };

@@ -33,6 +33,12 @@ export const updateMailGroupDescription: INodeProperties[] = [
 	...listUpdate('成员邮箱列表', 'updateEmailList', 'email_list'),
 	...listUpdate('群组邮箱列表', 'updateGroupList', 'group_list'),
 	...listUpdate('部门ID列表', 'updateDepartmentList', 'department_list', true),
+	{
+		displayName: '部门(选择)', name: 'department_list_selected', type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getDepartments' },
+		displayOptions: { show: switched('updateDepartmentList') }, default: [],
+		description: '与上方部门列表合并去重',
+	},
 	...listUpdate('标签ID列表', 'updateTagList', 'tag_list', true),
 	{
 		displayName: '更新群组使用权限', name: 'updateAllowType', type: 'boolean',
@@ -48,5 +54,12 @@ export const updateMailGroupDescription: INodeProperties[] = [
 	},
 	...listUpdate('允许使用的成员邮箱', 'updateAllowEmailList', 'allow_emaillist'),
 	...listUpdate('允许使用的部门ID', 'updateAllowDepartmentList', 'allow_departmentlist', true),
+	{
+		displayName: '允许使用的部门(选择)', name: 'allow_departmentlist_selected', type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getDepartments' },
+		displayOptions: { show: switched('updateAllowDepartmentList') }, default: [],
+		description: '与上方部门列表合并去重',
+	},
 	...listUpdate('允许使用的标签ID', 'updateAllowTagList', 'allow_taglist', true),
 ];
+
