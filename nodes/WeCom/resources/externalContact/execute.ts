@@ -13,6 +13,8 @@ import {
 	integerList,
 	optionalByteText,
 	optionalText,
+	parsePartyIdJson,
+	parseUserIdJson,
 	productImageAttachments,
 	rangeNodes,
 	requireByteText,
@@ -1390,10 +1392,22 @@ export async function executeExternalContact(
 						extraUserids: [
 							this.getNodeParameter('range_userids', i, ''),
 							this.getNodeParameter('range_userids_selected', i, []),
+							...parseUserIdJson(
+								this,
+								this.getNodeParameter('rangeUseridsJson', i, '[]'),
+								'管理范围成员 JSON',
+								i,
+							),
 						],
 						extraPartyids: [
 							this.getNodeParameter('range_partyids', i, ''),
 							this.getNodeParameter('range_partyids_selected', i, []),
+							...parsePartyIdJson(
+								this,
+								this.getNodeParameter('rangePartyidsJson', i, '[]'),
+								'管理范围部门 JSON',
+								i,
+							),
 						],
 					},
 				);
@@ -1442,10 +1456,22 @@ export async function executeExternalContact(
 						extraUserids: [
 							this.getNodeParameter('range_add_userids', i, ''),
 							this.getNodeParameter('range_add_userids_selected', i, []),
+							...parseUserIdJson(
+								this,
+								this.getNodeParameter('rangeAddUseridsJson', i, '[]'),
+								'添加范围成员 JSON',
+								i,
+							),
 						],
 						extraPartyids: [
 							this.getNodeParameter('range_add_partyids', i, ''),
 							this.getNodeParameter('range_add_partyids_selected', i, []),
+							...parsePartyIdJson(
+								this,
+								this.getNodeParameter('rangeAddPartyidsJson', i, '[]'),
+								'添加范围部门 JSON',
+								i,
+							),
 						],
 					},
 				);
@@ -1460,10 +1486,22 @@ export async function executeExternalContact(
 						extraUserids: [
 							this.getNodeParameter('range_del_userids', i, ''),
 							this.getNodeParameter('range_del_userids_selected', i, []),
+							...parseUserIdJson(
+								this,
+								this.getNodeParameter('rangeDelUseridsJson', i, '[]'),
+								'删除范围成员 JSON',
+								i,
+							),
 						],
 						extraPartyids: [
 							this.getNodeParameter('range_del_partyids', i, ''),
 							this.getNodeParameter('range_del_partyids_selected', i, []),
+							...parsePartyIdJson(
+								this,
+								this.getNodeParameter('rangeDelPartyidsJson', i, '[]'),
+								'删除范围部门 JSON',
+								i,
+							),
 						],
 					},
 				);

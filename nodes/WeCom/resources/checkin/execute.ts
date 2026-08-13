@@ -96,6 +96,41 @@ function stringList(
 	return unique;
 }
 
+function parseIdJson(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	keys: string[],
+): string[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	if (parsed.length === 0) return [];
+	return parsed.map((entry, index) => {
+		if (typeof entry === 'string' || typeof entry === 'number') {
+			return String(entry).trim();
+		}
+		if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+			const row = entry as IDataObject;
+			for (const key of keys) {
+				if (row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== '') {
+					return String(row[key]).trim();
+				}
+			}
+			fail(context, `${label}第 ${index + 1} 项缺少 ${keys.join('/')}`, itemIndex);
+		}
+		fail(context, `${label}第 ${index + 1} 项必须是标量或含 ${keys.join('/')} 的对象`, itemIndex);
+	});
+}
+
 function userids(
 	context: IExecuteFunctions,
 	value: unknown,
@@ -337,6 +372,13 @@ function buildRuleGroup(
 			[
 				context.getNodeParameter('range_userids', itemIndex, ''),
 				context.getNodeParameter('range_userids_selected', itemIndex, []),
+				...parseIdJson(
+					context,
+					context.getNodeParameter('rangeUseridsJson', itemIndex, '[]'),
+					'应用范围成员 JSON',
+					itemIndex,
+					['userid', 'userid_selected', 'user_id'],
+				),
 			],
 			'应用范围成员',
 			itemIndex,
@@ -348,6 +390,13 @@ function buildRuleGroup(
 			[
 				context.getNodeParameter('range_partyids', itemIndex, ''),
 				context.getNodeParameter('range_partyids_selected', itemIndex, []),
+				...parseIdJson(
+					context,
+					context.getNodeParameter('rangePartyidsJson', itemIndex, '[]'),
+					'应用范围部门 JSON',
+					itemIndex,
+					['partyid', 'party_id', 'departmentid', 'id'],
+				),
 			],
 			'应用范围部门',
 			itemIndex,
@@ -359,6 +408,13 @@ function buildRuleGroup(
 			[
 				context.getNodeParameter('range_tagids', itemIndex, ''),
 				context.getNodeParameter('range_tagids_selected', itemIndex, []),
+				...parseIdJson(
+					context,
+					context.getNodeParameter('rangeTagidsJson', itemIndex, '[]'),
+					'应用范围标签 JSON',
+					itemIndex,
+					['tagid', 'tag_id', 'id'],
+				),
 			],
 			'应用范围标签',
 			itemIndex,
@@ -374,6 +430,13 @@ function buildRuleGroup(
 			[
 				context.getNodeParameter('white_users', itemIndex, ''),
 				context.getNodeParameter('white_users_selected', itemIndex, []),
+				...parseIdJson(
+					context,
+					context.getNodeParameter('whiteUsersJson', itemIndex, '[]'),
+					'白名单成员 JSON',
+					itemIndex,
+					['userid', 'userid_selected', 'user_id'],
+				),
 			],
 			'白名单成员',
 			itemIndex,

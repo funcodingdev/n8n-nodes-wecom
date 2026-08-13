@@ -94,6 +94,15 @@ export const manageRulesDescription: INodeProperties[] = [
 		description: '与上方列表合并去重',
 	},
 	{
+		displayName: '应用范围成员 JSON',
+		name: 'rangeUseridsJson',
+		type: 'json',
+		displayOptions: { show: { ...showOnly, action: ['create', 'update'] } },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '应用范围部门ID列表',
 		name: 'range_partyids',
 		type: 'string',
@@ -110,6 +119,15 @@ export const manageRulesDescription: INodeProperties[] = [
 		displayOptions: { show: { ...showOnly, action: ['create', 'update'] } },
 		default: [],
 		description: '与上方列表合并去重',
+	},
+	{
+		displayName: '应用范围部门 JSON',
+		name: 'rangePartyidsJson',
+		type: 'json',
+		displayOptions: { show: { ...showOnly, action: ['create', 'update'] } },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}]',
 	},
 	{
 		displayName: '应用范围标签ID列表',
@@ -130,6 +148,15 @@ export const manageRulesDescription: INodeProperties[] = [
 		description: '与上方列表合并去重',
 	},
 	{
+		displayName: '应用范围标签 JSON',
+		name: 'rangeTagidsJson',
+		type: 'json',
+		displayOptions: { show: { ...showOnly, action: ['create', 'update'] } },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"tagid":1}]',
+	},
+	{
 		displayName: '白名单成员UserID列表',
 		name: 'white_users',
 		type: 'string',
@@ -146,6 +173,15 @@ export const manageRulesDescription: INodeProperties[] = [
 		displayOptions: { show: { ...showOnly, action: ['create', 'update'] } },
 		default: [],
 		description: '与上方列表合并去重',
+	},
+	{
+		displayName: '白名单成员 JSON',
+		name: 'whiteUsersJson',
+		type: 'json',
+		displayOptions: { show: { ...showOnly, action: ['create', 'update'] } },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
 	},
 	{
 		displayName: '同步法定节假日',

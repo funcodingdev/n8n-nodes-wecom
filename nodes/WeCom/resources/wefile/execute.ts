@@ -207,6 +207,12 @@ function mergeAuthMembers(
 		[
 			context.getNodeParameter('member_userids', itemIndex, ''),
 			context.getNodeParameter('member_userids_selected', itemIndex, []),
+			...parseUserIdJson(
+				context,
+				context.getNodeParameter('memberUseridsJson', itemIndex, '[]'),
+				'成员列表 JSON',
+				itemIndex,
+			),
 		],
 		'成员 UserID',
 		itemIndex,
@@ -218,6 +224,12 @@ function mergeAuthMembers(
 		[
 			context.getNodeParameter('member_departmentids', itemIndex, ''),
 			context.getNodeParameter('member_departmentids_selected', itemIndex, []),
+			...parseUserIdJson(
+				context,
+				context.getNodeParameter('memberDepartmentidsJson', itemIndex, '[]'),
+				'部门列表 JSON',
+				itemIndex,
+			),
 		],
 		'部门 ID',
 		itemIndex,

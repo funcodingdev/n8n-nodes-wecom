@@ -90,6 +90,15 @@ export const createMomentStrategyDescription: INodeProperties[] = [
 		description: '与上方成员列表合并去重',
 	},
 	{
+		displayName: '管理范围成员 JSON',
+		name: 'rangeUseridsJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择/表单合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '管理范围部门ID列表',
 		name: 'range_partyids',
 		type: 'string',
@@ -106,6 +115,15 @@ export const createMomentStrategyDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly },
 		default: [],
 		description: '与上方部门列表合并去重',
+	},
+	{
+		displayName: '管理范围部门 JSON',
+		name: 'rangePartyidsJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择/表单合并去重。支持 [1,2] 或 [{"partyid":1}]',
 	},
 	{
 		displayName: '管理范围(详细)',

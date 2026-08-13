@@ -399,6 +399,80 @@ export function integerList(
 	return [...new Set(parsed)];
 }
 
+/** Parse optional JSON array of userids: ["u1"] or [{userid:"u1"}]. Empty / "[]" → []. */
+export function parseUserIdJson(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): string[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	if (parsed.length === 0) return [];
+	return parsed.map((entry, index) => {
+		if (typeof entry === 'string' || typeof entry === 'number') {
+			return requireText(context, entry, `${label}第 ${index + 1} 项`, itemIndex);
+		}
+		if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+			const row = entry as IDataObject;
+			return requireText(
+				context,
+				row.userid || row.userid_selected || row.user_id,
+				`${label}第 ${index + 1} 项 UserID`,
+				itemIndex,
+			);
+		}
+		fail(context, `${label}第 ${index + 1} 项必须是字符串或含 userid 的对象`, itemIndex);
+	});
+}
+
+/** Parse optional JSON array of party/dept ids: [1,2] or [{partyid:1}]. Empty / "[]" → []. */
+export function parsePartyIdJson(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): number[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	if (parsed.length === 0) return [];
+	const ids = parsed.map((entry, index) => {
+		if (typeof entry === 'string' || typeof entry === 'number') {
+			const n = Number(entry);
+			if (!Number.isSafeInteger(n) || n < 1) {
+				fail(context, `${label}第 ${index + 1} 项必须是正整数`, itemIndex);
+			}
+			return n;
+		}
+		if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+			const row = entry as IDataObject;
+			const n = Number(row.partyid ?? row.party_id ?? row.departmentid ?? row.id);
+			if (!Number.isSafeInteger(n) || n < 1) {
+				fail(context, `${label}第 ${index + 1} 项必须包含正整数 partyid`, itemIndex);
+			}
+			return n;
+		}
+		fail(context, `${label}第 ${index + 1} 项必须是数字或含 partyid 的对象`, itemIndex);
+	});
+	return [...new Set(ids)];
+}
+
 export function collectionRows(
 	value: unknown,
 	group: string,

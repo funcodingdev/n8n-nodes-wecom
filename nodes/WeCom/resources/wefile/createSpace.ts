@@ -39,6 +39,15 @@ export const createSpaceDescription: INodeProperties[] = [
 		description: '与上方成员 UserID 列表合并去重',
 	},
 	{
+		displayName: '成员列表 JSON',
+		name: 'memberUseridsJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择/表单合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '部门ID列表',
 		name: 'member_departmentids',
 		type: 'string',
@@ -55,6 +64,15 @@ export const createSpaceDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly },
 		default: [],
 		description: '与上方部门 ID 列表合并去重',
+	},
+	{
+		displayName: '部门列表 JSON',
+		name: 'memberDepartmentidsJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择/表单合并去重。支持 [1,2] 或 [{"departmentid":1}]',
 	},
 	{
 		displayName: '列表默认权限',

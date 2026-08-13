@@ -105,6 +105,15 @@ export const editMomentStrategyDescription: INodeProperties[] = [
 		description: '与上方添加成员列表合并去重',
 	},
 	{
+		displayName: '添加范围成员 JSON',
+		name: 'rangeAddUseridsJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择/表单合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '添加范围部门ID列表',
 		name: 'range_add_partyids',
 		type: 'string',
@@ -121,6 +130,15 @@ export const editMomentStrategyDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly },
 		default: [],
 		description: '与上方添加部门列表合并去重',
+	},
+	{
+		displayName: '添加范围部门 JSON',
+		name: 'rangeAddPartyidsJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择/表单合并去重。支持 [1,2] 或 [{"partyid":1}]',
 	},
 	{
 		displayName: '添加管理范围(详细)',
@@ -205,6 +223,15 @@ export const editMomentStrategyDescription: INodeProperties[] = [
 		description: '与上方删除成员列表合并去重',
 	},
 	{
+		displayName: '删除范围成员 JSON',
+		name: 'rangeDelUseridsJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择/表单合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '删除范围部门ID列表',
 		name: 'range_del_partyids',
 		type: 'string',
@@ -221,6 +248,15 @@ export const editMomentStrategyDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly },
 		default: [],
 		description: '与上方删除部门列表合并去重',
+	},
+	{
+		displayName: '删除范围部门 JSON',
+		name: 'rangeDelPartyidsJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择/表单合并去重。支持 [1,2] 或 [{"partyid":1}]',
 	},
 	{
 		displayName: '删除管理范围(详细)',
