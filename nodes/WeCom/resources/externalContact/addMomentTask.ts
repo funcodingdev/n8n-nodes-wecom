@@ -79,8 +79,18 @@ export const addMomentTaskDescription: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		displayOptions: { show: { ...showOnly, enableVisibleRange: [true], enableExternalContactList: [true] } },
-		description: '可见到该朋友圈的客户标签列表，多个标签ID用逗号分隔。注：仅支持企业客户标签，不支持规则组标签',
+		description:
+			'可见到该朋友圈的客户标签列表，多个标签ID用逗号分隔；与下方 JSON 合并去重。注：仅支持企业客户标签，不支持规则组标签',
 		placeholder: 'etXXXXXXXXXX,etYYYYYYYYYY',
+	},
+	{
+		displayName: '可见客户标签 JSON',
+		name: 'externalContactTagListJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: { ...showOnly, enableVisibleRange: [true], enableExternalContactList: [true] } },
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["etxxx"] 或 [{"tagid":"etxxx"}]',
 	},
 	{
 		displayName: '朋友圈内容类型',

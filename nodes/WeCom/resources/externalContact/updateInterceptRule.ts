@@ -48,8 +48,18 @@ export const updateInterceptRuleDescription: INodeProperties[] = [
 		default: '',
 		displayOptions: { show: { ...showOnly, updateWordList: [true] } },
 		typeOptions: { rows: 3 },
-		description: '支持逗号、竖线或换行分隔，自动去重；每项 1–32 个字符，最多 300 项',
+		description:
+			'支持逗号、竖线或换行分隔，自动去重；与下方 JSON 合并；每项 1–32 个字符，最多 300 项',
 		placeholder: '敏感词1,敏感词2',
+	},
+	{
+		displayName: '敏感词列表 JSON',
+		name: 'wordListJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: { ...showOnly, updateWordList: [true] } },
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["词1"] 或 [{"word":"词1"}]',
 	},
 	{
 		displayName: '更新拦截方式',

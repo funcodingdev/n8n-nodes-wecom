@@ -48,8 +48,18 @@ export const addMsgTemplateDescription: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		displayOptions: { show: { ...showOnly, chat_type: ['single'] } },
-		description: '客户的external_userid列表，用逗号分隔，最多可一次指定1万个客户。如不指定，则默认给该成员所有客户发送',
+		description:
+			'客户的external_userid列表，用逗号分隔；与下方 JSON 合并去重，最多可一次指定1万个客户。如不指定，则默认给该成员所有客户发送',
 		placeholder: 'woAJ2GCAAAXtWyujaWJHDDGi0mACAAAA,wmqfasd1e1927831123109rBAAAA',
+	},
+	{
+		displayName: '客户列表 JSON',
+		name: 'externalUseridJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: { ...showOnly, chat_type: ['single'] } },
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["wmxxx"] 或 [{"external_userid":"wmxxx"}]',
 	},
 	// 客户群列表（群聊时使用）
 	{
@@ -58,8 +68,18 @@ export const addMsgTemplateDescription: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		displayOptions: { show: { ...showOnly, chat_type: ['group'] } },
-		description: '客户群ID列表，用逗号分隔，最多可一次指定2000个客户群。指定群ID后，群主无须再选择客户群',
+		description:
+			'客户群ID列表，用逗号分隔；与下方 JSON 合并去重，最多可一次指定2000个客户群。指定群ID后，群主无须再选择客户群',
 		placeholder: 'wr2GCAAAXtWyujaWJHDDGasdadAAA',
+	},
+	{
+		displayName: '客户群ID列表 JSON',
+		name: 'chatIdListJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: { ...showOnly, chat_type: ['group'] } },
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["wrxxx"] 或 [{"chat_id":"wrxxx"}]',
 	},
 	// 标签过滤（单聊时使用）
 	{

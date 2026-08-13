@@ -1195,7 +1195,16 @@ export async function executeExternalContact(
 					if (enableExternalContactList) {
 						const tagList = stringList(
 							this,
-							this.getNodeParameter('external_contact_tag_list', i, ''),
+							[
+								this.getNodeParameter('external_contact_tag_list', i, ''),
+								...parseStringIdJson(
+									this,
+									this.getNodeParameter('externalContactTagListJson', i, '[]'),
+									'可见客户标签 JSON',
+									i,
+									['tagid', 'tag_id', 'id'],
+								),
+							],
 							'可见客户标签列表',
 							i,
 							{ minimum: 1 },
@@ -1742,7 +1751,16 @@ export async function executeExternalContact(
 				if (chat_type === 'single') {
 					const externalUserIds = stringList(
 						this,
-						this.getNodeParameter('external_userid', i, ''),
+						[
+							this.getNodeParameter('external_userid', i, ''),
+							...parseStringIdJson(
+								this,
+								this.getNodeParameter('externalUseridJson', i, '[]'),
+								'客户列表 JSON',
+								i,
+								['external_userid', 'externalUserid', 'userid', 'id'],
+							),
+						],
 						'客户 ExternalUserID 列表',
 						i,
 						{ maximum: 10000 },
@@ -1784,7 +1802,16 @@ export async function executeExternalContact(
 					if (!sender) fail(this, '群聊群发必须填写发送成员 UserID', i);
 					const chatIdList = stringList(
 						this,
-						this.getNodeParameter('chat_id_list', i, ''),
+						[
+							this.getNodeParameter('chat_id_list', i, ''),
+							...parseStringIdJson(
+								this,
+								this.getNodeParameter('chatIdListJson', i, '[]'),
+								'客户群ID列表 JSON',
+								i,
+								['chat_id', 'chatid', 'id'],
+							),
+						],
 						'客户群 ID 列表',
 						i,
 						{ maximum: 2000 },
@@ -2300,7 +2327,20 @@ export async function executeExternalContact(
 				);
 			} else if (operation === 'addInterceptRule') {
 				const rule_name = requireText(this, this.getNodeParameter('rule_name', i), '规则名称', i, 20);
-				const word_list = interceptWordList(this, this.getNodeParameter('word_list', i), i);
+				const word_list = interceptWordList(
+					this,
+					[
+						this.getNodeParameter('word_list', i),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('wordListJson', i, '[]'),
+							'敏感词列表 JSON',
+							i,
+							['word', 'text', 'value'],
+						),
+					],
+					i,
+				);
 				const intercept_type = requireOption(this, this.getNodeParameter('intercept_type', i), '拦截方式', i, [1, 2]);
 				const applicableRangeType = this.getNodeParameter('applicableRangeType', i) as string;
 				const enableSemantics = this.getNodeParameter('enableSemantics', i, false) as boolean;
@@ -2395,7 +2435,22 @@ export async function executeExternalContact(
 				if (updateRuleName) {
 					body.rule_name = requireText(this, this.getNodeParameter('rule_name', i, ''), '规则名称', i, 20);
 				}
-				if (updateWordList) body.word_list = interceptWordList(this, this.getNodeParameter('word_list', i, ''), i);
+				if (updateWordList) {
+					body.word_list = interceptWordList(
+						this,
+						[
+							this.getNodeParameter('word_list', i, ''),
+							...parseStringIdJson(
+								this,
+								this.getNodeParameter('wordListJson', i, '[]'),
+								'敏感词列表 JSON',
+								i,
+								['word', 'text', 'value'],
+							),
+						],
+						i,
+					);
+				}
 
 				// 更新拦截方式
 				if (updateInterceptType) {

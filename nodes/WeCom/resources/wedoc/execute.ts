@@ -3648,12 +3648,28 @@ export async function executeWedoc(
 			} else if (operation === 'getSheetPriv') {
 				const docid = requiredText(this, this.getNodeParameter('docid', i), '文档 ID', i);
 				const type = this.getNodeParameter('priv_type', i, 1) as number;
-				const rule_id_list_raw = this.getNodeParameter('rule_id_list', i, '') as string;
+				const rule_ids = stringList(
+					this,
+					[
+						this.getNodeParameter('rule_id_list', i, ''),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('ruleIdListJson', i, '[]'),
+							'规则ID列表 JSON',
+							i,
+							['rule_id', 'ruleid', 'id'],
+						),
+					],
+					'规则 ID 列表',
+					i,
+					0,
+					20,
+				);
 				if (![1, 2].includes(type)) fail(this, '权限规则类型只能是 1 或 2', i);
 				const body: IDataObject = { docid, type };
-				if (rule_id_list_raw) {
-					body.rule_id_list = stringList(this, rule_id_list_raw, '规则 ID 列表', i, 1, 20).map(
-						(id) => integerInRange(this, id, '规则 ID', i, 1, 4294967295),
+				if (rule_ids.length) {
+					body.rule_id_list = rule_ids.map((id) =>
+						integerInRange(this, id, '规则 ID', i, 1, 4294967295),
 					);
 				}
 				response = await weComApiRequest.call(
@@ -3811,12 +3827,25 @@ export async function executeWedoc(
 				);
 			} else if (operation === 'deletePrivRule') {
 				const docid = requiredText(this, this.getNodeParameter('docid', i), '文档 ID', i);
-				const rule_id_list_raw = this.getNodeParameter('rule_id_list', i, '') as string;
 				const body: IDataObject = {
 					docid,
-					rule_id_list: stringList(this, rule_id_list_raw, '规则 ID 列表', i, 1, 20).map(
-						(id) => integerInRange(this, id, '规则 ID', i, 1, 4294967295),
-					),
+					rule_id_list: stringList(
+						this,
+						[
+							this.getNodeParameter('rule_id_list', i, ''),
+							...parseStringIdJson(
+								this,
+								this.getNodeParameter('ruleIdListJson', i, '[]'),
+								'规则ID列表 JSON',
+								i,
+								['rule_id', 'ruleid', 'id'],
+							),
+						],
+						'规则 ID 列表',
+						i,
+						1,
+						20,
+					).map((id) => integerInRange(this, id, '规则 ID', i, 1, 4294967295)),
 				};
 				response = await weComApiRequest.call(
 					this,
@@ -3828,12 +3857,26 @@ export async function executeWedoc(
 				const docid = requiredText(this, this.getNodeParameter('docid', i), '文档 ID', i);
 				const sheet_id = requiredText(this, this.getNodeParameter('sheet_id', i), '子表 ID', i);
 				const name = requiredText(this, this.getNodeParameter('group_name', i), '编组名称', i, 255);
-				const field_ids = this.getNodeParameter('field_ids', i, '') as string;
+				const field_ids = stringList(
+					this,
+					[
+						this.getNodeParameter('field_ids', i, ''),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('fieldIdsJson', i, '[]'),
+							'字段ID列表 JSON',
+							i,
+							['field_id', 'fieldid', 'id'],
+						),
+					],
+					'字段 ID 列表',
+					i,
+					0,
+					150,
+				);
 				const body: IDataObject = { docid, sheet_id, name };
-				if (field_ids) {
-					body.children = stringList(this, field_ids, '字段 ID 列表', i, 1, 150).map(
-						(field_id) => ({ field_id }),
-					);
+				if (field_ids.length) {
+					body.children = field_ids.map((field_id) => ({ field_id }));
 				}
 				response = await weComApiRequest.call(
 					this,
@@ -3846,15 +3889,29 @@ export async function executeWedoc(
 				const sheet_id = requiredText(this, this.getNodeParameter('sheet_id', i), '子表 ID', i);
 				const group_id = requiredText(this, this.getNodeParameter('group_id', i), '编组 ID', i);
 				const name = optionalText(this, this.getNodeParameter('group_name', i, ''), '编组名称', i, 255);
-				const field_ids = this.getNodeParameter('field_ids', i, '') as string;
+				const field_ids = stringList(
+					this,
+					[
+						this.getNodeParameter('field_ids', i, ''),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('fieldIdsJson', i, '[]'),
+							'字段ID列表 JSON',
+							i,
+							['field_id', 'fieldid', 'id'],
+						),
+					],
+					'字段 ID 列表',
+					i,
+					0,
+					150,
+				);
 				const body: IDataObject = { docid, sheet_id, group_id };
 				if (name) body.name = name;
-				if (field_ids) {
-					body.children = stringList(this, field_ids, '字段 ID 列表', i, 1, 150).map(
-						(field_id) => ({ field_id }),
-					);
+				if (field_ids.length) {
+					body.children = field_ids.map((field_id) => ({ field_id }));
 				}
-				if (!name && !field_ids) fail(this, '更新编组至少需要新名称或字段列表', i);
+				if (!name && !field_ids.length) fail(this, '更新编组至少需要新名称或字段列表', i);
 				response = await weComApiRequest.call(
 					this,
 					'POST',

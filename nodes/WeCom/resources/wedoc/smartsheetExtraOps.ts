@@ -43,7 +43,16 @@ export const smartsheetExtraOpsDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: show(['getSheetPriv', 'deletePrivRule']),
 		default: '',
-		description: '逗号分隔 rule_id，查询额外权限或删除时使用',
+		description: '逗号分隔 rule_id；与下方 JSON 合并；查询额外权限或删除时使用',
+	},
+	{
+		displayName: '规则ID列表 JSON',
+		name: 'ruleIdListJson',
+		type: 'json',
+		displayOptions: show(['getSheetPriv', 'deletePrivRule']),
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 [1,2] 或 [{"rule_id":1}]',
 	},
 	{
 		displayName: '规则名称',
@@ -250,7 +259,16 @@ export const smartsheetExtraOpsDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: show(['addFieldGroup', 'updateFieldGroup']),
 		default: '',
-		description: 'children.field_id，逗号分隔',
+		description: 'children.field_id，逗号分隔；与下方 JSON 合并',
+	},
+	{
+		displayName: '字段ID列表 JSON',
+		name: 'fieldIdsJson',
+		type: 'json',
+		displayOptions: show(['addFieldGroup', 'updateFieldGroup']),
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["id1"] 或 [{"field_id":"id1"}]',
 	},
 	{
 		displayName: '偏移量',

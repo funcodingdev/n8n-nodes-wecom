@@ -20,8 +20,18 @@ export const addInterceptRuleDescription: INodeProperties[] = [
 		default: '',
 		displayOptions: { show: showOnly },
 		typeOptions: { rows: 3 },
-		description: '敏感词列表，多个敏感词用逗号分隔。敏感词长度1~32个utf8字符，列表大小不能超过300个',
+		description:
+			'敏感词列表，多个敏感词用逗号分隔；与下方 JSON 合并去重。敏感词长度1~32个utf8字符，列表大小不能超过300个',
 		placeholder: '敏感词1,敏感词2',
+	},
+	{
+		displayName: '敏感词列表 JSON',
+		name: 'wordListJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: showOnly },
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["词1"] 或 [{"word":"词1"}]',
 	},
 	{
 		displayName: '拦截方式（必填）',
