@@ -10,14 +10,6 @@ export const paytoolDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['paytool'],
-				operation: [
-					'createOrder',
-					'cancelOrder',
-					'getOrderList',
-					'getOrderDetail',
-					'getInvoiceList',
-					'markInvoiceStatus',
-				],
 			},
 		},
 		options: [
