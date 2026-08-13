@@ -143,7 +143,13 @@ export async function executeChatdata(
 				);
 			} else if (operation === 'setHideSensitiveInfoConfig') {
 				// https://developer.work.weixin.qq.com/document/path/100055
-				const userid = requireText(this, this.getNodeParameter('userid', i), '成员 UserID', i, 64);
+				const userid = requireText(
+					this,
+					this.getNodeParameter('userid', i, '') || this.getNodeParameter('userid_selected', i, ''),
+					'成员 UserID',
+					i,
+					64,
+				);
 				const hide_mobile = this.getNodeParameter('hide_mobile', i, false) as boolean;
 				const hide_idcard = this.getNodeParameter('hide_idcard', i, false) as boolean;
 				const hide_bankno = this.getNodeParameter('hide_bankno', i, false) as boolean;

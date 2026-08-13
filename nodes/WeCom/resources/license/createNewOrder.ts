@@ -18,7 +18,8 @@ export async function createNewOrder(
 	const corpid = requireText(this, this.getNodeParameter('corpid', index), '企业 ID', index);
 	const buyerUserid = requireText(
 		this,
-		this.getNodeParameter('buyerUserid', index),
+		this.getNodeParameter('buyerUserid', index, '') ||
+			this.getNodeParameter('buyerUserid_selected', index, ''),
 		'下单人 UserID',
 		index,
 	);

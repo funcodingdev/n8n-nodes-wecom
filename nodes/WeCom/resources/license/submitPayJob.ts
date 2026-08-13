@@ -9,7 +9,8 @@ export async function submitPayJob(
 	const providerAccessToken = this.getNodeParameter('providerAccessToken', index);
 	const payerUserid = requireText(
 		this,
-		this.getNodeParameter('payerUserid', index),
+		this.getNodeParameter('payerUserid', index, '') ||
+			this.getNodeParameter('payerUserid_selected', index, ''),
 		'支付人 UserID',
 		index,
 	);

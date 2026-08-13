@@ -15,7 +15,12 @@ export async function activeAccountByType(
 		[1, 2],
 	);
 	const corpid = requireText(this, this.getNodeParameter('corpid', index), '企业 ID', index);
-	const userid = requireText(this, this.getNodeParameter('userid', index), '企业成员 UserID', index);
+	const userid = requireText(
+		this,
+		this.getNodeParameter('userid', index, '') || this.getNodeParameter('userid_selected', index, ''),
+		'企业成员 UserID',
+		index,
+	);
 	return await licenseApiRequest(this, index, {
 		path: '/cgi-bin/license/active_account_by_type',
 		providerAccessToken,

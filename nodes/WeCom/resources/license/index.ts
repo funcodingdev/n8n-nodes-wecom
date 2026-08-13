@@ -247,7 +247,6 @@ export const licenseDescription: INodeProperties[] = [
 		displayName: '下单人',
 		name: 'buyerUserid',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: {
 				resource: ['license'],
@@ -255,7 +254,21 @@ export const licenseDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '服务商企业内成员的明文userid。该userid必须登录过企业微信，并且企业微信已绑定微信，且必须为服务商企业内具有"购买接口许可"权限的管理员。最终也支持由其他人支付',
+		description: '服务商企业内成员的明文userid。该userid必须登录过企业微信，并且企业微信已绑定微信，且必须为服务商企业内具有"购买接口许可"权限的管理员。最终也支持由其他人支付；可与下方选择二选一',
+	},
+	{
+		displayName: '下单人(选择)',
+		name: 'buyerUserid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		default: '',
+		displayOptions: {
+			show: {
+				resource: ['license'],
+				operation: ['createNewOrder'],
+			},
+		},
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '基础账号个数',
@@ -367,8 +380,15 @@ export const licenseDescription: INodeProperties[] = [
 						name: 'userid',
 						type: 'string',
 						default: '',
-						required: true,
-						description: '企业微信成员UserID',
+						description: '企业微信成员UserID；可与下方选择二选一',
+					},
+					{
+						displayName: '成员(选择)',
+						name: 'userid_selected',
+						type: 'options',
+						typeOptions: { loadOptionsMethod: 'getAllUsers' },
+						default: '',
+						description: '与上方字符串二选一；均填写时以字符串为准',
 					},
 					{
 						displayName: '账号类型',
@@ -440,7 +460,6 @@ export const licenseDescription: INodeProperties[] = [
 		displayName: '下单人',
 		name: 'buyerUserid',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: {
 				resource: ['license'],
@@ -448,7 +467,21 @@ export const licenseDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '服务商企业内成员的明文userid。该userid必须登录过企业微信，并且企业微信已绑定微信，且必须为服务商企业内具有"购买接口许可"权限的管理员',
+		description: '服务商企业内成员的明文userid。该userid必须登录过企业微信，并且企业微信已绑定微信，且必须为服务商企业内具有"购买接口许可"权限的管理员；可与下方选择二选一',
+	},
+	{
+		displayName: '下单人(选择)',
+		name: 'buyerUserid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		default: '',
+		displayOptions: {
+			show: {
+				resource: ['license'],
+				operation: ['submitOrderJob'],
+			},
+		},
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '时长类型',
@@ -814,7 +847,6 @@ export const licenseDescription: INodeProperties[] = [
 		displayName: '下单人',
 		name: 'buyerUserid',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: {
 				resource: ['license'],
@@ -822,7 +854,21 @@ export const licenseDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '服务商企业内成员的明文userid。该userid必须登录过企业微信，并且企业微信已绑定微信，且必须为服务商企业内具有"购买接口许可"权限的管理员',
+		description: '服务商企业内成员的明文userid。该userid必须登录过企业微信，并且企业微信已绑定微信，且必须为服务商企业内具有"购买接口许可"权限的管理员；可与下方选择二选一',
+	},
+	{
+		displayName: '下单人(选择)',
+		name: 'buyerUserid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		default: '',
+		displayOptions: {
+			show: {
+				resource: ['license'],
+				operation: ['submitNewOrderJob'],
+			},
+		},
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '任务ID',
@@ -887,7 +933,6 @@ export const licenseDescription: INodeProperties[] = [
 		displayName: '支付人',
 		name: 'payerUserid',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: {
 				resource: ['license'],
@@ -895,7 +940,21 @@ export const licenseDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '服务商企业内成员的明文userid，用于充值账户的流水记录。该userid必须登录过企业微信，并且企业微信已绑定微信，且必须为服务商企业内具有"购买接口许可"权限的管理员',
+		description: '服务商企业内成员的明文userid，用于充值账户的流水记录。该userid必须登录过企业微信，并且企业微信已绑定微信，且必须为服务商企业内具有"购买接口许可"权限的管理员；可与下方选择二选一',
+	},
+	{
+		displayName: '支付人(选择)',
+		name: 'payerUserid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		default: '',
+		displayOptions: {
+			show: {
+				resource: ['license'],
+				operation: ['submitPayJob'],
+			},
+		},
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '订单ID',
@@ -957,7 +1016,6 @@ export const licenseDescription: INodeProperties[] = [
 		displayName: '企业成员userid',
 		name: 'userid',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: {
 				resource: ['license'],
@@ -965,7 +1023,21 @@ export const licenseDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '待绑定激活的企业成员userid。一个userid允许激活一个基础账号以及一个互通账号',
+		description: '待绑定激活的企业成员userid。一个userid允许激活一个基础账号以及一个互通账号；可与下方选择二选一',
+	},
+	{
+		displayName: '成员(选择)',
+		name: 'userid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		default: '',
+		displayOptions: {
+			show: {
+				resource: ['license'],
+				operation: ['activeAccount'],
+			},
+		},
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '企业ID',
@@ -1028,8 +1100,15 @@ export const licenseDescription: INodeProperties[] = [
 						name: 'userid',
 						type: 'string',
 						default: '',
-						required: true,
-						description: '待绑定激活的企业成员userid',
+						description: '待绑定激活的企业成员userid；可与下方选择二选一',
+					},
+					{
+						displayName: '成员(选择)',
+						name: 'userid_selected',
+						type: 'options',
+						typeOptions: { loadOptionsMethod: 'getAllUsers' },
+						default: '',
+						description: '与上方字符串二选一；均填写时以字符串为准',
 					},
 				],
 			},
@@ -1094,7 +1173,6 @@ export const licenseDescription: INodeProperties[] = [
 		displayName: '企业成员userid',
 		name: 'userid',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: {
 				resource: ['license'],
@@ -1102,7 +1180,21 @@ export const licenseDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '待绑定激活的企业成员userid。从当前企业中选择一个该指定类型的激活截止时间最早的未激活的激活码进行激活',
+		description: '待绑定激活的企业成员userid。从当前企业中选择一个该指定类型的激活截止时间最早的未激活的激活码进行激活；可与下方选择二选一',
+	},
+	{
+		displayName: '成员(选择)',
+		name: 'userid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		default: '',
+		displayOptions: {
+			show: {
+				resource: ['license'],
+				operation: ['activeAccountByType'],
+			},
+		},
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '企业ID',
@@ -1224,7 +1316,6 @@ export const licenseDescription: INodeProperties[] = [
 		displayName: '企业成员userid',
 		name: 'userid',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: {
 				resource: ['license'],
@@ -1232,7 +1323,21 @@ export const licenseDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '要查询的企业成员userid',
+		description: '要查询的企业成员userid；可与下方选择二选一',
+	},
+	{
+		displayName: '成员(选择)',
+		name: 'userid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		default: '',
+		displayOptions: {
+			show: {
+				resource: ['license'],
+				operation: ['getActiveInfoByUser'],
+			},
+		},
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '企业ID',
@@ -1288,16 +1393,30 @@ export const licenseDescription: INodeProperties[] = [
 						name: 'handoverUserid',
 						type: 'string',
 						default: '',
-						required: true,
-						description: '转移成员的userid',
+						description: '转移成员的userid；可与下方选择二选一',
+					},
+					{
+						displayName: '转移成员(选择)',
+						name: 'handoverUserid_selected',
+						type: 'options',
+						typeOptions: { loadOptionsMethod: 'getAllUsers' },
+						default: '',
+						description: '与上方字符串二选一；均填写时以字符串为准',
 					},
 					{
 						displayName: '接收成员userid',
 						name: 'takeoverUserid',
 						type: 'string',
 						default: '',
-						required: true,
-						description: '接收成员的userid',
+						description: '接收成员的userid；可与下方选择二选一',
+					},
+					{
+						displayName: '接收成员(选择)',
+						name: 'takeoverUserid_selected',
+						type: 'options',
+						typeOptions: { loadOptionsMethod: 'getAllUsers' },
+						default: '',
+						description: '与上方字符串二选一；均填写时以字符串为准',
 					},
 				],
 			},

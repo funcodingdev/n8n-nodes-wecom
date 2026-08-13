@@ -19,7 +19,8 @@ export async function submitOrderJob(
 	const jobid = requireText(this, this.getNodeParameter('jobid', index), '任务 ID', index);
 	const buyerUserid = requireText(
 		this,
-		this.getNodeParameter('buyerUserid', index),
+		this.getNodeParameter('buyerUserid', index, '') ||
+			this.getNodeParameter('buyerUserid_selected', index, ''),
 		'下单人 UserID',
 		index,
 	);

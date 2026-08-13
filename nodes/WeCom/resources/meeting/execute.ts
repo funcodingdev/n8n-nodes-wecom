@@ -256,7 +256,7 @@ function webinarGuests(
 		if (guestType === 1) {
 			result.userid = text(
 				context,
-				guest.userid,
+				guest.userid || guest.userid_selected,
 				`第 ${index + 1} 个内部嘉宾 UserID`,
 				itemIndex,
 				64,
@@ -3056,7 +3056,8 @@ export async function executeMeeting(
 					const members = (importCollection?.members as IDataObject[]) || [];
 					const formList = members.map((m, memberIndex) => {
 						const item: IDataObject = {};
-						if (m.userid) item.userid = text(this, m.userid, '报名成员 UserID', i, 64);
+						const userid = m.userid || m.userid_selected;
+						if (userid) item.userid = text(this, userid, '报名成员 UserID', i, 64);
 						if (m.phone_number) {
 							item.phone_number = text(this, m.phone_number, '报名成员手机号', i, 32);
 							item.area = text(this, m.area || '86', '国家/地区代码', i, 8);
@@ -3937,7 +3938,7 @@ export async function executeMeeting(
 						const member = rawMember as IDataObject;
 						const userid = text(
 							this,
-							member.userid,
+							member.userid || member.userid_selected,
 							`第 ${memberIndex + 1} 个报名成员 UserID`,
 							i,
 							64,

@@ -30,7 +30,7 @@ export async function createRenewOrderJob(
 	const accountList = rows.map((row, rowIndex) => {
 		const userid = requireText(
 			this,
-			row.userid,
+			row.userid || row.userid_selected,
 			`续期账号第 ${rowIndex + 1} 项的 UserID`,
 			index,
 		);

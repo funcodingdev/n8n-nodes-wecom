@@ -29,13 +29,19 @@ export async function batchTransferLicense(
 	const transferList = rows.map((row, rowIndex) => {
 		const handoverUserid = requireText(
 			this,
-			row.handoverUserid ?? row.handover_userid,
+			row.handoverUserid ||
+				row.handoverUserid_selected ||
+				row.handover_userid ||
+				row.handover_userid_selected,
 			`继承信息第 ${rowIndex + 1} 项的转移成员 UserID`,
 			index,
 		);
 		const takeoverUserid = requireText(
 			this,
-			row.takeoverUserid ?? row.takeover_userid,
+			row.takeoverUserid ||
+				row.takeoverUserid_selected ||
+				row.takeover_userid ||
+				row.takeover_userid_selected,
 			`继承信息第 ${rowIndex + 1} 项的接收成员 UserID`,
 			index,
 		);

@@ -34,7 +34,7 @@ export async function batchActiveAccount(
 		),
 		userid: requireText(
 			this,
-			row.userid,
+			row.userid || row.userid_selected,
 			`激活账号第 ${rowIndex + 1} 项的 UserID`,
 			index,
 		),
