@@ -272,7 +272,15 @@ export const approvalExtraHttpOpsDescription: INodeProperties[] = [
 						type: 'string',
 						default: '',
 						placeholder: 'user1,user2',
-						description: '逗号分隔',
+						description: '逗号分隔；与下方选择合并',
+					},
+					{
+						displayName: '当前审批人(选择)',
+						name: 'current_approvers_selected',
+						type: 'multiOptions',
+						typeOptions: { loadOptionsMethod: 'getAllUsers' },
+						default: [],
+						description: '与上方列表合并去重',
 					},
 					{
 						displayName: '已处理审批人',
@@ -280,6 +288,15 @@ export const approvalExtraHttpOpsDescription: INodeProperties[] = [
 						type: 'string',
 						default: '',
 						placeholder: 'user0',
+						description: '逗号分隔；与下方选择合并',
+					},
+					{
+						displayName: '已处理审批人(选择)',
+						name: 'completed_approvers_selected',
+						type: 'multiOptions',
+						typeOptions: { loadOptionsMethod: 'getAllUsers' },
+						default: [],
+						description: '与上方列表合并去重',
 					},
 					{
 						displayName: '节点更新时间',
