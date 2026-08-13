@@ -264,6 +264,15 @@ export const updateAdvancedMeetingDescription: INodeProperties[] = [
 		description: '与上方列表合并去重，合计最多 10 个',
 	},
 	{
+		displayName: '主持人 JSON',
+		name: 'hostsJson',
+		type: 'json',
+		displayOptions: { show: { ...showOnly, update_hosts: [true] } },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重，合计最多 10 个。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '指定响铃UserID列表',
 		name: 'settings_ring_userids',
 		type: 'string',
@@ -284,6 +293,17 @@ export const updateAdvancedMeetingDescription: INodeProperties[] = [
 		},
 		default: [],
 		description: '与上方列表合并去重',
+	},
+	{
+		displayName: '指定响铃成员 JSON',
+		name: 'ringUsersJson',
+		type: 'json',
+		displayOptions: {
+			show: { ...showOnly, settings_remind_scope: [4] },
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
 	},
 	{
 		displayName: '允许自行取消静音',

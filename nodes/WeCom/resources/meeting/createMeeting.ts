@@ -223,6 +223,15 @@ export const createMeetingDescription: INodeProperties[] = [
 		description: '与上方列表合并去重，合计最多 10 个',
 	},
 	{
+		displayName: '主持人 JSON',
+		name: 'hostsJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重，合计最多 10 个。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '开启屏幕水印',
 		name: 'settings_enable_screen_watermark',
 		type: 'boolean',
@@ -348,6 +357,17 @@ export const createMeetingDescription: INodeProperties[] = [
 		},
 		default: [],
 		description: '与上方列表合并去重',
+	},
+	{
+		displayName: '指定响铃成员 JSON',
+		name: 'ringUsersJson',
+		type: 'json',
+		displayOptions: {
+			show: { ...showOnly, settings_remind_scope: [4] },
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
 	},
 	{
 		displayName: '扩展请求JSON',

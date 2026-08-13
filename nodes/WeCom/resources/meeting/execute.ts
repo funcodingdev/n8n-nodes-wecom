@@ -890,6 +890,7 @@ export async function executeMeeting(
 					[
 						settings_host_userids,
 						this.getNodeParameter('settings_host_userids_selected', i, []),
+						...parseUserIdJson(this, this.getNodeParameter('hostsJson', i, '[]'), '主持人 JSON', i),
 					],
 					'主持人',
 					i,
@@ -903,6 +904,12 @@ export async function executeMeeting(
 						[
 							this.getNodeParameter('settings_ring_userids', i, ''),
 							this.getNodeParameter('settings_ring_userids_selected', i, []),
+							...parseUserIdJson(
+								this,
+								this.getNodeParameter('ringUsersJson', i, '[]'),
+								'指定响铃成员 JSON',
+								i,
+							),
 						],
 						'指定响铃成员',
 						i,
@@ -1152,7 +1159,11 @@ export async function executeMeeting(
 				}
 				const hostIds = stringList(
 					this,
-					[settings_host_userids, settings_host_userids_selected],
+					[
+						settings_host_userids,
+						settings_host_userids_selected,
+						...parseUserIdJson(this, this.getNodeParameter('hostsJson', i, '[]'), '主持人 JSON', i),
+					],
 					'主持人',
 					i,
 					0,
@@ -1167,6 +1178,12 @@ export async function executeMeeting(
 						[
 							this.getNodeParameter('settings_ring_userids', i, ''),
 							this.getNodeParameter('settings_ring_userids_selected', i, []),
+							...parseUserIdJson(
+								this,
+								this.getNodeParameter('ringUsersJson', i, '[]'),
+								'指定响铃成员 JSON',
+								i,
+							),
 						],
 						'指定响铃成员',
 						i,
@@ -1485,7 +1502,11 @@ export async function executeMeeting(
 				}
 				const hostIds = stringList(
 					this,
-					[settings_host_userids, settings_host_userids_selected],
+					[
+						settings_host_userids,
+						settings_host_userids_selected,
+						...parseUserIdJson(this, this.getNodeParameter('hostsJson', i, '[]'), '主持人 JSON', i),
+					],
 					'主持人',
 					i,
 					0,
@@ -1500,6 +1521,12 @@ export async function executeMeeting(
 						[
 							this.getNodeParameter('settings_ring_userids', i, ''),
 							this.getNodeParameter('settings_ring_userids_selected', i, []),
+							...parseUserIdJson(
+								this,
+								this.getNodeParameter('ringUsersJson', i, '[]'),
+								'指定响铃成员 JSON',
+								i,
+							),
 						],
 						'指定响铃成员',
 						i,
@@ -2496,7 +2523,11 @@ export async function executeMeeting(
 				}
 				const webinarHostIds = stringList(
 					this,
-					[host_userids, host_userids_selected],
+					[
+						host_userids,
+						host_userids_selected,
+						...parseUserIdJson(this, this.getNodeParameter('hostsJson', i, '[]'), '主持人 JSON', i),
+					],
 					'主持人',
 					i,
 					0,
@@ -2765,7 +2796,11 @@ export async function executeMeeting(
 				}
 				const webinarHostIds = stringList(
 					this,
-					[host_userids, host_userids_selected],
+					[
+						host_userids,
+						host_userids_selected,
+						...parseUserIdJson(this, this.getNodeParameter('hostsJson', i, '[]'), '主持人 JSON', i),
+					],
 					'主持人',
 					i,
 					0,
