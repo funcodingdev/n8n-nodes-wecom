@@ -51,6 +51,15 @@ export const addTagUsersDescription: INodeProperties[] = [
 		description: '与上方列表合并去重',
 	},
 	{
+		displayName: '成员列表 JSON',
+		name: 'userlistJson',
+		type: 'json',
+		displayOptions: { show: showOnlyForAddTagUsers },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '部门ID列表',
 		name: 'partylist',
 		type: 'string',

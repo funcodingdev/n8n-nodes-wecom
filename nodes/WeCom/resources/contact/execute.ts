@@ -15,6 +15,37 @@ function splitCsv(value: unknown, limit?: number): string[] {
 	return limit === undefined ? values : values.slice(0, limit);
 }
 
+function parseUserIdJson(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): string[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			throw new NodeOperationError(context.getNode(), `${label}不是有效的 JSON`, { itemIndex });
+		}
+	}
+	if (!Array.isArray(parsed)) {
+		throw new NodeOperationError(context.getNode(), `${label}必须是 JSON 数组`, { itemIndex });
+	}
+	if (parsed.length === 0) return [];
+	return splitCsv(
+		parsed.map((entry) => {
+			if (typeof entry === 'string' || typeof entry === 'number') return entry;
+			if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+				const row = entry as IDataObject;
+				return row.userid ?? row.userid_selected ?? row.user_id ?? '';
+			}
+			return '';
+		}),
+	);
+}
+
 function parseIntegerCsv(
 	context: IExecuteFunctions,
 	value: unknown,
@@ -515,6 +546,12 @@ export async function executeContact(
 					[
 						this.getNodeParameter('useridlist', i, ''),
 						...(this.getNodeParameter('useridlist_selected', i, []) as string[]),
+						...parseUserIdJson(
+							this,
+							this.getNodeParameter('useridlistJson', i, '[]'),
+							'成员列表 JSON',
+							i,
+						),
 					],
 					200,
 				);
@@ -541,6 +578,7 @@ export async function executeContact(
 					[
 						this.getNodeParameter('user', i, ''),
 						...(this.getNodeParameter('user_selected', i, []) as string[]),
+						...parseUserIdJson(this, this.getNodeParameter('userJson', i, '[]'), '成员列表 JSON', i),
 					],
 					1000,
 				);
@@ -672,6 +710,12 @@ export async function executeContact(
 					[
 						this.getNodeParameter('userlist', i, ''),
 						...(this.getNodeParameter('userlist_selected', i, []) as string[]),
+						...parseUserIdJson(
+							this,
+							this.getNodeParameter('userlistJson', i, '[]'),
+							'成员列表 JSON',
+							i,
+						),
 					],
 					1000,
 				);
@@ -706,6 +750,12 @@ export async function executeContact(
 					[
 						this.getNodeParameter('userlist', i, ''),
 						...(this.getNodeParameter('userlist_selected', i, []) as string[]),
+						...parseUserIdJson(
+							this,
+							this.getNodeParameter('userlistJson', i, '[]'),
+							'成员列表 JSON',
+							i,
+						),
 					],
 					1000,
 				);

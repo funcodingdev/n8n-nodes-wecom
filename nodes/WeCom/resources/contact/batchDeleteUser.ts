@@ -31,4 +31,15 @@ export const batchDeleteUserDescription: INodeProperties[] = [
 		default: [],
 		description: '与上方列表合并去重，合计最多 200 个',
 	},
+	{
+		displayName: '成员列表 JSON',
+		name: 'useridlistJson',
+		type: 'json',
+		displayOptions: {
+			show: showOnlyForBatchDelete,
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
 ];
