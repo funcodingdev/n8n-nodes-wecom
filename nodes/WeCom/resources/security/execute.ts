@@ -59,7 +59,10 @@ async function runOperation(
 		const body: IDataObject = { start_time: startTime, end_time: endTime };
 		const userids = optionalList(
 			context,
-			context.getNodeParameter('userid_list', itemIndex, []),
+			[
+				context.getNodeParameter('userid_list_text', itemIndex, ''),
+				context.getNodeParameter('userid_list', itemIndex, []),
+			],
 			'用户 ID 列表',
 			itemIndex,
 		);
@@ -250,14 +253,17 @@ async function runOperation(
 		const body: IDataObject = { start_time: startTime, end_time: endTime };
 		const userids = optionalList(
 			context,
-			context.getNodeParameter('userid_list', itemIndex, []),
+			[
+				context.getNodeParameter('userid_list_text', itemIndex, ''),
+				context.getNodeParameter('userid_list', itemIndex, []),
+			],
 			'用户 ID 列表',
 			itemIndex,
 		);
 		if (userids.length) body.userid_list = userids;
 		const departments = optionalList(
 			context,
-			context.getNodeParameter('department_id_list', itemIndex, []),
+			context.getNodeParameter('department_id_list', itemIndex, ''),
 			'部门 ID 列表',
 			itemIndex,
 		).map((id) => integerInRange(context, id, '部门 ID', itemIndex, 1, 4294967295));

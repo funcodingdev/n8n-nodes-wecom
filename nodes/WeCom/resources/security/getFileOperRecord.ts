@@ -30,7 +30,21 @@ export const getFileOperRecordDescription: INodeProperties[] = [
 		description: '结束时间（Unix时间戳，秒），开始时间到结束时间的范围不能超过14天',
 	},
 	{
-		displayName: '用户ID列表',
+		displayName: '用户UserID列表',
+		name: 'userid_list_text',
+		type: 'string',
+		displayOptions: {
+			show: {
+				resource: ['security'],
+				operation: ['getFileOperRecord'],
+			},
+		},
+		default: '',
+		placeholder: 'zhangsan,lisi',
+		description: '逗号分隔；与下方选择合并，单次最多 100 个',
+	},
+	{
+		displayName: '用户(选择)',
 		name: 'userid_list',
 		type: 'multiOptions',
 		displayOptions: {
@@ -43,7 +57,7 @@ export const getFileOperRecordDescription: INodeProperties[] = [
 			loadOptionsMethod: 'getAllUsers',
 		},
 		default: [],
-		description: '需要查询的文件操作者的userid，单次最多可以传100个用户',
+		description: '需要查询的文件操作者的 userid，与上方列表合并，单次最多 100 个',
 	},
 	{
 		displayName: '操作类型',

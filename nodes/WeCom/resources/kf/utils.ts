@@ -162,7 +162,9 @@ export function validateStatisticWindow(
 }
 
 function listValues(value: unknown): unknown[] {
-	if (Array.isArray(value)) return value;
+	if (Array.isArray(value)) {
+		return value.flatMap((entry) => listValues(entry));
+	}
 	return String(value ?? '')
 		.split(/[\s,，|]+/)
 		.filter(Boolean);

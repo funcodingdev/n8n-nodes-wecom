@@ -482,14 +482,20 @@ export async function executeKf(
 				);
 				const userid_list = stringList(
 					this,
-					this.getNodeParameter('userid_list', i, []),
+					[
+						this.getNodeParameter('userid_list_text', i, ''),
+						this.getNodeParameter('userid_list', i, []),
+					],
 					'接待人员列表',
 					i,
 					100,
 				);
 				const department_id_list = integerList(
 					this,
-					this.getNodeParameter('department_id_list', i, []),
+					[
+						this.getNodeParameter('department_id_list_text', i, ''),
+						this.getNodeParameter('department_id_list', i, []),
+					],
 					'接待人员部门列表',
 					i,
 					20,
@@ -513,14 +519,20 @@ export async function executeKf(
 				);
 				const userid_list = stringList(
 					this,
-					this.getNodeParameter('userid_list', i, []),
+					[
+						this.getNodeParameter('userid_list_text', i, ''),
+						this.getNodeParameter('userid_list', i, []),
+					],
 					'接待人员列表',
 					i,
 					100,
 				);
 				const department_id_list = integerList(
 					this,
-					this.getNodeParameter('department_id_list', i, []),
+					[
+						this.getNodeParameter('department_id_list_text', i, ''),
+						this.getNodeParameter('department_id_list', i, []),
+					],
 					'接待人员部门列表',
 					i,
 					100,
