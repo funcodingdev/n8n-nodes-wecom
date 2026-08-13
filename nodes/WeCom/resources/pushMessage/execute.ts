@@ -478,6 +478,30 @@ export async function executePushMessage(
 					...normalizeUserIdJson(this.getNodeParameter('mentionedListJson', i, '[]'), i),
 				]);
 				const mentionedMobileList = this.getNodeParameter('mentionedMobileList', i, '') as string;
+				const mentionedMobileFromJson = (() => {
+					const raw = this.getNodeParameter('mentionedMobileListJson', i, '[]');
+					if (raw === undefined || raw === null || String(raw).trim() === '') return [] as string[];
+					let parsed: unknown = raw;
+					if (typeof raw === 'string') {
+						const trimmed = raw.trim();
+						if (!trimmed || trimmed === '[]') return [] as string[];
+						try {
+							parsed = JSON.parse(trimmed);
+						} catch (error) {
+							throw new NodeOperationError(
+								this.getNode(),
+								`@ 成员手机号 JSON 必须是有效的 JSON: ${(error as Error).message}`,
+								{ itemIndex: i },
+							);
+						}
+					}
+					if (!Array.isArray(parsed)) {
+						throw new NodeOperationError(this.getNode(), '@ 成员手机号 JSON 必须是数组', {
+							itemIndex: i,
+						});
+					}
+					return normalizeDelimitedList(parsed);
+				})();
 
 				const textBody: IDataObject = {
 					content,
@@ -489,11 +513,12 @@ export async function executePushMessage(
 				}
 
 				// 处理 mentioned_mobile_list
-				if (mentionedMobileList.trim()) {
-					const mentionedMobile = normalizeDelimitedList(mentionedMobileList);
-					if (mentionedMobile.length > 0) {
-						textBody.mentioned_mobile_list = mentionedMobile;
-					}
+				const mentionedMobile = normalizeDelimitedList([
+					mentionedMobileList,
+					...mentionedMobileFromJson,
+				]);
+				if (mentionedMobile.length > 0) {
+					textBody.mentioned_mobile_list = mentionedMobile;
 				}
 
 				body = {

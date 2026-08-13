@@ -137,6 +137,14 @@ export const modFormDescription: INodeProperties[] = [
 				description: '与上方列表合并',
 			},
 			{
+				displayName: '收集表管理员 JSON',
+				name: 'setting_manager_range_json',
+				type: 'json',
+				default: '[]',
+				description:
+					'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+			},
+			{
 				displayName: '定时关闭',
 				name: 'timed_finish',
 				type: 'dateTime',

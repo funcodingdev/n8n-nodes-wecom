@@ -168,6 +168,15 @@ export const updateAdvancedMeetingDescription: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: '嘉宾列表 JSON',
+		name: 'guestsJson',
+		type: 'json',
+		displayOptions: { show: { ...showOnly, update_guests: [true] } },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方表单合并。支持 [{"area":"86","phone_number":"13800138000","guest_name":"张三"}]',
+	},
+	{
 		displayName: '修改入会密码',
 		name: 'update_password',
 		type: 'boolean',

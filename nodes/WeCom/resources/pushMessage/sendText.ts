@@ -67,4 +67,15 @@ export const sendTextDescription: INodeProperties[] = [
 		placeholder: '13800001111,13900002222 或 @all',
 		description: '手机号列表，提醒手机号对应的群成员。多个手机号可用逗号、竖线或换行分隔，@all 表示提醒所有人。示例：13800001111,13900002222 或 @all。<a href="https://developer.work.weixin.qq.com/document/path/99110#%E6%96%87%E6%9C%AC%E7%B1%BB%E5%9E%8B" target="_blank">官方文档</a>',
 	},
+	{
+		displayName: '@ 成员手机号 JSON',
+		name: 'mentionedMobileListJson',
+		type: 'json',
+		displayOptions: {
+			show: showOnlyForSendText,
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方手机号列表合并去重。支持 ["13800001111","@all"] 或 [{"mobile":"13800001111"}]',
+	},
 ];

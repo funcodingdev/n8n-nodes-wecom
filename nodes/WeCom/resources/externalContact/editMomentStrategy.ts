@@ -57,6 +57,15 @@ export const editMomentStrategyDescription: INodeProperties[] = [
 		description: '与上方列表合并去重',
 	},
 	{
+		displayName: '管理员列表 JSON',
+		name: 'adminListJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: { ...showOnly, updateAdminList: [true] } },
+		description:
+			'可选。非空数组时与上方列表/选择合并去重，最多 20 个。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '更新权限配置',
 		name: 'updatePrivilege',
 		type: 'boolean',

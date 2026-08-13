@@ -264,6 +264,21 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		description: '与上方列表合并去重，合计最多 100 个',
 	},
 	{
+		displayName: '成员列表 JSON',
+		name: 'ecUseridListJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['crmGetUserBehaviorData'],
+				behaviorFilterType: ['user'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '游标',
 		name: 'ec_cursor',
 		type: 'string',
@@ -376,6 +391,23 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		},
 		default: [],
 		description: '与上方列表合并去重，合计 1–20 个',
+	},
+	{
+		displayName: '管理员列表 JSON',
+		name: 'adminListJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: [
+					'externalcontactCustomerStrategyCreate',
+					'externalcontactCustomerStrategyEdit',
+				],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重，最多 20 个。支持 ["userid1"] 或 [{"userid":"userid1"}]；编辑时需同时开启「更新管理员列表」',
 	},
 	{
 		displayName: '管理员 UserID 列表',

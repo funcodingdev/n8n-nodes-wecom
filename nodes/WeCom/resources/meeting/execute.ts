@@ -233,8 +233,9 @@ function meetingGuests(
 	context: IExecuteFunctions,
 	collection: IDataObject,
 	itemIndex: number,
+	guestsJson: unknown = '[]',
 ): IDataObject[] {
-	return ((collection?.guests as IDataObject[]) || []).map((guest, index) => {
+	const fromForm = ((collection?.guests as IDataObject[]) || []).map((guest, index) => {
 		const phoneNumber = text(
 			context,
 			guest.phone_number,
@@ -265,6 +266,62 @@ function meetingGuests(
 		if (guestName) result.guest_name = guestName;
 		return result;
 	});
+	if (guestsJson === undefined || guestsJson === null || String(guestsJson).trim() === '') {
+		return fromForm;
+	}
+	let parsed: unknown = guestsJson;
+	if (typeof guestsJson === 'string') {
+		const trimmed = guestsJson.trim();
+		if (!trimmed || trimmed === '[]') return fromForm;
+		try {
+			parsed = JSON.parse(trimmed);
+		} catch {
+			fail(context, '嘉宾列表 JSON 不是有效的 JSON', itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, '嘉宾列表 JSON 必须是数组', itemIndex);
+	if (parsed.length === 0) return fromForm;
+	const fromJson = (parsed as unknown[]).map((entry, index) => {
+		if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
+			fail(context, `嘉宾列表 JSON 第 ${index + 1} 项必须是对象`, itemIndex);
+		}
+		const guest = entry as IDataObject;
+		const phoneNumber = text(
+			context,
+			guest.phone_number ?? guest.phone ?? guest.mobile,
+			`嘉宾 JSON 第 ${index + 1} 项手机号`,
+			itemIndex,
+			32,
+		);
+		const area = text(
+			context,
+			guest.area || '86',
+			`嘉宾 JSON 第 ${index + 1} 项地区代码`,
+			itemIndex,
+			8,
+		);
+		if (!/^\d+$/.test(area) || !/^\d+$/.test(phoneNumber)) {
+			fail(context, `嘉宾 JSON 第 ${index + 1} 项地区代码与手机号只能包含数字`, itemIndex);
+		}
+		const result: IDataObject = { area, phone_number: phoneNumber };
+		const guestName = textWithLimits(
+			context,
+			guest.guest_name ?? guest.name,
+			'嘉宾名称',
+			itemIndex,
+			16,
+			64,
+			false,
+		);
+		if (guestName) result.guest_name = guestName;
+		return result;
+	});
+	// 按 area+phone 去重，表单在前、JSON 后覆盖同号
+	const map = new Map<string, IDataObject>();
+	for (const guest of [...fromForm, ...fromJson]) {
+		map.set(`${guest.area}:${guest.phone_number}`, guest);
+	}
+	return [...map.values()];
 }
 
 function webinarGuests(
@@ -835,7 +892,12 @@ export async function executeMeeting(
 				// guests（普通/高级创建均支持）
 				{
 					const guestsCollection = this.getNodeParameter('guestsCollection', i, {}) as IDataObject;
-					const guests = meetingGuests(this, guestsCollection, i);
+					const guests = meetingGuests(
+						this,
+						guestsCollection,
+						i,
+						this.getNodeParameter('guestsJson', i, '[]'),
+					);
 					if (guests.length) body.guests = guests;
 				}
 
@@ -1477,7 +1539,12 @@ export async function executeMeeting(
 				}
 
 				const guestsCollection = this.getNodeParameter('guestsCollection', i, {}) as IDataObject;
-				const guests = meetingGuests(this, guestsCollection, i);
+				const guests = meetingGuests(
+					this,
+					guestsCollection,
+					i,
+					this.getNodeParameter('guestsJson', i, '[]'),
+				);
 				if (updateGuests || guests.length) body.guests = guests;
 
 				const settings: IDataObject = {};

@@ -1417,6 +1417,12 @@ export async function executeExternalContact(
 					[
 						this.getNodeParameter('admin_list', i, ''),
 						this.getNodeParameter('admin_list_selected', i, []),
+						...parseUserIdJson(
+							this,
+							this.getNodeParameter('adminListJson', i, '[]'),
+							'管理员列表 JSON',
+							i,
+						),
 					],
 					'管理员列表',
 					i,
@@ -1578,6 +1584,12 @@ export async function executeExternalContact(
 						[
 							this.getNodeParameter('admin_list', i, ''),
 							this.getNodeParameter('admin_list_selected', i, []),
+							...parseUserIdJson(
+								this,
+								this.getNodeParameter('adminListJson', i, '[]'),
+								'管理员列表 JSON',
+								i,
+							),
 						],
 						'管理员列表',
 						i,
@@ -2975,6 +2987,12 @@ export async function executeExternalContact(
 					bodyDefaults.admin_list = [
 						this.getNodeParameter('admin_list', i, ''),
 						this.getNodeParameter('admin_list_selected', i, []),
+						...parseUserIdJson(
+							this,
+							this.getNodeParameter('adminListJson', i, '[]'),
+							'管理员列表 JSON',
+							i,
+						),
 					];
 					bodyDefaults.range = rangeNodes(
 						this,
@@ -2995,6 +3013,12 @@ export async function executeExternalContact(
 						bodyDefaults.admin_list = [
 							this.getNodeParameter('admin_list', i, ''),
 							this.getNodeParameter('admin_list_selected', i, []),
+							...parseUserIdJson(
+								this,
+								this.getNodeParameter('adminListJson', i, '[]'),
+								'管理员列表 JSON',
+								i,
+							),
 						];
 					}
 					const rangeAdd = rangeNodes(
@@ -3073,6 +3097,12 @@ export async function executeExternalContact(
 						bodyDefaults.userid = [
 							this.getNodeParameter('ec_userid', i, ''),
 							this.getNodeParameter('ec_userid_list_selected', i, []),
+							...parseUserIdJson(
+								this,
+								this.getNodeParameter('ecUseridListJson', i, '[]'),
+								'成员列表 JSON',
+								i,
+							),
 						];
 					} else {
 						bodyDefaults.partyid = [

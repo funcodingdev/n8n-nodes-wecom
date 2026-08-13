@@ -342,7 +342,16 @@ function processFormSetting(
 
 	const managerUserids = stringList(
 		context,
-		[formSetting.setting_manager_range_text, formSetting.setting_manager_range],
+		[
+			formSetting.setting_manager_range_text,
+			formSetting.setting_manager_range,
+			...parseUserIdJson(
+				context,
+				formSetting.setting_manager_range_json ?? '[]',
+				'收集表管理员 JSON',
+				itemIndex,
+			),
+		],
 		'收集表管理员',
 		itemIndex,
 		0,

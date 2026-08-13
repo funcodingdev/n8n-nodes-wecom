@@ -49,6 +49,15 @@ export const createMomentStrategyDescription: INodeProperties[] = [
 		description: '与上方列表合并去重，合计最多 20 个',
 	},
 	{
+		displayName: '管理员列表 JSON',
+		name: 'adminListJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: showOnly },
+		description:
+			'可选。非空数组时与上方列表/选择合并去重，最多 20 个。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '允许查看成员的全部客户朋友圈发表',
 		name: 'privilege_view_moment_list',
 		type: 'boolean',
