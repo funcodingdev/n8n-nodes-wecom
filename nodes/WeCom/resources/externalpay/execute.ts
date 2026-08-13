@@ -156,6 +156,29 @@ export async function executeExternalpay(
 				const users = splitList([
 					this.getNodeParameter('scope_users', i, ''),
 					this.getNodeParameter('scope_users_selected', i, []),
+					...(() => {
+						const raw = this.getNodeParameter('scopeUsersJson', i, '[]');
+						if (raw === undefined || raw === null || String(raw).trim() === '') return [] as string[];
+						let parsed: unknown = raw;
+						if (typeof raw === 'string') {
+							try {
+								parsed = JSON.parse(raw);
+							} catch {
+								fail(this, '使用范围成员 JSON 不是有效的 JSON', i);
+							}
+						}
+						if (!Array.isArray(parsed)) fail(this, '使用范围成员 JSON 必须是数组', i);
+						return splitList(
+							(parsed as unknown[]).map((entry) => {
+								if (typeof entry === 'string' || typeof entry === 'number') return entry;
+								if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+									const row = entry as IDataObject;
+									return row.userid ?? row.userid_selected ?? row.user_id ?? '';
+								}
+								return '';
+							}),
+						);
+					})(),
 				]);
 				const partyIds = splitIntegerList(
 					this,

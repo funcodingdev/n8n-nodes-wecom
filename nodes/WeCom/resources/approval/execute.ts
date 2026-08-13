@@ -656,7 +656,16 @@ function normalizeAdvancedNodes(
 		const node = raw as IDataObject;
 		const current = stringList(
 			context,
-			[node.current_approvers, node.current_approvers_selected],
+			[
+				node.current_approvers,
+				node.current_approvers_selected,
+				...parseUserIdJson(
+					context,
+					node.current_approvers_json ?? '[]',
+					'当前审批人 JSON',
+					itemIndex,
+				),
+			],
 			'当前审批人',
 			itemIndex,
 			0,
@@ -664,7 +673,16 @@ function normalizeAdvancedNodes(
 		).map((id) => text(context, id, '当前审批人 UserID', itemIndex, 64));
 		const completed = stringList(
 			context,
-			[node.completed_approvers, node.completed_approvers_selected],
+			[
+				node.completed_approvers,
+				node.completed_approvers_selected,
+				...parseUserIdJson(
+					context,
+					node.completed_approvers_json ?? '[]',
+					'已处理审批人 JSON',
+					itemIndex,
+				),
+			],
 			'已处理审批人',
 			itemIndex,
 			0,

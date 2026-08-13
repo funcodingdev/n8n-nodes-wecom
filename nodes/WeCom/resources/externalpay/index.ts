@@ -94,6 +94,15 @@ export const externalpayDescription: INodeProperties[] = [
 		description: '与上方成员列表合并去重',
 	},
 	{
+		displayName: '使用范围成员 JSON',
+		name: 'scopeUsersJson',
+		type: 'json',
+		displayOptions: { show: { ...showOnly, operation: ['setMchUseScope'] } },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '使用范围部门',
 		name: 'scope_partyids',
 		type: 'string',

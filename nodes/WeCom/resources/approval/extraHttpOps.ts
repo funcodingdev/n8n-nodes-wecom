@@ -283,6 +283,14 @@ export const approvalExtraHttpOpsDescription: INodeProperties[] = [
 						description: '与上方列表合并去重',
 					},
 					{
+						displayName: '当前审批人 JSON',
+						name: 'current_approvers_json',
+						type: 'json',
+						default: '[]',
+						description:
+							'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+					},
+					{
 						displayName: '已处理审批人',
 						name: 'completed_approvers',
 						type: 'string',
@@ -297,6 +305,14 @@ export const approvalExtraHttpOpsDescription: INodeProperties[] = [
 						typeOptions: { loadOptionsMethod: 'getAllUsers' },
 						default: [],
 						description: '与上方列表合并去重',
+					},
+					{
+						displayName: '已处理审批人 JSON',
+						name: 'completed_approvers_json',
+						type: 'json',
+						default: '[]',
+						description:
+							'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
 					},
 					{
 						displayName: '节点更新时间',
