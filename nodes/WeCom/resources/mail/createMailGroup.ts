@@ -66,5 +66,10 @@ export const createMailGroupDescription: INodeProperties[] = [
 		displayName: '允许使用的标签ID', name: 'allow_taglist', type: 'string',
 		displayOptions: { show: custom }, default: '', description: `自定义权限时三类范围至少填一类；${separators}`,
 	},
+	{
+		displayName: '允许使用的标签(选择)', name: 'allow_taglist_selected', type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getTags' },
+		displayOptions: { show: custom }, default: [], description: '与上方标签列表合并去重',
+	},
 ];
 

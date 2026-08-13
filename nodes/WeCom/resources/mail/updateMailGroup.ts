@@ -41,6 +41,12 @@ export const updateMailGroupDescription: INodeProperties[] = [
 	},
 	...listUpdate('标签ID列表', 'updateTagList', 'tag_list', true),
 	{
+		displayName: '标签(选择)', name: 'tag_list_selected', type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getTags' },
+		displayOptions: { show: switched('updateTagList') }, default: [],
+		description: '与上方标签列表合并去重',
+	},
+	{
 		displayName: '更新群组使用权限', name: 'updateAllowType', type: 'boolean',
 		displayOptions: { show: showOnly }, default: false,
 	},
@@ -61,5 +67,11 @@ export const updateMailGroupDescription: INodeProperties[] = [
 		description: '与上方部门列表合并去重',
 	},
 	...listUpdate('允许使用的标签ID', 'updateAllowTagList', 'allow_taglist', true),
+	{
+		displayName: '允许使用的标签(选择)', name: 'allow_taglist_selected', type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getTags' },
+		displayOptions: { show: switched('updateAllowTagList') }, default: [],
+		description: '与上方标签列表合并去重',
+	},
 ];
 

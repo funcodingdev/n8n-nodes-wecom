@@ -579,7 +579,15 @@ export async function executeMail(
 						'允许使用的部门 ID',
 						i,
 					);
-					const allowTags = numberList(this, this.getNodeParameter('allow_taglist', i, ''), '允许使用的标签 ID', i);
+					const allowTags = numberList(
+						this,
+						[
+							this.getNodeParameter('allow_taglist', i, ''),
+							this.getNodeParameter('allow_taglist_selected', i, []),
+						],
+						'允许使用的标签 ID',
+						i,
+					);
 					if (!allowEmails.length && !allowDepartments.length && !allowTags.length) fail(this, '自定义群组权限至少需要一类允许范围', i);
 					setWrappedList(body, 'allow_emaillist', allowEmails);
 					setWrappedList(body, 'allow_departmentlist', allowDepartments);

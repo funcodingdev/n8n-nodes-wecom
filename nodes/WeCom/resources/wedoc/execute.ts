@@ -478,9 +478,11 @@ function extractFieldValue(cv: IDataObject): string | number | boolean {
 			const userList = cv.user_list as IDataObject;
 			if (userList?.items && Array.isArray(userList.items)) {
 				return JSON.stringify(
-					(userList.items as IDataObject[]).map((item: IDataObject) => ({
-						user_id: item.user_id || '',
-					})),
+					(userList.items as IDataObject[])
+						.map((item: IDataObject) => ({
+							user_id: String(item.user_id || item.user_id_selected || '').trim(),
+						}))
+						.filter((item) => item.user_id),
 				);
 			}
 			return '[]';

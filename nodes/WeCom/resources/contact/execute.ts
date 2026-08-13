@@ -544,7 +544,16 @@ export async function executeContact(
 					i,
 					100,
 				);
-				const tags = parseIntegerCsv(this, this.getNodeParameter('tag', i, '') as string, '标签 ID', i, 100);
+				const tags = parseIntegerCsv(
+					this,
+					[
+						this.getNodeParameter('tag', i, ''),
+						...(this.getNodeParameter('tag_selected', i, []) as Array<string | number>),
+					].join(','),
+					'标签 ID',
+					i,
+					100,
+				);
 
 				const body: IDataObject = {};
 				if (users.length) body.user = users;

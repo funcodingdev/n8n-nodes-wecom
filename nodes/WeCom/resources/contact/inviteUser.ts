@@ -66,6 +66,19 @@ export const inviteUserDescription: INodeProperties[] = [
 		default: '',
 		placeholder: '101,102,103',
 		description:
-			'可选。标签 ID 列表，最多 100 个。user、party、tag 三者不能同时为空。<a href="https://developer.work.weixin.qq.com/document/path/90975" target="_blank">官方文档</a>',
+			'可选。标签 ID 列表，最多 100 个；支持逗号分隔。user、party、tag 三者不能同时为空。<a href="https://developer.work.weixin.qq.com/document/path/90975" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '标签(选择)',
+		name: 'tag_selected',
+		type: 'multiOptions',
+		displayOptions: {
+			show: showOnlyForInvite,
+		},
+		typeOptions: {
+			loadOptionsMethod: 'getTags',
+		},
+		default: [],
+		description: '与上方标签 ID 列表合并去重，合计最多 100 个',
 	},
 ];
