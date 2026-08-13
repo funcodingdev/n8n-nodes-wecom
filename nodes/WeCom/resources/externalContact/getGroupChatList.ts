@@ -26,8 +26,18 @@ export const getGroupChatListDescription: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		displayOptions: { show: showOnly },
-		description: '群主过滤，指定群主的userid列表，多个用逗号分隔，最多100个。如果不填，表示获取应用可见范围内全部群主的数据（不建议，超过1000人会报错81017）',
+		description:
+			'群主过滤，指定群主的userid列表，多个用逗号分隔；与下方选择合并，最多100个。如果不填，表示获取应用可见范围内全部群主的数据（不建议，超过1000人会报错81017）',
 		placeholder: 'zhangsan,lisi',
+	},
+	{
+		displayName: '群主(选择)',
+		name: 'owner_filter_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: { show: showOnly },
+		default: [],
+		description: '与上方列表合并去重，合计最多 100 个',
 	},
 	{
 		displayName: '每页数量（必填）',

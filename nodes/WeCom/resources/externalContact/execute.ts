@@ -589,7 +589,10 @@ export async function executeExternalContact(
 				);
 				const ownerFilter = stringList(
 					this,
-					this.getNodeParameter('owner_filter', i, ''),
+					[
+						this.getNodeParameter('owner_filter', i, ''),
+						this.getNodeParameter('owner_filter_selected', i, []),
+					],
 					'群主 UserID 列表',
 					i,
 					{ maximum: 100 },

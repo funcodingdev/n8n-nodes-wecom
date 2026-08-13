@@ -39,7 +39,19 @@ export const updateSmartsheetGroupChatDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'userid',
-		description: '可选。新群主的ID，若不需更新请忽略。注意：del_user_list包含群主时本字段必填。群主需为本企业成员',
+		description:
+			'可选。新群主的ID，若不需更新请忽略。注意：del_user_list包含群主时本字段必填。群主需为本企业成员；可与下方选择二选一',
+	},
+	{
+		displayName: '新群主(选择)',
+		name: 'owner_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: showOnly,
+		},
+		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '添加成员列表',
@@ -50,7 +62,19 @@ export const updateSmartsheetGroupChatDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'userid1,userid2,userid3',
-		description: '可选。添加成员的ID列表，用逗号分隔，一次最多传入500人。操作的成员需为对应的智能表格中的成员',
+		description:
+			'可选。添加成员的ID列表，用逗号分隔；与下方选择合并，一次最多传入500人。操作的成员需为对应的智能表格中的成员',
+	},
+	{
+		displayName: '添加成员(选择)',
+		name: 'add_user_list_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: showOnly,
+		},
+		default: [],
+		description: '与上方添加列表合并去重',
 	},
 	{
 		displayName: '删除成员列表',
@@ -61,6 +85,18 @@ export const updateSmartsheetGroupChatDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'userid3,userid4',
-		description: '可选。踢出成员的ID列表，用逗号分隔，一次最多传入500人。注意：如果删除列表中包含群主，则owner字段必填',
+		description:
+			'可选。踢出成员的ID列表，用逗号分隔；与下方选择合并，一次最多传入500人。注意：如果删除列表中包含群主，则owner字段必填',
+	},
+	{
+		displayName: '删除成员(选择)',
+		name: 'del_user_list_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: showOnly,
+		},
+		default: [],
+		description: '与上方删除列表合并去重',
 	},
 ];

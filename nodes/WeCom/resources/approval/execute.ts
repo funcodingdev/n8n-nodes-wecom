@@ -691,7 +691,8 @@ export async function executeApproval(
 				const body: IDataObject = {
 					creator_userid: text(
 						this,
-						this.getNodeParameter('creator_userid', i),
+						this.getNodeParameter('creator_userid', i, '') ||
+							this.getNodeParameter('creator_userid_selected', i, ''),
 						'申请人 UserID',
 						i,
 						64,
@@ -1002,7 +1003,9 @@ export async function executeApproval(
 					),
 					userid: text(
 						this,
-						requestBody.userid ?? this.getNodeParameter('af_userid', i),
+						requestBody.userid ??
+							(this.getNodeParameter('af_userid', i, '') ||
+								this.getNodeParameter('af_userid_selected', i, '')),
 						'申请人 UserID',
 						i,
 						64,

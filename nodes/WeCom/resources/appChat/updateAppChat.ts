@@ -80,7 +80,21 @@ export const updateAppChatDescription: INodeProperties[] = [
 		default: '',
 		placeholder: 'zhangsan',
 		description:
-			'单独修改群主时必填；组合更新时按需填写。新群主必须是群成员；删除当前群主时也必须填写。<a href="https://developer.work.weixin.qq.com/document/path/98913" target="_blank">官方文档</a>',
+			'单独修改群主时必填；组合更新时按需填写。新群主必须是群成员；删除当前群主时也必须填写；可与下方选择二选一。<a href="https://developer.work.weixin.qq.com/document/path/98913" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '群主(选择)',
+		name: 'owner_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: {
+				...showOnlyForUpdateAppChat,
+				updateType: ['owner', 'combined'],
+			},
+		},
+		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '选择要添加的成员',

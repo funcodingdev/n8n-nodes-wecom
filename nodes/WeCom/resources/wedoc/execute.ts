@@ -2926,21 +2926,23 @@ export async function executeWedoc(
 			} else if (operation === 'updateSmartsheetGroupChat') {
 				const docid = requiredText(this, this.getNodeParameter('docid', i), '文档 ID', i);
 				const chat_id = requiredText(this, this.getNodeParameter('chat_id', i), '群聊 ID', i);
-				const owner = optionalText(this, this.getNodeParameter('owner', i, ''), '新群主 ID', i);
-				const addUserRaw = this.getNodeParameter('add_user_list', i, '');
-				const delUserRaw = this.getNodeParameter('del_user_list', i, '');
-				const hasAddUsers = Array.isArray(addUserRaw)
-					? addUserRaw.length > 0
-					: String(addUserRaw ?? '').trim().length > 0;
-				const hasDelUsers = Array.isArray(delUserRaw)
-					? delUserRaw.length > 0
-					: String(delUserRaw ?? '').trim().length > 0;
-				const addUsers = hasAddUsers
-					? stringList(this, addUserRaw, '添加成员列表', i, 1, 500)
-					: [];
-				const delUsers = hasDelUsers
-					? stringList(this, delUserRaw, '删除成员列表', i, 1, 500)
-					: [];
+				const owner = optionalText(
+					this,
+					this.getNodeParameter('owner', i, '') ||
+						this.getNodeParameter('owner_selected', i, ''),
+					'新群主 ID',
+					i,
+				);
+				const addUserRaw = [
+					this.getNodeParameter('add_user_list', i, ''),
+					this.getNodeParameter('add_user_list_selected', i, []),
+				];
+				const delUserRaw = [
+					this.getNodeParameter('del_user_list', i, ''),
+					this.getNodeParameter('del_user_list_selected', i, []),
+				];
+				const addUsers = stringList(this, addUserRaw, '添加成员列表', i, 0, 500);
+				const delUsers = stringList(this, delUserRaw, '删除成员列表', i, 0, 500);
 				const overlap = addUsers.find((userid) => delUsers.includes(userid));
 				if (overlap) fail(this, `成员 ${overlap} 不能同时出现在添加和删除列表`, i);
 				if (!owner && !addUsers.length && !delUsers.length) {

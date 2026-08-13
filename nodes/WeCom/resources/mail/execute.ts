@@ -497,7 +497,13 @@ export async function executeMail(
 						0,
 						10,
 					);
-					const admin = text(this, this.getNodeParameter('meeting_admin_userid', i), '会议管理员', i);
+					const admin = text(
+						this,
+						this.getNodeParameter('meeting_admin_userid', i, '') ||
+							this.getNodeParameter('meeting_admin_userid_selected', i, ''),
+						'会议管理员',
+						i,
+					);
 					requireParticipants(this, hosts, toUserids, '会议主持人', i);
 					requireParticipants(this, [admin], toUserids, '会议管理员', i);
 					if (hosts.length) meeting.hosts = { userids: hosts };

@@ -28,7 +28,18 @@ export const createAppChatDescription: INodeProperties[] = [
 		default: '',
 		placeholder: 'zhangsan',
 		description:
-			'可选。指定群主的 UserID，必须是 userlist 成员之一；不填则系统随机指定。<a href="https://developer.work.weixin.qq.com/document/path/90245" target="_blank">官方文档</a>',
+			'可选。指定群主的 UserID，必须是 userlist 成员之一；不填则系统随机指定；可与下方选择二选一。<a href="https://developer.work.weixin.qq.com/document/path/90245" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '群主(选择)',
+		name: 'owner_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: showOnlyForCreateAppChat,
+		},
+		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '选择成员',

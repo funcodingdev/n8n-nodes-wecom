@@ -95,7 +95,6 @@ export const approvalExtraHttpOpsDescription: INodeProperties[] = [
 		displayName: '申请人UserID',
 		name: 'af_userid',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: {
 				resource: ['approval'],
@@ -103,7 +102,21 @@ export const approvalExtraHttpOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '申请的 userid',
+		description: '申请的 userid；可与下方选择二选一',
+	},
+	{
+		displayName: '申请人(选择)',
+		name: 'af_userid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: {
+				resource: ['approval'],
+				operation: ['advancedFeatureGetApplyIdList'],
+			},
+		},
+		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '分页条数',
