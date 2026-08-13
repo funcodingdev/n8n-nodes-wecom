@@ -29,4 +29,15 @@ export const makeVoiceCallDescription: INodeProperties[] = [
 		default: [],
 		description: '与上方列表合并去重',
 	},
+	{
+		displayName: '被叫成员 JSON',
+		name: 'calleeUseridsJson',
+		type: 'json',
+		displayOptions: {
+			show: showOnlyForMakeVoiceCall,
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
 ];

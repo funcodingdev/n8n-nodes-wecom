@@ -438,7 +438,31 @@ export async function executeAgent(
 							.map((userid) => userid.trim())
 							.filter(Boolean);
 						const selectedUserIds = selected.map(String).map((userid) => userid.trim()).filter(Boolean);
-						const useridList = [...new Set([...selectedUserIds, ...manual])];
+						const fromJson = (() => {
+							const raw = this.getNodeParameter('useridListJson', i, '[]');
+							if (raw === undefined || raw === null || String(raw).trim() === '') return [] as string[];
+							let parsed: unknown = raw;
+							if (typeof raw === 'string') {
+								try {
+									parsed = JSON.parse(raw);
+								} catch {
+									fail('用户列表 JSON 不是有效的 JSON', i);
+								}
+							}
+							if (!Array.isArray(parsed)) fail('用户列表 JSON 必须是数组', i);
+							return (parsed as unknown[]).flatMap((entry) => {
+								if (typeof entry === 'string' || typeof entry === 'number') {
+									return [String(entry).trim()];
+								}
+								if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+									const row = entry as IDataObject;
+									const id = row.userid ?? row.userid_selected ?? row.user_id;
+									return id ? [String(id).trim()] : [];
+								}
+								return [];
+							}).filter(Boolean);
+						})();
+						const useridList = [...new Set([...selectedUserIds, ...manual, ...fromJson])];
 						if (useridList.length < 1 || useridList.length > 1000) {
 							fail('用户列表合并后必须包含 1–1000 人', i);
 						}

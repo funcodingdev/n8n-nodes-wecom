@@ -40,5 +40,14 @@ export const batchSetWorkbenchDataDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly },
 		description: '使用逗号、竖线或换行分隔；合并后至少 1 人、最多 1000 人',
 	},
+	{
+		displayName: '用户列表 JSON',
+		name: 'useridListJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: showOnly },
+		description:
+			'可选。非空数组时与上方选择/手动输入合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
 	...getWorkbenchFields(showOnly),
 ];
