@@ -40,6 +40,15 @@ export const getGroupChatListDescription: INodeProperties[] = [
 		description: '与上方列表合并去重，合计最多 100 个',
 	},
 	{
+		displayName: '群主列表 JSON',
+		name: 'ownerFilterJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '每页数量（必填）',
 		name: 'limit',
 		type: 'number',

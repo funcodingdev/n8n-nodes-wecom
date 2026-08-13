@@ -30,6 +30,15 @@ export const addMomentTaskDescription: INodeProperties[] = [
 		description: '与上方列表合并去重',
 	},
 	{
+		displayName: '发表成员 JSON',
+		name: 'senderUserListJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: { ...showOnly, enableVisibleRange: [true] } },
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '发表部门ID列表',
 		name: 'sender_department_list',
 		type: 'string',

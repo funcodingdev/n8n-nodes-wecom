@@ -301,7 +301,16 @@ function processFormSetting(
 		const fill_in_range: IDataObject = {};
 		const userids = stringList(
 			context,
-			[formSetting.fill_in_range_userids_text, formSetting.fill_in_range_userids],
+			[
+				formSetting.fill_in_range_userids_text,
+				formSetting.fill_in_range_userids,
+				...parseUserIdJson(
+					context,
+					formSetting.fill_in_range_userids_json ?? '[]',
+					'指定填写人员 JSON',
+					itemIndex,
+				),
+			],
 			'指定填写成员',
 			itemIndex,
 			0,

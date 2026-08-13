@@ -69,6 +69,15 @@ export const updateCustomerAcquisitionLinkDescription: INodeProperties[] = [
 		description: '与上方列表合并去重',
 	},
 	{
+		displayName: '成员列表 JSON',
+		name: 'userListJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: { ...showOnly, updateRange: [true], rangeType: ['user', 'both'] } },
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '部门ID列表',
 		name: 'department_list',
 		type: 'string',
@@ -155,5 +164,14 @@ export const updateCustomerAcquisitionLinkDescription: INodeProperties[] = [
 		default: [],
 		displayOptions: { show: { ...showOnly, updatePriorityOption: [true], priority_type: [2] } },
 		description: '与上方列表合并去重',
+	},
+	{
+		displayName: '优先分配成员 JSON',
+		name: 'priorityUseridListJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: { ...showOnly, updatePriorityOption: [true], priority_type: [2] } },
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
 	},
 ];

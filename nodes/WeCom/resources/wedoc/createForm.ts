@@ -185,6 +185,19 @@ export const createFormDescription: INodeProperties[] = [
 				description: '指定的可填写企业成员；与上方列表合并',
 			},
 			{
+				displayName: '指定填写人员 JSON',
+				name: 'fill_in_range_userids_json',
+				type: 'json',
+				default: '[]',
+				displayOptions: {
+					show: {
+						fill_out_auth: [1],
+					},
+				},
+				description:
+					'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+			},
+			{
 				displayName: '指定填写部门ID列表',
 				name: 'fill_in_range_departmentids_text',
 				type: 'string',

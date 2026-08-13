@@ -603,6 +603,12 @@ export async function executeExternalContact(
 					[
 						this.getNodeParameter('owner_filter', i, ''),
 						this.getNodeParameter('owner_filter_selected', i, []),
+						...parseUserIdJson(
+							this,
+							this.getNodeParameter('ownerFilterJson', i, '[]'),
+							'群主列表 JSON',
+							i,
+						),
 					],
 					'群主 UserID 列表',
 					i,
@@ -1082,6 +1088,12 @@ export async function executeExternalContact(
 						[
 							this.getNodeParameter('sender_user_list', i, ''),
 							this.getNodeParameter('sender_user_list_selected', i, []),
+							...parseUserIdJson(
+								this,
+								this.getNodeParameter('senderUserListJson', i, '[]'),
+								'发表成员 JSON',
+								i,
+							),
 						],
 						'发表成员列表',
 						i,
@@ -2054,6 +2066,12 @@ export async function executeExternalContact(
 					[
 						this.getNodeParameter('owner_userid_list', i, ''),
 						this.getNodeParameter('owner_userid_list_selected', i, []),
+						...parseUserIdJson(
+							this,
+							this.getNodeParameter('ownerUseridListJson', i, '[]'),
+							'群主列表 JSON',
+							i,
+						),
 					],
 					'群主 UserID 列表',
 					i,
@@ -2510,6 +2528,12 @@ export async function executeExternalContact(
 						[
 							this.getNodeParameter('user_list', i, ''),
 							this.getNodeParameter('user_list_selected', i, []),
+							...parseUserIdJson(
+								this,
+								this.getNodeParameter('userListJson', i, '[]'),
+								'使用范围成员 JSON',
+								i,
+							),
 						],
 						'使用范围成员 UserID 列表',
 						i,
@@ -2552,6 +2576,12 @@ export async function executeExternalContact(
 							[
 								this.getNodeParameter('priority_userid_list', i, ''),
 								this.getNodeParameter('priority_userid_list_selected', i, []),
+								...parseUserIdJson(
+									this,
+									this.getNodeParameter('priorityUseridListJson', i, '[]'),
+									'优先分配成员 JSON',
+									i,
+								),
 							],
 							'优先分配成员 UserID 列表',
 							i,
@@ -2589,6 +2619,12 @@ export async function executeExternalContact(
 							[
 								this.getNodeParameter('user_list', i, ''),
 								this.getNodeParameter('user_list_selected', i, []),
+								...parseUserIdJson(
+									this,
+									this.getNodeParameter('userListJson', i, '[]'),
+									'使用范围成员 JSON',
+									i,
+								),
 							],
 							'使用范围成员 UserID 列表',
 							i,
@@ -2631,6 +2667,12 @@ export async function executeExternalContact(
 							[
 								this.getNodeParameter('priority_userid_list', i, ''),
 								this.getNodeParameter('priority_userid_list_selected', i, []),
+								...parseUserIdJson(
+									this,
+									this.getNodeParameter('priorityUseridListJson', i, '[]'),
+									'优先分配成员 JSON',
+									i,
+								),
 							],
 							'优先分配成员 UserID 列表',
 							i,
