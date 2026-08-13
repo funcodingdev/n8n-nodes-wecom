@@ -73,6 +73,15 @@ export const createPublicMailboxDescription: INodeProperties[] = [
 		description: '与上方列表合并去重',
 	},
 	{
+		displayName: '部门列表 JSON',
+		name: 'departmentListJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}]',
+	},
+	{
 		displayName: '标签ID列表',
 		name: 'tag_list',
 		type: 'string',
@@ -89,6 +98,15 @@ export const createPublicMailboxDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly },
 		default: [],
 		description: '与上方标签列表合并去重',
+	},
+	{
+		displayName: '标签列表 JSON',
+		name: 'tagListJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"tagid":1}]',
 	},
 	{
 		displayName: '创建客户端专用密码',

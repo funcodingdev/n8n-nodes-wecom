@@ -525,6 +525,50 @@ function updateWrappedList(
 			),
 		);
 	}
+	if (numeric && parameterName === 'department_list') {
+		value.push(
+			...parseIdJson(
+				context,
+				context.getNodeParameter('departmentListJson', itemIndex, '[]'),
+				'部门列表 JSON',
+				itemIndex,
+				['partyid', 'party_id', 'departmentid', 'id'],
+			),
+		);
+	}
+	if (numeric && parameterName === 'tag_list') {
+		value.push(
+			...parseIdJson(
+				context,
+				context.getNodeParameter('tagListJson', itemIndex, '[]'),
+				'标签列表 JSON',
+				itemIndex,
+				['tagid', 'tag_id', 'id'],
+			),
+		);
+	}
+	if (numeric && parameterName === 'allow_departmentlist') {
+		value.push(
+			...parseIdJson(
+				context,
+				context.getNodeParameter('allowDepartmentListJson', itemIndex, '[]'),
+				'允许使用的部门 JSON',
+				itemIndex,
+				['partyid', 'party_id', 'departmentid', 'id'],
+			),
+		);
+	}
+	if (numeric && parameterName === 'allow_taglist') {
+		value.push(
+			...parseIdJson(
+				context,
+				context.getNodeParameter('allowTagListJson', itemIndex, '[]'),
+				'允许使用的标签 JSON',
+				itemIndex,
+				['tagid', 'tag_id', 'id'],
+			),
+		);
+	}
 	body[parameterName] = {
 		list: numeric
 			? numberList(context, value, label, itemIndex)
@@ -799,6 +843,13 @@ export async function executeMail(
 					[
 						this.getNodeParameter('department_list', i, ''),
 						this.getNodeParameter('department_list_selected', i, []),
+						...parseIdJson(
+							this,
+							this.getNodeParameter('departmentListJson', i, '[]'),
+							'部门列表 JSON',
+							i,
+							['partyid', 'party_id', 'departmentid', 'id'],
+						),
 					],
 					'部门 ID',
 					i,
@@ -808,6 +859,13 @@ export async function executeMail(
 					[
 						this.getNodeParameter('tag_list', i, ''),
 						this.getNodeParameter('tag_list_selected', i, []),
+						...parseIdJson(
+							this,
+							this.getNodeParameter('tagListJson', i, '[]'),
+							'标签列表 JSON',
+							i,
+							['tagid', 'tag_id', 'id'],
+						),
 					],
 					'标签 ID',
 					i,

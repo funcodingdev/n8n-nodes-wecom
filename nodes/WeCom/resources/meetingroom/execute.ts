@@ -290,6 +290,12 @@ export async function executeMeetingroom(
 							[
 								this.getNodeParameter('range_department_list', i, ''),
 								this.getNodeParameter('range_department_list_selected', i, []),
+								...parseUserIdJson(
+									this,
+									this.getNodeParameter('rangeDepartmentListJson', i, '[]'),
+									'可用部门 JSON',
+									i,
+								),
 							],
 							i,
 						);
@@ -370,6 +376,12 @@ export async function executeMeetingroom(
 							[
 								this.getNodeParameter('range_department_list_edit', i, ''),
 								this.getNodeParameter('range_department_list_edit_selected', i, []),
+								...parseUserIdJson(
+									this,
+									this.getNodeParameter('rangeDepartmentListEditJson', i, '[]'),
+									'新可用部门 JSON',
+									i,
+								),
 							],
 							i,
 						);

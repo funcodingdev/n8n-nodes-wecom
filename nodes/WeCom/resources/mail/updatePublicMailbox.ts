@@ -55,6 +55,15 @@ export const updatePublicMailboxDescription: INodeProperties[] = [
 		description: '与上方列表合并去重',
 	},
 	{
+		displayName: '部门列表 JSON',
+		name: 'departmentListJson',
+		type: 'json',
+		displayOptions: { show: switched('updateDepartmentList') },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}]',
+	},
+	{
 		displayName: '更新标签ID列表', name: 'updateTagList', type: 'boolean',
 		displayOptions: { show: showOnly }, default: false,
 	},
@@ -67,6 +76,15 @@ export const updatePublicMailboxDescription: INodeProperties[] = [
 		displayName: '标签(选择)', name: 'tag_list_selected', type: 'multiOptions',
 		typeOptions: { loadOptionsMethod: 'getTags' },
 		displayOptions: { show: switched('updateTagList') }, default: [], description: '与上方标签列表合并去重',
+	},
+	{
+		displayName: '标签列表 JSON',
+		name: 'tagListJson',
+		type: 'json',
+		displayOptions: { show: switched('updateTagList') },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"tagid":1}]',
 	},
 	{
 		displayName: '更新邮箱别名列表', name: 'updateAliasList', type: 'boolean',

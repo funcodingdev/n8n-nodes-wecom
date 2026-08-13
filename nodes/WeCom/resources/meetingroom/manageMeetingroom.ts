@@ -195,6 +195,15 @@ export const manageMeetingroomDescription: INodeProperties[] = [
 		description: '与上方部门列表合并去重',
 	},
 	{
+		displayName: '可用部门 JSON',
+		name: 'rangeDepartmentListJson',
+		type: 'json',
+		displayOptions: { show: { ...showOnly, action: ['add'], set_range: [true] } },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}]',
+	},
+	{
 		displayName: '修改名称',
 		name: 'update_name',
 		type: 'boolean',
@@ -348,5 +357,14 @@ export const manageMeetingroomDescription: INodeProperties[] = [
 		displayOptions: { show: { ...showOnly, action: ['edit'], update_range: [true] } },
 		default: [],
 		description: '与上方部门列表合并去重',
+	},
+	{
+		displayName: '新可用部门 JSON',
+		name: 'rangeDepartmentListEditJson',
+		type: 'json',
+		displayOptions: { show: { ...showOnly, action: ['edit'], update_range: [true] } },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}]',
 	},
 ];

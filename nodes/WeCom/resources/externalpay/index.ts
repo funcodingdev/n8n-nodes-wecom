@@ -122,6 +122,15 @@ export const externalpayDescription: INodeProperties[] = [
 		description: '与上方部门列表合并去重',
 	},
 	{
+		displayName: '使用范围部门 JSON',
+		name: 'scopePartyidsJson',
+		type: 'json',
+		displayOptions: { show: { ...showOnly, operation: ['setMchUseScope'] } },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}]',
+	},
+	{
 		displayName: '使用范围标签',
 		name: 'scope_tagids',
 		type: 'string',
@@ -139,6 +148,15 @@ export const externalpayDescription: INodeProperties[] = [
 		displayOptions: { show: { ...showOnly, operation: ['setMchUseScope'] } },
 		default: [],
 		description: '与上方标签列表合并去重',
+	},
+	{
+		displayName: '使用范围标签 JSON',
+		name: 'scopeTagidsJson',
+		type: 'json',
+		displayOptions: { show: { ...showOnly, operation: ['setMchUseScope'] } },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"tagid":1}]',
 	},
 	{
 		displayName: '该操作会整体更新商户号可使用范围。请确认成员、部门与标签列表完整后执行。',

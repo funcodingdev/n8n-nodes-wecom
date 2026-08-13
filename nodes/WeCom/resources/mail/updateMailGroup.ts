@@ -39,12 +39,30 @@ export const updateMailGroupDescription: INodeProperties[] = [
 		displayOptions: { show: switched('updateDepartmentList') }, default: [],
 		description: '与上方部门列表合并去重',
 	},
+	{
+		displayName: '部门列表 JSON',
+		name: 'departmentListJson',
+		type: 'json',
+		displayOptions: { show: switched('updateDepartmentList') },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}]',
+	},
 	...listUpdate('标签ID列表', 'updateTagList', 'tag_list', true),
 	{
 		displayName: '标签(选择)', name: 'tag_list_selected', type: 'multiOptions',
 		typeOptions: { loadOptionsMethod: 'getTags' },
 		displayOptions: { show: switched('updateTagList') }, default: [],
 		description: '与上方标签列表合并去重',
+	},
+	{
+		displayName: '标签列表 JSON',
+		name: 'tagListJson',
+		type: 'json',
+		displayOptions: { show: switched('updateTagList') },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"tagid":1}]',
 	},
 	{
 		displayName: '更新群组使用权限', name: 'updateAllowType', type: 'boolean',
@@ -66,12 +84,30 @@ export const updateMailGroupDescription: INodeProperties[] = [
 		displayOptions: { show: switched('updateAllowDepartmentList') }, default: [],
 		description: '与上方部门列表合并去重',
 	},
+	{
+		displayName: '允许使用的部门 JSON',
+		name: 'allowDepartmentListJson',
+		type: 'json',
+		displayOptions: { show: switched('updateAllowDepartmentList') },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}]',
+	},
 	...listUpdate('允许使用的标签ID', 'updateAllowTagList', 'allow_taglist', true),
 	{
 		displayName: '允许使用的标签(选择)', name: 'allow_taglist_selected', type: 'multiOptions',
 		typeOptions: { loadOptionsMethod: 'getTags' },
 		displayOptions: { show: switched('updateAllowTagList') }, default: [],
 		description: '与上方标签列表合并去重',
+	},
+	{
+		displayName: '允许使用的标签 JSON',
+		name: 'allowTagListJson',
+		type: 'json',
+		displayOptions: { show: switched('updateAllowTagList') },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"tagid":1}]',
 	},
 ];
 
