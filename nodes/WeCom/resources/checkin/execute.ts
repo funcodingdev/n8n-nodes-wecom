@@ -154,6 +154,24 @@ function jsonObject(
 	return parsed as IDataObject;
 }
 
+function parseJsonArray(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): IDataObject[] {
+	const parsed = jsonValue(context, value, label, itemIndex);
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	if (
+		!parsed.every(
+			(entry) => entry !== null && typeof entry === 'object' && !Array.isArray(entry),
+		)
+	) {
+		fail(context, `${label}的每一项必须是对象`, itemIndex);
+	}
+	return parsed as IDataObject[];
+}
+
 function normalizeRecord(
 	context: IExecuteFunctions,
 	raw: IDataObject,
@@ -670,8 +688,18 @@ export async function executeCheckin(
 				const month = yearmonth % 100;
 				if (month < 1 || month > 12) fail(this, '年月必须使用有效的 YYYYMM 格式', i);
 				const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+				const inputMode = String(this.getNodeParameter('scheduleInputMode', i, 'form'));
 				const collection = this.getNodeParameter('scheduleCollection', i, {}) as IDataObject;
-				const rawSchedules = (collection.schedules as IDataObject[]) || [];
+				let rawSchedules: IDataObject[] = (collection.schedules as IDataObject[]) || [];
+				if (inputMode === 'json' || (!rawSchedules.length && inputMode !== 'form')) {
+					const parsed = parseJsonArray(
+						this,
+						this.getNodeParameter('scheduleListJson', i, '[]'),
+						'排班信息 JSON',
+						i,
+					);
+					if (parsed.length) rawSchedules = parsed;
+				}
 				if (!rawSchedules.length) fail(this, '至少添加一条排班信息', i);
 				const schedules = new Map<string, IDataObject>();
 				for (const [index, raw] of rawSchedules.entries()) {

@@ -25,15 +25,26 @@ export const setScheduleListDescription: INodeProperties[] = [
 		placeholder: '202501',
 	},
 	{
+		displayName: '排班输入方式',
+		name: 'scheduleInputMode',
+		type: 'options',
+		displayOptions: { show: showOnly },
+		options: [
+			{ name: '表单', value: 'form' },
+			{ name: 'JSON', value: 'json' },
+		],
+		default: 'form',
+		description: '少量排班用表单；大批量可用 JSON 数组（items）',
+	},
+	{
 		displayName: '排班信息',
 		name: 'scheduleCollection',
 		type: 'fixedCollection',
-		required: true,
-		displayOptions: { show: showOnly },
+		displayOptions: { show: { ...showOnly, scheduleInputMode: ['form'] } },
 		default: {},
 		placeholder: '添加排班',
 		typeOptions: { multipleValues: true },
-		description: '排班信息列表',
+		description: '排班信息列表；至少 1 条',
 		options: [
 			{
 				displayName: '排班项',
@@ -76,5 +87,14 @@ export const setScheduleListDescription: INodeProperties[] = [
 				],
 			},
 		],
+	},
+	{
+		displayName: '排班信息 JSON',
+		name: 'scheduleListJson',
+		type: 'json',
+		displayOptions: { show: { ...showOnly, scheduleInputMode: ['json'] } },
+		default: '[{"userid":"zhangsan","day":1,"schedule_id":1}]',
+		description:
+			'items 数组。每项含 userid、day（1–31）、schedule_id（0 表示休息）。JSON 非空时覆盖表单',
 	},
 ];
