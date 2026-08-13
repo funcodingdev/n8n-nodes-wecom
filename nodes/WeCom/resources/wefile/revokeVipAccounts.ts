@@ -4,15 +4,34 @@ const showOnly = { resource: ['wefile'], operation: ['revokeVipAccounts'] };
 
 export const revokeVipAccountsDescription: INodeProperties[] = [
 	{
-		displayName: '成员列表',
+		displayName: '成员UserID列表',
+		name: 'vip_userids',
+		type: 'string',
+		displayOptions: { show: showOnly },
+		default: '',
+		placeholder: 'zhangsan,lisi',
+		description:
+			'要撤销高级功能的成员 userid，支持逗号、中文逗号、竖线或换行分隔；与下方选择合并，单次最多 100 个',
+	},
+	{
+		displayName: '成员列表(选择)',
+		name: 'userid_list',
+		type: 'multiOptions',
+		displayOptions: { show: showOnly },
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		default: [],
+		description: '与上方列表合并去重；单次最多 100 个',
+	},
+	{
+		displayName: '成员列表(逐项)',
 		name: 'useridList',
 		type: 'fixedCollection',
-		required: true,
 		displayOptions: { show: showOnly },
 		default: {},
 		placeholder: '添加成员',
 		typeOptions: { multipleValues: true },
-		description: '要撤销分配高级功能的企业成员userid列表，单次操作最多选择100个<a href="https://developer.work.weixin.qq.com/document/path/93674" target="_blank">更多信息</a>',
+		description:
+			'可与上方合并；合计 1–100 个。<a href="https://developer.work.weixin.qq.com/document/path/93674" target="_blank">更多信息</a>',
 		options: [
 			{
 				displayName: '成员',
@@ -22,11 +41,9 @@ export const revokeVipAccountsDescription: INodeProperties[] = [
 						displayName: '成员',
 						name: 'userid',
 						type: 'options',
-						typeOptions: {
-							loadOptionsMethod: 'getAllUsers',
-						},
+						typeOptions: { loadOptionsMethod: 'getAllUsers' },
 						default: '',
-						description: '企业成员的userid',
+						description: '企业成员的 userid',
 					},
 				],
 			},

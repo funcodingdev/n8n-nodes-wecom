@@ -552,29 +552,23 @@ export async function executeWefile(
 					'/cgi-bin/wedrive/file_secure_setting',
 					body,
 				);
-			} else if (operation === 'assignVipAccounts') {
+			} else if (operation === 'assignVipAccounts' || operation === 'revokeVipAccounts') {
 				const useridListCollection = this.getNodeParameter('useridList', i, {}) as IDataObject;
 				const members = Array.isArray(useridListCollection.members)
 					? (useridListCollection.members as IDataObject[])
 					: [];
-				const useridList = list(this, members.map((member) => member.userid), '成员 UserID 列表', i, 1, 100);
-
-				const body: IDataObject = {
-					userid_list: useridList,
-				};
-
-				responseData = await weComApiRequest.call(
+				const useridList = list(
 					this,
-					'POST',
-					'/cgi-bin/wedoc/vip/batch_add',
-					body,
+					[
+						this.getNodeParameter('vip_userids', i, ''),
+						...(this.getNodeParameter('userid_list', i, []) as string[]),
+						...members.map((member) => member.userid),
+					],
+					'成员 UserID 列表',
+					i,
+					1,
+					100,
 				);
-			} else if (operation === 'revokeVipAccounts') {
-				const useridListCollection = this.getNodeParameter('useridList', i, {}) as IDataObject;
-				const members = Array.isArray(useridListCollection.members)
-					? (useridListCollection.members as IDataObject[])
-					: [];
-				const useridList = list(this, members.map((member) => member.userid), '成员 UserID 列表', i, 1, 100);
 
 				const body: IDataObject = {
 					userid_list: useridList,
@@ -583,7 +577,9 @@ export async function executeWefile(
 				responseData = await weComApiRequest.call(
 					this,
 					'POST',
-					'/cgi-bin/wedoc/vip/batch_del',
+					operation === 'assignVipAccounts'
+						? '/cgi-bin/wedoc/vip/batch_add'
+						: '/cgi-bin/wedoc/vip/batch_del',
 					body,
 				);
 			} else if (operation === 'getVipAccountsList') {
