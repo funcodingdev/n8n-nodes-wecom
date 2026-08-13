@@ -316,7 +316,10 @@ function buildRuleGroup(
 		const range: IDataObject = {};
 		const rangeUsers = stringList(
 			context,
-			context.getNodeParameter('range_userids', itemIndex, ''),
+			[
+				context.getNodeParameter('range_userids', itemIndex, ''),
+				context.getNodeParameter('range_userids_selected', itemIndex, []),
+			],
 			'应用范围成员',
 			itemIndex,
 			0,
@@ -324,7 +327,10 @@ function buildRuleGroup(
 		).map((userid) => text(context, userid, '应用范围成员 UserID', itemIndex, 64));
 		const rangeParties = stringList(
 			context,
-			context.getNodeParameter('range_partyids', itemIndex, ''),
+			[
+				context.getNodeParameter('range_partyids', itemIndex, ''),
+				context.getNodeParameter('range_partyids_selected', itemIndex, []),
+			],
 			'应用范围部门',
 			itemIndex,
 			0,
@@ -344,7 +350,10 @@ function buildRuleGroup(
 		if (Object.keys(range).length) group.range = range;
 		const whiteUsers = stringList(
 			context,
-			context.getNodeParameter('white_users', itemIndex, ''),
+			[
+				context.getNodeParameter('white_users', itemIndex, ''),
+				context.getNodeParameter('white_users_selected', itemIndex, []),
+			],
 			'白名单成员',
 			itemIndex,
 			0,
