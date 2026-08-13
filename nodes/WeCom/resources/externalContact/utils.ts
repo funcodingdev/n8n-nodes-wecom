@@ -434,6 +434,41 @@ export function parseUserIdJson(
 	});
 }
 
+/** Parse optional JSON array of string IDs: ["id"] or [{key:"id"}]. Empty / "[]" → []. */
+export function parseStringIdJson(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	keys: string[],
+): string[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	if (parsed.length === 0) return [];
+	return parsed.map((entry, index) => {
+		if (typeof entry === 'string' || typeof entry === 'number') {
+			return requireText(context, entry, `${label}第 ${index + 1} 项`, itemIndex);
+		}
+		if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+			const row = entry as IDataObject;
+			for (const key of keys) {
+				if (row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== '') {
+					return requireText(context, row[key], `${label}第 ${index + 1} 项`, itemIndex);
+				}
+			}
+		}
+		fail(context, `${label}第 ${index + 1} 项必须是字符串或含 ${keys[0]} 的对象`, itemIndex);
+	});
+}
+
 /** Parse optional JSON array of party/dept ids: [1,2] or [{partyid:1}]. Empty / "[]" → []. */
 export function parsePartyIdJson(
 	context: IExecuteFunctions,

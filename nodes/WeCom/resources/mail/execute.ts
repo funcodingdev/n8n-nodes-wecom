@@ -970,7 +970,23 @@ export async function executeMail(
 					if (allEmpty) fail(this, '公共邮箱使用成员不允许全部清空', i);
 				}
 				if (this.getNodeParameter('updateAliasList', i, false) as boolean) {
-					const aliases = emailList(this, this.getNodeParameter('alias_list', i, ''), '邮箱别名', i, 0, 5);
+					const aliases = emailList(
+						this,
+						[
+							this.getNodeParameter('alias_list', i, ''),
+							...parseIdJson(
+								this,
+								this.getNodeParameter('aliasListJson', i, '[]'),
+								'邮箱别名 JSON',
+								i,
+								['email', 'mail', 'alias', 'address'],
+							),
+						],
+						'邮箱别名',
+						i,
+						0,
+						5,
+					);
 					for (const alias of aliases) {
 						const bytes = Buffer.byteLength(alias, 'utf8');
 						if (bytes < 6 || bytes > 64) fail(this, '邮箱别名长度必须为 6–64 字节', i);
@@ -988,7 +1004,22 @@ export async function executeMail(
 				const id = integer(this, this.getNodeParameter('id', i, this.getNodeParameter('mailbox', i, 0)), '公共邮箱 ID', i, 1, MAX_UINT32);
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/publicmail/delete', { id });
 			} else if (operation === 'getPublicMailbox') {
-				const idList = numberList(this, this.getNodeParameter('id_list', i, this.getNodeParameter('mailbox', i, '')), '公共邮箱 ID 列表', i, 1);
+				const idList = numberList(
+					this,
+					[
+						this.getNodeParameter('id_list', i, this.getNodeParameter('mailbox', i, '')),
+						...parseIdJson(
+							this,
+							this.getNodeParameter('idListJson', i, '[]'),
+							'公共邮箱ID列表 JSON',
+							i,
+							['id', 'mailbox_id', 'publicmail_id'],
+						),
+					],
+					'公共邮箱 ID 列表',
+					i,
+					1,
+				);
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/publicmail/get', { id_list: idList });
 			} else if (operation === 'searchPublicMailbox') {
 				const fuzzy = integer(this, this.getNodeParameter('fuzzy', i, 1), '模糊搜索开关', i, 0, 1);

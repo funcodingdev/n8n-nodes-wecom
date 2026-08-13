@@ -57,8 +57,18 @@ export const transferCustomerDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '要转移的客户external_userid列表，多个用英文逗号分隔，一次最多转移100个客户。<a href="https://developer.work.weixin.qq.com/document/path/92125" target="_blank">官方文档</a>。要转移的客户external_userid列表，多个用逗号分隔',
+		description:
+			'要转移的客户 external_userid 列表，多个用英文逗号分隔；与下方 JSON 合并去重，一次最多转移100个客户。<a href="https://developer.work.weixin.qq.com/document/path/92125" target="_blank">官方文档</a>',
 		placeholder: 'wmxxxxxxxxxxxxxxxxxx,wmyyyyyyyyyyyyyyyyyy',
+	},
+	{
+		displayName: '客户列表 JSON',
+		name: 'externalUseridJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: showOnly },
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["wmxxx"] 或 [{"external_userid":"wmxxx"}]',
 	},
 	{
 		displayName: '转移说明',

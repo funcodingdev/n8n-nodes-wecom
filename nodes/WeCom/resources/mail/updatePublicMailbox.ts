@@ -92,7 +92,17 @@ export const updatePublicMailboxDescription: INodeProperties[] = [
 	},
 	{
 		displayName: '邮箱别名列表', name: 'alias_list', type: 'string',
-		displayOptions: { show: switched('updateAliasList') }, default: '', description: separators,
+		displayOptions: { show: switched('updateAliasList') }, default: '',
+		description: `${separators}；与下方 JSON 合并`,
+	},
+	{
+		displayName: '邮箱别名 JSON',
+		name: 'aliasListJson',
+		type: 'json',
+		displayOptions: { show: switched('updateAliasList') },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["a@ex.com"] 或 [{"email":"a@ex.com"}]',
 	},
 	{
 		displayName: '创建新客户端专用密码', name: 'create_auth_code', type: 'boolean',

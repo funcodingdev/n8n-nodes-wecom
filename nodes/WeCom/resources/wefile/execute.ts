@@ -87,6 +87,40 @@ function parseUserIdJson(
 	return listValues(parsed);
 }
 
+function parseStringIdJson(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	keys: string[],
+): string[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	if (parsed.length === 0) return [];
+	return listValues(
+		parsed.map((entry) => {
+			if (typeof entry === 'string' || typeof entry === 'number') return entry;
+			if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+				const row = entry as IDataObject;
+				for (const key of keys) {
+					if (row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== '') {
+						return row[key];
+					}
+				}
+			}
+			return '';
+		}),
+	);
+}
+
 function list(
 	context: IExecuteFunctions,
 	value: unknown,
@@ -501,7 +535,23 @@ export async function executeWefile(
 					{ fileid: fileId, new_name: newName },
 				);
 			} else if (operation === 'moveFile') {
-				const fileIds = list(this, this.getNodeParameter('fileIds', i), '文件 ID 列表', i, 1, 1000);
+				const fileIds = list(
+					this,
+					[
+						this.getNodeParameter('fileIds', i),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('fileIdsJson', i, '[]'),
+							'文件ID列表 JSON',
+							i,
+							['fileid', 'file_id', 'id'],
+						),
+					],
+					'文件 ID 列表',
+					i,
+					1,
+					1000,
+				);
 				const fatherId = text(this, this.getNodeParameter('fatherId', i), '目标文件夹 ID', i);
 				const replace = this.getNodeParameter('replace', i, false) as boolean;
 
@@ -512,7 +562,23 @@ export async function executeWefile(
 					{ fileid: fileIds, fatherid: fatherId, replace },
 				);
 			} else if (operation === 'deleteFile') {
-				const fileIds = list(this, this.getNodeParameter('fileIds', i), '文件 ID 列表', i, 1, 1000);
+				const fileIds = list(
+					this,
+					[
+						this.getNodeParameter('fileIds', i),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('fileIdsJson', i, '[]'),
+							'文件ID列表 JSON',
+							i,
+							['fileid', 'file_id', 'id'],
+						),
+					],
+					'文件 ID 列表',
+					i,
+					1,
+					1000,
+				);
 
 				responseData = await weComApiRequest.call(
 					this,

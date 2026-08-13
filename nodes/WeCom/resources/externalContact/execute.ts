@@ -14,6 +14,7 @@ import {
 	optionalByteText,
 	optionalText,
 	parsePartyIdJson,
+	parseStringIdJson,
 	parseUserIdJson,
 	productImageAttachments,
 	rangeNodes,
@@ -395,7 +396,16 @@ export async function executeExternalContact(
 				if (handover_userid === takeover_userid) fail(this, '原成员和接替成员不能相同', i);
 				const externalUserIds = stringList(
 					this,
-					this.getNodeParameter('external_userid', i),
+					[
+						this.getNodeParameter('external_userid', i),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('externalUseridJson', i, '[]'),
+							'客户列表 JSON',
+							i,
+							['external_userid', 'externalUserid', 'userid', 'id'],
+						),
+					],
 					'客户 UserID 列表',
 					i,
 					{ minimum: 1, maximum: 100 },
@@ -451,7 +461,16 @@ export async function executeExternalContact(
 			} else if (operation === 'transferGroupChat') {
 				const chatIdList = stringList(
 					this,
-					this.getNodeParameter('chat_id_list', i),
+					[
+						this.getNodeParameter('chat_id_list', i),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('chatIdListJson', i, '[]'),
+							'客户群ID列表 JSON',
+							i,
+							['chat_id', 'chatid', 'id'],
+						),
+					],
 					'客户群 ID 列表',
 					i,
 					{ minimum: 1, maximum: 100 },
@@ -521,7 +540,16 @@ export async function executeExternalContact(
 				if (handover_userid === takeover_userid) fail(this, '离职成员和接替成员不能相同', i);
 				const externalUserIds = stringList(
 					this,
-					this.getNodeParameter('external_userid', i),
+					[
+						this.getNodeParameter('external_userid', i),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('externalUseridJson', i, '[]'),
+							'客户列表 JSON',
+							i,
+							['external_userid', 'externalUserid', 'userid', 'id'],
+						),
+					],
 					'客户 UserID 列表',
 					i,
 					{ minimum: 1, maximum: 100 },
@@ -567,7 +595,16 @@ export async function executeExternalContact(
 			} else if (operation === 'resignedTransferGroupChat') {
 				const chatIdList = stringList(
 					this,
-					this.getNodeParameter('chat_id_list', i),
+					[
+						this.getNodeParameter('chat_id_list', i),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('chatIdListJson', i, '[]'),
+							'客户群ID列表 JSON',
+							i,
+							['chat_id', 'chatid', 'id'],
+						),
+					],
 					'客户群 ID 列表',
 					i,
 					{ minimum: 1, maximum: 100 },
@@ -959,7 +996,16 @@ export async function executeExternalContact(
 				const scene = requireOption(this, this.getNodeParameter('scene', i), '场景', i, [1, 2]);
 				const chatIdList = stringList(
 					this,
-					this.getNodeParameter('chat_id_list', i),
+					[
+						this.getNodeParameter('chat_id_list', i),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('chatIdListJson', i, '[]'),
+							'群聊ID列表 JSON',
+							i,
+							['chat_id', 'chatid', 'id'],
+						),
+					],
 					'群聊 ID 列表',
 					i,
 					{ minimum: 1, maximum: 5 },
@@ -1022,7 +1068,16 @@ export async function executeExternalContact(
 				const scene = requireOption(this, this.getNodeParameter('scene', i), '场景', i, [1, 2]);
 				const chatIdList = stringList(
 					this,
-					this.getNodeParameter('chat_id_list', i),
+					[
+						this.getNodeParameter('chat_id_list', i),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('chatIdListJson', i, '[]'),
+							'群聊ID列表 JSON',
+							i,
+							['chat_id', 'chatid', 'id'],
+						),
+					],
 					'群聊 ID 列表',
 					i,
 					{ minimum: 1, maximum: 5 },

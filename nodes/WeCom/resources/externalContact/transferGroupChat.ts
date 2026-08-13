@@ -15,8 +15,17 @@ export const transferGroupChatDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '需要转群主的客户群 ID，逗号分隔，最多 100 个',
+		description: '需要转群主的客户群 ID，逗号分隔；与下方 JSON 合并去重，最多 100 个',
 		placeholder: 'wrxxxxxxxx,wryyyyyyyy',
+	},
+	{
+		displayName: '客户群ID列表 JSON',
+		name: 'chatIdListJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: showOnly },
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["wrxxx"] 或 [{"chat_id":"wrxxx"}]',
 	},
 	{
 		displayName: '新群主UserID',

@@ -44,8 +44,17 @@ export const updateJoinWayDescription: INodeProperties[] = [
 		required: true,
 		default: '',
 		displayOptions: { show: showOnly },
-		description: '将覆盖原群聊列表；支持逗号、竖线或换行分隔，必须为 1–5 个群',
+		description: '将覆盖原群聊列表；与下方 JSON 合并；支持逗号、竖线或换行分隔，必须为 1–5 个群',
 		placeholder: 'wrOgQhDgAAH2Yy-CTZ6POca8mlBEdaaa,wrOgQhDgAALPUthpRAKvl7mgiQRw_aaa',
+	},
+	{
+		displayName: '群聊ID列表 JSON',
+		name: 'chatIdListJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: showOnly },
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["wrxxx"] 或 [{"chat_id":"wrxxx"}]',
 	},
 	{
 		displayName: '更新备注',

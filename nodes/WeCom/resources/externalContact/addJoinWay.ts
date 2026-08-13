@@ -32,8 +32,17 @@ export const addJoinWayDescription: INodeProperties[] = [
 		required: true,
 		default: '',
 		displayOptions: { show: showOnly },
-		description: '使用该配置的客户群ID列表，多个群ID用逗号分隔，最多支持5个',
+		description: '使用该配置的客户群ID列表，多个群ID用逗号分隔；与下方 JSON 合并去重，最多支持5个',
 		placeholder: 'wrOgQhDgAAH2Yy-CTZ6POca8mlBEdaaa,wrOgQhDgAALPUthpRAKvl7mgiQRwAAA',
+	},
+	{
+		displayName: '群聊ID列表 JSON',
+		name: 'chatIdListJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: showOnly },
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["wrxxx"] 或 [{"chat_id":"wrxxx"}]',
 	},
 	{
 		displayName: '备注',
