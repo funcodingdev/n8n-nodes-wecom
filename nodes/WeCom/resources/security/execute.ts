@@ -100,6 +100,40 @@ function parsePartyIdJsonOptional(
 	);
 }
 
+function parseDeviceCodeJsonOptional(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): string[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	if (parsed.length === 0) return [];
+	return stringList(
+		context,
+		parsed.map((entry) => {
+			if (typeof entry === 'string' || typeof entry === 'number') return entry;
+			if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+				const row = entry as IDataObject;
+				return row.device_code ?? row.deviceCode ?? row.code ?? row.id ?? '';
+			}
+			return '';
+		}),
+		label,
+		itemIndex,
+		0,
+		1000,
+	);
+}
+
 function normalizeMac(context: IExecuteFunctions, value: string, itemIndex: number): string {
 	if (!/^(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}$/.test(value)) {
 		fail(context, `MAC 地址格式无效: ${value}`, itemIndex);
@@ -294,7 +328,15 @@ async function runOperation(
 	if (['deleteDevice', 'approveDevice', 'rejectDevice'].includes(operation)) {
 		const deviceCodes = stringList(
 			context,
-			context.getNodeParameter('device_code_list', itemIndex, []),
+			[
+				context.getNodeParameter('device_code_list', itemIndex, []),
+				...parseDeviceCodeJsonOptional(
+					context,
+					context.getNodeParameter('deviceCodeListJson', itemIndex, '[]'),
+					'设备编码列表 JSON',
+					itemIndex,
+				),
+			],
 			'设备编码列表',
 			itemIndex,
 			1,

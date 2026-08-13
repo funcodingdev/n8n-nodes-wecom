@@ -165,8 +165,58 @@ export async function executeLinkedcorp(
 					]),
 				},
 				member_corp_range: {
-					groupids: splitList(this.getNodeParameter('member_groupids', itemIndex, '')),
-					corpids: splitList(this.getNodeParameter('member_corpids', itemIndex, '')),
+					groupids: splitList([
+						this.getNodeParameter('member_groupids', itemIndex, ''),
+						...(() => {
+							const raw = this.getNodeParameter('memberGroupidsJson', itemIndex, '[]');
+							if (raw === undefined || raw === null || String(raw).trim() === '') return [] as string[];
+							let parsed: unknown = raw;
+							if (typeof raw === 'string') {
+								try {
+									parsed = JSON.parse(raw);
+								} catch {
+									fail('下游分组 JSON 不是有效的 JSON');
+								}
+							}
+							if (!Array.isArray(parsed)) fail('下游分组 JSON 必须是数组');
+							return splitList(
+								(parsed as unknown[]).map((entry) => {
+									if (typeof entry === 'string' || typeof entry === 'number') return entry;
+									if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+										const row = entry as IDataObject;
+										return row.groupid ?? row.group_id ?? row.id ?? '';
+									}
+									return '';
+								}),
+							);
+						})(),
+					]),
+					corpids: splitList([
+						this.getNodeParameter('member_corpids', itemIndex, ''),
+						...(() => {
+							const raw = this.getNodeParameter('memberCorpidsJson', itemIndex, '[]');
+							if (raw === undefined || raw === null || String(raw).trim() === '') return [] as string[];
+							let parsed: unknown = raw;
+							if (typeof raw === 'string') {
+								try {
+									parsed = JSON.parse(raw);
+								} catch {
+									fail('下游企业 CorpID JSON 不是有效的 JSON');
+								}
+							}
+							if (!Array.isArray(parsed)) fail('下游企业 CorpID JSON 必须是数组');
+							return splitList(
+								(parsed as unknown[]).map((entry) => {
+									if (typeof entry === 'string' || typeof entry === 'number') return entry;
+									if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+										const row = entry as IDataObject;
+										return row.corpid ?? row.corp_id ?? row.id ?? '';
+									}
+									return '';
+								}),
+							);
+						})(),
+					]),
 				},
 			});
 		};

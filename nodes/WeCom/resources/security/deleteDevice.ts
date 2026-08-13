@@ -57,6 +57,20 @@ export const deleteDeviceDescription: INodeProperties[] = [
 		},
 		placeholder: '49nNtYq',
 		default: [],
-		description: '设备编码列表，每次最多删除100个设备',
+		description: '设备编码列表；与下方 JSON 合并去重，每次最多删除100个设备',
+	},
+	{
+		displayName: '设备编码列表 JSON',
+		name: 'deviceCodeListJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['security'],
+				operation: ['deleteDevice'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["code1"] 或 [{"device_code":"code1"}]',
 	},
 ];

@@ -16,11 +16,29 @@ export const createMailGroupDescription: INodeProperties[] = [
 	},
 	{
 		displayName: '成员邮箱列表', name: 'email_list', type: 'string',
-		displayOptions: { show: showOnly }, default: '', description: separators,
+		displayOptions: { show: showOnly }, default: '', description: `${separators}；与下方 JSON 合并`,
+	},
+	{
+		displayName: '成员邮箱 JSON',
+		name: 'emailListJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["a@ex.com"] 或 [{"email":"a@ex.com"}]',
 	},
 	{
 		displayName: '群组邮箱列表', name: 'group_list', type: 'string',
-		displayOptions: { show: showOnly }, default: '', description: separators,
+		displayOptions: { show: showOnly }, default: '', description: `${separators}；与下方 JSON 合并`,
+	},
+	{
+		displayName: '群组邮箱 JSON',
+		name: 'groupListJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["g@ex.com"] 或 [{"email":"g@ex.com"}]',
 	},
 	{
 		displayName: '部门ID列表', name: 'department_list', type: 'string',
@@ -69,7 +87,16 @@ export const createMailGroupDescription: INodeProperties[] = [
 	},
 	{
 		displayName: '允许使用的成员邮箱', name: 'allow_emaillist', type: 'string',
-		displayOptions: { show: custom }, default: '', description: separators,
+		displayOptions: { show: custom }, default: '', description: `${separators}；与下方 JSON 合并`,
+	},
+	{
+		displayName: '允许使用的成员邮箱 JSON',
+		name: 'allowEmailListJson',
+		type: 'json',
+		displayOptions: { show: custom },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["a@ex.com"] 或 [{"email":"a@ex.com"}]',
 	},
 	{
 		displayName: '允许使用的部门ID', name: 'allow_departmentlist', type: 'string',

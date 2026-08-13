@@ -74,7 +74,16 @@ export function ruleInfoFields(
 			type: 'string',
 			displayOptions: { show: { ...showOnly, rule_info_input_mode: ['form'] } },
 			default: '',
-			description: '与下游企业 CorpID 列表至少填写一项；支持逗号、竖线或换行分隔',
+			description: '与下游企业 CorpID 列表至少填写一项；与下方 JSON 合并；支持逗号、竖线或换行分隔',
+		},
+		{
+			displayName: '下游分组 JSON',
+			name: 'memberGroupidsJson',
+			type: 'json',
+			displayOptions: { show: { ...showOnly, rule_info_input_mode: ['form'] } },
+			default: '[]',
+			description:
+				'可选。非空数组时与上方列表合并去重。支持 ["group1"] 或 [{"groupid":"group1"}]',
 		},
 		{
 			displayName: '下游企业 CorpID 列表',
@@ -82,7 +91,16 @@ export function ruleInfoFields(
 			type: 'string',
 			displayOptions: { show: { ...showOnly, rule_info_input_mode: ['form'] } },
 			default: '',
-			description: '与下游分组 ID 列表至少填写一项；支持逗号、竖线或换行分隔',
+			description: '与下游分组 ID 列表至少填写一项；与下方 JSON 合并；支持逗号、竖线或换行分隔',
+		},
+		{
+			displayName: '下游企业 CorpID JSON',
+			name: 'memberCorpidsJson',
+			type: 'json',
+			displayOptions: { show: { ...showOnly, rule_info_input_mode: ['form'] } },
+			default: '[]',
+			description:
+				'可选。非空数组时与上方列表合并去重。支持 ["wwxxx"] 或 [{"corpid":"wwxxx"}]',
 		},
 		{
 			displayName: '规则详情 JSON',

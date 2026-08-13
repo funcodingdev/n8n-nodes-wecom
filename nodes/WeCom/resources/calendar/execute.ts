@@ -157,6 +157,42 @@ function normalizeUserIdSources(
 	});
 }
 
+/** 解析字符串 ID 列表 JSON：支持 ["id"] / [{key:"id"}]；空数组表示未使用 */
+function normalizeStringIdSources(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	keys: string[],
+	maxBytes = 128,
+): string[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	if (parsed.length === 0) return [];
+	return parsed.map((entry, index) => {
+		if (typeof entry === 'string' || typeof entry === 'number') {
+			return text(context, entry, `${label}第 ${index + 1} 项`, itemIndex, maxBytes);
+		}
+		if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+			const row = entry as IDataObject;
+			for (const key of keys) {
+				if (row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== '') {
+					return text(context, row[key], `${label}第 ${index + 1} 项`, itemIndex, maxBytes);
+				}
+			}
+		}
+		fail(context, `${label}第 ${index + 1} 项必须是字符串或含 ${keys[0]} 的对象`, itemIndex);
+	});
+}
+
 function parseSharesJson(
 	context: IExecuteFunctions,
 	value: unknown,
@@ -578,7 +614,17 @@ export async function executeCalendar(
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/oa/calendar/get', {
 					cal_id_list: stringList(
 						this,
-						this.getNodeParameter('cal_id_list', i),
+						[
+							this.getNodeParameter('cal_id_list', i),
+							...normalizeStringIdSources(
+								this,
+								this.getNodeParameter('calIdListJson', i, '[]'),
+								'日历ID列表 JSON',
+								i,
+								['cal_id', 'calid', 'id'],
+								64,
+							),
+						],
 						'日历 ID',
 						i,
 						1,
@@ -978,7 +1024,17 @@ export async function executeCalendar(
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/oa/schedule/get', {
 					schedule_id_list: stringList(
 						this,
-						this.getNodeParameter('schedule_id_list', i),
+						[
+							this.getNodeParameter('schedule_id_list', i),
+							...normalizeStringIdSources(
+								this,
+								this.getNodeParameter('scheduleIdListJson', i, '[]'),
+								'日程ID列表 JSON',
+								i,
+								['schedule_id', 'scheduleid', 'id'],
+								128,
+							),
+						],
 						'日程 ID',
 						i,
 						1,

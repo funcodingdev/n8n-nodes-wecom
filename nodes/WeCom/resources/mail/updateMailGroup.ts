@@ -31,7 +31,25 @@ export const updateMailGroupDescription: INodeProperties[] = [
 		displayOptions: { show: switched('updateGroupName') }, default: '', description: '最长 200 字节',
 	},
 	...listUpdate('成员邮箱列表', 'updateEmailList', 'email_list'),
+	{
+		displayName: '成员邮箱 JSON',
+		name: 'emailListJson',
+		type: 'json',
+		displayOptions: { show: switched('updateEmailList') },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["a@ex.com"] 或 [{"email":"a@ex.com"}]',
+	},
 	...listUpdate('群组邮箱列表', 'updateGroupList', 'group_list'),
+	{
+		displayName: '群组邮箱 JSON',
+		name: 'groupListJson',
+		type: 'json',
+		displayOptions: { show: switched('updateGroupList') },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["g@ex.com"] 或 [{"email":"g@ex.com"}]',
+	},
 	...listUpdate('部门ID列表', 'updateDepartmentList', 'department_list', true),
 	{
 		displayName: '部门(选择)', name: 'department_list_selected', type: 'multiOptions',
@@ -77,6 +95,15 @@ export const updateMailGroupDescription: INodeProperties[] = [
 		],
 	},
 	...listUpdate('允许使用的成员邮箱', 'updateAllowEmailList', 'allow_emaillist'),
+	{
+		displayName: '允许使用的成员邮箱 JSON',
+		name: 'allowEmailListJson',
+		type: 'json',
+		displayOptions: { show: switched('updateAllowEmailList') },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["a@ex.com"] 或 [{"email":"a@ex.com"}]',
+	},
 	...listUpdate('允许使用的部门ID', 'updateAllowDepartmentList', 'allow_departmentlist', true),
 	{
 		displayName: '允许使用的部门(选择)', name: 'allow_departmentlist_selected', type: 'multiOptions',

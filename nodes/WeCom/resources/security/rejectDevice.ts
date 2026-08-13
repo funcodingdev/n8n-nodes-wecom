@@ -26,6 +26,21 @@ export const rejectDeviceDescription: INodeProperties[] = [
 		},
 		placeholder: '49nNtYq',
 		default: [],
-		description: '设备编码列表，仅可驳回待管理员通过状态（status为3或4）的设备，每次最多驳回100个',
+		description:
+			'设备编码列表，仅可驳回待管理员通过状态（status为3或4）的设备；与下方 JSON 合并去重，每次最多驳回100个',
+	},
+	{
+		displayName: '设备编码列表 JSON',
+		name: 'deviceCodeListJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['security'],
+				operation: ['rejectDevice'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["code1"] 或 [{"device_code":"code1"}]',
 	},
 ];

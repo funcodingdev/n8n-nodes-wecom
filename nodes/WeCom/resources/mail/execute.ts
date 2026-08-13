@@ -569,6 +569,39 @@ function updateWrappedList(
 			),
 		);
 	}
+	if (email && parameterName === 'email_list') {
+		value.push(
+			...parseIdJson(
+				context,
+				context.getNodeParameter('emailListJson', itemIndex, '[]'),
+				'成员邮箱 JSON',
+				itemIndex,
+				['email', 'mail', 'address'],
+			),
+		);
+	}
+	if (email && parameterName === 'group_list') {
+		value.push(
+			...parseIdJson(
+				context,
+				context.getNodeParameter('groupListJson', itemIndex, '[]'),
+				'群组邮箱 JSON',
+				itemIndex,
+				['email', 'mail', 'groupid', 'address'],
+			),
+		);
+	}
+	if (email && parameterName === 'allow_emaillist') {
+		value.push(
+			...parseIdJson(
+				context,
+				context.getNodeParameter('allowEmailListJson', itemIndex, '[]'),
+				'允许使用的成员邮箱 JSON',
+				itemIndex,
+				['email', 'mail', 'address'],
+			),
+		);
+	}
 	body[parameterName] = {
 		list: numeric
 			? numberList(context, value, label, itemIndex)
@@ -686,8 +719,36 @@ export async function executeMail(
 					groupid: emailAddress(this, this.getNodeParameter('groupid', i), '群组地址', i),
 					groupname: text(this, this.getNodeParameter('groupname', i), '群组名称', i, 200),
 				};
-				const emailValues = emailList(this, this.getNodeParameter('email_list', i, this.getNodeParameter('userlist', i, '')), '成员邮箱', i);
-				const groupValues = emailList(this, this.getNodeParameter('group_list', i, ''), '群组邮箱', i);
+				const emailValues = emailList(
+					this,
+					[
+						this.getNodeParameter('email_list', i, this.getNodeParameter('userlist', i, '')),
+						...parseIdJson(
+							this,
+							this.getNodeParameter('emailListJson', i, '[]'),
+							'成员邮箱 JSON',
+							i,
+							['email', 'mail', 'address'],
+						),
+					],
+					'成员邮箱',
+					i,
+				);
+				const groupValues = emailList(
+					this,
+					[
+						this.getNodeParameter('group_list', i, ''),
+						...parseIdJson(
+							this,
+							this.getNodeParameter('groupListJson', i, '[]'),
+							'群组邮箱 JSON',
+							i,
+							['email', 'mail', 'groupid', 'address'],
+						),
+					],
+					'群组邮箱',
+					i,
+				);
 				const departmentValues = numberList(
 					this,
 					[
@@ -730,7 +791,21 @@ export async function executeMail(
 				const allowType = integer(this, this.getNodeParameter('allow_type', i, 0), '群组使用权限', i, 0, 3);
 				body.allow_type = allowType;
 				if (allowType === 3) {
-					const allowEmails = emailList(this, this.getNodeParameter('allow_emaillist', i, ''), '允许使用的成员邮箱', i);
+					const allowEmails = emailList(
+						this,
+						[
+							this.getNodeParameter('allow_emaillist', i, ''),
+							...parseIdJson(
+								this,
+								this.getNodeParameter('allowEmailListJson', i, '[]'),
+								'允许使用的成员邮箱 JSON',
+								i,
+								['email', 'mail', 'address'],
+							),
+						],
+						'允许使用的成员邮箱',
+						i,
+					);
 					const allowDepartments = numberList(
 						this,
 						[
