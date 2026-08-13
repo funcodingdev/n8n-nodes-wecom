@@ -57,4 +57,13 @@ export const assignVipAccountsDescription: INodeProperties[] = [
 			},
 		],
 	},
+	{
+		displayName: '成员列表 JSON',
+		name: 'vipUseridsJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择/逐项合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
 ];

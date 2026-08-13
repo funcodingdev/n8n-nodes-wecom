@@ -53,12 +53,38 @@ function integer(
 
 function listValues(value: unknown): string[] {
 	if (Array.isArray(value)) {
-		return value.flatMap((entry) => listValues(entry));
+		return value.flatMap((entry) => {
+			if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+				const row = entry as IDataObject;
+				const userid = String(row.userid || row.userid_selected || row.user_id || '').trim();
+				return userid ? [userid] : [];
+			}
+			return listValues(entry);
+		});
 	}
 	return String(value ?? '')
 		.split(LIST_SEPARATOR)
 		.map((entry) => entry.trim())
 		.filter(Boolean);
+}
+
+function parseUserIdJson(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): string[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	return listValues(parsed);
 }
 
 function list(
@@ -587,12 +613,19 @@ export async function executeWefile(
 				const members = Array.isArray(useridListCollection.members)
 					? (useridListCollection.members as IDataObject[])
 					: [];
+				const fromJson = parseUserIdJson(
+					this,
+					this.getNodeParameter('vipUseridsJson', i, '[]'),
+					'成员列表 JSON',
+					i,
+				);
 				const useridList = list(
 					this,
 					[
 						this.getNodeParameter('vip_userids', i, ''),
 						...(this.getNodeParameter('userid_list', i, []) as string[]),
 						...members.map((member) => member.userid || member.userid_selected),
+						...fromJson,
 					],
 					'成员 UserID 列表',
 					i,

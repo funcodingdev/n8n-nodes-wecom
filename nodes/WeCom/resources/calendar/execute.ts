@@ -121,6 +121,42 @@ function jsonObject(
 	return parsed as IDataObject;
 }
 
+/** 解析用户 ID 列表 JSON：支持 ["u1"] / [{"userid":"u1"}]；空数组表示未使用 */
+function normalizeUserIdSources(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): string[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	if (parsed.length === 0) return [];
+	return parsed.map((entry, index) => {
+		if (typeof entry === 'string' || typeof entry === 'number') {
+			return text(context, entry, `${label}第 ${index + 1} 项`, itemIndex, 64);
+		}
+		if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+			const row = entry as IDataObject;
+			return text(
+				context,
+				row.userid || row.userid_selected || row.user_id,
+				`${label}第 ${index + 1} 项 UserID`,
+				itemIndex,
+				64,
+			);
+		}
+		fail(context, `${label}第 ${index + 1} 项必须是字符串或含 userid 的对象`, itemIndex);
+	});
+}
+
 function calendarShares(
 	context: IExecuteFunctions,
 	collection: IDataObject,
@@ -761,12 +797,19 @@ export async function executeCalendar(
 			} else if (operation === 'addScheduleAttendees' || operation === 'deleteScheduleAttendees') {
 				const collection = this.getNodeParameter('attendeesCollection', i, {}) as IDataObject;
 				const rawAttendees = (collection.attendees as IDataObject[]) || [];
+				const fromJson = normalizeUserIdSources(
+					this,
+					this.getNodeParameter('attendeesJson', i, '[]'),
+					'参与者列表 JSON',
+					i,
+				);
 				const attendeeIds = stringList(
 					this,
 					[
 						this.getNodeParameter('attendee_userids', i, ''),
 						this.getNodeParameter('attendee_userids_selected', i, []),
 						...rawAttendees.map((attendee) => attendee.userid || attendee.userid_selected),
+						...fromJson,
 					],
 					'日程参与者',
 					i,

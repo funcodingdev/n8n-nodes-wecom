@@ -62,12 +62,38 @@ function integer(
 
 function listValues(value: unknown): string[] {
 	if (Array.isArray(value)) {
-		return value.flatMap((entry) => listValues(entry));
+		return value.flatMap((entry) => {
+			if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+				const row = entry as IDataObject;
+				const userid = String(row.userid || row.userid_selected || row.user_id || '').trim();
+				return userid ? [userid] : [];
+			}
+			return listValues(entry);
+		});
 	}
 	return String(value ?? '')
 		.split(LIST_SEPARATOR)
 		.map((entry) => entry.trim())
 		.filter(Boolean);
+}
+
+function parseUserIdJson(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): string[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	return listValues(parsed);
 }
 
 function stringList(
@@ -1882,10 +1908,17 @@ export async function executeMeeting(
 			else if (operation === 'allocateMeetingAdvancedAccount') {
 				const vip_userids = this.getNodeParameter('vip_userids', i, '') as string;
 				const useridCollection = this.getNodeParameter('useridCollection', i, {}) as IDataObject;
+				const fromJson = parseUserIdJson(
+					this,
+					this.getNodeParameter('vipUseridsJson', i, '[]'),
+					'成员列表 JSON',
+					i,
+				);
 
 				const rawUserids: unknown[] = [
 					vip_userids,
 					this.getNodeParameter('vip_userids_selected', i, []),
+					...fromJson,
 				];
 				if (useridCollection.users) {
 					const usersList = useridCollection.users as IDataObject[];
@@ -1904,10 +1937,17 @@ export async function executeMeeting(
 			} else if (operation === 'deallocateMeetingAdvancedAccount') {
 				const vip_userids = this.getNodeParameter('vip_userids', i, '') as string;
 				const useridCollection = this.getNodeParameter('useridCollection', i, {}) as IDataObject;
+				const fromJson = parseUserIdJson(
+					this,
+					this.getNodeParameter('vipUseridsJson', i, '[]'),
+					'成员列表 JSON',
+					i,
+				);
 
 				const rawUserids: unknown[] = [
 					vip_userids,
 					this.getNodeParameter('vip_userids_selected', i, []),
+					...fromJson,
 				];
 				if (useridCollection.users) {
 					const usersList = useridCollection.users as IDataObject[];
