@@ -66,7 +66,7 @@ export async function executeExternalContact(
 			} else if (operation === 'batchGetExternalContact') {
 				const useridList = stringList(
 					this,
-					this.getNodeParameter('userid', i),
+					[this.getNodeParameter('userid_text', i, ''), this.getNodeParameter('userid', i, [])],
 					'成员 UserID 列表',
 					i,
 					{ minimum: 1, maximum: 100 },
