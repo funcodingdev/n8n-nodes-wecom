@@ -248,6 +248,20 @@ export const sendSchoolNoticeDescription: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: '图文列表 JSON',
+		name: 'newsArticlesJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: {
+			show: {
+				...showOnlyForSchoolNotice,
+				msgtype: ['news'],
+			},
+		},
+		description:
+			'可选。非空数组时覆盖上方图文表单。支持 [{"title":"...","url":"...","description":"...","picurl":"..."}]，1–8 条',
+	},
+	{
 		displayName: 'Mpnews 图文列表',
 		name: 'mpnews_articles',
 		type: 'fixedCollection',
@@ -315,6 +329,20 @@ export const sendSchoolNoticeDescription: INodeProperties[] = [
 				],
 			},
 		],
+	},
+	{
+		displayName: 'Mpnews 图文列表 JSON',
+		name: 'mpnewsArticlesJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: {
+			show: {
+				...showOnlyForSchoolNotice,
+				msgtype: ['mpnews'],
+			},
+		},
+		description:
+			'可选。非空数组时覆盖上方 Mpnews 表单。支持 [{"title":"...","thumb_media_id":"...","content":"...","author":"...","content_source_url":"...","digest":"..."}]，1–8 条',
 	},
 	{
 		displayName: '小程序 AppID',

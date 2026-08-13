@@ -259,8 +259,28 @@ async function runOperation(
 	}
 
 	if (operation === 'importDevice') {
-		const raw = asObject(context.getNodeParameter('device_list', itemIndex, {}));
-		const source = Array.isArray(raw.device) ? raw.device : [];
+		const deviceListJsonRaw = context.getNodeParameter('deviceListJson', itemIndex, '[]');
+		let source: unknown[] = [];
+		if (
+			deviceListJsonRaw !== undefined &&
+			deviceListJsonRaw !== null &&
+			String(deviceListJsonRaw).trim() !== ''
+		) {
+			let parsed: unknown = deviceListJsonRaw;
+			if (typeof deviceListJsonRaw === 'string') {
+				try {
+					parsed = JSON.parse(deviceListJsonRaw);
+				} catch {
+					fail(context, '设备列表 JSON 不是有效的 JSON', itemIndex);
+				}
+			}
+			if (!Array.isArray(parsed)) fail(context, '设备列表 JSON 必须是数组', itemIndex);
+			if (parsed.length > 0) source = parsed as unknown[];
+		}
+		if (source.length === 0) {
+			const raw = asObject(context.getNodeParameter('device_list', itemIndex, {}));
+			source = Array.isArray(raw.device) ? (raw.device as unknown[]) : [];
+		}
 		if (source.length < 1 || source.length > 100) {
 			fail(context, '设备列表数量必须为 1–100 个', itemIndex);
 		}

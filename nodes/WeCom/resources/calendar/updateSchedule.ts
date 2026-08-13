@@ -386,4 +386,13 @@ export const updateScheduleDescription: INodeProperties[] = [
 			},
 		],
 	},
+	{
+		displayName: '提醒设置 JSON',
+		name: 'remindersJson',
+		type: 'json',
+		displayOptions: { show: showOnlyForUpdate },
+		default: '{}',
+		description:
+			'可选。非空对象时覆盖上方提醒表单。支持 {"is_remind":true,"remind_before_event_secs":3600,"is_repeat":false,...}',
+	},
 ];

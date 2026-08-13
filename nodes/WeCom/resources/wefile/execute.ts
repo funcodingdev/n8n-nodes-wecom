@@ -224,6 +224,26 @@ function buildAuthInfo(
 	return authInfo;
 }
 
+function resolveAuthInfoCollection(
+	context: IExecuteFunctions,
+	itemIndex: number,
+): IDataObject {
+	const jsonRaw = context.getNodeParameter('authInfoJson', itemIndex, '[]');
+	if (jsonRaw !== undefined && jsonRaw !== null && String(jsonRaw).trim() !== '') {
+		let parsed: unknown = jsonRaw;
+		if (typeof jsonRaw === 'string') {
+			try {
+				parsed = JSON.parse(jsonRaw);
+			} catch {
+				fail(context, '成员权限 JSON 不是有效的 JSON', itemIndex);
+			}
+		}
+		if (!Array.isArray(parsed)) fail(context, '成员权限 JSON 必须是数组', itemIndex);
+		if (parsed.length > 0) return { members: parsed };
+	}
+	return context.getNodeParameter('authInfoCollection', itemIndex, {}) as IDataObject;
+}
+
 function mergeAuthMembers(
 	context: IExecuteFunctions,
 	itemIndex: number,
@@ -301,7 +321,7 @@ export async function executeWefile(
 			// 空间管理操作
 			if (operation === 'createSpace') {
 				const spaceName = text(this, this.getNodeParameter('spaceName', i), '空间名称', i, 255);
-				const authInfoCollection = this.getNodeParameter('authInfoCollection', i, {}) as IDataObject;
+				const authInfoCollection = resolveAuthInfoCollection(this, i);
 				const spaceSubType = integer(this, this.getNodeParameter('spaceSubType', i, 0), '空间类型', i, 0, 0);
 
 				const body: IDataObject = {
@@ -351,7 +371,7 @@ export async function executeWefile(
 			// 空间权限管理
 			else if (operation === 'addSpaceMembers') {
 				const spaceId = text(this, this.getNodeParameter('spaceId', i), '空间 ID', i);
-				const authInfoCollection = this.getNodeParameter('authInfoCollection', i, {}) as IDataObject;
+				const authInfoCollection = resolveAuthInfoCollection(this, i);
 
 				const body: IDataObject = { spaceid: spaceId };
 				body.auth_info = mergeAuthMembers(this, i, authInfoCollection, true, true, [1, 7], 1);
@@ -364,7 +384,7 @@ export async function executeWefile(
 				);
 			} else if (operation === 'removeSpaceMembers') {
 				const spaceId = text(this, this.getNodeParameter('spaceId', i), '空间 ID', i);
-				const authInfoCollection = this.getNodeParameter('authInfoCollection', i, {}) as IDataObject;
+				const authInfoCollection = resolveAuthInfoCollection(this, i);
 
 				const body: IDataObject = { spaceid: spaceId };
 				body.auth_info = mergeAuthMembers(this, i, authInfoCollection, false, true, undefined, 1);
@@ -599,7 +619,7 @@ export async function executeWefile(
 			// 文件权限管理
 			else if (operation === 'addFileMembers') {
 				const fileId = text(this, this.getNodeParameter('fileId', i), '文件 ID', i);
-				const authInfoCollection = this.getNodeParameter('authInfoCollection', i, {}) as IDataObject;
+				const authInfoCollection = resolveAuthInfoCollection(this, i);
 
 				const body: IDataObject = { fileid: fileId };
 				body.auth_info = mergeAuthMembers(this, i, authInfoCollection, true, false, [1], 1);
@@ -612,7 +632,7 @@ export async function executeWefile(
 				);
 			} else if (operation === 'removeFileMembers') {
 				const fileId = text(this, this.getNodeParameter('fileId', i), '文件 ID', i);
-				const authInfoCollection = this.getNodeParameter('authInfoCollection', i, {}) as IDataObject;
+				const authInfoCollection = resolveAuthInfoCollection(this, i);
 
 				const body: IDataObject = { fileid: fileId };
 				body.auth_info = mergeAuthMembers(this, i, authInfoCollection, false, false, undefined, 1);

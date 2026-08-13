@@ -267,6 +267,21 @@ export const passiveReplyDescription: INodeProperties[] = [
 			},
 		],
 	},
+	{
+		displayName: '图文列表 JSON',
+		name: 'articlesJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: {
+			show: {
+				...showOnlyForPassiveReply,
+				operation: ['reply'],
+				replyType: ['news'],
+			},
+		},
+		description:
+			'可选。非空数组时覆盖上方图文表单。支持 [{"title":"...","url":"...","description":"...","picUrl":"..."}]，1–8 条',
+	},
 	...passiveTemplateCardFields,
 	passiveButtonList,
 	{

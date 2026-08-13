@@ -299,6 +299,27 @@ function requireStandardGrade(
 	return grade;
 }
 
+function resolveDepartmentAdminsCollection(
+	context: IExecuteFunctions,
+	itemIndex: number,
+	label: string,
+): IDataObject {
+	const jsonRaw = context.getNodeParameter('departmentAdminsJson', itemIndex, '[]');
+	if (jsonRaw !== undefined && jsonRaw !== null && String(jsonRaw).trim() !== '') {
+		let parsed: unknown = jsonRaw;
+		if (typeof jsonRaw === 'string') {
+			try {
+				parsed = JSON.parse(jsonRaw);
+			} catch {
+				fail(context, `${label} JSON 不是有效的 JSON`, itemIndex);
+			}
+		}
+		if (!Array.isArray(parsed)) fail(context, `${label} JSON 必须是数组`, itemIndex);
+		if (parsed.length > 0) return { admins: parsed };
+	}
+	return context.getNodeParameter('departmentAdminsCollection', itemIndex, {}) as IDataObject;
+}
+
 function buildDepartmentAdmins(
 	context: IExecuteFunctions,
 	value: unknown,
@@ -1091,7 +1112,7 @@ export async function executeSchool(
 					}
 					const admins = buildDepartmentAdmins(
 						this,
-						this.getNodeParameter('departmentAdminsCollection', i, {}),
+						resolveDepartmentAdminsCollection(this, i, '部门管理员'),
 						'部门管理员',
 						i,
 						'create',
@@ -1222,7 +1243,7 @@ export async function executeSchool(
 					if (this.getNodeParameter('update_department_admins', i, false) === true) {
 						body.department_admins = buildDepartmentAdmins(
 							this,
-							this.getNodeParameter('departmentAdminsCollection', i, {}),
+							resolveDepartmentAdminsCollection(this, i, '部门管理员变更'),
 							'部门管理员变更',
 							i,
 							'update',

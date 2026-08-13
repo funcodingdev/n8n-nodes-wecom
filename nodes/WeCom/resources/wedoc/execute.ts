@@ -3405,11 +3405,31 @@ export async function executeWedoc(
 					i,
 					4096,
 				);
-				const questionList = this.getNodeParameter('questionList', i, {}) as IDataObject;
 				const formSetting = this.getNodeParameter('formSetting', i, {}) as IDataObject;
-				const rawQuestions = Array.isArray(questionList.questions)
-					? (questionList.questions as IDataObject[])
-					: [];
+				const questionsJsonRaw = this.getNodeParameter('questionsJson', i, '[]');
+				let rawQuestions: IDataObject[] = [];
+				if (
+					questionsJsonRaw !== undefined &&
+					questionsJsonRaw !== null &&
+					String(questionsJsonRaw).trim() !== ''
+				) {
+					let parsed: unknown = questionsJsonRaw;
+					if (typeof questionsJsonRaw === 'string') {
+						try {
+							parsed = JSON.parse(questionsJsonRaw);
+						} catch {
+							fail(this, '问题列表 JSON 不是有效的 JSON', i);
+						}
+					}
+					if (!Array.isArray(parsed)) fail(this, '问题列表 JSON 必须是数组', i);
+					if (parsed.length > 0) rawQuestions = parsed as IDataObject[];
+				}
+				if (rawQuestions.length === 0) {
+					const questionList = this.getNodeParameter('questionList', i, {}) as IDataObject;
+					rawQuestions = Array.isArray(questionList.questions)
+						? (questionList.questions as IDataObject[])
+						: [];
+				}
 				if (rawQuestions.length < 1 || rawQuestions.length > 200) {
 					fail(this, '收集表问题数量必须为 1–200 个', i);
 				}

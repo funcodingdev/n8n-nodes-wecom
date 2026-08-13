@@ -300,6 +300,33 @@ function publicRange(
 	return range;
 }
 
+function resolveRemindersCollection(
+	context: IExecuteFunctions,
+	itemIndex: number,
+): IDataObject {
+	const jsonRaw = context.getNodeParameter('remindersJson', itemIndex, '{}');
+	if (jsonRaw !== undefined && jsonRaw !== null && String(jsonRaw).trim() !== '') {
+		let parsed: unknown = jsonRaw;
+		if (typeof jsonRaw === 'string') {
+			try {
+				parsed = JSON.parse(jsonRaw);
+			} catch {
+				fail(context, '提醒设置 JSON 不是有效的 JSON', itemIndex);
+			}
+		}
+		if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+			if (Object.keys(parsed as IDataObject).length > 0) {
+				return { reminders: parsed as IDataObject };
+			}
+		} else if (Array.isArray(parsed) && parsed.length > 0) {
+			fail(context, '提醒设置 JSON 必须是对象（非数组）', itemIndex);
+		} else if (parsed && typeof parsed !== 'object') {
+			fail(context, '提醒设置 JSON 必须是对象', itemIndex);
+		}
+	}
+	return context.getNodeParameter('remindersCollection', itemIndex, {}) as IDataObject;
+}
+
 function scheduleReminders(
 	context: IExecuteFunctions,
 	collection: IDataObject,
@@ -723,7 +750,7 @@ export async function executeCalendar(
 				if (calendarId) schedule.cal_id = calendarId;
 				const reminders = scheduleReminders(
 					this,
-					this.getNodeParameter('remindersCollection', i, {}) as IDataObject,
+					resolveRemindersCollection(this, i),
 					wholeDay,
 					i,
 				);
@@ -824,7 +851,7 @@ export async function executeCalendar(
 				}
 				const reminders = scheduleReminders(
 					this,
-					this.getNodeParameter('remindersCollection', i, {}) as IDataObject,
+					resolveRemindersCollection(this, i),
 					wholeDay,
 					i,
 				);

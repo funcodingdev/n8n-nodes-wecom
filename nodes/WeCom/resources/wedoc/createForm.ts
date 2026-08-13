@@ -150,6 +150,15 @@ export const createFormDescription: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: '问题列表 JSON',
+		name: 'questionsJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方问题表单。支持 [{"question_title":"...","question_type":1,"is_required":false,"note":"","placeholder":"","options":"选项1,选项2","question_extend_setting":{}}]，1–200 条',
+	},
+	{
 		displayName: '收集表设置',
 		name: 'formSetting',
 		type: 'collection',

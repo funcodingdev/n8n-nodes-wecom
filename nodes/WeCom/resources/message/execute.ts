@@ -1637,8 +1637,35 @@ export async function executeMessage(
 						if (videoDescription) video.description = videoDescription;
 						schoolBody.video = video;
 					} else if (msgtype === 'news') {
-						const newsCollection = this.getNodeParameter('news_articles', i, {}) as IDataObject;
-						const articles = ((newsCollection.article as IDataObject[]) || []).map((article) => {
+						const newsJsonRaw = this.getNodeParameter('newsArticlesJson', i, '[]');
+						let newsArticlesRaw: unknown[] = [];
+						if (
+							newsJsonRaw !== undefined &&
+							newsJsonRaw !== null &&
+							String(newsJsonRaw).trim() !== ''
+						) {
+							let parsed: unknown = newsJsonRaw;
+							if (typeof newsJsonRaw === 'string') {
+								try {
+									parsed = JSON.parse(newsJsonRaw);
+								} catch {
+									throw new NodeOperationError(this.getNode(), '学校通知图文列表 JSON 不是有效的 JSON', {
+										itemIndex: i,
+									});
+								}
+							}
+							if (!Array.isArray(parsed)) {
+								throw new NodeOperationError(this.getNode(), '学校通知图文列表 JSON 必须是数组', {
+									itemIndex: i,
+								});
+							}
+							if (parsed.length > 0) newsArticlesRaw = parsed as unknown[];
+						}
+						if (newsArticlesRaw.length === 0) {
+							const newsCollection = this.getNodeParameter('news_articles', i, {}) as IDataObject;
+							newsArticlesRaw = (newsCollection.article as IDataObject[]) || [];
+						}
+						const articles = (newsArticlesRaw as IDataObject[]).map((article) => {
 							const normalized: IDataObject = {
 								title: article.title,
 								url: article.url,
@@ -1659,12 +1686,43 @@ export async function executeMessage(
 						}
 						schoolBody.news = { articles };
 					} else if (msgtype === 'mpnews') {
-						const mpnewsCollection = this.getNodeParameter(
-							'mpnews_articles',
-							i,
-							{},
-						) as IDataObject;
-						const articles = ((mpnewsCollection.article as IDataObject[]) || []).map((article) => {
+						const mpnewsJsonRaw = this.getNodeParameter('mpnewsArticlesJson', i, '[]');
+						let mpnewsArticlesRaw: unknown[] = [];
+						if (
+							mpnewsJsonRaw !== undefined &&
+							mpnewsJsonRaw !== null &&
+							String(mpnewsJsonRaw).trim() !== ''
+						) {
+							let parsed: unknown = mpnewsJsonRaw;
+							if (typeof mpnewsJsonRaw === 'string') {
+								try {
+									parsed = JSON.parse(mpnewsJsonRaw);
+								} catch {
+									throw new NodeOperationError(
+										this.getNode(),
+										'学校通知 Mpnews 图文列表 JSON 不是有效的 JSON',
+										{ itemIndex: i },
+									);
+								}
+							}
+							if (!Array.isArray(parsed)) {
+								throw new NodeOperationError(
+									this.getNode(),
+									'学校通知 Mpnews 图文列表 JSON 必须是数组',
+									{ itemIndex: i },
+								);
+							}
+							if (parsed.length > 0) mpnewsArticlesRaw = parsed as unknown[];
+						}
+						if (mpnewsArticlesRaw.length === 0) {
+							const mpnewsCollection = this.getNodeParameter(
+								'mpnews_articles',
+								i,
+								{},
+							) as IDataObject;
+							mpnewsArticlesRaw = (mpnewsCollection.article as IDataObject[]) || [];
+						}
+						const articles = (mpnewsArticlesRaw as IDataObject[]).map((article) => {
 							const normalized: IDataObject = {
 								title: article.title,
 								thumb_media_id: article.thumb_media_id,

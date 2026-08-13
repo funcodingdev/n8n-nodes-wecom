@@ -304,6 +304,15 @@ export const createScheduleDescription: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: '提醒设置 JSON',
+		name: 'remindersJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '{}',
+		description:
+			'可选。非空对象时覆盖上方提醒表单。支持 {"is_remind":true,"remind_before_event_secs":3600,"is_repeat":false,...}',
+	},
+	{
 		displayName: '高级设置',
 		name: 'advancedSettings',
 		type: 'collection',

@@ -285,6 +285,15 @@ export const schoolExtraHttpOpsDescription: INodeProperties[] = [
 		options: [{ displayName: '管理员', name: 'admins', values: createAdminValues }],
 	},
 	{
+		displayName: '部门管理员 JSON',
+		name: 'departmentAdminsJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: show(['departmentCreate']) },
+		description:
+			'可选。非空数组时覆盖上方表单。支持 [{"userid":"...","type":1,"subject":"..."}]',
+	},
+	{
 		displayName: '部门 ID',
 		name: 'school_department_id',
 		type: 'number',
@@ -428,6 +437,17 @@ export const schoolExtraHttpOpsDescription: INodeProperties[] = [
 			show: { ...show(['departmentUpdate']), update_department_admins: [true] },
 		},
 		options: [{ displayName: '管理员变更', name: 'admins', values: updateAdminValues }],
+	},
+	{
+		displayName: '部门管理员变更 JSON',
+		name: 'departmentAdminsJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: {
+			show: { ...show(['departmentUpdate']), update_department_admins: [true] },
+		},
+		description:
+			'可选。非空数组时覆盖上方表单。支持 [{"userid":"...","op":0,"type":1,"subject":"..."}]',
 	},
 	{
 		displayName: '筛选指定部门',

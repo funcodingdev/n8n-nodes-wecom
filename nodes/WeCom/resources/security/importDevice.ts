@@ -175,4 +175,18 @@ export const importDeviceDescription: INodeProperties[] = [
 			},
 		],
 	},
+	{
+		displayName: '设备列表 JSON',
+		name: 'deviceListJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: {
+			show: {
+				resource: ['security'],
+				operation: ['importDevice'],
+			},
+		},
+		description:
+			'可选。非空数组时覆盖上方设备表单。支持 [{"system":"Windows","mac_addr":["50:81:40:29:33:CA"],"motherboard_uuid":"...","harddisk_uuid":["..."],"domain":"...","pc_name":"..."}] 或 Mac 设备 [{"system":"Mac","seq_no":"...","mac_addr":["..."]}]，1–100 条',
+	},
 ];

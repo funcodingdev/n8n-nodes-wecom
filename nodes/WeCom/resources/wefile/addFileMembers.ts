@@ -150,4 +150,13 @@ export const addFileMembersDescription: INodeProperties[] = [
 			},
 		],
 	},
+	{
+		displayName: '成员权限 JSON',
+		name: 'authInfoJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: showOnly },
+		description:
+			'可选。非空数组时覆盖上方成员权限表单（仍会与上方逗号列表/选择合并）。支持 [{"type":1,"userid":"...","auth":1}] 或 [{"type":2,"departmentid":1,"auth":1}]',
+	},
 ];

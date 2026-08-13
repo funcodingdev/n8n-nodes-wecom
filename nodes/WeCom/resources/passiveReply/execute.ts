@@ -276,8 +276,31 @@ export async function executePassiveReply(
 				if (description) replyContent.Description = description;
 			}
 		} else if (replyType === 'news') {
-			const articleData = this.getNodeParameter('articles', itemIndex, {}) as IDataObject;
-			const articles = Array.isArray(articleData.article) ? articleData.article as IDataObject[] : [];
+			const articlesJsonRaw = this.getNodeParameter('articlesJson', itemIndex, '[]');
+			let articles: IDataObject[] = [];
+			if (
+				articlesJsonRaw !== undefined &&
+				articlesJsonRaw !== null &&
+				String(articlesJsonRaw).trim() !== ''
+			) {
+				let parsed: unknown = articlesJsonRaw;
+				if (typeof articlesJsonRaw === 'string') {
+					try {
+						parsed = JSON.parse(articlesJsonRaw);
+					} catch {
+						fail('图文列表 JSON 不是有效的 JSON');
+					}
+				}
+				if (!Array.isArray(parsed)) fail('图文列表 JSON 必须是数组');
+				const parsedList = parsed as unknown[];
+				if (parsedList.length > 0) articles = parsedList as IDataObject[];
+			}
+			if (articles.length === 0) {
+				const articleData = this.getNodeParameter('articles', itemIndex, {}) as IDataObject;
+				articles = Array.isArray(articleData.article)
+					? (articleData.article as IDataObject[])
+					: [];
+			}
 			if (articles.length < 1 || articles.length > 8) fail('图文消息必须包含 1 到 8 条图文');
 			replyContent = {
 				Articles: articles.map((article, index) => {
@@ -291,9 +314,10 @@ export async function executePassiveReply(
 						512,
 					);
 					if (description) normalized.Description = description;
-					if (String(article.picUrl ?? '').trim()) {
+					const picUrl = article.picUrl ?? article.picurl;
+					if (String(picUrl ?? '').trim()) {
 						normalized.PicUrl = validateHttpUrl(
-							article.picUrl,
+							picUrl,
 							`第 ${index + 1} 条图文封面图片链接`,
 						);
 					}
