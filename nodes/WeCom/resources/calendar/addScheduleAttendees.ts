@@ -14,15 +14,23 @@ export const addScheduleAttendeesDescription: INodeProperties[] = [
 		placeholder: '17c7d2bd9f20d652840f72f59e796AAA',
 	},
 	{
-		displayName: '参与者',
+		displayName: '参与者UserID列表',
+		name: 'attendee_userids',
+		type: 'string',
+		displayOptions: { show: showOnly },
+		default: '',
+		placeholder: 'zhangsan,lisi',
+		description: '要添加的参与者 userid，逗号分隔；与下方选择合并，累计最多 1000 人',
+	},
+	{
+		displayName: '参与者(选择)',
 		name: 'attendeesCollection',
 		type: 'fixedCollection',
-		required: true,
 		displayOptions: { show: showOnly },
 		default: {},
 		placeholder: '添加参与者',
 		typeOptions: { multipleValues: true },
-		description: '要添加的参与者列表。注意：该接口是增量式，累计最多支持1000人',
+		description: '要添加的参与者列表。该接口是增量式，累计最多支持 1000 人；可与上方 UserID 列表合并',
 		options: [
 			{
 				displayName: '参与者',
@@ -37,7 +45,7 @@ export const addScheduleAttendeesDescription: INodeProperties[] = [
 						typeOptions: {
 							loadOptionsMethod: 'getAllUsers',
 						},
-						description: '参与者的UserID，不多于64字节。可从列表选择或手动输入UserID',
+						description: '参与者的 UserID，不多于 64 字节',
 					},
 				],
 			},

@@ -76,7 +76,17 @@ export const updateScheduleDescription: INodeProperties[] = [
 		placeholder: 'test_place',
 	},
 	{
-		displayName: '参与者',
+		displayName: '参与者UserID列表',
+		name: 'attendee_userids',
+		type: 'string',
+		displayOptions: { show: showOnlyForUpdate },
+		default: '',
+		placeholder: 'zhangsan,lisi',
+		description:
+			'参与者 userid，逗号分隔，最多 1000；与下方选择合并。更新为覆盖式，增量请用新增/删除参与者接口',
+	},
+	{
+		displayName: '参与者(选择)',
 		name: 'attendees',
 		type: 'multiOptions',
 		displayOptions: { show: showOnlyForUpdate },
@@ -85,10 +95,19 @@ export const updateScheduleDescription: INodeProperties[] = [
 		},
 		default: [],
 		description:
-			'日程参与者列表。最多支持1000人。注意：更新操作是覆盖式，如果需要增量式更新成员，可使用"新增日程参与者"与"删除日程参与者"接口。可从列表选择或手动输入UserID',
+			'日程参与者列表。最多支持1000人。注意：更新操作是覆盖式，如果需要增量式更新成员，可使用"新增日程参与者"与"删除日程参与者"接口',
 	},
 	{
-		displayName: '日程管理员',
+		displayName: '管理员UserID列表',
+		name: 'admin_userids',
+		type: 'string',
+		displayOptions: { show: showOnlyForUpdate },
+		default: '',
+		placeholder: 'zhangsan',
+		description: '管理员 userid，逗号分隔，最多 3 人；须在参与者中；与下方选择合并',
+	},
+	{
+		displayName: '日程管理员(选择)',
 		name: 'admins',
 		type: 'multiOptions',
 		displayOptions: { show: showOnlyForUpdate },
@@ -96,8 +115,7 @@ export const updateScheduleDescription: INodeProperties[] = [
 			loadOptionsMethod: 'getAllUsers',
 		},
 		default: [],
-		description:
-			'日程的管理员userid列表，管理员必须在共享成员的列表中。最多指定3人。可从列表选择或手动输入UserID',
+		description: '日程管理员，最多 3 人；须在参与者中',
 	},
 	{
 		displayName: '跳过参与者更新',

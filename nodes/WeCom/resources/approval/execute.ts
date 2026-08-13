@@ -18,6 +18,11 @@ const APPLICATION_CONTROLS = new Set([
 	'File',
 	'PhoneNumber',
 	'Tips',
+	'RelatedApproval',
+	'Location',
+	'Vacation',
+	'Attendance',
+	'Table',
 ]);
 const TEMPLATE_CONTROLS = new Set([
 	'Text',
@@ -325,6 +330,116 @@ function buildApplicationContents(
 			value.files = files.map((fileId) => ({
 				file_id: text(context, fileId, '附件 MediaID', itemIndex),
 			}));
+		} else if (control === 'RelatedApproval') {
+			const spNos = stringList(
+				context,
+				raw.related_sp_nos,
+				`第 ${index + 1} 个关联审批单号`,
+				itemIndex,
+				1,
+				100,
+			);
+			value.related_approval = spNos.map((spNo) => ({
+				sp_no: text(context, spNo, '关联审批单号', itemIndex, 64),
+			}));
+		} else if (control === 'Location') {
+			value.location = {
+				latitude: text(context, raw.location_latitude, '纬度', itemIndex, 32),
+				longitude: text(context, raw.location_longitude, '经度', itemIndex, 32),
+				title: text(context, raw.location_title, '地点标题', itemIndex, 128),
+				address: text(context, raw.location_address, '地点详情', itemIndex, 256, false),
+				time: timestamp(context, raw.location_time, `第 ${index + 1} 个位置控件时间`, itemIndex),
+			};
+		} else if (control === 'Vacation' || control === 'Attendance') {
+			const rangeType = String(raw.attendance_range_type ?? 'hour');
+			if (!['halfday', 'hour'].includes(rangeType)) {
+				fail(context, '假勤时长类型只能是 halfday 或 hour', itemIndex);
+			}
+			const begin = timestamp(
+				context,
+				raw.attendance_begin,
+				`第 ${index + 1} 个假勤开始时间`,
+				itemIndex,
+			);
+			const end = timestamp(
+				context,
+				raw.attendance_end,
+				`第 ${index + 1} 个假勤结束时间`,
+				itemIndex,
+			);
+			if (end <= begin) fail(context, `第 ${index + 1} 个假勤结束时间必须晚于开始时间`, itemIndex);
+			const duration = integer(
+				context,
+				raw.attendance_duration ?? 0,
+				`第 ${index + 1} 个假勤时长`,
+				itemIndex,
+				0,
+				MAX_UINT32,
+			);
+			const attendanceType =
+				control === 'Vacation'
+					? 1
+					: integer(context, raw.attendance_type ?? 3, '假勤类型', itemIndex, 1, 5);
+			if (control === 'Attendance' && ![3, 4, 5].includes(attendanceType)) {
+				fail(context, 'Attendance 控件类型只能是 3(出差)/4(外出)/5(加班)', itemIndex);
+			}
+			const attendance: IDataObject = {
+				date_range: {
+					type: rangeType,
+					new_begin: begin,
+					new_end: end,
+					new_duration: duration,
+				},
+				type: attendanceType,
+			};
+			if (control === 'Attendance') {
+				const sliceInfo = jsonObject(
+					context,
+					raw.attendance_slice_info_json ?? '{}',
+					`第 ${index + 1} 个假勤分片`,
+					itemIndex,
+				);
+				if (isNonEmptyObject(sliceInfo)) attendance.slice_info = sliceInfo;
+			}
+			if (control === 'Vacation') {
+				const selectorKey = text(
+					context,
+					raw.vacation_selector_key,
+					`第 ${index + 1} 个请假类型 Key`,
+					itemIndex,
+					64,
+				);
+				value.vacation = {
+					selector: {
+						type: 'single',
+						options: [{ key: selectorKey }],
+						exp_type: 0,
+					},
+					attendance,
+				};
+			} else {
+				value.attendance = attendance;
+			}
+		} else if (control === 'Table') {
+			const children = jsonValue(
+				context,
+				raw.table_children_json ?? '[]',
+				`第 ${index + 1} 个明细控件 children`,
+				itemIndex,
+			);
+			if (!Array.isArray(children) || children.length < 1) {
+				fail(context, `第 ${index + 1} 个明细控件至少需要一行子明细`, itemIndex);
+			}
+			for (const [rowIndex, row] of children.entries()) {
+				if (!row || typeof row !== 'object' || Array.isArray(row)) {
+					fail(context, `明细第 ${rowIndex + 1} 行必须是包含 list 的对象`, itemIndex);
+				}
+				const list = (row as IDataObject).list;
+				if (!Array.isArray(list) || list.length < 1) {
+					fail(context, `明细第 ${rowIndex + 1} 行 list 不能为空`, itemIndex);
+				}
+			}
+			value.children = children as IDataObject[];
 		}
 		contents.push({ control, id, value });
 	}

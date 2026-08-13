@@ -502,7 +502,10 @@ export async function executeCalendar(
 				const skipAttendees = this.getNodeParameter('skip_attendees', i, false) as boolean;
 				const admins = stringList(
 					this,
-					this.getNodeParameter('admins', i, []),
+					[
+						this.getNodeParameter('admin_userids', i, ''),
+						...(this.getNodeParameter('admins', i, []) as string[]),
+					],
 					'日程管理员',
 					i,
 					0,
@@ -510,7 +513,10 @@ export async function executeCalendar(
 				);
 				const attendees = stringList(
 					this,
-					this.getNodeParameter('attendees', i, []),
+					[
+						this.getNodeParameter('attendee_userids', i, ''),
+						...(this.getNodeParameter('attendees', i, []) as string[]),
+					],
 					'日程参与者',
 					i,
 					0,
@@ -611,6 +617,11 @@ export async function executeCalendar(
 				if (description && scheduleBody.description === undefined)
 					scheduleBody.description = description;
 				if (location && scheduleBody.location === undefined) scheduleBody.location = location;
+				if (scheduleBody.is_whole_day === undefined) {
+					scheduleBody.is_whole_day = this.getNodeParameter('schedule_is_whole_day', i, false)
+						? 1
+						: 0;
+				}
 				const formStart = unixTimestamp(
 					this,
 					this.getNodeParameter('schedule_start_time', i, ''),
@@ -639,6 +650,38 @@ export async function executeCalendar(
 					i,
 					128,
 				);
+				const skipAttendees = this.getNodeParameter('skip_attendees', i, false) as boolean;
+				const admins = stringList(
+					this,
+					[
+						this.getNodeParameter('admin_userids', i, ''),
+						...(this.getNodeParameter('admins', i, []) as string[]),
+					],
+					'日程管理员',
+					i,
+					0,
+					3,
+				);
+				if (admins.length && scheduleBody.admins === undefined) scheduleBody.admins = admins;
+				if (!skipAttendees && scheduleBody.attendees === undefined) {
+					const attendees = stringList(
+						this,
+						[
+							this.getNodeParameter('attendee_userids', i, ''),
+							...(this.getNodeParameter('attendees', i, []) as string[]),
+							...admins,
+						],
+						'日程参与者',
+						i,
+						0,
+						1000,
+					);
+					if (attendees.length) {
+						scheduleBody.attendees = attendees.map((userid) => ({
+							userid: text(this, userid, '参与者 UserID', i, 64),
+						}));
+					}
+				}
 				const { opMode, opStart } = operationScope(
 					this,
 					this.getNodeParameter('op_mode', i, 1),
@@ -657,7 +700,10 @@ export async function executeCalendar(
 				const rawAttendees = (collection.attendees as IDataObject[]) || [];
 				const attendeeIds = stringList(
 					this,
-					rawAttendees.map((attendee) => attendee.userid),
+					[
+						this.getNodeParameter('attendee_userids', i, ''),
+						...rawAttendees.map((attendee) => attendee.userid),
+					],
 					'日程参与者',
 					i,
 					1,
