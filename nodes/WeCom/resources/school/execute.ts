@@ -724,7 +724,8 @@ export async function executeSchool(
 				case 'deleteStudent': {
 					const userid = requireSchoolContactId(
 						this,
-						this.getNodeParameter('userid', i),
+						this.getNodeParameter('userid', i, '') ||
+							this.getNodeParameter('userid_selected', i, ''),
 						'学生 UserID',
 						i,
 					);
@@ -863,7 +864,8 @@ export async function executeSchool(
 				case 'deleteParent': {
 					const userid = requireSchoolContactId(
 						this,
-						this.getNodeParameter('userid', i),
+						this.getNodeParameter('userid', i, '') ||
+							this.getNodeParameter('userid_selected', i, ''),
 						'家长 UserID',
 						i,
 					);
