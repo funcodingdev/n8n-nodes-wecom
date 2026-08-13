@@ -40,4 +40,18 @@ export const submitBatchDelVipJobDescription: INodeProperties[] = [
 		default: [],
 		description: '与上方列表合并去重；单次最多 100 个',
 	},
+	{
+		displayName: '成员列表 JSON',
+		name: 'vipUseridsJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['security'],
+				operation: ['submitBatchDelVipJob'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
 ];

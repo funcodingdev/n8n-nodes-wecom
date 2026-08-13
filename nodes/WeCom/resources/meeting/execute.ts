@@ -1609,10 +1609,17 @@ export async function executeMeeting(
 					i,
 					{},
 				) as IDataObject;
+				const fromJson = parseUserIdJson(
+					this,
+					this.getNodeParameter('inviteesJson', i, '[]'),
+					'受邀成员 JSON',
+					i,
+				);
 
 				const rawIds: unknown[] = [
 					invitee_userids,
 					this.getNodeParameter('invitee_userids_selected', i, []),
+					...fromJson,
 				];
 				((inviteesCollection?.invitees as IDataObject[]) || []).forEach((inv) => {
 					if (inv.userid || inv.userid_selected) rawIds.push(inv.userid || inv.userid_selected);

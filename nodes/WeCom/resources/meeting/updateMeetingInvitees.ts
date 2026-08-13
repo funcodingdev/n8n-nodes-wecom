@@ -69,4 +69,13 @@ export const updateMeetingInviteesDescription: INodeProperties[] = [
 			},
 		],
 	},
+	{
+		displayName: '受邀成员 JSON',
+		name: 'inviteesJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择/集合合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
 ];

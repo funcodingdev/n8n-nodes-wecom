@@ -329,9 +329,31 @@ async function runOperation(
 	if (['submitBatchAddVipJob', 'submitBatchDelVipJob'].includes(operation)) {
 		const typed = context.getNodeParameter('vip_userids', itemIndex, '');
 		const selected = context.getNodeParameter('userid_list', itemIndex, []);
+		const fromJsonRaw = context.getNodeParameter('vipUseridsJson', itemIndex, '[]');
+		let fromJson: unknown[] = [];
+		if (fromJsonRaw !== undefined && fromJsonRaw !== null && String(fromJsonRaw).trim() !== '') {
+			try {
+				const parsed = typeof fromJsonRaw === 'string' ? JSON.parse(fromJsonRaw) : fromJsonRaw;
+				if (!Array.isArray(parsed)) fail(context, '成员列表 JSON 必须是数组', itemIndex);
+				fromJson = parsed.map((entry) => {
+					if (typeof entry === 'string' || typeof entry === 'number') return String(entry);
+					if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+						const row = entry as IDataObject;
+						return String(row.userid || row.userid_selected || row.user_id || '').trim();
+					}
+					return '';
+				}).filter(Boolean);
+			} catch (error) {
+				fail(
+					context,
+					`成员列表 JSON 解析失败: ${(error as Error).message}`,
+					itemIndex,
+				);
+			}
+		}
 		const userids = stringList(
 			context,
-			[typed, ...(Array.isArray(selected) ? selected : [selected])],
+			[typed, ...(Array.isArray(selected) ? selected : [selected]), ...fromJson],
 			'成员 UserID 列表',
 			itemIndex,
 			1,
