@@ -332,17 +332,40 @@ export const createUserDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'lisi',
-		description: '可选。直属上级UserID，设置范围为企业内成员，可以设置最多1个上级。多个值用逗号分隔，但API仅支持最多1个上级。<a href="https://developer.work.weixin.qq.com/document/path/90195" target="_blank">官方文档</a>',
+		description:
+			'可选。直属上级UserID，设置范围为企业内成员，可以设置最多1个上级；可与下方选择二选一。<a href="https://developer.work.weixin.qq.com/document/path/90195" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '主部门',
+		displayName: '直属上级(选择)',
+		name: 'direct_leader_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: showOnlyForCreate,
+		},
+		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
+	},
+	{
+		displayName: '主部门ID',
 		name: 'main_department',
 		type: 'number',
 		displayOptions: {
 			show: showOnlyForCreate,
 		},
 		default: 0,
-		description: '可选。主部门。<a href="https://developer.work.weixin.qq.com/document/path/90195" target="_blank">官方文档</a>',
+		description: '可选。主部门 ID；可与下方选择二选一。<a href="https://developer.work.weixin.qq.com/document/path/90195" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '主部门(选择)',
+		name: 'main_department_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getDepartments' },
+		displayOptions: {
+			show: showOnlyForCreate,
+		},
+		default: '',
+		description: '与上方主部门 ID 二选一；均填写时以数字字段为准',
 	},
 	{
 		displayName: '扩展属性',

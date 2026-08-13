@@ -322,17 +322,40 @@ export const updateUserDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'lisi',
-		description: '可选。直属上级，可以设置企业范围内成员为直属上级，最多设置1个。<a href="https://developer.work.weixin.qq.com/document/path/90197" target="_blank">官方文档</a>',
+		description:
+			'可选。直属上级，可以设置企业范围内成员为直属上级，最多设置1个；可与下方选择二选一。<a href="https://developer.work.weixin.qq.com/document/path/90197" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '主部门',
+		displayName: '直属上级(选择)',
+		name: 'direct_leader_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: showOnlyForUpdate,
+		},
+		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
+	},
+	{
+		displayName: '主部门ID',
 		name: 'main_department',
 		type: 'number',
 		displayOptions: {
 			show: showOnlyForUpdate,
 		},
 		default: 0,
-		description: '可选。主部门。<a href="https://developer.work.weixin.qq.com/document/path/90197" target="_blank">官方文档</a>',
+		description: '可选。主部门 ID；可与下方选择二选一。<a href="https://developer.work.weixin.qq.com/document/path/90197" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '主部门(选择)',
+		name: 'main_department_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getDepartments' },
+		displayOptions: {
+			show: showOnlyForUpdate,
+		},
+		default: '',
+		description: '与上方主部门 ID 二选一；均填写时以数字字段为准',
 	},
 	{
 		displayName: '扩展属性',

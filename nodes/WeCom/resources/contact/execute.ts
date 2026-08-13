@@ -281,11 +281,17 @@ export async function executeContact(
 					}
 					body.is_leader_in_dept = leaderValues;
 				}
-				const direct_leader = this.getNodeParameter('direct_leader', i, '') as string;
+				const direct_leader = String(
+					this.getNodeParameter('direct_leader', i, '') ||
+						this.getNodeParameter('direct_leader_selected', i, ''),
+				).trim();
 				if (direct_leader) {
 					body.direct_leader = splitCsv(direct_leader, 1);
 				}
-				const main_department = this.getNodeParameter('main_department', i, 0) as number;
+				const main_department_raw =
+					this.getNodeParameter('main_department', i, 0) ||
+					this.getNodeParameter('main_department_selected', i, '');
+				const main_department = Number(main_department_raw);
 				if (main_department) {
 					body.main_department = main_department;
 				}
@@ -433,11 +439,17 @@ export async function executeContact(
 					}
 					body.is_leader_in_dept = leaderValues;
 				}
-				const direct_leader = this.getNodeParameter('direct_leader', i, '') as string;
+				const direct_leader = String(
+					this.getNodeParameter('direct_leader', i, '') ||
+						this.getNodeParameter('direct_leader_selected', i, ''),
+				).trim();
 				if (direct_leader) {
 					body.direct_leader = splitCsv(direct_leader, 1);
 				}
-				const main_department = this.getNodeParameter('main_department', i, 0) as number;
+				const main_department_raw =
+					this.getNodeParameter('main_department', i, 0) ||
+					this.getNodeParameter('main_department_selected', i, '');
+				const main_department = Number(main_department_raw);
 				if (main_department) {
 					body.main_department = main_department;
 				}

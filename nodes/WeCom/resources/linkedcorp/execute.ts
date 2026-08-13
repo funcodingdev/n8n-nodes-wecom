@@ -102,7 +102,10 @@ export async function executeLinkedcorp(
 			}
 			return validateRuleInfo({
 				owner_corp_range: {
-					departmentids: splitList(this.getNodeParameter('owner_departmentids', itemIndex, '')),
+					departmentids: splitList([
+						this.getNodeParameter('owner_departmentids', itemIndex, ''),
+						this.getNodeParameter('owner_departmentids_selected', itemIndex, []),
+					]),
 					userids: splitList([
 						this.getNodeParameter('owner_userids', itemIndex, ''),
 						this.getNodeParameter('owner_userids_selected', itemIndex, []),
