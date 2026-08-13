@@ -121,8 +121,21 @@ export const createFormDescription: INodeProperties[] = [
 								question_type: [2, 3, 15],
 							},
 						},
-						description: '选项列表，多个选项用英文逗号分隔',
+						description: '选项列表，多个选项用英文逗号分隔；与下方 JSON 合并',
 						placeholder: '例如: 选项1,选项2,选项3',
+					},
+					{
+						displayName: '选项 JSON',
+						name: 'options_json',
+						type: 'json',
+						default: '[]',
+						displayOptions: {
+							show: {
+								question_type: [2, 3, 15],
+							},
+						},
+						description:
+							'可选。非空数组时与上方列表合并去重。支持 ["选项1"] 或 [{"text":"选项1"}]',
 					},
 					{
 						displayName: '问题扩展设置',

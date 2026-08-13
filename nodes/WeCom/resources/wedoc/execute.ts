@@ -3340,7 +3340,16 @@ export async function executeWedoc(
 						if ([2, 3, 15].includes(questionType)) {
 							const options = stringList(
 								this,
-								q.options,
+								[
+									q.options,
+									...parseStringIdJson(
+										this,
+										q.options_json ?? '[]',
+										`第 ${idx + 1} 题选项 JSON`,
+										i,
+										['text', 'value', 'name', 'option'],
+									),
+								],
 								`第 ${idx + 1} 题选项`,
 								i,
 								1,
