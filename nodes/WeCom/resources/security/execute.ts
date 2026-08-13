@@ -264,7 +264,10 @@ async function runOperation(
 		if (userids.length) body.userid_list = userids;
 		const departments = optionalList(
 			context,
-			context.getNodeParameter('department_id_list', itemIndex, ''),
+			[
+				context.getNodeParameter('department_id_list', itemIndex, ''),
+				context.getNodeParameter('department_id_list_selected', itemIndex, []),
+			],
 			'部门 ID 列表',
 			itemIndex,
 		).map((id) => integerInRange(context, id, '部门 ID', itemIndex, 1, 4294967295));

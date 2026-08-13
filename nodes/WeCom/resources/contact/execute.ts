@@ -17,12 +17,19 @@ function splitCsv(value: unknown, limit?: number): string[] {
 
 function parseIntegerCsv(
 	context: IExecuteFunctions,
-	value: string,
+	value: unknown,
 	label: string,
 	itemIndex: number,
 	limit?: number,
 ): number[] {
-	const values = splitCsv(value);
+	const flatten = (input: unknown): string[] => {
+		if (Array.isArray(input)) return input.flatMap((entry) => flatten(entry));
+		return String(input ?? '')
+			.split(/[,，|\n\r]+/)
+			.map((entry) => entry.trim())
+			.filter(Boolean);
+	};
+	const values = flatten(value);
 	const invalid = values.find((item) => !/^\d+$/.test(item));
 	if (invalid !== undefined) {
 		throw new NodeOperationError(
@@ -31,7 +38,7 @@ function parseIntegerCsv(
 			{ itemIndex },
 		);
 	}
-	const numbers = values.map(Number);
+	const numbers = [...new Set(values.map(Number))];
 	return limit === undefined ? numbers : numbers.slice(0, limit);
 }
 
@@ -159,8 +166,16 @@ export async function executeContact(
 				const name = this.getNodeParameter('name', i) as string;
 				const mobile = this.getNodeParameter('mobile', i, '') as string;
 				const email = this.getNodeParameter('email', i, '') as string;
-				const department = this.getNodeParameter('department', i, '') as string;
-				const departmentArray = parseIntegerCsv(this, department, '所属部门 ID', i, 100);
+				const departmentArray = parseIntegerCsv(
+					this,
+					[
+						this.getNodeParameter('department', i, ''),
+						this.getNodeParameter('department_selected', i, []),
+					],
+					'所属部门 ID',
+					i,
+					100,
+				);
 				requireAtLeastOne(this, [mobile, email], '请至少填写手机号或邮箱', i);
 
 				const body: IDataObject = {
@@ -311,8 +326,16 @@ export async function executeContact(
 				if (name) body.name = name;
 				const mobile = this.getNodeParameter('mobile', i, '') as string;
 				if (mobile) body.mobile = mobile;
-				const department = this.getNodeParameter('department', i, '') as string;
-				const departmentArray = parseIntegerCsv(this, department, '所属部门 ID', i, 100);
+				const departmentArray = parseIntegerCsv(
+					this,
+					[
+						this.getNodeParameter('department', i, ''),
+						this.getNodeParameter('department_selected', i, []),
+					],
+					'所属部门 ID',
+					i,
+					100,
+				);
 				if (department) {
 					body.department = departmentArray;
 				}

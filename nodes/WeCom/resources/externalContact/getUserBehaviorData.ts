@@ -42,8 +42,17 @@ export const getUserBehaviorDataDescription: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		displayOptions: { show: { ...showOnly, filterType: ['party'] } },
-		description: '正整数部门 ID 列表，支持逗号、竖线或换行分隔，自动去重，最多 100 个',
+		description: '正整数部门 ID 列表，支持逗号、竖线或换行分隔；与下方选择合并，自动去重，最多 100 个',
 		placeholder: '1001,1002',
+	},
+	{
+		displayName: '部门(选择)',
+		name: 'partyid_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getDepartments' },
+		default: [],
+		displayOptions: { show: { ...showOnly, filterType: ['party'] } },
+		description: '与上方部门列表合并去重，合计最多 100 个',
 	},
 	{
 		displayName: '起始时间（必填）',

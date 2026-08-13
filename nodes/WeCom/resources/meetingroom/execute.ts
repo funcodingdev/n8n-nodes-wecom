@@ -252,8 +252,14 @@ export async function executeMeetingroom(
 					if (this.getNodeParameter('set_range', i, false) as boolean) {
 						body.range = range(
 							this,
-							this.getNodeParameter('range_user_list', i, ''),
-							this.getNodeParameter('range_department_list', i, ''),
+							[
+								this.getNodeParameter('range_user_list', i, ''),
+								this.getNodeParameter('range_user_list_selected', i, []),
+							],
+							[
+								this.getNodeParameter('range_department_list', i, ''),
+								this.getNodeParameter('range_department_list_selected', i, []),
+							],
 							i,
 						);
 					}
@@ -320,8 +326,14 @@ export async function executeMeetingroom(
 					if (this.getNodeParameter('update_range', i, false) as boolean) {
 						body.range = range(
 							this,
-							this.getNodeParameter('range_user_list_edit', i, ''),
-							this.getNodeParameter('range_department_list_edit', i, ''),
+							[
+								this.getNodeParameter('range_user_list_edit', i, ''),
+								this.getNodeParameter('range_user_list_edit_selected', i, []),
+							],
+							[
+								this.getNodeParameter('range_department_list_edit', i, ''),
+								this.getNodeParameter('range_department_list_edit_selected', i, []),
+							],
 							i,
 						);
 						updateCount++;

@@ -71,7 +71,21 @@ export const getScreenOperRecordDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: '1,2,3',
-		description: '逗号分隔 department_id，单次最多 100 个；需在应用可见范围内',
+		description: '逗号分隔 department_id；与下方选择合并，单次最多 100 个；需在应用可见范围内',
+	},
+	{
+		displayName: '部门(选择)',
+		name: 'department_id_list_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getDepartments' },
+		displayOptions: {
+			show: {
+				resource: ['security'],
+				operation: ['getScreenOperRecord'],
+			},
+		},
+		default: [],
+		description: '与上方部门列表合并去重，合计最多 100 个',
 	},
 	{
 		displayName: '截屏内容类型',

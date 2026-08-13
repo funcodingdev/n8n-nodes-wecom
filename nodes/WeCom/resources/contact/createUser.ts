@@ -60,7 +60,19 @@ export const createUserDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: '1,2,3',
-		description: '可选。成员所属部门 ID 列表，不超过 100 个。多个部门用逗号分隔；不填写或填写 0 时，成员会放入「其他（待设置部门）」。<a href="https://developer.work.weixin.qq.com/document/path/90195" target="_blank">官方文档</a>',
+		description:
+			'可选。成员所属部门 ID 列表，不超过 100 个；与下方选择合并。不填写或填写 0 时，成员会放入「其他（待设置部门）」。<a href="https://developer.work.weixin.qq.com/document/path/90195" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '所属部门(选择)',
+		name: 'department_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getDepartments' },
+		displayOptions: {
+			show: showOnlyForCreate,
+		},
+		default: [],
+		description: '与上方部门 ID 列表合并去重，合计最多 100 个',
 	},
 	{
 		displayName: '职务信息',

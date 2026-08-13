@@ -1930,7 +1930,10 @@ export async function executeExternalContact(
 				} else if (filterType === 'party') {
 					body.partyid = integerList(
 						this,
-						this.getNodeParameter('partyid', i, ''),
+						[
+							this.getNodeParameter('partyid', i, ''),
+							this.getNodeParameter('partyid_selected', i, []),
+						],
 						'部门 ID 列表',
 						i,
 						{ minimum: 1, maximum: 100 },
