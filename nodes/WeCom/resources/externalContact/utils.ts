@@ -351,6 +351,15 @@ export function requireOption(
 	return parsed;
 }
 
+function flattenListEntries(value: unknown): string[] {
+	if (Array.isArray(value)) {
+		return value.flatMap((entry) => flattenListEntries(entry));
+	}
+	return String(value ?? '')
+		.split(/[，,|\n\r]+/u)
+		.map((entry) => entry.trim());
+}
+
 export function stringList(
 	context: IExecuteFunctions,
 	value: unknown,
@@ -358,10 +367,7 @@ export function stringList(
 	itemIndex: number,
 	options: { minimum?: number; maximum?: number; allowEmptyEntry?: boolean } = {},
 ): string[] {
-	const source = Array.isArray(value)
-		? value.flatMap((entry) => String(entry ?? '').split(/[，,|\n\r]+/u))
-		: String(value ?? '').split(/[，,|\n\r]+/u);
-	let values = source.map((entry) => entry.trim());
+	let values = flattenListEntries(value);
 	if (!options.allowEmptyEntry) values = values.filter(Boolean);
 	values = [...new Set(values)];
 	const minimum = options.minimum ?? 0;

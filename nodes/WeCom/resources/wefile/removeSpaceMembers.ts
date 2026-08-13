@@ -22,6 +22,15 @@ export const removeSpaceMembersDescription: INodeProperties[] = [
 		description: '逗号分隔；与下方表单合并',
 	},
 	{
+		displayName: '成员(选择)',
+		name: 'member_userids_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: { show: showOnly },
+		default: [],
+		description: '与上方成员 UserID 列表合并去重',
+	},
+	{
 		displayName: '部门ID列表',
 		name: 'member_departmentids',
 		type: 'string',
@@ -29,6 +38,15 @@ export const removeSpaceMembersDescription: INodeProperties[] = [
 		default: '',
 		placeholder: '1,2',
 		description: '逗号分隔部门 ID；与下方表单合并',
+	},
+	{
+		displayName: '部门(选择)',
+		name: 'member_departmentids_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getDepartments' },
+		displayOptions: { show: showOnly },
+		default: [],
+		description: '与上方部门 ID 列表合并去重',
 	},
 	{
 		displayName: '成员列表(选择)',

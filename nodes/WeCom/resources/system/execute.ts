@@ -14,8 +14,12 @@ export async function executeSystem(
 	const fail = (message: string): never => {
 		throw new NodeOperationError(this.getNode(), message, { itemIndex: index });
 	};
-	const requireText = (name: string, label: string, maxBytes?: number): string => {
-		const value = String(this.getNodeParameter(name, index, '') ?? '').trim();
+	const requireText = (name: string, label: string, maxBytes?: number, altName?: string): string => {
+		const primary = String(this.getNodeParameter(name, index, '') ?? '').trim();
+		const fallback = altName
+			? String(this.getNodeParameter(altName, index, '') ?? '').trim()
+			: '';
+		const value = primary || fallback;
 		if (!value) fail(`${label}不能为空`);
 		if (maxBytes !== undefined && Buffer.byteLength(value, 'utf8') > maxBytes) {
 			fail(`${label}不能超过 ${maxBytes} 个字节`);
@@ -81,7 +85,7 @@ export async function executeSystem(
 					'POST',
 					'/cgi-bin/user/tfa_succ',
 					{
-						userid: requireText('sys_userid', '成员 UserID'),
+						userid: requireText('sys_userid', '成员 UserID', undefined, 'sys_userid_selected'),
 						tfa_code: requireText('tfa_code', '二次验证授权码'),
 					},
 				);
@@ -108,9 +112,19 @@ export async function executeSystem(
 					'POST',
 					'/cgi-bin/get_launch_code',
 					{
-						operator_userid: requireText('launch_operator_userid', '操作者 UserID'),
+						operator_userid: requireText(
+							'launch_operator_userid',
+							'操作者 UserID',
+							undefined,
+							'launch_operator_userid_selected',
+						),
 						single_chat: {
-							userid: requireText('launch_chat_userid', '单聊对象 UserID'),
+							userid: requireText(
+								'launch_chat_userid',
+								'单聊对象 UserID',
+								undefined,
+								'launch_chat_userid_selected',
+							),
 						},
 					},
 				);

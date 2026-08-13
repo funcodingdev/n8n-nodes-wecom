@@ -51,6 +51,16 @@ function integer(
 	return normalized;
 }
 
+function listValues(value: unknown): string[] {
+	if (Array.isArray(value)) {
+		return value.flatMap((entry) => listValues(entry));
+	}
+	return String(value ?? '')
+		.split(LIST_SEPARATOR)
+		.map((entry) => entry.trim())
+		.filter(Boolean);
+}
+
 function list(
 	context: IExecuteFunctions,
 	value: unknown,
@@ -59,12 +69,7 @@ function list(
 	min: number,
 	max: number,
 ): string[] {
-	const source = Array.isArray(value) ? value : [value];
-	const values = source
-		.flatMap((entry) => String(entry ?? '').split(LIST_SEPARATOR))
-		.map((entry) => entry.trim())
-		.filter(Boolean);
-	const unique = [...new Set(values)];
+	const unique = [...new Set(listValues(value))];
 	if (unique.length < min || unique.length > max) {
 		fail(context, `${label}数量必须为 ${min}–${max} 个`, itemIndex);
 	}
@@ -159,10 +164,23 @@ function mergeAuthMembers(
 ): IDataObject[] {
 	const fromForm = Array.isArray(collection.members) ? (collection.members as IDataObject[]) : [];
 	const members: IDataObject[] = [...fromForm];
-	const userids = list(context, context.getNodeParameter('member_userids', itemIndex, ''), '成员 UserID', itemIndex, 0, 1000);
+	const userids = list(
+		context,
+		[
+			context.getNodeParameter('member_userids', itemIndex, ''),
+			context.getNodeParameter('member_userids_selected', itemIndex, []),
+		],
+		'成员 UserID',
+		itemIndex,
+		0,
+		1000,
+	);
 	const departmentids = list(
 		context,
-		context.getNodeParameter('member_departmentids', itemIndex, ''),
+		[
+			context.getNodeParameter('member_departmentids', itemIndex, ''),
+			context.getNodeParameter('member_departmentids_selected', itemIndex, []),
+		],
 		'部门 ID',
 		itemIndex,
 		0,

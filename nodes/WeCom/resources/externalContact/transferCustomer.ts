@@ -10,27 +10,43 @@ export const transferCustomerDescription: INodeProperties[] = [
 		displayName: '原成员UserID',
 		name: 'handover_userid',
 		type: 'string',
-		required: true,
 		default: '',
 		displayOptions: {
 			show: showOnly,
 		},
 		description:
-			'原跟进成员的企业成员 UserID，客户将从该成员转出。<a href="https://developer.work.weixin.qq.com/document/path/92125" target="_blank">官方文档</a>',
+			'原跟进成员的企业成员 UserID，客户将从该成员转出；可与下方选择二选一。<a href="https://developer.work.weixin.qq.com/document/path/92125" target="_blank">官方文档</a>',
 		placeholder: 'zhangsan',
+	},
+	{
+		displayName: '原成员(选择)',
+		name: 'handover_userid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: { show: showOnly },
+		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '接替成员UserID',
 		name: 'takeover_userid',
 		type: 'string',
-		required: true,
 		default: '',
 		displayOptions: {
 			show: showOnly,
 		},
 		description:
-			'接替成员的企业成员 UserID，客户将转给该成员。<a href="https://developer.work.weixin.qq.com/document/path/92125" target="_blank">官方文档</a>',
+			'接替成员的企业成员 UserID，客户将转给该成员；可与下方选择二选一。<a href="https://developer.work.weixin.qq.com/document/path/92125" target="_blank">官方文档</a>',
 		placeholder: 'lisi',
+	},
+	{
+		displayName: '接替成员(选择)',
+		name: 'takeover_userid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: { show: showOnly },
+		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '客户UserID列表',

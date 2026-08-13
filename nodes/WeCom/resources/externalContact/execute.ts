@@ -351,13 +351,15 @@ export async function executeExternalContact(
 			else if (operation === 'transferCustomer') {
 				const handover_userid = requireText(
 					this,
-					this.getNodeParameter('handover_userid', i),
+					this.getNodeParameter('handover_userid', i, '') ||
+						this.getNodeParameter('handover_userid_selected', i, ''),
 					'原成员 UserID',
 					i,
 				);
 				const takeover_userid = requireText(
 					this,
-					this.getNodeParameter('takeover_userid', i),
+					this.getNodeParameter('takeover_userid', i, '') ||
+						this.getNodeParameter('takeover_userid_selected', i, ''),
 					'接替成员 UserID',
 					i,
 				);
@@ -1329,8 +1331,14 @@ export async function executeExternalContact(
 					{
 						minimum: 1,
 						maximum: 3000,
-						extraUserids: this.getNodeParameter('range_userids', i, ''),
-						extraPartyids: this.getNodeParameter('range_partyids', i, ''),
+						extraUserids: [
+							this.getNodeParameter('range_userids', i, ''),
+							this.getNodeParameter('range_userids_selected', i, []),
+						],
+						extraPartyids: [
+							this.getNodeParameter('range_partyids', i, ''),
+							this.getNodeParameter('range_partyids_selected', i, []),
+						],
 					},
 				);
 
@@ -1375,8 +1383,14 @@ export async function executeExternalContact(
 					i,
 					{
 						maximum: 3000,
-						extraUserids: this.getNodeParameter('range_add_userids', i, ''),
-						extraPartyids: this.getNodeParameter('range_add_partyids', i, ''),
+						extraUserids: [
+							this.getNodeParameter('range_add_userids', i, ''),
+							this.getNodeParameter('range_add_userids_selected', i, []),
+						],
+						extraPartyids: [
+							this.getNodeParameter('range_add_partyids', i, ''),
+							this.getNodeParameter('range_add_partyids_selected', i, []),
+						],
 					},
 				);
 				const rangeDel = rangeNodes(
@@ -1387,8 +1401,14 @@ export async function executeExternalContact(
 					i,
 					{
 						maximum: 3000,
-						extraUserids: this.getNodeParameter('range_del_userids', i, ''),
-						extraPartyids: this.getNodeParameter('range_del_partyids', i, ''),
+						extraUserids: [
+							this.getNodeParameter('range_del_userids', i, ''),
+							this.getNodeParameter('range_del_userids_selected', i, []),
+						],
+						extraPartyids: [
+							this.getNodeParameter('range_del_partyids', i, ''),
+							this.getNodeParameter('range_del_partyids_selected', i, []),
+						],
 					},
 				);
 				if (rangeAdd.length + rangeDel.length > 3000) {
