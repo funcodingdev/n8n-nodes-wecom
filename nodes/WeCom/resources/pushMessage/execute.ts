@@ -307,7 +307,14 @@ export async function executePushMessage(
 		const type = Number(compacted.type ?? 0);
 		if (type !== 1) delete compacted.url;
 		if (type !== 2) delete compacted.media_id;
-		if (type !== 3) delete compacted.userid;
+		if (type === 3) {
+			const memberUserid = String(compacted.userid || compacted.userid_selected || '').trim();
+			if (memberUserid) compacted.userid = memberUserid;
+			delete compacted.userid_selected;
+		} else {
+			delete compacted.userid;
+			delete compacted.userid_selected;
+		}
 		return compacted;
 	};
 
