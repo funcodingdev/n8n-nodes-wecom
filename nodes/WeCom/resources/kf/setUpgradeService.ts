@@ -41,13 +41,13 @@ export const setUpgradeServiceDescription: INodeProperties[] = [
 		description: '升级到专员服务或客户群服务',
 	},
 	{
-		displayName: '服务专员',
+		displayName: '服务专员UserID',
 		name: 'member_userid',
-		type: 'options',
-		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		type: 'string',
 		required: true,
 		displayOptions: { show: { ...showOnly, upgradeType: ['member'] } },
 		default: '',
+		placeholder: 'zhangsan',
 		description: '服务专员须已配置在升级服务专员范围，并在应用与客户联系可见范围内',
 	},
 	{

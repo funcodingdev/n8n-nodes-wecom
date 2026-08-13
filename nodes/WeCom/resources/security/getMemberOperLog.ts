@@ -64,21 +64,18 @@ export const getMemberOperLogDescription: INodeProperties[] = [
 		default: 0,
 	},
 	{
-		displayName: '操作者',
+		displayName: '操作者UserID',
 		name: 'userid',
-		type: 'options',
-
+		type: 'string',
 		displayOptions: {
 			show: {
 				resource: ['security'],
 				operation: ['getMemberOperLog'],
 			},
 		},
-		typeOptions: {
-			loadOptionsMethod: 'getAllUsers',
-		},
 		default: '',
-		description: '操作者过滤，需要在应用可见范围内。可不填',
+		placeholder: 'zhangsan',
+		description: '操作者过滤，需在应用可见范围内；留空表示不过滤',
 	},
 	{
 		displayName: '游标',

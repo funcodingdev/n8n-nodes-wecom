@@ -14,14 +14,14 @@ export const setWorkbenchDataDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly },
 	},
 	{
-		displayName: '用户',
+		displayName: '用户UserID',
 		name: 'userid',
-		type: 'options',
-		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		type: 'string',
 		required: true,
 		default: '',
+		placeholder: 'zhangsan',
 		displayOptions: { show: showOnly },
-		description: '选择应用可见范围内的用户，或使用表达式指定 UserID',
+		description: '应用可见范围内的成员 UserID',
 	},
 	...getWorkbenchFields(showOnly),
 ];

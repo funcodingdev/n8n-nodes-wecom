@@ -59,18 +59,16 @@ export const transServiceStateDescription: INodeProperties[] = [
 		description: '目标状态。实际可用流转取决于当前状态；状态 4 不允许继续变更。<a href="https://developer.work.weixin.qq.com/document/path/94669" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '接待人员',
+		displayName: '接待人员UserID',
 		name: 'servicer_userid',
-		type: 'options',
-		typeOptions: {
-			loadOptionsMethod: 'getAllUsers',
-		},
+		type: 'string',
 		required: true,
 		displayOptions: {
 			show: { ...showOnlyForTransServiceState, service_state: [3] },
 		},
 		default: '',
-		description: '目标状态为“由人工接待”时必填；接待人员必须已激活且正在接待。第三方应用使用密文 UserID。<a href="https://developer.work.weixin.qq.com/document/path/94669" target="_blank">官方文档</a>',
+		description:
+			'目标状态为「由人工接待」时必填；接待人员必须已激活且正在接待。第三方应用使用密文 UserID。<a href="https://developer.work.weixin.qq.com/document/path/94669" target="_blank">官方文档</a>',
 		placeholder: 'zhangsan',
 	},
 ];

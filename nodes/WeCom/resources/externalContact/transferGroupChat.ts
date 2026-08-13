@@ -15,21 +15,19 @@ export const transferGroupChatDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '需要转群主的客户群ID列表。需要转群主的客户群ID列表，用逗号分隔，最多100个',
+		description: '需要转群主的客户群 ID，逗号分隔，最多 100 个',
+		placeholder: 'wrxxxxxxxx,wryyyyyyyy',
 	},
 	{
-		displayName: '新群主',
+		displayName: '新群主UserID',
 		name: 'new_owner',
-		type: 'options',
-		typeOptions: {
-			loadOptionsMethod: 'getAllUsers',
-		},
+		type: 'string',
 		required: true,
 		default: '',
+		placeholder: 'zhangsan',
 		displayOptions: {
 			show: showOnly,
 		},
-		description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>。新群主的userid',
+		description: '新群主的成员 UserID',
 	},
 ];
-

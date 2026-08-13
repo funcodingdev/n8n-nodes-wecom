@@ -7,32 +7,28 @@ const showOnly = {
 
 export const resignedTransferResultDescription: INodeProperties[] = [
 	{
-		displayName: '原成员',
+		displayName: '原成员UserID',
 		name: 'handover_userid',
-		type: 'options',
-		typeOptions: {
-			loadOptionsMethod: 'getAllUsers',
-		},
+		type: 'string',
 		required: true,
 		default: '',
+		placeholder: 'zhangsan',
 		displayOptions: {
 			show: showOnly,
 		},
-		description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>。离职成员的userid',
+		description: '离职成员的 UserID',
 	},
 	{
-		displayName: '接替成员',
+		displayName: '接替成员UserID',
 		name: 'takeover_userid',
-		type: 'options',
-		typeOptions: {
-			loadOptionsMethod: 'getAllUsers',
-		},
+		type: 'string',
 		required: true,
 		default: '',
+		placeholder: 'lisi',
 		displayOptions: {
 			show: showOnly,
 		},
-		description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>。接替成员的userid',
+		description: '接替成员的 UserID',
 	},
 	{
 		displayName: 'Cursor',
@@ -42,7 +38,6 @@ export const resignedTransferResultDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '分页查询的cursor，第一次不填。分页查询的cursor',
+		description: '分页游标，首次请求留空',
 	},
 ];
-

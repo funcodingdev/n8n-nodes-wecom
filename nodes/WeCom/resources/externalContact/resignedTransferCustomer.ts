@@ -7,37 +7,33 @@ const showOnly = {
 
 export const resignedTransferCustomerDescription: INodeProperties[] = [
 	{
-		displayName: '原成员',
+		displayName: '原成员UserID',
 		name: 'handover_userid',
-		type: 'options',
-		typeOptions: {
-			loadOptionsMethod: 'getAllUsers',
-		},
+		type: 'string',
 		required: true,
 		default: '',
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '离职成员的企业成员UserID，该成员必须已离职。<a href="https://developer.work.weixin.qq.com/document/path/94081" target="_blank">官方文档</a>.。离职成员的UserID',
+		description:
+			'离职成员的企业成员 UserID，该成员必须已离职。<a href="https://developer.work.weixin.qq.com/document/path/94081" target="_blank">官方文档</a>',
 		placeholder: 'zhangsan',
 	},
 	{
-		displayName: '接替成员',
+		displayName: '接替成员UserID',
 		name: 'takeover_userid',
-		type: 'options',
-		typeOptions: {
-			loadOptionsMethod: 'getAllUsers',
-		},
+		type: 'string',
 		required: true,
 		default: '',
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '接替成员的企业成员UserID，该成员将继承离职成员的客户。<a href="https://developer.work.weixin.qq.com/document/path/94081" target="_blank">官方文档</a>.。接替成员的UserID，继承离职成员的客户',
+		description:
+			'接替成员的企业成员 UserID，将继承离职成员的客户。<a href="https://developer.work.weixin.qq.com/document/path/94081" target="_blank">官方文档</a>',
 		placeholder: 'lisi',
 	},
 	{
-		displayName: '客户UserID列表',
+		displayName: '客户ExternalUserID列表',
 		name: 'external_userid',
 		type: 'string',
 		required: true,
@@ -45,8 +41,8 @@ export const resignedTransferCustomerDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '要转移的客户external_userid列表，多个用英文逗号分隔，一次最多转移100个客户。只能转移该离职成员的客户。<a href="https://developer.work.weixin.qq.com/document/path/94081" target="_blank">官方文档</a>。要转移的客户external_userid列表，多个用逗号分隔',
+		description:
+			'要转移的客户 external_userid，逗号分隔，一次最多 100 个；只能转移该离职成员的客户。<a href="https://developer.work.weixin.qq.com/document/path/94081" target="_blank">官方文档</a>',
 		placeholder: 'wmxxxxxxxxxxxxxxxxxx,wmyyyyyyyyyyyyyyyyyy',
 	},
 ];
-

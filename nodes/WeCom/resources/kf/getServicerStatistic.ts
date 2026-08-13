@@ -29,15 +29,15 @@ export const getServicerStatisticDescription: INodeProperties[] = [
 		placeholder: 'wkxxxxxxxxxxxxxxxxxx',
 	},
 	{
-		displayName: '接待人员',
+		displayName: '接待人员UserID',
 		name: 'servicer_userid',
-		type: 'options',
-		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		type: 'string',
 		displayOptions: {
 			show: showOnlyForGetServicerStatistic,
 		},
 		default: '',
-		description: '可选。选择后返回该接待人员在此客服账号下的数据；留空返回客服账号维度汇总数据。第三方应用使用密文 UserID。<a href="https://developer.work.weixin.qq.com/document/path/95490" target="_blank">官方文档</a>',
+		description:
+			'可选。填写后返回该接待人员在此客服账号下的数据；留空返回客服账号维度汇总。第三方应用使用密文 UserID。<a href="https://developer.work.weixin.qq.com/document/path/95490" target="_blank">官方文档</a>',
 		placeholder: 'zhangsan',
 	},
 	{

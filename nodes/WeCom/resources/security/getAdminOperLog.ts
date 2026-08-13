@@ -85,21 +85,18 @@ export const getAdminOperLogDescription: INodeProperties[] = [
 		default: 0,
 	},
 	{
-		displayName: '操作者',
+		displayName: '操作者UserID',
 		name: 'userid',
-		type: 'options',
-
+		type: 'string',
 		displayOptions: {
 			show: {
 				resource: ['security'],
 				operation: ['getAdminOperLog'],
 			},
 		},
-		typeOptions: {
-			loadOptionsMethod: 'getAllUsers',
-		},
 		default: '',
-		description: '操作者，可不填',
+		placeholder: 'zhangsan',
+		description: '操作者过滤，留空表示不过滤',
 	},
 	{
 		displayName: '游标',

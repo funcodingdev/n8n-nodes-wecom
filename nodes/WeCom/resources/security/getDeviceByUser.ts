@@ -2,9 +2,9 @@ import type { INodeProperties } from 'n8n-workflow';
 
 export const getDeviceByUserDescription: INodeProperties[] = [
 	{
-		displayName: '成员',
+		displayName: '成员UserID',
 		name: 'last_login_userid',
-		type: 'options',
+		type: 'string',
 		required: true,
 		displayOptions: {
 			show: {
@@ -12,10 +12,8 @@ export const getDeviceByUserDescription: INodeProperties[] = [
 				operation: ['getDeviceByUser'],
 			},
 		},
-		description: '选择要查询设备的成员',
-		typeOptions: {
-			loadOptionsMethod: 'getAllUsers',
-		},
+		description: '要查询设备的成员 UserID',
+		placeholder: 'zhangsan',
 		default: '',
 	},
 	{

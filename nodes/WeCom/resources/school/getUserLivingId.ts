@@ -7,17 +7,17 @@ const showOnlyForGetUserLivingId = {
 
 export const getUserLivingIdDescription: INodeProperties[] = [
 	{
-		displayName: '老师',
+		displayName: '老师UserID',
 		name: 'userid',
-		type: 'options',
-		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		type: 'string',
 		required: true,
 		displayOptions: {
 			show: showOnlyForGetUserLivingId,
 		},
 		default: '',
 		placeholder: 'teacher_001',
-		description: '创建直播的企业成员 UserID；只能获取本应用创建的直播。<a href="https://developer.work.weixin.qq.com/document/path/93739" target="_blank">官方文档</a>',
+		description:
+			'创建直播的企业成员 UserID；只能获取本应用创建的直播。<a href="https://developer.work.weixin.qq.com/document/path/93739" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '分页游标',
