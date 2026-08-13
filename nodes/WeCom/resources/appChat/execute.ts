@@ -74,16 +74,38 @@ export async function executeAppChat(
 		}
 		return values;
 	};
+	const parseUserIdJson = (value: unknown, label: string, itemIndex: number): string[] => {
+		if (value === undefined || value === null || String(value).trim() === '') return [];
+		let parsed: unknown = value;
+		if (typeof value === 'string') {
+			const trimmed = value.trim();
+			if (!trimmed || trimmed === '[]') return [];
+			try {
+				parsed = JSON.parse(trimmed);
+			} catch (error) {
+				throw new NodeOperationError(
+					this.getNode(),
+					`${label}必须是有效的 JSON: ${(error as Error).message}`,
+					{ itemIndex },
+				);
+			}
+		}
+		if (!Array.isArray(parsed)) {
+			throw new NodeOperationError(this.getNode(), `${label}必须是 JSON 数组`, { itemIndex });
+		}
+		return normalizeMentionedUsers(parsed, itemIndex).filter((id) => id !== '@all');
+	};
 	const mergeIdLists = (
 		selected: string[],
 		manual: string[],
 		label: string,
 		limit: number,
 		itemIndex: number,
+		fromJson: string[] = [],
 	): string[] => {
 		const values = [
 			...new Set(
-				[...selected, ...manual]
+				[...selected, ...manual, ...fromJson]
 					.map((entry) => String(entry).trim())
 					.filter(Boolean),
 			),
@@ -159,6 +181,7 @@ export async function executeAppChat(
 					'群成员列表',
 					2000,
 					i,
+					parseUserIdJson(this.getNodeParameter('userlistJson', i, '[]'), '成员列表 JSON', i),
 				);
 				if (userList.length < 2) {
 					throw new NodeOperationError(this.getNode(), '创建群聊至少需要 2 位成员', {
@@ -253,6 +276,7 @@ export async function executeAppChat(
 						'添加成员列表',
 						2000,
 						i,
+						parseUserIdJson(this.getNodeParameter('addUserListJson', i, '[]'), '添加成员 JSON', i),
 					);
 					if (addUsers.length) {
 						body.add_user_list = addUsers;
@@ -278,6 +302,7 @@ export async function executeAppChat(
 						'删除成员列表',
 						2000,
 						i,
+						parseUserIdJson(this.getNodeParameter('delUserListJson', i, '[]'), '删除成员 JSON', i),
 					);
 					if (delUsers.length) {
 						body.del_user_list = delUsers;

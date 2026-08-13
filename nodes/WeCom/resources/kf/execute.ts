@@ -15,6 +15,39 @@ import {
 	validateStatisticWindow,
 } from './utils';
 
+function parseUserIdJsonList(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): string[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	if (parsed.length === 0) return [];
+	return stringList(
+		context,
+		parsed.map((entry) => {
+			if (typeof entry === 'string' || typeof entry === 'number') return entry;
+			if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+				const row = entry as IDataObject;
+				return row.userid ?? row.userid_selected ?? row.user_id ?? '';
+			}
+			return '';
+		}),
+		label,
+		itemIndex,
+		1000,
+	);
+}
+
 function buildMsgMenuMessage(
 	context: IExecuteFunctions,
 	menuItemsValue: unknown,
@@ -485,6 +518,12 @@ export async function executeKf(
 					[
 						this.getNodeParameter('userid_list_text', i, ''),
 						this.getNodeParameter('userid_list', i, []),
+						...parseUserIdJsonList(
+							this,
+							this.getNodeParameter('useridListJson', i, '[]'),
+							'接待人员 JSON',
+							i,
+						),
 					],
 					'接待人员列表',
 					i,
@@ -522,6 +561,12 @@ export async function executeKf(
 					[
 						this.getNodeParameter('userid_list_text', i, ''),
 						this.getNodeParameter('userid_list', i, []),
+						...parseUserIdJsonList(
+							this,
+							this.getNodeParameter('useridListJson', i, '[]'),
+							'接待人员 JSON',
+							i,
+						),
 					],
 					'接待人员列表',
 					i,

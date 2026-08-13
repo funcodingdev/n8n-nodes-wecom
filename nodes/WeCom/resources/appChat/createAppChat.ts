@@ -67,6 +67,17 @@ export const createAppChatDescription: INodeProperties[] = [
 			'多个群成员 ID 用逗号或 | 分隔。至少 2 人，至多 2000 人（含应用）。<a href="https://developer.work.weixin.qq.com/document/path/90245" target="_blank">官方文档</a>',
 	},
 	{
+		displayName: '成员列表 JSON',
+		name: 'userlistJson',
+		type: 'json',
+		displayOptions: {
+			show: showOnlyForCreateAppChat,
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方选择/手动输入合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '指定群聊ID',
 		name: 'chatid',
 		type: 'string',

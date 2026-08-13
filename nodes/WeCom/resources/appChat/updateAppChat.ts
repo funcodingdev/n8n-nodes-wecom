@@ -128,6 +128,20 @@ export const updateAppChatDescription: INodeProperties[] = [
 			'单独添加成员时必填；多个成员 ID 用逗号或 | 分隔。群成员总数不可超过 2000 人。<a href="https://developer.work.weixin.qq.com/document/path/98913" target="_blank">官方文档</a>',
 	},
 	{
+		displayName: '添加成员 JSON',
+		name: 'addUserListJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				...showOnlyForUpdateAppChat,
+				updateType: ['addUsers', 'combined'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方选择/手动输入合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '选择要删除的成员',
 		name: 'del_user_list_selected',
 		type: 'multiOptions',
@@ -157,5 +171,19 @@ export const updateAppChatDescription: INodeProperties[] = [
 		placeholder: 'user4,user5',
 		description:
 			'单独删除成员时必填；多个成员 ID 用逗号或 | 分隔。删除当前群主时必须同时指定新群主。<a href="https://developer.work.weixin.qq.com/document/path/98913" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '删除成员 JSON',
+		name: 'delUserListJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				...showOnlyForUpdateAppChat,
+				updateType: ['delUsers', 'combined'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方选择/手动输入合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
 	},
 ];

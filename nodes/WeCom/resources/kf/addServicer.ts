@@ -49,6 +49,17 @@ export const addServicerDescription: INodeProperties[] = [
 		description: '最多 100 人；第三方应用使用密文 UserID。与部门至少填写一项。<a href="https://developer.work.weixin.qq.com/document/path/94646" target="_blank">官方文档</a>',
 	},
 	{
+		displayName: '接待人员 JSON',
+		name: 'useridListJson',
+		type: 'json',
+		displayOptions: {
+			show: showOnlyForAddServicer,
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '接待部门ID列表',
 		name: 'department_id_list_text',
 		type: 'string',
