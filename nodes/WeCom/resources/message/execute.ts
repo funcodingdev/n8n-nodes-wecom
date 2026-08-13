@@ -290,6 +290,9 @@ export async function executeMessage(
 				const touserManual = this.getNodeParameter('touser_manual', i, '') as string;
 				const topartyManual = this.getNodeParameter('toparty_manual', i, '') as string;
 				const totagManual = this.getNodeParameter('totag_manual', i, '') as string;
+				const touserJson = this.getNodeParameter('touserJson', i, '[]');
+				const topartyJson = this.getNodeParameter('topartyJson', i, '[]');
+				const totagJson = this.getNodeParameter('totagJson', i, '[]');
 
 				const recipients = extractRecipients(
 					recipientType,
@@ -299,6 +302,9 @@ export async function executeMessage(
 					touserManual,
 					topartyManual,
 					totagManual,
+					touserJson,
+					topartyJson,
+					totagJson,
 				);
 
 				touser = recipients.touser || '';
@@ -1171,6 +1177,9 @@ export async function executeMessage(
 				const touser_manual = this.getNodeParameter('touser_manual', i, '') as string;
 				const toparty_manual = this.getNodeParameter('toparty_manual', i, '') as string;
 				const totag_manual = this.getNodeParameter('totag_manual', i, '') as string;
+				const touserJson = this.getNodeParameter('touserJson', i, '[]');
+				const topartyJson = this.getNodeParameter('topartyJson', i, '[]');
+				const totagJson = this.getNodeParameter('totagJson', i, '[]');
 				const atall = this.getNodeParameter('recipientType', i) === 'all' ? 1 : 0;
 
 				const recipients = extractRecipients(
@@ -1181,6 +1190,9 @@ export async function executeMessage(
 					touser_manual,
 					toparty_manual,
 					totag_manual,
+					touserJson,
+					topartyJson,
+					totagJson,
 				);
 
 				// 获取fixedCollection字段

@@ -130,6 +130,20 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 				'多个成员 ID 用逗号或 | 分隔，最多 1000 个；与上方选择合并；输入 @all 可发送给应用可见范围内所有成员。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
 		},
 		{
+			displayName: '成员列表 JSON',
+			name: 'touserJson',
+			type: 'json',
+			default: '[]',
+			displayOptions: {
+				show: {
+					...showCondition,
+					recipientType: ['manual', 'users', 'mixed'],
+				},
+			},
+			description:
+				'可选。非空数组时与上方选择/文本合并去重。支持 ["userid1","@all"] 或 [{"userid":"userid1"}]',
+		},
+		{
 			displayName: '部门 ID',
 			name: 'toparty_manual',
 			type: 'string',
@@ -143,6 +157,20 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 			},
 			description:
 				'多个部门 ID 用逗号或 | 分隔，最多 100 个；与上方选择合并。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
+		},
+		{
+			displayName: '部门列表 JSON',
+			name: 'topartyJson',
+			type: 'json',
+			default: '[]',
+			displayOptions: {
+				show: {
+					...showCondition,
+					recipientType: ['manual', 'departments', 'mixed'],
+				},
+			},
+			description:
+				'可选。非空数组时与上方选择/文本合并去重。支持 [1,2] 或 [{"partyid":1}]',
 		},
 		{
 			displayName: '标签 ID',
@@ -159,7 +187,54 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 			description:
 				'多个标签 ID 用逗号或 | 分隔，最多 100 个；与上方选择合并。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
 		},
+		{
+			displayName: '标签列表 JSON',
+			name: 'totagJson',
+			type: 'json',
+			default: '[]',
+			displayOptions: {
+				show: {
+					...showCondition,
+					recipientType: ['manual', 'tags', 'mixed'],
+				},
+			},
+			description:
+				'可选。非空数组时与上方选择/文本合并去重。支持 [1,2] 或 [{"tagid":1}]',
+		},
 	];
+}
+
+function parseRecipientJson(value: unknown, keys: string[]): string[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		const trimmed = value.trim();
+		if (!trimmed || trimmed === '[]') return [];
+		try {
+			parsed = JSON.parse(trimmed);
+		} catch {
+			return [];
+		}
+	}
+	if (!Array.isArray(parsed) || parsed.length === 0) return [];
+	const out: string[] = [];
+	for (const entry of parsed) {
+		if (typeof entry === 'string' || typeof entry === 'number') {
+			const text = String(entry).trim();
+			if (text) out.push(text);
+			continue;
+		}
+		if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+			const row = entry as Record<string, unknown>;
+			for (const key of keys) {
+				if (row[key] !== undefined && row[key] !== null && String(row[key]).trim()) {
+					out.push(String(row[key]).trim());
+					break;
+				}
+			}
+		}
+	}
+	return out;
 }
 
 /**
@@ -173,6 +248,9 @@ export function extractRecipients(
 	touser_manual?: string,
 	toparty_manual?: string,
 	totag_manual?: string,
+	touserJson?: unknown,
+	topartyJson?: unknown,
+	totagJson?: unknown,
 ): { touser?: string; toparty?: string; totag?: string } {
 	const normalizeRecipientValue = (
 		value: string | string[] | undefined,
@@ -182,7 +260,7 @@ export function extractRecipients(
 		const normalized = [
 			...new Set(
 				rawValues
-					.flatMap((item) => item.split(/[|,]/))
+					.flatMap((item) => String(item).split(/[|,]/))
 					.map((item) => item.trim())
 					.filter(Boolean),
 			),
@@ -195,11 +273,21 @@ export function extractRecipients(
 		return { touser: '@all' };
 	}
 
+	const userFromJson = parseRecipientJson(touserJson, ['userid', 'userid_selected', 'user_id']);
+	const partyFromJson = parseRecipientJson(topartyJson, ['partyid', 'party_id', 'id', 'departmentid']);
+	const tagFromJson = parseRecipientJson(totagJson, ['tagid', 'tag_id', 'id']);
+
 	if (recipientType === 'manual') {
 		return {
-			touser: normalizeRecipientValue(touser_manual, 1000),
-			toparty: normalizeRecipientValue(toparty_manual, 100),
-			totag: normalizeRecipientValue(totag_manual, 100),
+			touser: normalizeRecipientValue(
+				[...(touser_manual ? [touser_manual] : []), ...userFromJson],
+				1000,
+			),
+			toparty: normalizeRecipientValue(
+				[...(toparty_manual ? [toparty_manual] : []), ...partyFromJson],
+				100,
+			),
+			totag: normalizeRecipientValue([...(totag_manual ? [totag_manual] : []), ...tagFromJson], 100),
 		};
 	}
 
@@ -207,32 +295,34 @@ export function extractRecipients(
 	const mergeValues = (
 		selected: string | string[] | undefined,
 		manual: string | undefined,
+		fromJson: string[],
 		limit: number,
 	): string | undefined => {
 		const parts: string[] = [];
 		if (Array.isArray(selected)) parts.push(...selected);
 		else if (typeof selected === 'string' && selected) parts.push(selected);
 		if (manual) parts.push(manual);
+		parts.push(...fromJson);
 		return normalizeRecipientValue(parts, limit);
 	};
 
 	if (recipientType === 'mixed') {
-		result.touser = mergeValues(touser, touser_manual, 1000);
-		result.toparty = mergeValues(toparty, toparty_manual, 100);
-		result.totag = mergeValues(totag, totag_manual, 100);
+		result.touser = mergeValues(touser, touser_manual, userFromJson, 1000);
+		result.toparty = mergeValues(toparty, toparty_manual, partyFromJson, 100);
+		result.totag = mergeValues(totag, totag_manual, tagFromJson, 100);
 		return result;
 	}
 
 	if (recipientType === 'users') {
-		result.touser = mergeValues(touser, touser_manual, 1000);
+		result.touser = mergeValues(touser, touser_manual, userFromJson, 1000);
 	}
 
 	if (recipientType === 'departments') {
-		result.toparty = mergeValues(toparty, toparty_manual, 100);
+		result.toparty = mergeValues(toparty, toparty_manual, partyFromJson, 100);
 	}
 
 	if (recipientType === 'tags') {
-		result.totag = mergeValues(totag, totag_manual, 100);
+		result.totag = mergeValues(totag, totag_manual, tagFromJson, 100);
 	}
 
 	return result;
@@ -246,6 +336,9 @@ export function getRecipientsFromNode(
 	itemIndex: number,
 ): { touser?: string; toparty?: string; totag?: string } {
 	const recipientType = context.getNodeParameter('recipientType', itemIndex, null) as string | null;
+	const touserJson = context.getNodeParameter('touserJson', itemIndex, '[]');
+	const topartyJson = context.getNodeParameter('topartyJson', itemIndex, '[]');
+	const totagJson = context.getNodeParameter('totagJson', itemIndex, '[]');
 
 	if (recipientType === null) {
 		return extractRecipients(
@@ -256,6 +349,9 @@ export function getRecipientsFromNode(
 			context.getNodeParameter('touser', itemIndex, '') as string,
 			context.getNodeParameter('toparty', itemIndex, '') as string,
 			context.getNodeParameter('totag', itemIndex, '') as string,
+			touserJson,
+			topartyJson,
+			totagJson,
 		);
 	}
 
@@ -267,5 +363,8 @@ export function getRecipientsFromNode(
 		context.getNodeParameter('touser_manual', itemIndex, '') as string,
 		context.getNodeParameter('toparty_manual', itemIndex, '') as string,
 		context.getNodeParameter('totag_manual', itemIndex, '') as string,
+		touserJson,
+		topartyJson,
+		totagJson,
 	);
 }
