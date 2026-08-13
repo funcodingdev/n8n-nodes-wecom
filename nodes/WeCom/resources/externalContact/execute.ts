@@ -95,7 +95,13 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'updateExternalContactRemark') {
-				const userid = requireText(this, this.getNodeParameter('userid', i), '成员 UserID', i);
+				const userid = requireText(
+					this,
+					this.getNodeParameter('userid', i, '') ||
+						this.getNodeParameter('userid_selected', i, ''),
+					'成员 UserID',
+					i,
+				);
 				const external_userid = requireText(
 					this,
 					this.getNodeParameter('external_userid', i),
@@ -322,7 +328,13 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'markTag') {
-				const userid = requireText(this, this.getNodeParameter('userid', i), '成员 UserID', i);
+				const userid = requireText(
+					this,
+					this.getNodeParameter('userid', i, '') ||
+						this.getNodeParameter('userid_selected', i, ''),
+					'成员 UserID',
+					i,
+				);
 				const external_userid = requireText(
 					this,
 					this.getNodeParameter('external_userid', i),
@@ -873,7 +885,13 @@ export async function executeExternalContact(
 					body,
 				);
 			} else if (operation === 'closeTempChat') {
-				const userid = requireText(this, this.getNodeParameter('userid', i), '成员 UserID', i);
+				const userid = requireText(
+					this,
+					this.getNodeParameter('userid', i, '') ||
+						this.getNodeParameter('userid_selected', i, ''),
+					'成员 UserID',
+					i,
+				);
 				const external_userid = requireText(
 					this,
 					this.getNodeParameter('external_userid', i),

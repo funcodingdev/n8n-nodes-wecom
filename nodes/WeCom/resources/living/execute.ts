@@ -299,7 +299,15 @@ export async function executeLiving(
 						this,
 						'POST',
 						path,
-						{ userid: requireText(this, this.getNodeParameter('userid', i), '成员 UserID', i) },
+						{
+							userid: requireText(
+								this,
+								this.getNodeParameter('userid', i, '') ||
+									this.getNodeParameter('userid_selected', i, ''),
+								'成员 UserID',
+								i,
+							),
+						},
 					);
 					break;
 				}

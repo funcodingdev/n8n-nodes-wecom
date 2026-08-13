@@ -10,13 +10,23 @@ export const createUserDescription: INodeProperties[] = [
 		displayName: 'UserID',
 		name: 'userid',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: showOnlyForCreate,
 		},
 		default: '',
 		placeholder: 'zhangsan',
-		description: '成员 UserID，企业内必须唯一。长度为1~64个字节，只能由数字、字母和"_-@."四种字符组成，且第一个字符必须是字母或数字。如：zhangsan。<a href="https://developer.work.weixin.qq.com/document/path/90195" target="_blank">官方文档</a>',
+		description: '成员 UserID，企业内必须唯一。长度为1~64个字节，只能由数字、字母和"_-@."四种字符组成，且第一个字符必须是字母或数字。如：zhangsan。<a href="https://developer.work.weixin.qq.com/document/path/90195" target="_blank">官方文档</a>；可与下方选择二选一',
+	},
+	{
+		displayName: '成员(选择)',
+		name: 'userid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		default: '',
+		displayOptions: {
+			show: showOnlyForCreate,
+		},
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '姓名',

@@ -153,7 +153,9 @@ export async function executeContact(
 				const tagid = this.getNodeParameter('tagid', i) as string;
 				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/tag/get', {}, { tagid });
 			} else if (operation === 'createUser') {
-				const userid = this.getNodeParameter('userid', i) as string;
+				const userid =
+					(this.getNodeParameter('userid', i, '') as string) ||
+					(this.getNodeParameter('userid_selected', i, '') as string);
 				const name = this.getNodeParameter('name', i) as string;
 				const mobile = this.getNodeParameter('mobile', i, '') as string;
 				const email = this.getNodeParameter('email', i, '') as string;

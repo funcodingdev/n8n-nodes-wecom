@@ -696,7 +696,14 @@ export async function executeCheckin(
 				);
 			} else if (operation === 'addCheckin') {
 				const body: IDataObject = {
-					userid: text(this, this.getNodeParameter('userid', i), '成员 UserID', i, 64),
+					userid: text(
+						this,
+						this.getNodeParameter('userid', i, '') ||
+							this.getNodeParameter('userid_selected', i, ''),
+						'成员 UserID',
+						i,
+						64,
+					),
 					schedule_date_time: timestamp(
 						this,
 						this.getNodeParameter('schedule_date_time', i),
@@ -733,7 +740,9 @@ export async function executeCheckin(
 				const inputMode = this.getNodeParameter('recordInputMode', i, 'single') as string;
 				if (inputMode === 'single') {
 					const raw: IDataObject = {
-						userid: this.getNodeParameter('userid', i),
+						userid:
+							this.getNodeParameter('userid', i, '') ||
+							this.getNodeParameter('userid_selected', i, ''),
 						checkin_time: this.getNodeParameter('checkin_time', i),
 						location_title: this.getNodeParameter('location_title', i),
 						location_detail: this.getNodeParameter('location_detail', i),
