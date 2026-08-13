@@ -46,6 +46,60 @@ function parseUserIdJson(
 	);
 }
 
+function parseJsonArrayOptional(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): IDataObject[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			throw new NodeOperationError(context.getNode(), `${label}不是有效的 JSON`, { itemIndex });
+		}
+	}
+	if (!Array.isArray(parsed)) {
+		throw new NodeOperationError(context.getNode(), `${label}必须是 JSON 数组`, { itemIndex });
+	}
+	return (parsed as unknown[]).filter(
+		(entry) => entry && typeof entry === 'object' && !Array.isArray(entry),
+	) as IDataObject[];
+}
+
+function mapExternalAttrsFromForm(attrs: IDataObject[]): IDataObject[] {
+	return attrs
+		.filter((a) => a.name)
+		.map((a) => {
+			const type = Number(a.type) || 0;
+			const item: IDataObject = { type, name: a.name };
+			if (type === 0) item.text = { value: a.text_value || '' };
+			if (type === 1) item.web = { title: a.web_title || '', url: a.web_url || '' };
+			if (type === 2) {
+				item.miniprogram = {
+					appid: a.miniprogram_appid || '',
+					pagepath: a.miniprogram_pagepath || '',
+					title: a.miniprogram_title || '',
+				};
+			}
+			return item;
+		});
+}
+
+function mapExtAttrsFromForm(attrs: IDataObject[]): IDataObject[] {
+	return attrs
+		.filter((a) => a.name)
+		.map((a) => {
+			const type = Number(a.type) || 0;
+			const item: IDataObject = { type, name: a.name };
+			if (type === 0) item.text = { value: a.text_value || '' };
+			if (type === 1) item.web = { title: a.web_title || '', url: a.web_url || '' };
+			return item;
+		});
+}
+
 function parseIdJson(
 	context: IExecuteFunctions,
 	value: unknown,
@@ -297,22 +351,18 @@ export async function executeContact(
 				if (wechat_channels_nickname) {
 					profile.wechat_channels = { nickname: wechat_channels_nickname };
 				}
-				const externalAttrs = ((externalAttrCollection?.attrs as IDataObject[]) || [])
-					.filter((a) => a.name)
-					.map((a) => {
-						const type = Number(a.type) || 0;
-						const item: IDataObject = { type, name: a.name };
-						if (type === 0) item.text = { value: a.text_value || '' };
-						if (type === 1) item.web = { title: a.web_title || '', url: a.web_url || '' };
-						if (type === 2) {
-							item.miniprogram = {
-								appid: a.miniprogram_appid || '',
-								pagepath: a.miniprogram_pagepath || '',
-								title: a.miniprogram_title || '',
-							};
-						}
-						return item;
-					});
+				const externalAttrJson = parseJsonArrayOptional(
+					this,
+					this.getNodeParameter('externalAttrJson', i, '[]'),
+					'对外扩展属性 JSON',
+					i,
+				);
+				const externalAttrs =
+					externalAttrJson.length > 0
+						? externalAttrJson
+						: mapExternalAttrsFromForm(
+								(externalAttrCollection?.attrs as IDataObject[]) || [],
+							);
 				if (externalAttrs.length) profile.external_attr = externalAttrs;
 				if (external_profile && external_profile !== '{}') {
 					try {
@@ -373,15 +423,16 @@ export async function executeContact(
 					body.main_department = main_department;
 				}
 				const extattrCollection = this.getNodeParameter('extattrCollection', i, {}) as IDataObject;
-				const extAttrs = ((extattrCollection?.attrs as IDataObject[]) || [])
-					.filter((a) => a.name)
-					.map((a) => {
-						const type = Number(a.type) || 0;
-						const item: IDataObject = { type, name: a.name };
-						if (type === 0) item.text = { value: a.text_value || '' };
-						if (type === 1) item.web = { title: a.web_title || '', url: a.web_url || '' };
-						return item;
-					});
+				const extattrAttrsJson = parseJsonArrayOptional(
+					this,
+					this.getNodeParameter('extattrAttrsJson', i, '[]'),
+					'扩展属性 JSON',
+					i,
+				);
+				const extAttrs =
+					extattrAttrsJson.length > 0
+						? extattrAttrsJson
+						: mapExtAttrsFromForm((extattrCollection?.attrs as IDataObject[]) || []);
 				const extattrBody: IDataObject = {};
 				if (extAttrs.length) extattrBody.attrs = extAttrs;
 				const extattr = this.getNodeParameter('extattr', i, '{}') as string;
@@ -457,22 +508,18 @@ export async function executeContact(
 				if (wechat_channels_nickname) {
 					profile.wechat_channels = { nickname: wechat_channels_nickname };
 				}
-				const externalAttrs = ((externalAttrCollection?.attrs as IDataObject[]) || [])
-					.filter((a) => a.name)
-					.map((a) => {
-						const type = Number(a.type) || 0;
-						const item: IDataObject = { type, name: a.name };
-						if (type === 0) item.text = { value: a.text_value || '' };
-						if (type === 1) item.web = { title: a.web_title || '', url: a.web_url || '' };
-						if (type === 2) {
-							item.miniprogram = {
-								appid: a.miniprogram_appid || '',
-								pagepath: a.miniprogram_pagepath || '',
-								title: a.miniprogram_title || '',
-							};
-						}
-						return item;
-					});
+				const externalAttrJson = parseJsonArrayOptional(
+					this,
+					this.getNodeParameter('externalAttrJson', i, '[]'),
+					'对外扩展属性 JSON',
+					i,
+				);
+				const externalAttrs =
+					externalAttrJson.length > 0
+						? externalAttrJson
+						: mapExternalAttrsFromForm(
+								(externalAttrCollection?.attrs as IDataObject[]) || [],
+							);
 				if (externalAttrs.length) profile.external_attr = externalAttrs;
 				if (external_profile && external_profile !== '{}') {
 					try {
@@ -531,15 +578,16 @@ export async function executeContact(
 					body.main_department = main_department;
 				}
 				const extattrCollection = this.getNodeParameter('extattrCollection', i, {}) as IDataObject;
-				const extAttrs = ((extattrCollection?.attrs as IDataObject[]) || [])
-					.filter((a) => a.name)
-					.map((a) => {
-						const type = Number(a.type) || 0;
-						const item: IDataObject = { type, name: a.name };
-						if (type === 0) item.text = { value: a.text_value || '' };
-						if (type === 1) item.web = { title: a.web_title || '', url: a.web_url || '' };
-						return item;
-					});
+				const extattrAttrsJson = parseJsonArrayOptional(
+					this,
+					this.getNodeParameter('extattrAttrsJson', i, '[]'),
+					'扩展属性 JSON',
+					i,
+				);
+				const extAttrs =
+					extattrAttrsJson.length > 0
+						? extattrAttrsJson
+						: mapExtAttrsFromForm((extattrCollection?.attrs as IDataObject[]) || []);
 				const extattrBody: IDataObject = {};
 				if (extAttrs.length) extattrBody.attrs = extAttrs;
 				const extattr = this.getNodeParameter('extattr', i, '{}') as string;
@@ -557,8 +605,37 @@ export async function executeContact(
 				}
 				const biz_mail_alias_list = this.getNodeParameter('biz_mail_alias_list', i, '') as string;
 				const biz_mail_alias = this.getNodeParameter('biz_mail_alias', i, '{}') as string;
-				const aliases = splitCsv(biz_mail_alias_list, 5);
-				if (aliases.length) body.biz_mail_alias = { item: aliases };
+				const aliasFromJson = (() => {
+					const raw = this.getNodeParameter('bizMailAliasListJson', i, '[]');
+					if (raw === undefined || raw === null || String(raw).trim() === '') return [] as string[];
+					let parsed: unknown = raw;
+					if (typeof raw === 'string') {
+						try {
+							parsed = JSON.parse(raw);
+						} catch {
+							throw new NodeOperationError(this.getNode(), '企业邮箱别名列表 JSON 不是有效的 JSON', {
+								itemIndex: i,
+							});
+						}
+					}
+					if (!Array.isArray(parsed)) {
+						throw new NodeOperationError(this.getNode(), '企业邮箱别名列表 JSON 必须是数组', {
+							itemIndex: i,
+						});
+					}
+					return splitCsv(
+						(parsed as unknown[]).map((entry) => {
+							if (typeof entry === 'string') return entry;
+							if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+								const row = entry as IDataObject;
+								return row.email ?? row.mail ?? row.biz_mail ?? row.item ?? '';
+							}
+							return '';
+						}),
+					);
+				})();
+				const aliasList = splitCsv([biz_mail_alias_list, ...aliasFromJson], 5);
+				if (aliasList.length) body.biz_mail_alias = { item: aliasList };
 				if (biz_mail_alias && biz_mail_alias !== '{}') {
 					try {
 						body.biz_mail_alias = JSON.parse(biz_mail_alias);

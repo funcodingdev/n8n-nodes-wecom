@@ -902,7 +902,32 @@ export async function executeCheckin(
 						notes: this.getNodeParameter('notes', i, ''),
 						wifiname: this.getNodeParameter('wifiname', i, ''),
 						wifimac: this.getNodeParameter('wifimac', i, ''),
-						mediaids: this.getNodeParameter('mediaids', i, ''),
+						mediaids: [
+							this.getNodeParameter('mediaids', i, ''),
+							...(() => {
+								const raw = this.getNodeParameter('mediaidsJson', i, '[]');
+								if (raw === undefined || raw === null || String(raw).trim() === '') {
+									return [] as string[];
+								}
+								let parsed: unknown = raw;
+								if (typeof raw === 'string') {
+									try {
+										parsed = JSON.parse(raw);
+									} catch {
+										fail(this, '附件 MediaID JSON 不是有效的 JSON', i);
+									}
+								}
+								if (!Array.isArray(parsed)) fail(this, '附件 MediaID JSON 必须是数组', i);
+								return (parsed as unknown[]).map((entry) => {
+									if (typeof entry === 'string') return entry;
+									if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+										const row = entry as IDataObject;
+										return String(row.media_id ?? row.mediaid ?? row.id ?? '');
+									}
+									return '';
+								});
+							})(),
+						],
 					};
 					if (this.getNodeParameter('includeCoordinates', i, false) as boolean) {
 						raw.lng = this.getNodeParameter('lng', i);

@@ -140,7 +140,16 @@ export const addCheckinRecordDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: { show: showSingle },
 		default: '',
-		description: '打卡附件 media_id，当前最多允许 1 个',
+		description: '打卡附件 media_id，当前最多允许 1 个；与下方 JSON 合并',
+	},
+	{
+		displayName: '附件 MediaID JSON',
+		name: 'mediaidsJson',
+		type: 'json',
+		displayOptions: { show: showSingle },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方 MediaID 合并去重，最多 1 个。支持 ["media_id"] 或 [{"media_id":"..."}]',
 	},
 	{
 		displayName: '打卡记录JSON',

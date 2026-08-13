@@ -196,30 +196,68 @@ export async function executeAgent(
 
 		let raw: IDataObject = {};
 		if (type === 'keydata') {
-			const collection = this.getNodeParameter('keydataItems', itemIndex, {}) as IDataObject;
-			raw = {
-				items: ((collection.items as IDataObject[]) || []).map((entry) => {
+			const keydataJsonRaw = this.getNodeParameter('keydataItemsJson', itemIndex, '[]');
+			let items: IDataObject[] = [];
+			if (
+				keydataJsonRaw !== undefined &&
+				keydataJsonRaw !== null &&
+				String(keydataJsonRaw).trim() !== ''
+			) {
+				let parsed: unknown = keydataJsonRaw;
+				if (typeof keydataJsonRaw === 'string') {
+					try {
+						parsed = JSON.parse(keydataJsonRaw);
+					} catch {
+						fail('关键数据项 JSON 不是有效的 JSON', itemIndex);
+					}
+				}
+				if (!Array.isArray(parsed)) fail('关键数据项 JSON 必须是数组', itemIndex);
+				if ((parsed as unknown[]).length > 0) items = parsed as IDataObject[];
+			}
+			if (items.length === 0) {
+				const collection = this.getNodeParameter('keydataItems', itemIndex, {}) as IDataObject;
+				items = ((collection.items as IDataObject[]) || []).map((entry) => {
 					const item: IDataObject = { key: entry.key, data: entry.data };
 					if (entry.linkType === 'url') item.jump_url = entry.jump_url;
 					if (entry.linkType === 'pagepath') item.pagepath = entry.pagepath;
 					return item;
-				}),
-			};
+				});
+			}
+			raw = { items };
 		} else if (type === 'image') {
 			raw = { url: this.getNodeParameter('image_url', itemIndex, '') as string };
 			const linkType = this.getNodeParameter('imageLinkType', itemIndex, 'none') as string;
 			if (linkType === 'url') raw.jump_url = this.getNodeParameter('image_jump_url', itemIndex, '') as string;
 			if (linkType === 'pagepath') raw.pagepath = this.getNodeParameter('image_pagepath', itemIndex, '') as string;
 		} else if (type === 'list') {
-			const collection = this.getNodeParameter('listItems', itemIndex, {}) as IDataObject;
-			raw = {
-				items: ((collection.items as IDataObject[]) || []).map((entry) => {
+			const listJsonRaw = this.getNodeParameter('listItemsJson', itemIndex, '[]');
+			let items: IDataObject[] = [];
+			if (
+				listJsonRaw !== undefined &&
+				listJsonRaw !== null &&
+				String(listJsonRaw).trim() !== ''
+			) {
+				let parsed: unknown = listJsonRaw;
+				if (typeof listJsonRaw === 'string') {
+					try {
+						parsed = JSON.parse(listJsonRaw);
+					} catch {
+						fail('列表项 JSON 不是有效的 JSON', itemIndex);
+					}
+				}
+				if (!Array.isArray(parsed)) fail('列表项 JSON 必须是数组', itemIndex);
+				if ((parsed as unknown[]).length > 0) items = parsed as IDataObject[];
+			}
+			if (items.length === 0) {
+				const collection = this.getNodeParameter('listItems', itemIndex, {}) as IDataObject;
+				items = ((collection.items as IDataObject[]) || []).map((entry) => {
 					const item: IDataObject = { title: entry.title };
 					if (entry.linkType === 'url') item.jump_url = entry.jump_url;
 					if (entry.linkType === 'pagepath') item.pagepath = entry.pagepath;
 					return item;
-				}),
-			};
+				});
+			}
+			raw = { items };
 		} else if (type === 'webview') {
 			raw = {
 				url: this.getNodeParameter('webview_url', itemIndex, '') as string,

@@ -284,6 +284,15 @@ export const createUserDescription: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: '对外扩展属性 JSON',
+		name: 'externalAttrJson',
+		type: 'json',
+		displayOptions: { show: showOnlyForCreate },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方对外扩展属性表单（仍会与下方完整 external_profile JSON 合并，完整 JSON 优先）。支持官方 external_attr 数组',
+	},
+	{
 		displayName: '成员对外属性扩展JSON',
 		name: 'external_profile',
 		type: 'json',
@@ -416,6 +425,15 @@ export const createUserDescription: INodeProperties[] = [
 				],
 			},
 		],
+	},
+	{
+		displayName: '扩展属性 JSON',
+		name: 'extattrAttrsJson',
+		type: 'json',
+		displayOptions: { show: showOnlyForCreate },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方扩展属性表单（仍会与下方完整 extattr JSON 合并，完整 JSON 优先）。支持官方 attrs 数组',
 	},
 	{
 		displayName: '扩展属性扩展JSON',

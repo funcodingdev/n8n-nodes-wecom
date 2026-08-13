@@ -140,6 +140,22 @@ export function getWorkbenchFields(
 			],
 		},
 		{
+			displayName: '关键数据项 JSON',
+			name: 'keydataItemsJson',
+			type: 'json',
+			default: '[]',
+			displayOptions: {
+				show: {
+					...showOnly,
+					type: ['keydata'],
+					workbenchInputMode: ['form'],
+					...dataGate,
+				},
+			},
+			description:
+				'可选。非空数组时覆盖上方关键数据项表单。支持 [{"key":"...","data":"...","jump_url":"..."}] 或 [{"key":"...","data":"...","pagepath":"..."}]，1–4 项',
+		},
+		{
 			displayName: '图片 URL',
 			name: 'image_url',
 			type: 'string',
@@ -257,6 +273,22 @@ export function getWorkbenchFields(
 					],
 				},
 			],
+		},
+		{
+			displayName: '列表项 JSON',
+			name: 'listItemsJson',
+			type: 'json',
+			default: '[]',
+			displayOptions: {
+				show: {
+					...showOnly,
+					type: ['list'],
+					workbenchInputMode: ['form'],
+					...dataGate,
+				},
+			},
+			description:
+				'可选。非空数组时覆盖上方列表项表单。支持 [{"title":"...","jump_url":"..."}] 或 [{"title":"...","pagepath":"..."}]，1–3 项',
 		},
 		{
 			displayName: 'Webview URL',

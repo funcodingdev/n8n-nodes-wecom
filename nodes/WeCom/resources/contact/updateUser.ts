@@ -284,6 +284,15 @@ export const updateUserDescription: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: '对外扩展属性 JSON',
+		name: 'externalAttrJson',
+		type: 'json',
+		displayOptions: { show: showOnlyForUpdate },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方对外扩展属性表单（仍会与下方完整 external_profile JSON 合并，完整 JSON 优先）。支持官方 external_attr 数组',
+	},
+	{
 		displayName: '成员对外属性扩展JSON',
 		name: 'external_profile',
 		type: 'json',
@@ -407,6 +416,15 @@ export const updateUserDescription: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: '扩展属性 JSON',
+		name: 'extattrAttrsJson',
+		type: 'json',
+		displayOptions: { show: showOnlyForUpdate },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方扩展属性表单（仍会与下方完整 extattr JSON 合并，完整 JSON 优先）。支持官方 attrs 数组',
+	},
+	{
 		displayName: '扩展属性扩展JSON',
 		name: 'extattr',
 		type: 'json',
@@ -429,7 +447,16 @@ export const updateUserDescription: INodeProperties[] = [
 		displayOptions: { show: showOnlyForUpdate },
 		default: '',
 		placeholder: 'a@corp.com,b@corp.com',
-		description: '逗号分隔，最多 5 个；清空请用扩展 JSON 传空数组',
+		description: '逗号分隔，最多 5 个；与下方 JSON 合并；清空请用扩展 JSON 传空数组',
+	},
+	{
+		displayName: '企业邮箱别名列表 JSON',
+		name: 'bizMailAliasListJson',
+		type: 'json',
+		displayOptions: { show: showOnlyForUpdate },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重，最多 5 个。支持 ["a@corp.com"] 或 [{"email":"a@corp.com"}]',
 	},
 	{
 		displayName: '企业邮箱别名扩展JSON',
@@ -437,7 +464,7 @@ export const updateUserDescription: INodeProperties[] = [
 		type: 'json',
 		displayOptions: { show: showOnlyForUpdate },
 		default: '{}',
-		description: '如 {"item":["a@corp.com"]}，优先于上方列表',
+		description: '如 {"item":["a@corp.com"]}，优先于上方列表/JSON',
 	},
 	{
 		displayName: '新UserID',
