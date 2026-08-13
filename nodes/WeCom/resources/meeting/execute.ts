@@ -792,12 +792,18 @@ export async function executeMeeting(
 				if (cal_id) body.cal_id = cal_id;
 				if (agentid) body.agentid = integer(this, agentid, '应用 AgentID', i, 1, MAX_UINT32);
 
-				// invitees：文本 + 选择器 + 兼容旧 collection
+				// invitees：文本 + 选择器 + JSON + 兼容旧 collection
 				let inviteeIds = stringList(
 					this,
 					[
 						this.getNodeParameter('invitee_userids', i, ''),
 						this.getNodeParameter('invitee_userids_selected', i, []),
+						...parseUserIdJson(
+							this,
+							this.getNodeParameter('inviteesJson', i, '[]'),
+							'受邀成员 JSON',
+							i,
+						),
 					],
 					'受邀成员',
 					i,
@@ -1114,7 +1120,7 @@ export async function executeMeeting(
 				}
 				const inviteeIds = stringList(
 					this,
-					[invitee_userids, invitee_userids_selected],
+					[invitee_userids, invitee_userids_selected, ...parseUserIdJson(this, this.getNodeParameter('inviteesJson', i, '[]'), '受邀成员 JSON', i)],
 					'受邀成员',
 					i,
 					0,
@@ -1443,7 +1449,7 @@ export async function executeMeeting(
 				}
 				const inviteeIds = stringList(
 					this,
-					[invitee_userids, invitee_userids_selected],
+					[invitee_userids, invitee_userids_selected, ...parseUserIdJson(this, this.getNodeParameter('inviteesJson', i, '[]'), '受邀成员 JSON', i)],
 					'受邀成员',
 					i,
 					0,
@@ -3904,28 +3910,48 @@ export async function executeMeeting(
 						'受邀成员列表 JSON',
 						i,
 					);
+					const inviteesFromField = parseUserIdJson(
+						this,
+						this.getNodeParameter('inviteesJson', i, '[]'),
+						'受邀成员 JSON',
+						i,
+					);
+					const formIds = stringList(
+						this,
+						[
+							this.getNodeParameter('invitee_userids', i, ''),
+							this.getNodeParameter('invitee_userids_selected', i, []),
+							...inviteesFromField,
+						],
+						'受邀成员 UserID',
+						i,
+						0,
+						2000,
+					);
 					const rawInvitees: unknown[] = jsonInvitees.length
 						? jsonInvitees
-						: stringList(
-								this,
-								[
-									this.getNodeParameter('invitee_userids', i, ''),
-									this.getNodeParameter('invitee_userids_selected', i, []),
-								],
-								'受邀成员 UserID',
-								i,
-								0,
-								2000,
-							).map((userid) => ({ userid }));
+						: formIds.map((userid) => ({ userid }));
 					if (rawInvitees.length > 2000) fail(this, '受邀成员最多支持 2000 人', i);
 					body.invitees = rawInvitees.map((rawInvitee, inviteeIndex) => {
+						if (typeof rawInvitee === 'string' || typeof rawInvitee === 'number') {
+							return {
+								userid: text(
+									this,
+									rawInvitee,
+									`第 ${inviteeIndex + 1} 个受邀成员 UserID`,
+									i,
+									64,
+								),
+							};
+						}
 						if (!rawInvitee || typeof rawInvitee !== 'object' || Array.isArray(rawInvitee)) {
 							fail(this, `第 ${inviteeIndex + 1} 个受邀成员必须是对象`, i);
 						}
 						return {
 							userid: text(
 								this,
-								(rawInvitee as IDataObject).userid,
+								(rawInvitee as IDataObject).userid ||
+									(rawInvitee as IDataObject).userid_selected,
 								`第 ${inviteeIndex + 1} 个受邀成员 UserID`,
 								i,
 								64,

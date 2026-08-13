@@ -117,6 +117,15 @@ export const updateMeetingDescription: INodeProperties[] = [
 		description: '与上方列表合并去重',
 	},
 	{
+		displayName: '受邀成员 JSON',
+		name: 'inviteesJson',
+		type: 'json',
+		displayOptions: { show: { ...showOnlyForUpdate, update_invitees: [true] } },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '修改入会密码',
 		name: 'update_password',
 		type: 'boolean',

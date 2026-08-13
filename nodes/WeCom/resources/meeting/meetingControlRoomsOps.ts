@@ -607,6 +607,15 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		description: '与上方列表合并去重',
 	},
 	{
+		displayName: '受邀成员 JSON',
+		name: 'inviteesJson',
+		type: 'json',
+		displayOptions: { show: { resource: ['meeting'], operation: ['setInvitees'] } },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '临时OpenID',
 		name: 'enroll_tmp_openid',
 		type: 'string',
