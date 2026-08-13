@@ -2951,15 +2951,54 @@ export async function executeExternalContact(
 				if (!toall) {
 					const parentUserids = recv_scope === 1
 						? []
-						: stringList(this, this.getNodeParameter('to_parent_userid', i, ''), '家长 UserID 列表', i, { maximum: 1000 });
+						: stringList(
+								this,
+								[
+									this.getNodeParameter('to_parent_userid', i, ''),
+									...parseStringIdJson(
+										this,
+										this.getNodeParameter('toParentUseridJson', i, '[]'),
+										'家长列表 JSON',
+										i,
+										['userid', 'user_id', 'parent_userid', 'id'],
+									),
+								],
+								'家长 UserID 列表',
+								i,
+								{ maximum: 1000 },
+							);
 					const studentUserids = stringList(
 						this,
-						this.getNodeParameter('to_student_userid', i, ''),
+						[
+							this.getNodeParameter('to_student_userid', i, ''),
+							...parseStringIdJson(
+								this,
+								this.getNodeParameter('toStudentUseridJson', i, '[]'),
+								'学生列表 JSON',
+								i,
+								['userid', 'user_id', 'student_userid', 'id'],
+							),
+						],
 						'学生 UserID 列表',
 						i,
 						{ maximum: 1000 },
 					);
-					const parties = stringList(this, this.getNodeParameter('to_party', i, ''), '部门 ID 列表', i, { maximum: 100 });
+					const parties = stringList(
+						this,
+						[
+							this.getNodeParameter('to_party', i, ''),
+							...parseStringIdJson(
+								this,
+								this.getNodeParameter('toPartyJson', i, '[]'),
+								'部门列表 JSON',
+								i,
+								['partyid', 'party_id', 'departmentid', 'id'],
+							),
+						],
+						'部门 ID 列表',
+						i,
+						{ maximum: 100 },
+					);
 					if (parentUserids.length + studentUserids.length + parties.length < 1) {
 						fail(this, '未发送给所有人时，家长、学生和部门列表至少填写一项', i);
 					}

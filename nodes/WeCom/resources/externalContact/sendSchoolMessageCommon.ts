@@ -110,7 +110,18 @@ export const sendSchoolMessageCommonDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'parent_userid1,parent_userid2',
-		description: '支持逗号、竖线或换行分隔，自动去重，最多 1000 个',
+		description: '支持逗号、竖线或换行分隔，自动去重；与下方 JSON 合并，最多 1000 个',
+	},
+	{
+		displayName: '家长列表 JSON',
+		name: 'toParentUseridJson',
+		type: 'json',
+		displayOptions: {
+			show: { ...showOnlyForSendSchoolMessage, toall: [false], recv_scope: [0, 2] },
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["p1"] 或 [{"userid":"p1"}]',
 	},
 	{
 		displayName: '学生列表',
@@ -121,7 +132,19 @@ export const sendSchoolMessageCommonDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'student_userid1,student_userid2',
-		description: '支持逗号、竖线或换行分隔，自动去重，最多 1000 个；实际接收对象由“指定发送对象”决定',
+		description:
+			'支持逗号、竖线或换行分隔，自动去重；与下方 JSON 合并，最多 1000 个；实际接收对象由“指定发送对象”决定',
+	},
+	{
+		displayName: '学生列表 JSON',
+		name: 'toStudentUseridJson',
+		type: 'json',
+		displayOptions: {
+			show: { ...showOnlyForSendSchoolMessage, toall: [false] },
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["s1"] 或 [{"userid":"s1"}]',
 	},
 	{
 		displayName: '部门列表',
@@ -132,7 +155,19 @@ export const sendSchoolMessageCommonDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'partyid1,partyid2',
-		description: '支持逗号、竖线或换行分隔，自动去重，最多 100 个；实际接收对象由“指定发送对象”决定',
+		description:
+			'支持逗号、竖线或换行分隔，自动去重；与下方 JSON 合并，最多 100 个；实际接收对象由“指定发送对象”决定',
+	},
+	{
+		displayName: '部门列表 JSON',
+		name: 'toPartyJson',
+		type: 'json',
+		displayOptions: {
+			show: { ...showOnlyForSendSchoolMessage, toall: [false] },
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 [1,2] 或 [{"partyid":1}]',
 	},
 	{
 		displayName: '发送给所有人',

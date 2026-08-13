@@ -123,7 +123,22 @@ export const accountIdDescription: INodeProperties[] = [
 			},
 		},
 		default: [],
-		description: 'Open_userid列表，最多不超过1000个。必须是source_agentid对应的应用所获取的open_userid，多个值请使用"Add Value"按钮添加',
+		description:
+			'Open_userid列表，最多不超过1000个；与下方 JSON 合并去重。必须是source_agentid对应的应用所获取的open_userid',
+	},
+	{
+		displayName: 'Open Userid列表 JSON',
+		name: 'openUseridListJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['accountId'],
+				operation: ['openuseridToUserid'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["ouxxx"] 或 [{"open_userid":"ouxxx"}]',
 	},
 	{
 		displayName: 'External Userid',
@@ -220,7 +235,21 @@ export const accountIdDescription: INodeProperties[] = [
 			},
 		},
 		default: [],
-		description: '外部用户临时ID列表，最多不超过100个。外部用户临时ID，多个值请使用"Add Value"按钮添加',
+		description: '外部用户临时ID列表，最多不超过100个；与下方 JSON 合并去重',
+	},
+	{
+		displayName: 'Tmp External Userid列表 JSON',
+		name: 'tmpExternalUseridListJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['accountId'],
+				operation: ['convertTmpExternalUserid'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["tmpxxx"] 或 [{"tmp_external_userid":"tmpxxx"}]',
 	},
 	{
 		displayName: 'Provider Access Token',
@@ -282,7 +311,21 @@ export const accountIdDescription: INodeProperties[] = [
 			},
 		},
 		default: [],
-		description: '获取到的成员ID列表，最多不超过1000个。多个值请使用"Add Value"按钮添加',
+		description: '获取到的成员ID列表，最多不超过1000个；与下方 JSON 合并去重',
+	},
+	{
+		displayName: 'Userid列表 JSON',
+		name: 'useridListJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['accountId'],
+				operation: ['useridToOpenuserid'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
 	},
 	{
 		displayName: 'External Userid列表',
@@ -299,7 +342,21 @@ export const accountIdDescription: INodeProperties[] = [
 			},
 		},
 		default: [],
-		description: '企业主体下的external_userid列表，建议200个，最多不超过1000个。多个值请使用"Add Value"按钮添加',
+		description: '企业主体下的external_userid列表，建议200个，最多不超过1000个；与下方 JSON 合并去重',
+	},
+	{
+		displayName: 'External Userid列表 JSON',
+		name: 'externalUseridListJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['accountId'],
+				operation: ['getNewExternalUserid', 'getNewExternalUseridGroupchat'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["wmxxx"] 或 [{"external_userid":"wmxxx"}]',
 	},
 	{
 		displayName: '客户群ID',
@@ -381,7 +438,21 @@ export const accountIdDescription: INodeProperties[] = [
 			},
 		},
 		default: [],
-		description: '该企业的外部联系人ID，最多可同时查询100个外部联系人。多个值请使用"Add Value"按钮添加',
+		description: '该企业的外部联系人ID，最多可同时查询100个；与下方 JSON 合并去重',
+	},
+	{
+		displayName: 'External Userid列表 JSON',
+		name: 'externalUseridJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['accountId'],
+				operation: ['externalUseridToPendingId'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["wmxxx"] 或 [{"external_userid":"wmxxx"}]',
 	},
 	{
 		displayName: '客户群ID（可选）',
@@ -411,7 +482,21 @@ export const accountIdDescription: INodeProperties[] = [
 			},
 		},
 		default: [],
-		description: '企业主体下的客户标签ID或标签组ID列表，最多不超过1000个。多个值请使用"Add Value"按钮添加',
+		description: '企业主体下的客户标签ID或标签组ID列表，最多不超过1000个；与下方 JSON 合并去重',
+	},
+	{
+		displayName: 'External Tagid列表 JSON',
+		name: 'externalTagidListJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['accountId'],
+				operation: ['externalTagidToOpenExternalTagid'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["etxxx"] 或 [{"external_tagid":"etxxx"}]',
 	},
 	{
 		displayName: 'Open Kfid列表',
@@ -428,7 +513,21 @@ export const accountIdDescription: INodeProperties[] = [
 			},
 		},
 		default: [],
-		description: '微信客服ID列表，最多不超过1000个。多个值请使用"Add Value"按钮添加',
+		description: '微信客服ID列表，最多不超过1000个；与下方 JSON 合并去重',
+	},
+	{
+		displayName: 'Open Kfid列表 JSON',
+		name: 'openKfidListJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['accountId'],
+				operation: ['openKfidToNewOpenKfid'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["wkxxx"] 或 [{"open_kfid":"wkxxx"}]',
 	},
 	{
 		displayName: 'Provider Access Token',

@@ -61,7 +61,22 @@ export const sendSchoolNoticeDescription: INodeProperties[] = [
 				recv_scope: [0, 2],
 			},
 		},
-		description: `多个家长 UserID 用逗号或 | 分隔，最多 1000 个。${schoolNoticeDoc}`,
+		description: `多个家长 UserID 用逗号或 | 分隔；与下方 JSON 合并，最多 1000 个。${schoolNoticeDoc}`,
+	},
+	{
+		displayName: '家长列表 JSON',
+		name: 'toParentUseridJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: {
+			show: {
+				...showOnlyForSchoolNotice,
+				toall: [false],
+				recv_scope: [0, 2],
+			},
+		},
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["p1"] 或 [{"userid":"p1"}]',
 	},
 	{
 		displayName: '学生 UserID 列表',
@@ -75,7 +90,21 @@ export const sendSchoolNoticeDescription: INodeProperties[] = [
 				toall: [false],
 			},
 		},
-		description: `多个学生 UserID 用逗号或 | 分隔，最多 1000 个；含义随“接收身份”变化。${schoolNoticeDoc}`,
+		description: `多个学生 UserID 用逗号或 | 分隔；与下方 JSON 合并，最多 1000 个；含义随“接收身份”变化。${schoolNoticeDoc}`,
+	},
+	{
+		displayName: '学生列表 JSON',
+		name: 'toStudentUseridJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: {
+			show: {
+				...showOnlyForSchoolNotice,
+				toall: [false],
+			},
+		},
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["s1"] 或 [{"userid":"s1"}]',
 	},
 	{
 		displayName: '班级部门 ID 列表',
@@ -89,7 +118,21 @@ export const sendSchoolNoticeDescription: INodeProperties[] = [
 				toall: [false],
 			},
 		},
-		description: `多个家校通讯录部门 ID 用逗号或 | 分隔，最多 100 个。${schoolNoticeDoc}`,
+		description: `多个家校通讯录部门 ID 用逗号或 | 分隔；与下方 JSON 合并，最多 100 个。${schoolNoticeDoc}`,
+	},
+	{
+		displayName: '班级部门列表 JSON',
+		name: 'toPartyJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: {
+			show: {
+				...showOnlyForSchoolNotice,
+				toall: [false],
+			},
+		},
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 [1,2] 或 [{"partyid":1}]',
 	},
 	{
 		displayName: '消息内容',

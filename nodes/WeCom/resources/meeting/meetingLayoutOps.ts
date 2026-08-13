@@ -135,7 +135,16 @@ export const meetingLayoutOpsDescription: INodeProperties[] = [
 		displayOptions: { show: { resource: ['meeting'], operation: needLayoutIdList } },
 		default: '',
 		placeholder: 'id1,id2',
-		description: '要删除的布局 ID，逗号分隔，最多 20 个',
+		description: '要删除的布局 ID，逗号分隔；与下方 JSON 合并，最多 20 个',
+	},
+	{
+		displayName: '布局ID列表 JSON',
+		name: 'layoutIdListJson',
+		type: 'json',
+		displayOptions: { show: { resource: ['meeting'], operation: needLayoutIdList } },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["id1"] 或 [{"layout_id":"id1"}]',
 	},
 	{
 		displayName: '背景ID',
@@ -164,7 +173,16 @@ export const meetingLayoutOpsDescription: INodeProperties[] = [
 		displayOptions: { show: { resource: ['meeting'], operation: needBackgroundIdList } },
 		default: '',
 		placeholder: 'id1,id2',
-		description: '要删除的背景 ID，逗号分隔',
+		description: '要删除的背景 ID，逗号分隔；与下方 JSON 合并',
+	},
+	{
+		displayName: '背景ID列表 JSON',
+		name: 'backgroundIdListJson',
+		type: 'json',
+		displayOptions: { show: { resource: ['meeting'], operation: needBackgroundIdList } },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["id1"] 或 [{"background_id":"id1"}]',
 	},
 	{
 		displayName: '用户临时OpenID列表',
@@ -173,7 +191,16 @@ export const meetingLayoutOpsDescription: INodeProperties[] = [
 		displayOptions: { show: { resource: ['meeting'], operation: ['advLayoutApply'] } },
 		default: '',
 		placeholder: 'tmp_openid1,tmp_openid2',
-		description: '只为指定用户设置个性布局；留空则为整个会议设置。最多 20 个',
+		description: '只为指定用户设置个性布局；留空则为整个会议设置；与下方 JSON 合并，最多 20 个',
+	},
+	{
+		displayName: '用户临时OpenID列表 JSON',
+		name: 'layoutApplyTmpOpenidsJson',
+		type: 'json',
+		displayOptions: { show: { resource: ['meeting'], operation: ['advLayoutApply'] } },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["tmp1"] 或 [{"tmp_openid":"tmp1"}]',
 	},
 	{
 		displayName: '用户临时OpenID',

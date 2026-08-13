@@ -1,12 +1,20 @@
 import type { IExecuteFunctions, IDataObject } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
-import { requireStringList } from './utils';
+import { mergeStringListWithJson } from './utils';
 
 export async function externalTagidToOpenExternalTagid(
 	this: IExecuteFunctions,
 	index: number,
 ): Promise<IDataObject> {
-	const externalTagidList = requireStringList(this, this.getNodeParameter('externalTagidList', index), 'External TagID 列表', index, 1000);
+	const externalTagidList = mergeStringListWithJson(
+		this,
+		this.getNodeParameter('externalTagidList', index),
+		this.getNodeParameter('externalTagidListJson', index, '[]'),
+		'External TagID 列表',
+		index,
+		1000,
+		['external_tagid', 'tagid', 'tag_id', 'id'],
+	);
 
 	const body: IDataObject = {
 		external_tagid_list: externalTagidList,

@@ -198,7 +198,30 @@ export async function executeLive(
 					const detail = activityDetail(
 						this,
 						this.getNodeParameter('activity_detail_description', i, ''),
-						this.getNodeParameter('activity_detail_image_list', i, ''),
+						[
+							this.getNodeParameter('activity_detail_image_list', i, ''),
+							...(() => {
+								const raw = this.getNodeParameter('activityDetailImageListJson', i, '[]');
+								if (raw === undefined || raw === null || String(raw).trim() === '') return [] as string[];
+								let parsed: unknown = raw;
+								if (typeof raw === 'string') {
+									try {
+										parsed = JSON.parse(raw);
+									} catch {
+										fail(this, '活动详情图片MediaID JSON 不是有效的 JSON', i);
+									}
+								}
+								if (!Array.isArray(parsed)) fail(this, '活动详情图片MediaID JSON 必须是数组', i);
+								return (parsed as unknown[]).map((entry) => {
+									if (typeof entry === 'string' || typeof entry === 'number') return String(entry);
+									if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+										const row = entry as IDataObject;
+										return String(row.media_id ?? row.mediaid ?? row.id ?? '');
+									}
+									return '';
+								});
+							})(),
+						],
 						i,
 					);
 					if (detail) body.activity_detail = detail;

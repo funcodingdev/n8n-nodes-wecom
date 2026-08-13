@@ -96,6 +96,40 @@ function parseUserIdJson(
 	return listValues(parsed);
 }
 
+function parseStringIdJson(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	keys: string[],
+): string[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	if (parsed.length === 0) return [];
+	return listValues(
+		parsed.map((entry) => {
+			if (typeof entry === 'string' || typeof entry === 'number') return entry;
+			if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+				const row = entry as IDataObject;
+				for (const key of keys) {
+					if (row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== '') {
+						return row[key];
+					}
+				}
+			}
+			return '';
+		}),
+	);
+}
+
 function stringList(
 	context: IExecuteFunctions,
 	value: unknown,
@@ -2175,7 +2209,6 @@ export async function executeMeeting(
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/enroll/list', body);
 			} else if (operation === 'approveEnroll') {
 				const meetingid = text(this, this.getNodeParameter('meetingid', i), '会议 ID', i, 128);
-				const enroll_id_list = this.getNodeParameter('enroll_id_list', i, '') as string;
 				// 兼容旧字段 enroll_approve_status；官方为 action：1取消批准 2拒绝 3批准
 				let enroll_approve_action = this.getNodeParameter('enroll_approve_action', i, 0) as number;
 				if (!enroll_approve_action) {
@@ -2190,7 +2223,23 @@ export async function executeMeeting(
 					meetingid,
 					action: integer(this, enroll_approve_action, '审批动作', i, 1, 3),
 				};
-				body.enroll_id_list = stringList(this, enroll_id_list, '报名 ID', i, 1, 1000);
+				body.enroll_id_list = stringList(
+					this,
+					[
+						this.getNodeParameter('enroll_id_list', i, ''),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('enrollIdListJson', i, '[]'),
+							'报名ID列表 JSON',
+							i,
+							['enroll_id', 'enrollid', 'id'],
+						),
+					],
+					'报名 ID',
+					i,
+					1,
+					1000,
+				);
 				Object.assign(body, jsonObject(this, approveJson, '审批扩展 JSON', i));
 				body.meetingid = meetingid;
 				body.action = integer(this, body.action, '审批动作', i, 1, 3);
@@ -2234,7 +2283,16 @@ export async function executeMeeting(
 				const meetingid = text(this, this.getNodeParameter('meetingid', i), '会议 ID', i, 128);
 				const meeting_room_id_list = stringList(
 					this,
-					this.getNodeParameter('meeting_room_id_list', i),
+					[
+						this.getNodeParameter('meeting_room_id_list', i),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('meetingRoomIdListJson', i, '[]'),
+							'Rooms会议室ID列表 JSON',
+							i,
+							['meeting_room_id', 'meeting_roomid', 'id'],
+						),
+					],
 					'Rooms 会议室 ID',
 					i,
 					1,
@@ -2253,7 +2311,16 @@ export async function executeMeeting(
 					(this.getNodeParameter('meeting_room_id', i, '') as string);
 				const meeting_room_id_list = stringList(
 					this,
-					meeting_room_id_list_raw,
+					[
+						meeting_room_id_list_raw,
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('meetingRoomIdListJson', i, '[]'),
+							'Rooms会议室ID列表 JSON',
+							i,
+							['meeting_room_id', 'meeting_roomid', 'id'],
+						),
+					],
 					'Rooms 会议室 ID',
 					i,
 					1,
@@ -2401,7 +2468,16 @@ export async function executeMeeting(
 				);
 				const quickPhones = stringList(
 					this,
-					this.getNodeParameter('phone_callout_phones', i, ''),
+					[
+						this.getNodeParameter('phone_callout_phones', i, ''),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('phoneCalloutPhonesJson', i, '[]'),
+							'外呼手机号 JSON',
+							i,
+							['phone', 'phone_number', 'mobile', 'number'],
+						),
+					],
 					'外呼手机号',
 					i,
 					0,
@@ -3181,7 +3257,16 @@ export async function executeMeeting(
 				if (operation === 'webinarEnrollApprove' || operation === 'webinarEnrollDelete') {
 					const enrollIds = stringList(
 						this,
-						this.getNodeParameter('webinar_enroll_id_list', i, ''),
+						[
+							this.getNodeParameter('webinar_enroll_id_list', i, ''),
+							...parseStringIdJson(
+								this,
+								this.getNodeParameter('webinarEnrollIdListJson', i, '[]'),
+								'报名ID列表 JSON',
+								i,
+								['enroll_id', 'enrollid', 'id'],
+							),
+						],
 						'报名 ID',
 						i,
 						1,
@@ -4471,7 +4556,16 @@ export async function executeMeeting(
 					);
 					const formTmpOpenids = stringList(
 						this,
-						this.getNodeParameter('layout_apply_tmp_openids', i, ''),
+						[
+							this.getNodeParameter('layout_apply_tmp_openids', i, ''),
+							...parseStringIdJson(
+								this,
+								this.getNodeParameter('layoutApplyTmpOpenidsJson', i, '[]'),
+								'用户临时OpenID列表 JSON',
+								i,
+								['tmp_openid', 'tmpOpenid', 'openid', 'id'],
+							),
+						],
 						'用户临时 OpenID',
 						i,
 						0,
@@ -4515,7 +4609,16 @@ export async function executeMeeting(
 				} else if (operation === 'advLayoutBatchDelete') {
 					body.layout_id_list = stringList(
 						this,
-						this.getNodeParameter('layout_id_list', i, body.layout_id_list ?? ''),
+						[
+							this.getNodeParameter('layout_id_list', i, body.layout_id_list ?? ''),
+							...parseStringIdJson(
+								this,
+								this.getNodeParameter('layoutIdListJson', i, '[]'),
+								'布局ID列表 JSON',
+								i,
+								['layout_id', 'layoutid', 'id'],
+							),
+						],
 						'布局 ID',
 						i,
 						1,
@@ -4567,7 +4670,16 @@ export async function executeMeeting(
 				} else if (operation === 'layoutBatchDeleteBackground') {
 					body.background_id_list = stringList(
 						this,
-						this.getNodeParameter('background_id_list', i, body.background_id_list ?? ''),
+						[
+							this.getNodeParameter('background_id_list', i, body.background_id_list ?? ''),
+							...parseStringIdJson(
+								this,
+								this.getNodeParameter('backgroundIdListJson', i, '[]'),
+								'背景ID列表 JSON',
+								i,
+								['background_id', 'backgroundid', 'id'],
+							),
+						],
 						'背景 ID',
 						i,
 						1,

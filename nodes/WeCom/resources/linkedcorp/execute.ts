@@ -443,7 +443,32 @@ export async function executeLinkedcorp(
 						openid: requiredText(this.getNodeParameter('lc_openid', itemIndex), 'OpenID'),
 					});
 				} else {
-					const externalUserids = splitList(this.getNodeParameter('lc_external_userids', itemIndex));
+					const externalUserids = splitList([
+						this.getNodeParameter('lc_external_userids', itemIndex),
+						...(() => {
+							const raw = this.getNodeParameter('lcExternalUseridsJson', itemIndex, '[]');
+							if (raw === undefined || raw === null || String(raw).trim() === '') return [] as string[];
+							let parsed: unknown = raw;
+							if (typeof raw === 'string') {
+								try {
+									parsed = JSON.parse(raw);
+								} catch {
+									fail('External UserID 列表 JSON 不是有效的 JSON');
+								}
+							}
+							if (!Array.isArray(parsed)) fail('External UserID 列表 JSON 必须是数组');
+							return splitList(
+								(parsed as unknown[]).map((entry) => {
+									if (typeof entry === 'string' || typeof entry === 'number') return entry;
+									if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+										const row = entry as IDataObject;
+										return row.external_userid ?? row.externalUserid ?? row.userid ?? row.id ?? '';
+									}
+									return '';
+								}),
+							);
+						})(),
+					]);
 					if (!externalUserids.length || externalUserids.length > 100) fail('External UserID 列表必须包含 1～100 个 ID');
 					const body: IDataObject = { external_userid: externalUserids };
 					const chatId = optionalText(this.getNodeParameter('lc_chat_id', itemIndex, ''));

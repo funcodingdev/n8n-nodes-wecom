@@ -116,7 +116,16 @@ export const createLivingDescription: INodeProperties[] = [
 		displayOptions: { show: { ...showOnly, type: [4] } },
 		default: '',
 		placeholder: 'MEDIA_ID_1,MEDIA_ID_2',
-		description: '最多 5 个，支持逗号、中文逗号、竖线或换行分隔',
+		description: '最多 5 个，支持逗号、中文逗号、竖线或换行分隔；与下方 JSON 合并',
+	},
+	{
+		displayName: '活动详情图片MediaID JSON',
+		name: 'activityDetailImageListJson',
+		type: 'json',
+		displayOptions: { show: { ...showOnly, type: [4] } },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["media_id"] 或 [{"media_id":"..."}]',
 	},
 	{
 		displayName: '应用 ID',

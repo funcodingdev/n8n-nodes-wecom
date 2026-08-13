@@ -39,7 +39,18 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: '13800138000,13900139000',
-		description: '逗号分隔手机号；默认国家码 86；与下方表单合并，合计最多 50 路',
+		description: '逗号分隔手机号；默认国家码 86；与下方 JSON/表单合并，合计最多 50 路',
+	},
+	{
+		displayName: '外呼手机号 JSON',
+		name: 'phoneCalloutPhonesJson',
+		type: 'json',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['phoneCallout'] },
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["13800138000"] 或 [{"phone":"13800138000"}]',
 	},
 	{
 		displayName: '默认国家/地区代码',
@@ -354,7 +365,18 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'id1,id2',
-		description: 'enroll_id_list，逗号分隔',
+		description: 'enroll_id_list，逗号分隔；与下方 JSON 合并去重',
+	},
+	{
+		displayName: '报名ID列表 JSON',
+		name: 'enrollIdListJson',
+		type: 'json',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['approveEnroll'] },
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["id1"] 或 [{"enroll_id":"id1"}]',
 	},
 	{
 		displayName: '审批动作',
@@ -416,7 +438,18 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 		default: '',
 		placeholder: 'id1,id2',
 		description:
-			'meeting_room_id_list，支持英文/中文逗号、竖线或换行分隔。<a href="https://developer.work.weixin.qq.com/document/path/98791" target="_blank">预定/释放 Rooms</a>',
+			'meeting_room_id_list，支持英文/中文逗号、竖线或换行分隔；与下方 JSON 合并。<a href="https://developer.work.weixin.qq.com/document/path/98791" target="_blank">预定/释放 Rooms</a>',
+	},
+	{
+		displayName: 'Rooms会议室ID列表 JSON',
+		name: 'meetingRoomIdListJson',
+		type: 'json',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['bookRooms', 'releaseRooms'] },
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["id1"] 或 [{"meeting_room_id":"id1"}]',
 	},
 	{
 		displayName: '会前一小时显示会议主题',

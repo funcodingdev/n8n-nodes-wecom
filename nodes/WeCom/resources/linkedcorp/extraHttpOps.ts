@@ -97,7 +97,16 @@ export const linkedcorpExtraHttpOpsDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { resource, operation: ['unionidToPendingId'], pending_conversion_type: ['external_userid'] } },
 		default: '',
-		description: '支持逗号、竖线或换行分隔，最多 100 个',
+		description: '支持逗号、竖线或换行分隔；与下方 JSON 合并，最多 100 个',
+	},
+	{
+		displayName: 'External UserID 列表 JSON',
+		name: 'lcExternalUseridsJson',
+		type: 'json',
+		displayOptions: { show: { resource, operation: ['unionidToPendingId'], pending_conversion_type: ['external_userid'] } },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["wmxxx"] 或 [{"external_userid":"wmxxx"}]',
 	},
 	{
 		displayName: '客户群 ID',

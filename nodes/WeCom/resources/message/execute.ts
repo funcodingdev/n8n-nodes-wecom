@@ -240,6 +240,40 @@ export async function executeMessage(
 		}
 		return values;
 	};
+	const parseOptionalIdJson = (
+		value: unknown,
+		label: string,
+		itemIndex: number,
+		keys: string[],
+	): string[] => {
+		if (value === undefined || value === null || String(value).trim() === '') return [];
+		let parsed: unknown = value;
+		if (typeof value === 'string') {
+			try {
+				parsed = JSON.parse(value);
+			} catch {
+				throw new NodeOperationError(this.getNode(), `${label}不是有效的 JSON`, { itemIndex });
+			}
+		}
+		if (!Array.isArray(parsed)) {
+			throw new NodeOperationError(this.getNode(), `${label}必须是 JSON 数组`, { itemIndex });
+		}
+		if (parsed.length === 0) return [];
+		return parsed
+			.map((entry) => {
+				if (typeof entry === 'string' || typeof entry === 'number') return String(entry).trim();
+				if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+					const row = entry as IDataObject;
+					for (const key of keys) {
+						if (row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== '') {
+							return String(row[key]).trim();
+						}
+					}
+				}
+				return '';
+			})
+			.filter(Boolean);
+	};
 	const parseNumericIds = (value: string, label: string, itemIndex: number): number[] => {
 		const values = value.split('|').filter(Boolean);
 		if (values.some((entry) => !/^\d+$/.test(entry))) {
@@ -1494,28 +1528,52 @@ export async function executeMessage(
 					const toall = this.getNodeParameter('toall', i, false) as boolean;
 					const parentUserIds = toall
 						? []
-						: parseDelimitedList(
-							this.getNodeParameter('to_parent_userid', i, '') as string,
-							'家长 UserID 列表',
-							1000,
-							i,
-						);
+						: [
+								...parseDelimitedList(
+									this.getNodeParameter('to_parent_userid', i, '') as string,
+									'家长 UserID 列表',
+									1000,
+									i,
+								),
+								...parseOptionalIdJson(
+									this.getNodeParameter('toParentUseridJson', i, '[]'),
+									'家长列表 JSON',
+									i,
+									['userid', 'user_id', 'parent_userid', 'id'],
+								),
+							].filter((v, idx, arr) => arr.indexOf(v) === idx).slice(0, 1000);
 					const studentUserIds = toall
 						? []
-						: parseDelimitedList(
-							this.getNodeParameter('to_student_userid', i, '') as string,
-							'学生 UserID 列表',
-							1000,
-							i,
-						);
+						: [
+								...parseDelimitedList(
+									this.getNodeParameter('to_student_userid', i, '') as string,
+									'学生 UserID 列表',
+									1000,
+									i,
+								),
+								...parseOptionalIdJson(
+									this.getNodeParameter('toStudentUseridJson', i, '[]'),
+									'学生列表 JSON',
+									i,
+									['userid', 'user_id', 'student_userid', 'id'],
+								),
+							].filter((v, idx, arr) => arr.indexOf(v) === idx).slice(0, 1000);
 					const partyIds = toall
 						? []
-						: parseDelimitedList(
-							this.getNodeParameter('to_party', i, '') as string,
-							'班级部门 ID 列表',
-							100,
-							i,
-						);
+						: [
+								...parseDelimitedList(
+									this.getNodeParameter('to_party', i, '') as string,
+									'班级部门 ID 列表',
+									100,
+									i,
+								),
+								...parseOptionalIdJson(
+									this.getNodeParameter('toPartyJson', i, '[]'),
+									'班级部门列表 JSON',
+									i,
+									['partyid', 'party_id', 'departmentid', 'id'],
+								),
+							].filter((v, idx, arr) => arr.indexOf(v) === idx).slice(0, 100);
 
 					if (!toall && parentUserIds.length === 0 && studentUserIds.length === 0 && partyIds.length === 0) {
 						throw new NodeOperationError(

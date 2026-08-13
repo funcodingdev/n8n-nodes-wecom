@@ -16,8 +16,19 @@ export const getCustomerInfoDescription: INodeProperties[] = [
 		},
 		default: '',
 		description:
-			'客户 external_userid 列表，支持逗号、中文逗号、竖线或换行分隔，自动去重，单次 1–100 个。<a href="https://developer.work.weixin.qq.com/document/path/95159" target="_blank">官方文档</a>',
+			'客户 external_userid 列表，支持逗号、中文逗号、竖线或换行分隔，自动去重；与下方 JSON 合并，单次 1–100 个。<a href="https://developer.work.weixin.qq.com/document/path/95159" target="_blank">官方文档</a>',
 		placeholder: 'wmxxxxxxxxxxxxxxxxxxxxxx,wmxxxxxxxxxxxxxxxxxxxxxx',
+	},
+	{
+		displayName: '外部联系人ID列表 JSON',
+		name: 'externalUseridListJson',
+		type: 'json',
+		displayOptions: {
+			show: showOnlyForGetCustomerInfo,
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["wmxxx"] 或 [{"external_userid":"wmxxx"}]',
 	},
 	{
 		displayName: '返回进入会话上下文',

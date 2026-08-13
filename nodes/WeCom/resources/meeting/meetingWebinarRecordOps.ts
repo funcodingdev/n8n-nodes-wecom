@@ -895,7 +895,21 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'id1,id2',
-		description: 'enroll_id_list，逗号分隔',
+		description: 'enroll_id_list，逗号分隔；与下方 JSON 合并去重',
+	},
+	{
+		displayName: '报名ID列表 JSON',
+		name: 'webinarEnrollIdListJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['meeting'],
+				operation: ['webinarEnrollApprove', 'webinarEnrollDelete'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["id1"] 或 [{"enroll_id":"id1"}]',
 	},
 	{
 		displayName: '临时OpenID',

@@ -48,6 +48,44 @@ function parseUserIdJsonList(
 	);
 }
 
+function parseStringIdJsonList(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	keys: string[],
+): string[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	if (parsed.length === 0) return [];
+	return stringList(
+		context,
+		parsed.map((entry) => {
+			if (typeof entry === 'string' || typeof entry === 'number') return entry;
+			if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+				const row = entry as IDataObject;
+				for (const key of keys) {
+					if (row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== '') {
+						return row[key];
+					}
+				}
+			}
+			return '';
+		}),
+		label,
+		itemIndex,
+		1000,
+	);
+}
+
 function parsePartyIdJsonList(
 	context: IExecuteFunctions,
 	value: unknown,
@@ -1173,7 +1211,16 @@ export async function executeKf(
 				// 官方路径：/cgi-bin/kf/customer/batchget
 				const external_userid_list = stringList(
 					this,
-					this.getNodeParameter('external_userid_list', i),
+					[
+						this.getNodeParameter('external_userid_list', i),
+						...parseStringIdJsonList(
+							this,
+							this.getNodeParameter('externalUseridListJson', i, '[]'),
+							'外部联系人ID列表 JSON',
+							i,
+							['external_userid', 'externalUserid', 'userid', 'id'],
+						),
+					],
 					'客户 External UserID 列表',
 					i,
 					100,
