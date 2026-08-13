@@ -7,18 +7,28 @@ const showOnly = {
 
 export const batchGetExternalContactDescription: INodeProperties[] = [
 	{
-		displayName: '成员',
+		displayName: '成员UserID列表',
+		name: 'userid_text',
+		type: 'string',
+		displayOptions: {
+			show: showOnly,
+		},
+		default: '',
+		placeholder: 'zhangsan,lisi',
+		description: '逗号/竖线/换行分隔，最多 100 个；与下方选择合并',
+	},
+	{
+		displayName: '成员(选择)',
 		name: 'userid',
 		type: 'multiOptions',
 		typeOptions: {
 			loadOptionsMethod: 'getAllUsers',
 		},
-		required: true,
 		default: [],
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '企业成员的 UserID 列表，最多 100 个。可从列表多选，或使用表达式传入逗号、竖线或换行分隔的 UserID',
+		description: '企业成员的 UserID 列表，与上方合并去重，合计最多 100 个',
 	},
 	{
 		displayName: 'Cursor',

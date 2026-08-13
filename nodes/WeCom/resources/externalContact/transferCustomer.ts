@@ -7,33 +7,29 @@ const showOnly = {
 
 export const transferCustomerDescription: INodeProperties[] = [
 	{
-		displayName: '原成员',
+		displayName: '原成员UserID',
 		name: 'handover_userid',
-		type: 'options',
-		typeOptions: {
-			loadOptionsMethod: 'getAllUsers',
-		},
+		type: 'string',
 		required: true,
 		default: '',
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '原跟进成员的企业成员UserID。<a href="https://developer.work.weixin.qq.com/document/path/92125" target="_blank">官方文档</a>.。原跟进成员的UserID，客户将从该成员转出',
+		description:
+			'原跟进成员的企业成员 UserID，客户将从该成员转出。<a href="https://developer.work.weixin.qq.com/document/path/92125" target="_blank">官方文档</a>',
 		placeholder: 'zhangsan',
 	},
 	{
-		displayName: '接替成员',
+		displayName: '接替成员UserID',
 		name: 'takeover_userid',
-		type: 'options',
-		typeOptions: {
-			loadOptionsMethod: 'getAllUsers',
-		},
+		type: 'string',
 		required: true,
 		default: '',
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '接替成员的企业成员UserID。<a href="https://developer.work.weixin.qq.com/document/path/92125" target="_blank">官方文档</a>.。接替成员的UserID，客户将转给该成员',
+		description:
+			'接替成员的企业成员 UserID，客户将转给该成员。<a href="https://developer.work.weixin.qq.com/document/path/92125" target="_blank">官方文档</a>',
 		placeholder: 'lisi',
 	},
 	{
