@@ -66,6 +66,14 @@ export async function executePushMessage(
 				for (const item of entry) push(item);
 				return;
 			}
+			if (typeof entry === 'object') {
+				const row = entry as IDataObject;
+				const id = row.userid ?? row.userid_selected ?? row.user_id ?? row.mobile;
+				if (id !== undefined && id !== null && String(id).trim()) {
+					rawParts.push(String(id).trim());
+					return;
+				}
+			}
 			const text = String(entry).trim();
 			if (!text) return;
 			for (const part of text.split(/[,|\n]+/)) {
@@ -76,6 +84,27 @@ export async function executePushMessage(
 		push(value);
 		const values = [...new Set(rawParts)];
 		return values.includes('@all') ? ['@all'] : values;
+	};
+	const normalizeUserIdJson = (value: unknown, itemIndex: number): string[] => {
+		if (value === undefined || value === null || String(value).trim() === '') return [];
+		let parsed: unknown = value;
+		if (typeof value === 'string') {
+			const trimmed = value.trim();
+			if (!trimmed || trimmed === '[]') return [];
+			try {
+				parsed = JSON.parse(trimmed);
+			} catch (error) {
+				throw new NodeOperationError(
+					this.getNode(),
+					`@ 成员 JSON 必须是有效的 JSON: ${(error as Error).message}`,
+					{ itemIndex },
+				);
+			}
+		}
+		if (!Array.isArray(parsed)) {
+			throw new NodeOperationError(this.getNode(), '@ 成员 JSON 必须是数组', { itemIndex });
+		}
+		return normalizeDelimitedList(parsed);
 	};
 	const ensureOptionalByteLength = (
 		value: unknown,
@@ -446,6 +475,7 @@ export async function executePushMessage(
 				const mentionedList = normalizeDelimitedList([
 					this.getNodeParameter('mentionedList', i, ''),
 					this.getNodeParameter('mentionedList_selected', i, []),
+					...normalizeUserIdJson(this.getNodeParameter('mentionedListJson', i, '[]'), i),
 				]);
 				const mentionedMobileList = this.getNodeParameter('mentionedMobileList', i, '') as string;
 

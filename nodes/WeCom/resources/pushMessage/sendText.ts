@@ -46,6 +46,17 @@ export const sendTextDescription: INodeProperties[] = [
 		description: '与上方列表合并去重；含「所有人」选项（@all）',
 	},
 	{
+		displayName: '@ 成员 JSON',
+		name: 'mentionedListJson',
+		type: 'json',
+		displayOptions: {
+			show: showOnlyForSendText,
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1","@all"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '@ 成员（手机号）',
 		name: 'mentionedMobileList',
 		type: 'string',

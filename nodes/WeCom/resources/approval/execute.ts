@@ -138,6 +138,35 @@ function stringList(
 	return unique;
 }
 
+function parseUserIdJson(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): string[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	if (parsed.length === 0) return [];
+	return listValues(
+		parsed.map((entry) => {
+			if (typeof entry === 'string' || typeof entry === 'number') return entry;
+			if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+				const row = entry as IDataObject;
+				return row.userid ?? row.userid_selected ?? row.user_id ?? '';
+			}
+			return '';
+		}),
+	);
+}
+
 function jsonValue(
 	context: IExecuteFunctions,
 	value: unknown,
@@ -760,7 +789,16 @@ export async function executeApproval(
 								type,
 								userid: stringList(
 									this,
-									[raw.userid_list, raw.userid_list_selected],
+									[
+										raw.userid_list,
+										raw.userid_list_selected,
+										...parseUserIdJson(
+											this,
+											raw.userid_list_json ?? '[]',
+											`第 ${index + 1} 个节点成员 JSON`,
+											i,
+										),
+									],
 									`第 ${index + 1} 个节点成员`,
 									i,
 									1,

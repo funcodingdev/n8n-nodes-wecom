@@ -103,6 +103,14 @@ export async function executeAppChat(
 				for (const item of entry) collect(item);
 				return;
 			}
+			if (typeof entry === 'object') {
+				const row = entry as IDataObject;
+				const id = row.userid ?? row.userid_selected ?? row.user_id;
+				if (id !== undefined && id !== null && String(id).trim()) {
+					values.push(String(id).trim());
+					return;
+				}
+			}
 			if (typeof entry === 'string') {
 				const trimmed = entry.trim();
 				if (!trimmed) return;
@@ -334,6 +342,7 @@ export async function executeAppChat(
 					const mentionedList = [
 						this.getNodeParameter('mentionedList_manual', i, ''),
 						this.getNodeParameter('mentionedList', i, []),
+						this.getNodeParameter('mentionedListJson', i, '[]'),
 					] as Array<string | string[]>;
 					const text: IDataObject = {
 						content,
