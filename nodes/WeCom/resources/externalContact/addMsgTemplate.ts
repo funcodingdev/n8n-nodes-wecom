@@ -29,7 +29,7 @@ export const addMsgTemplateDescription: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		displayOptions: { show: showOnly },
-		description: '发送企业群发消息的成员userid，当类型为发送给客户群时必填',
+		description: '发送企业群发消息的成员 UserID；客户群群发时必填',
 		placeholder: 'zhangsan',
 	},
 	// 客户列表（单聊时使用）

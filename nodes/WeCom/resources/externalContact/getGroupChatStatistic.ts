@@ -39,8 +39,17 @@ export const getGroupChatStatisticDescription: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		displayOptions: { show: showOnly },
-		description: '支持逗号、竖线或换行分隔，自动去重，最多 100 个。留空查询应用可见范围内的全部群主',
+		description: '支持逗号、竖线或换行分隔，最多 100 个；与下方选择合并。留空查询应用可见范围内全部群主',
 		placeholder: 'zhangsan,lisi',
+	},
+	{
+		displayName: '群主(选择)',
+		name: 'owner_userid_list_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		default: [],
+		displayOptions: { show: showOnly },
+		description: '与上方列表合并去重，合计最多 100 个',
 	},
 	{
 		displayName: '留空查询全部群主时，如果应用可见范围超过 1000 人，企业微信会返回错误码 81017。建议填写群主列表以控制结果范围。',

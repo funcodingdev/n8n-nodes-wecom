@@ -1015,14 +1015,20 @@ export async function executeExternalContact(
 					const visible_range: IDataObject = {};
 					const senderUserList = stringList(
 						this,
-						this.getNodeParameter('sender_user_list', i, ''),
+						[
+							this.getNodeParameter('sender_user_list', i, ''),
+							this.getNodeParameter('sender_user_list_selected', i, []),
+						],
 						'发表成员列表',
 						i,
 						{ maximum: 100000 },
 					);
 					const senderDepartmentList = integerList(
 						this,
-						this.getNodeParameter('sender_department_list', i, ''),
+						[
+							this.getNodeParameter('sender_department_list', i, ''),
+							this.getNodeParameter('sender_department_list_selected', i, []),
+						],
 						'发表部门列表',
 						i,
 						{ maximum: 100000 },
@@ -1878,7 +1884,10 @@ export async function executeExternalContact(
 				}
 				const ownerUserids = stringList(
 					this,
-					this.getNodeParameter('owner_userid_list', i, ''),
+					[
+						this.getNodeParameter('owner_userid_list', i, ''),
+						this.getNodeParameter('owner_userid_list_selected', i, []),
+					],
 					'群主 UserID 列表',
 					i,
 					{ maximum: 100 },
