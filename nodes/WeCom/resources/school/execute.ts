@@ -467,7 +467,13 @@ export async function executeSchool(
 					break;
 				}
 				case 'getUserLivingId': {
-					const userid = requireText(this, this.getNodeParameter('userid', i), '老师 UserID', i);
+					const userid = requireText(
+						this,
+						this.getNodeParameter('userid', i, '') ||
+							this.getNodeParameter('userid_selected', i, ''),
+						'老师 UserID',
+						i,
+					);
 					const cursor = optionalText(
 						this,
 						this.getNodeParameter('cursor', i, ''),
@@ -968,7 +974,8 @@ export async function executeSchool(
 				case 'getSchoolUser': {
 					const userid = requireSchoolContactId(
 						this,
-						this.getNodeParameter('userid', i),
+						this.getNodeParameter('userid', i, '') ||
+							this.getNodeParameter('userid_selected', i, ''),
 						'UserID',
 						i,
 					);

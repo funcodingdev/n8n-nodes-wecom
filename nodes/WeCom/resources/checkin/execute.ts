@@ -672,7 +672,13 @@ export async function executeCheckin(
 				if (!rawSchedules.length) fail(this, '至少添加一条排班信息', i);
 				const schedules = new Map<string, IDataObject>();
 				for (const [index, raw] of rawSchedules.entries()) {
-					const userid = text(this, raw.userid, `第 ${index + 1} 条排班成员 UserID`, i, 64);
+					const userid = text(
+						this,
+						raw.userid || raw.userid_selected,
+						`第 ${index + 1} 条排班成员 UserID`,
+						i,
+						64,
+					);
 					const day = integer(this, raw.day, `第 ${index + 1} 条排班日期`, i, 1, daysInMonth);
 					const scheduleId = integer(
 						this,

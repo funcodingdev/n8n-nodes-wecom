@@ -664,7 +664,8 @@ export async function executeMeeting(
 				// https://developer.work.weixin.qq.com/document/path/98148
 				const admin_userid = text(
 					this,
-					this.getNodeParameter('admin_userid', i, ''),
+					this.getNodeParameter('admin_userid', i, '') ||
+						this.getNodeParameter('admin_userid_selected', i, ''),
 					'管理员 UserID',
 					i,
 					64,
@@ -1236,7 +1237,14 @@ export async function executeMeeting(
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/get_info', body);
 			} else if (operation === 'getUserMeetings') {
 				// https://developer.work.weixin.qq.com/document/path/98150
-				const userid = text(this, this.getNodeParameter('userid', i), '成员 UserID', i, 64);
+				const userid = text(
+					this,
+					this.getNodeParameter('userid', i, '') ||
+						this.getNodeParameter('userid_selected', i, ''),
+					'成员 UserID',
+					i,
+					64,
+				);
 				const cursor = text(this, this.getNodeParameter('cursor', i, ''), '游标', i, 4096, false);
 				const limit = this.getNodeParameter('limit', i, 50) as number;
 				const begin_time = dateTimeToUnixTimestamp(
@@ -1771,7 +1779,8 @@ export async function executeMeeting(
 				);
 				const userid = text(
 					this,
-					this.getNodeParameter('userid', i, ''),
+					this.getNodeParameter('userid', i, '') ||
+						this.getNodeParameter('userid_selected', i, ''),
 					'成员 UserID',
 					i,
 					64,
@@ -2321,7 +2330,8 @@ export async function executeMeeting(
 			else if (operation === 'webinarCreate') {
 				const admin_userid = text(
 					this,
-					this.getNodeParameter('admin_userid', i),
+					this.getNodeParameter('admin_userid', i, '') ||
+						this.getNodeParameter('admin_userid_selected', i, ''),
 					'管理员 UserID',
 					i,
 					64,
@@ -3164,7 +3174,8 @@ export async function executeMeeting(
 				);
 				const userid = text(
 					this,
-					this.getNodeParameter('record_userid', i, ''),
+					this.getNodeParameter('record_userid', i, '') ||
+						this.getNodeParameter('record_userid_selected', i, ''),
 					'成员 UserID',
 					i,
 					64,

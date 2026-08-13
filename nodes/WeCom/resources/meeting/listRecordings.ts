@@ -26,7 +26,16 @@ export const listRecordingsDescription: INodeProperties[] = [
 		type: 'string',
 		displayOptions: { show: showOnly },
 		default: '',
-		description: 'userid，查询该用户作为创建者的录制',
+		description: 'userid，查询该用户作为创建者的录制；可与下方选择二选一',
+	},
+	{
+		displayName: '成员(选择)',
+		name: 'userid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		default: '',
+		displayOptions: { show: showOnly },
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '开始时间',

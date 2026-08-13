@@ -203,7 +203,12 @@ export async function executeLinkedcorp(
 					response = tokenResponse;
 				} else {
 					const accessToken = requiredText(tokenResponse.access_token, '下级/下游企业 access_token');
-					const userid = requiredText(this.getNodeParameter('userid', itemIndex), '加密用户 ID', 64);
+					const userid = requiredText(
+						this.getNodeParameter('userid', itemIndex, '') ||
+							this.getNodeParameter('userid_selected', itemIndex, ''),
+						'加密用户 ID',
+						64,
+					);
 					const sessionKey = requiredText(this.getNodeParameter('session_key', itemIndex), '会话密钥', 64);
 					response = await this.helpers.httpRequest({
 						method: 'POST',
@@ -267,7 +272,11 @@ export async function executeLinkedcorp(
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/corpgroup/corp/get_chain_user_custom_id', {
 					chain_id: requiredText(this.getNodeParameter('chain_id', itemIndex), '上下游 ID'),
 					corpid: requiredText(this.getNodeParameter('corpid', itemIndex), '已加入企业 CorpID'),
-					userid: requiredText(this.getNodeParameter('userid', itemIndex), '成员 UserID'),
+					userid: requiredText(
+						this.getNodeParameter('userid', itemIndex, '') ||
+							this.getNodeParameter('userid_selected', itemIndex, ''),
+						'成员 UserID',
+					),
 				});
 			} else if (operation === 'getSubCorpChainList') {
 				const corpid = optionalText(this.getNodeParameter('corpid', itemIndex, ''));

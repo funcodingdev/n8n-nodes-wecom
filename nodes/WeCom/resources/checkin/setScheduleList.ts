@@ -44,8 +44,15 @@ export const setScheduleListDescription: INodeProperties[] = [
 						name: 'userid',
 						type: 'string',
 						default: '',
-						required: true,
-						description: '成员的UserID',
+						description: '成员的 UserID；可与下方选择二选一',
+					},
+					{
+						displayName: '成员(选择)',
+						name: 'userid_selected',
+						type: 'options',
+						typeOptions: { loadOptionsMethod: 'getAllUsers' },
+						default: '',
+						description: '与上方字符串二选一；均填写时以字符串为准',
 					},
 					{
 						displayName: '日期',

@@ -7,11 +7,19 @@ export const createAdvancedMeetingDescription: INodeProperties[] = [
 		displayName: '管理员UserID',
 		name: 'admin_userid',
 		type: 'string',
-		required: true,
 		displayOptions: { show: showOnly },
 		default: '',
 		description:
-			'admin_userid。<a href="https://developer.work.weixin.qq.com/document/path/98148" target="_blank">官方文档</a>',
+			'admin_userid。<a href="https://developer.work.weixin.qq.com/document/path/98148" target="_blank">官方文档</a>；可与下方选择二选一；可与下方选择二选一',
+	},
+	{
+		displayName: '管理员(选择)',
+		name: 'admin_userid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		default: '',
+		displayOptions: { show: showOnly },
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '会议标题',
