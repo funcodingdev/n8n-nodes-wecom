@@ -1688,11 +1688,34 @@ export async function executeWedoc(
 							? 'property_calendar'
 							: '';
 				if (requiredProperty) {
-					const property = body[requiredProperty];
-					if (!property || Array.isArray(property) || typeof property !== 'object') {
-						fail(this, `${view_type === 'VIEW_TYPE_GANTT' ? '甘特图' : '日历'}视图必须在视图属性 JSON 中提供 ${requiredProperty}`, i);
+					const formStart = optionalText(
+						this,
+						this.getNodeParameter('start_date_field_id', i, ''),
+						'开始日期字段 ID',
+						i,
+						128,
+					);
+					const formEnd = optionalText(
+						this,
+						this.getNodeParameter('end_date_field_id', i, ''),
+						'结束日期字段 ID',
+						i,
+						128,
+					);
+					const existing =
+						body[requiredProperty] &&
+						typeof body[requiredProperty] === 'object' &&
+						!Array.isArray(body[requiredProperty])
+							? (body[requiredProperty] as IDataObject)
+							: {};
+					const propertyObject: IDataObject = { ...existing };
+					if (formStart && propertyObject.start_date_field_id === undefined) {
+						propertyObject.start_date_field_id = formStart;
 					}
-					const propertyObject = property as IDataObject;
+					if (formEnd && propertyObject.end_date_field_id === undefined) {
+						propertyObject.end_date_field_id = formEnd;
+					}
+					body[requiredProperty] = propertyObject;
 					requiredText(this, propertyObject.start_date_field_id, '开始日期字段 ID', i);
 					requiredText(this, propertyObject.end_date_field_id, '结束日期字段 ID', i);
 				}
@@ -1743,13 +1766,27 @@ export async function executeWedoc(
 					i,
 					100000,
 				);
+				const updateViewProperty = this.getNodeParameter('updateViewProperty', i, false) as boolean;
+				const formProperty: IDataObject = {};
+				if (updateViewProperty) {
+					formProperty.auto_sort = Boolean(this.getNodeParameter('auto_sort', i, false));
+					formProperty.frozen_field_count = integerInRange(
+						this,
+						this.getNodeParameter('frozen_field_count', i, 0),
+						'冻结列数',
+						i,
+						0,
+						100,
+					);
+				}
 
 				const body: IDataObject = { docid, sheet_id, view_id };
 				if (view_title) body.view_title = view_title;
+				const property: IDataObject = { ...formProperty };
 				if (propertyJson) {
-					const property = parseRequiredJsonObject(propertyJson, '视图配置 JSON', i);
-					if (Object.keys(property).length) body.property = property;
+					Object.assign(property, parseRequiredJsonObject(propertyJson, '视图配置 JSON', i));
 				}
+				if (Object.keys(property).length) body.property = property;
 				if (!view_title && !body.property) fail(this, '更新视图至少需要新的标题或视图配置', i);
 
 				response = await weComApiRequest.call(
