@@ -48,7 +48,7 @@ export const updateSmartsheetRecordDescription: INodeProperties[] = [
 		default: {},
 		placeholder: '添加要更新的记录',
 		typeOptions: { multipleValues: true },
-		description: '要更新的记录列表（单次更新建议在500行内）',
+		description: '要更新的记录列表（单次更新建议在500行内）；下方 JSON 非空时覆盖表单',
 		options: [
 			{
 				displayName: '记录',
@@ -603,5 +603,14 @@ export const updateSmartsheetRecordDescription: INodeProperties[] = [
 				],
 			},
 		],
+	},
+	{
+		displayName: '记录列表 JSON',
+		name: 'recordsJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方记录表单。官方 records 结构，例如 [{\"record_id\":\"...\",\"values\":{...}}]',
 	},
 ];

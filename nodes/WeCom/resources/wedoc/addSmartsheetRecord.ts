@@ -24,7 +24,8 @@ export const addSmartsheetRecordDescription: INodeProperties[] = [
 		default: {},
 		placeholder: '添加记录',
 		typeOptions: { multipleValues: true },
-		description: '要添加的记录列表（单表最多允许有100000行记录，15000000个单元格。单次添加建议在500行内）',
+		description:
+			'要添加的记录列表（单表最多允许有100000行记录，15000000个单元格。单次添加建议在500行内）；下方 JSON 非空时覆盖表单',
 		options: [
 			{
 				displayName: '记录',
@@ -570,5 +571,14 @@ export const addSmartsheetRecordDescription: INodeProperties[] = [
 				],
 			},
 		],
+	},
+	{
+		displayName: '记录列表 JSON',
+		name: 'recordsJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方记录表单。官方 records 结构，例如 [{\"values\":{\"字段标题\":[{\"type\":\"text\",\"text\":\"...\"}]}}]',
 	},
 ];

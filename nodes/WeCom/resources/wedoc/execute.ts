@@ -2105,37 +2105,62 @@ export async function executeWedoc(
 				if (!['CELL_VALUE_KEY_TYPE_FIELD_TITLE', 'CELL_VALUE_KEY_TYPE_FIELD_ID'].includes(key_type)) {
 					fail(this, `不支持的单元格 Key 类型: ${key_type}`, i);
 				}
-				const recordsCollection = this.getNodeParameter('recordsCollection', i, {}) as IDataObject;
-
-				const records: IDataObject[] = [];
-				if (recordsCollection.records && Array.isArray(recordsCollection.records)) {
-					for (const record of recordsCollection.records as IDataObject[]) {
-						const values: IDataObject = {};
-						const cellValues = record.cellValues as IDataObject;
-
-						if (cellValues?.values && Array.isArray(cellValues.values)) {
-							for (const cv of cellValues.values as IDataObject[]) {
-								const fieldKey = requiredText(this, cv.field_key, '单元格字段 Key', i);
-								const valueType = assertCellValueType(this, cv.value_type, i);
-								// 使用新的提取函数从结构化字段中获取值
-								const value = extractFieldValue(cv);
-								if (
-									['number', 'progress', 'currency', 'percentage'].includes(valueType) &&
-									(typeof value !== 'number' || !Number.isFinite(value))
-								) {
-									fail(this, `${fieldKey} 的数字值无效`, i);
-								}
-								if (valueType === 'date_time') {
-									integerInRange(this, value, `${fieldKey} 的毫秒时间戳`, i, 0, Number.MAX_SAFE_INTEGER);
-								}
-								// 将值类型映射到字段类型，然后根据字段类型构建正确的单元格值结构
-								const fieldType = mapValueTypeToFieldType(valueType);
-								values[fieldKey] = buildCellValueByFieldType(fieldType, value);
-							}
+				const recordsJsonRaw = this.getNodeParameter('recordsJson', i, '[]');
+				let records: IDataObject[] = [];
+				if (
+					recordsJsonRaw !== undefined &&
+					recordsJsonRaw !== null &&
+					String(recordsJsonRaw).trim() !== ''
+				) {
+					let parsed: unknown = recordsJsonRaw;
+					if (typeof recordsJsonRaw === 'string') {
+						try {
+							parsed = JSON.parse(recordsJsonRaw);
+						} catch {
+							fail(this, '记录列表 JSON 不是有效的 JSON', i);
 						}
+					}
+					if (!Array.isArray(parsed)) fail(this, '记录列表 JSON 必须是数组', i);
+					if (parsed.length > 0) records = parsed as IDataObject[];
+				}
+				if (!records.length) {
+					const recordsCollection = this.getNodeParameter('recordsCollection', i, {}) as IDataObject;
+					if (recordsCollection.records && Array.isArray(recordsCollection.records)) {
+						for (const record of recordsCollection.records as IDataObject[]) {
+							const values: IDataObject = {};
+							const cellValues = record.cellValues as IDataObject;
 
-						if (!Object.keys(values).length) fail(this, '每条新增记录至少需要 1 个字段值', i);
-						records.push({ values });
+							if (cellValues?.values && Array.isArray(cellValues.values)) {
+								for (const cv of cellValues.values as IDataObject[]) {
+									const fieldKey = requiredText(this, cv.field_key, '单元格字段 Key', i);
+									const valueType = assertCellValueType(this, cv.value_type, i);
+									// 使用新的提取函数从结构化字段中获取值
+									const value = extractFieldValue(cv);
+									if (
+										['number', 'progress', 'currency', 'percentage'].includes(valueType) &&
+										(typeof value !== 'number' || !Number.isFinite(value))
+									) {
+										fail(this, `${fieldKey} 的数字值无效`, i);
+									}
+									if (valueType === 'date_time') {
+										integerInRange(
+											this,
+											value,
+											`${fieldKey} 的毫秒时间戳`,
+											i,
+											0,
+											Number.MAX_SAFE_INTEGER,
+										);
+									}
+									// 将值类型映射到字段类型，然后根据字段类型构建正确的单元格值结构
+									const fieldType = mapValueTypeToFieldType(valueType);
+									values[fieldKey] = buildCellValueByFieldType(fieldType, value);
+								}
+							}
+
+							if (!Object.keys(values).length) fail(this, '每条新增记录至少需要 1 个字段值', i);
+							records.push({ values });
+						}
 					}
 				}
 				if (records.length === 0) fail(this, '添加记录列表不能为空', i);
@@ -2193,40 +2218,65 @@ export async function executeWedoc(
 				if (!['CELL_VALUE_KEY_TYPE_FIELD_TITLE', 'CELL_VALUE_KEY_TYPE_FIELD_ID'].includes(key_type)) {
 					fail(this, `不支持的单元格 Key 类型: ${key_type}`, i);
 				}
-				const recordsCollection = this.getNodeParameter('recordsCollection', i, {}) as IDataObject;
-
-				const records: IDataObject[] = [];
-				if (recordsCollection.records && Array.isArray(recordsCollection.records)) {
-					for (const record of recordsCollection.records as IDataObject[]) {
-						const values: IDataObject = {};
-						const cellValues = record.cellValues as IDataObject;
-
-						if (cellValues?.values && Array.isArray(cellValues.values)) {
-							for (const cv of cellValues.values as IDataObject[]) {
-								const fieldKey = requiredText(this, cv.field_key, '单元格字段 Key', i);
-								const valueType = assertCellValueType(this, cv.value_type, i);
-								// 使用新的提取函数从结构化字段中获取值
-								const value = extractFieldValue(cv);
-								if (
-									['number', 'progress', 'currency', 'percentage'].includes(valueType) &&
-									(typeof value !== 'number' || !Number.isFinite(value))
-								) {
-									fail(this, `${fieldKey} 的数字值无效`, i);
-								}
-								if (valueType === 'date_time') {
-									integerInRange(this, value, `${fieldKey} 的毫秒时间戳`, i, 0, Number.MAX_SAFE_INTEGER);
-								}
-								// 将值类型映射到字段类型，然后根据字段类型构建正确的单元格值结构
-								const fieldType = mapValueTypeToFieldType(valueType);
-								values[fieldKey] = buildCellValueByFieldType(fieldType, value);
-							}
+				const recordsJsonRaw = this.getNodeParameter('recordsJson', i, '[]');
+				let records: IDataObject[] = [];
+				if (
+					recordsJsonRaw !== undefined &&
+					recordsJsonRaw !== null &&
+					String(recordsJsonRaw).trim() !== ''
+				) {
+					let parsed: unknown = recordsJsonRaw;
+					if (typeof recordsJsonRaw === 'string') {
+						try {
+							parsed = JSON.parse(recordsJsonRaw);
+						} catch {
+							fail(this, '记录列表 JSON 不是有效的 JSON', i);
 						}
+					}
+					if (!Array.isArray(parsed)) fail(this, '记录列表 JSON 必须是数组', i);
+					if (parsed.length > 0) records = parsed as IDataObject[];
+				}
+				if (!records.length) {
+					const recordsCollection = this.getNodeParameter('recordsCollection', i, {}) as IDataObject;
+					if (recordsCollection.records && Array.isArray(recordsCollection.records)) {
+						for (const record of recordsCollection.records as IDataObject[]) {
+							const values: IDataObject = {};
+							const cellValues = record.cellValues as IDataObject;
 
-						if (!Object.keys(values).length) fail(this, '每条更新记录至少需要 1 个字段值', i);
-						records.push({
-							record_id: requiredText(this, record.record_id, '记录 ID', i),
-							values,
-						});
+							if (cellValues?.values && Array.isArray(cellValues.values)) {
+								for (const cv of cellValues.values as IDataObject[]) {
+									const fieldKey = requiredText(this, cv.field_key, '单元格字段 Key', i);
+									const valueType = assertCellValueType(this, cv.value_type, i);
+									// 使用新的提取函数从结构化字段中获取值
+									const value = extractFieldValue(cv);
+									if (
+										['number', 'progress', 'currency', 'percentage'].includes(valueType) &&
+										(typeof value !== 'number' || !Number.isFinite(value))
+									) {
+										fail(this, `${fieldKey} 的数字值无效`, i);
+									}
+									if (valueType === 'date_time') {
+										integerInRange(
+											this,
+											value,
+											`${fieldKey} 的毫秒时间戳`,
+											i,
+											0,
+											Number.MAX_SAFE_INTEGER,
+										);
+									}
+									// 将值类型映射到字段类型，然后根据字段类型构建正确的单元格值结构
+									const fieldType = mapValueTypeToFieldType(valueType);
+									values[fieldKey] = buildCellValueByFieldType(fieldType, value);
+								}
+							}
+
+							if (!Object.keys(values).length) fail(this, '每条更新记录至少需要 1 个字段值', i);
+							records.push({
+								record_id: requiredText(this, record.record_id, '记录 ID', i),
+								values,
+							});
+						}
 					}
 				}
 				if (records.length === 0) fail(this, '更新记录列表不能为空', i);
