@@ -73,12 +73,23 @@ function requireInteger(
 }
 
 function splitList(value: unknown): string[] {
-	const entries = String(value ?? '')
-		.split(/[,，|\n\r]+/)
-		.map((entry) => entry.trim())
-		.filter(Boolean);
+	const rawParts: string[] = [];
+	const push = (entry: unknown) => {
+		if (entry === undefined || entry === null) return;
+		if (Array.isArray(entry)) {
+			for (const item of entry) push(item);
+			return;
+		}
+		const text = String(entry).trim();
+		if (!text) return;
+		for (const part of text.split(/[,，|\n\r]+/)) {
+			const normalized = part.trim();
+			if (normalized) rawParts.push(normalized);
+		}
+	};
+	push(value);
 	const seen = new Set<string>();
-	return entries.filter((entry) => {
+	return rawParts.filter((entry) => {
 		const identity = entry.toLowerCase();
 		if (seen.has(identity)) return false;
 		seen.add(identity);
@@ -142,16 +153,25 @@ export async function executeExternalpay(
 				);
 			} else if (operation === 'setMchUseScope') {
 				const allowUseScope: IDataObject = {};
-				const users = splitList(this.getNodeParameter('scope_users', i, ''));
+				const users = splitList([
+					this.getNodeParameter('scope_users', i, ''),
+					this.getNodeParameter('scope_users_selected', i, []),
+				]);
 				const partyIds = splitIntegerList(
 					this,
-					this.getNodeParameter('scope_partyids', i, ''),
+					[
+						this.getNodeParameter('scope_partyids', i, ''),
+						this.getNodeParameter('scope_partyids_selected', i, []),
+					],
 					'部门 ID 列表',
 					i,
 				);
 				const tagIds = splitIntegerList(
 					this,
-					this.getNodeParameter('scope_tagids', i, ''),
+					[
+						this.getNodeParameter('scope_tagids', i, ''),
+						this.getNodeParameter('scope_tagids_selected', i, []),
+					],
 					'标签 ID 列表',
 					i,
 				);
@@ -186,7 +206,10 @@ export async function executeExternalpay(
 				const cursor = optionalText(this.getNodeParameter('cursor', i, ''));
 				if (cursor !== undefined) body.cursor = cursor;
 				if (operation === 'getBillList') {
-					const payeeUserid = optionalText(this.getNodeParameter('payee_userid', i, ''));
+					const payeeUserid = optionalText(
+						this.getNodeParameter('payee_userid', i, '') ||
+							this.getNodeParameter('payee_userid_selected', i, ''),
+					);
 					if (payeeUserid !== undefined) body.payee_userid = payeeUserid;
 					responseData = await weComApiRequest.call(
 						this,

@@ -724,7 +724,8 @@ export async function executeMiniapppay(
 				}
 				const apply_userid = requireText(
 					this,
-					this.getNodeParameter('apply_userid', i),
+					this.getNodeParameter('apply_userid', i, '') ||
+						this.getNodeParameter('apply_userid_selected', i, ''),
 					'提现人员 UserID',
 					i,
 				);

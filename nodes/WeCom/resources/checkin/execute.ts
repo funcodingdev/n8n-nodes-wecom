@@ -338,7 +338,10 @@ function buildRuleGroup(
 		).map((id) => integer(context, id, '应用范围部门 ID', itemIndex, 1, MAX_UINT32));
 		const rangeTags = stringList(
 			context,
-			context.getNodeParameter('range_tagids', itemIndex, ''),
+			[
+				context.getNodeParameter('range_tagids', itemIndex, ''),
+				context.getNodeParameter('range_tagids_selected', itemIndex, []),
+			],
 			'应用范围标签',
 			itemIndex,
 			0,

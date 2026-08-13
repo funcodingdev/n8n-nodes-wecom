@@ -118,7 +118,16 @@ export const manageRulesDescription: INodeProperties[] = [
 		displayOptions: { show: { ...showOnly, action: ['create', 'update'] } },
 		default: '',
 		placeholder: '1,2',
-		description: 'range.tagid，逗号分隔',
+		description: 'range.tagid，逗号分隔；与下方选择合并',
+	},
+	{
+		displayName: '应用范围标签(选择)',
+		name: 'range_tagids_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getTags' },
+		displayOptions: { show: { ...showOnly, action: ['create', 'update'] } },
+		default: [],
+		description: '与上方列表合并去重',
 	},
 	{
 		displayName: '白名单成员UserID列表',
