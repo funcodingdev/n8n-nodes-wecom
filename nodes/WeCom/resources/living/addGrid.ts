@@ -36,7 +36,6 @@ export const addGridDescription: INodeProperties[] = [
 		displayName: '负责人UserID列表',
 		name: 'grid_admin',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: showOnlyForAddGrid,
 		},
@@ -44,7 +43,18 @@ export const addGridDescription: INodeProperties[] = [
 		placeholder: 'zhangsan,lisi',
 		typeOptions: { rows: 2 },
 		description:
-			'网格负责人 UserID 列表，每个网格至少 1 个、最多 20 个；支持逗号、中文逗号、竖线或换行分隔，重复值会自动去除。<a href="https://developer.work.weixin.qq.com/document/path/94478" target="_blank">官方文档</a>',
+			'网格负责人 UserID 列表，每个网格至少 1 个、最多 20 个；与下方选择合并；支持逗号、中文逗号、竖线或换行分隔，重复值会自动去除。<a href="https://developer.work.weixin.qq.com/document/path/94478" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '负责人(选择)',
+		name: 'grid_admin_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: showOnlyForAddGrid,
+		},
+		default: [],
+		description: '与上方负责人列表合并去重，合计 1–20 个',
 	},
 	{
 		displayName: '网格成员UserID列表',
@@ -57,6 +67,17 @@ export const addGridDescription: INodeProperties[] = [
 		placeholder: 'wangwu,zhaoliu',
 		typeOptions: { rows: 3 },
 		description:
-			'可选。网格成员 UserID 列表，最多 100 个；支持逗号、中文逗号、竖线或换行分隔，重复值会自动去除。<a href="https://developer.work.weixin.qq.com/document/path/94478" target="_blank">官方文档</a>',
+			'可选。网格成员 UserID 列表，最多 100 个；与下方选择合并；支持逗号、中文逗号、竖线或换行分隔，重复值会自动去除。<a href="https://developer.work.weixin.qq.com/document/path/94478" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '网格成员(选择)',
+		name: 'grid_member_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: showOnlyForAddGrid,
+		},
+		default: [],
+		description: '与上方成员列表合并去重，合计最多 100 个',
 	},
 ];

@@ -447,7 +447,7 @@ export async function executeExternalContact(
 				);
 				const new_owner = requireText(
 					this,
-					this.getNodeParameter('new_owner', i),
+					this.getNodeParameter('new_owner', i, '') || this.getNodeParameter('new_owner_selected', i, ''),
 					'新群主 UserID',
 					i,
 				);
@@ -563,7 +563,7 @@ export async function executeExternalContact(
 				);
 				const new_owner = requireText(
 					this,
-					this.getNodeParameter('new_owner', i),
+					this.getNodeParameter('new_owner', i, '') || this.getNodeParameter('new_owner_selected', i, ''),
 					'新群主 UserID',
 					i,
 				);
@@ -2795,7 +2795,10 @@ export async function executeExternalContact(
 					const parentId = this.getNodeParameter('parent_id', i, 0) as number;
 					bodyDefaults.parent_id = parentId;
 					bodyDefaults.strategy_name = this.getNodeParameter('strategy_name', i, '') as string;
-					bodyDefaults.admin_list = this.getNodeParameter('admin_list', i, '') as string;
+					bodyDefaults.admin_list = [
+						this.getNodeParameter('admin_list', i, ''),
+						this.getNodeParameter('admin_list_selected', i, []),
+					];
 					bodyDefaults.range = rangeNodes(
 						this,
 						this.getNodeParameter('rangeCollection', i, {}),
@@ -2812,7 +2815,10 @@ export async function executeExternalContact(
 						bodyDefaults.strategy_name = this.getNodeParameter('strategy_name', i, '') as string;
 					}
 					if (this.getNodeParameter('updateAdminList', i, false) as boolean) {
-						bodyDefaults.admin_list = this.getNodeParameter('admin_list', i, '') as string;
+						bodyDefaults.admin_list = [
+							this.getNodeParameter('admin_list', i, ''),
+							this.getNodeParameter('admin_list_selected', i, []),
+						];
 					}
 					const rangeAdd = rangeNodes(
 						this,
@@ -2891,7 +2897,12 @@ export async function executeExternalContact(
 							this.getNodeParameter('ec_userid', i, ''),
 							this.getNodeParameter('ec_userid_list_selected', i, []),
 						];
-					} else bodyDefaults.partyid = this.getNodeParameter('behavior_partyid', i, '') as string;
+					} else {
+						bodyDefaults.partyid = [
+							this.getNodeParameter('behavior_partyid', i, ''),
+							this.getNodeParameter('behavior_partyid_selected', i, []),
+						];
+					}
 					bodyDefaults.start_time = dateTimeToUnixTimestamp(
 						this,
 						this.getNodeParameter('behavior_start_time', i, ''),

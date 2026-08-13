@@ -74,24 +74,28 @@ export async function executeLiving(
 						),
 						grid_admin: normalizeUserIdList(
 							this,
-							this.getNodeParameter('grid_admin', i),
+							[
+								this.getNodeParameter('grid_admin', i, ''),
+								this.getNodeParameter('grid_admin_selected', i, []),
+							],
 							'负责人列表',
 							i,
 							1,
 							20,
 						),
 					};
-					const gridMember = optionalText(this.getNodeParameter('grid_member', i, ''));
-					if (gridMember !== undefined) {
-						body.grid_member = normalizeUserIdList(
-							this,
-							gridMember,
-							'网格成员列表',
-							i,
-							1,
-							100,
-						);
-					}
+					const gridMembers = normalizeUserIdList(
+						this,
+						[
+							this.getNodeParameter('grid_member', i, ''),
+							this.getNodeParameter('grid_member_selected', i, []),
+						],
+						'网格成员列表',
+						i,
+						0,
+						100,
+					);
+					if (gridMembers.length) body.grid_member = gridMembers;
 					responseData = await weComApiRequest.call(
 						this,
 						'POST',
@@ -118,7 +122,10 @@ export async function executeLiving(
 						),
 						grid_admin: normalizeUserIdList(
 							this,
-							this.getNodeParameter('grid_admin', i),
+							[
+								this.getNodeParameter('grid_admin', i, ''),
+								this.getNodeParameter('grid_admin_selected', i, []),
+							],
 							'负责人列表',
 							i,
 							1,
@@ -128,7 +135,10 @@ export async function executeLiving(
 					if (this.getNodeParameter('update_grid_member', i, false) === true) {
 						body.grid_member = normalizeUserIdList(
 							this,
-							this.getNodeParameter('grid_member', i, ''),
+							[
+								this.getNodeParameter('grid_member', i, ''),
+								this.getNodeParameter('grid_member_selected', i, []),
+							],
 							'网格成员列表',
 							i,
 							0,

@@ -70,7 +70,16 @@ export const createPublicMailboxDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly },
 		default: '',
 		placeholder: '1,2',
-		description: '有权限使用的标签 ID；支持逗号、中文逗号、竖线或换行分隔',
+		description: '有权限使用的标签 ID；与下方选择合并；支持逗号、中文逗号、竖线或换行分隔',
+	},
+	{
+		displayName: '标签(选择)',
+		name: 'tag_list_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getTags' },
+		displayOptions: { show: showOnly },
+		default: [],
+		description: '与上方标签列表合并去重',
 	},
 	{
 		displayName: '创建客户端专用密码',

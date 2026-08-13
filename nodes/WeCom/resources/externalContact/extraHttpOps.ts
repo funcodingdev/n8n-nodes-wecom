@@ -359,19 +359,28 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		displayName: '管理员 UserID 列表',
 		name: 'admin_list',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: { resource: ['externalContact'], operation: ['externalcontactCustomerStrategyCreate'] },
 		},
 		default: '',
 		placeholder: 'zhangsan,lisi',
-		description: '支持逗号、竖线或换行分隔，自动去重，1–20 个；不可配置超级管理员',
+		description: '支持逗号、竖线或换行分隔；与下方选择合并，自动去重，1–20 个；不可配置超级管理员',
+	},
+	{
+		displayName: '管理员(选择)',
+		name: 'admin_list_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: { resource: ['externalContact'], operation: ['externalcontactCustomerStrategyCreate'] },
+		},
+		default: [],
+		description: '与上方列表合并去重，合计 1–20 个',
 	},
 	{
 		displayName: '管理员 UserID 列表',
 		name: 'admin_list',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: {
 				resource: ['externalContact'],
@@ -381,7 +390,22 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'zhangsan,lisi',
-		description: '覆盖旧管理员列表，支持逗号、竖线或换行分隔，1–20 个',
+		description: '覆盖旧管理员列表；与下方选择合并，支持逗号、竖线或换行分隔，1–20 个',
+	},
+	{
+		displayName: '管理员(选择)',
+		name: 'admin_list_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactCustomerStrategyEdit'],
+				updateAdminList: [true],
+			},
+		},
+		default: [],
+		description: '与上方列表合并去重，合计 1–20 个',
 	},
 	{
 		displayName: '管理范围',
@@ -842,7 +866,6 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		displayName: '部门 ID 列表',
 		name: 'behavior_partyid',
 		type: 'string',
-		required: true,
 		default: '',
 		placeholder: '2,3',
 		displayOptions: {
@@ -852,7 +875,22 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 				behaviorFilterType: ['party'],
 			},
 		},
-		description: '正整数部门 ID，支持逗号、竖线或换行分隔，最多 100 个',
+		description: '正整数部门 ID，支持逗号、竖线或换行分隔；与下方选择合并，最多 100 个',
+	},
+	{
+		displayName: '部门(选择)',
+		name: 'behavior_partyid_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getDepartments' },
+		default: [],
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['crmGetUserBehaviorData'],
+				behaviorFilterType: ['party'],
+			},
+		},
+		description: '与上方部门列表合并去重，合计最多 100 个',
 	},
 	{
 		displayName: '统计开始时间',

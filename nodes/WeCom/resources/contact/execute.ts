@@ -157,7 +157,7 @@ export async function executeContact(
 				}
 				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/tag/list', {}, qs);
 			} else if (operation === 'getTag') {
-				const tagid = this.getNodeParameter('tagid', i) as string;
+				const tagid = String(this.getNodeParameter('tagid', i, '') || this.getNodeParameter('tagid_selected', i, '')).trim();
 				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/tag/get', {}, { tagid });
 			} else if (operation === 'createUser') {
 				const userid =
@@ -606,22 +606,22 @@ export async function executeContact(
 				const tagname = this.getNodeParameter('tagname', i) as string;
 				const body: IDataObject = { tagname };
 
-				const tagid = this.getNodeParameter('tagid', i, '') as string;
+				const tagid = String(this.getNodeParameter('tagid', i, '') || this.getNodeParameter('tagid_selected', i, '')).trim();
 				if (tagid) body.tagid = parseInt(tagid, 10);
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/tag/create', body);
 			} else if (operation === 'updateTag') {
-				const tagid = this.getNodeParameter('tagid', i) as string;
+				const tagid = String(this.getNodeParameter('tagid', i, '') || this.getNodeParameter('tagid_selected', i, '')).trim();
 				const tagname = this.getNodeParameter('tagname', i) as string;
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/tag/update', {
 					tagid: parseInt(tagid, 10),
 					tagname,
 				});
 			} else if (operation === 'deleteTag') {
-				const tagid = this.getNodeParameter('tagid', i) as string;
+				const tagid = String(this.getNodeParameter('tagid', i, '') || this.getNodeParameter('tagid_selected', i, '')).trim();
 				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/tag/delete', {}, { tagid });
 			} else if (operation === 'addTagUsers') {
-				const tagid = this.getNodeParameter('tagid', i) as string;
+				const tagid = String(this.getNodeParameter('tagid', i, '') || this.getNodeParameter('tagid_selected', i, '')).trim();
 				const users = splitCsv(
 					[
 						this.getNodeParameter('userlist', i, ''),
@@ -655,7 +655,7 @@ export async function executeContact(
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/tag/addtagusers', body);
 			} else if (operation === 'delTagUsers') {
-				const tagid = this.getNodeParameter('tagid', i) as string;
+				const tagid = String(this.getNodeParameter('tagid', i, '') || this.getNodeParameter('tagid_selected', i, '')).trim();
 				const users = splitCsv(
 					[
 						this.getNodeParameter('userlist', i, ''),
@@ -766,7 +766,7 @@ export async function executeContact(
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/export/department', body);
 			} else if (operation === 'exportTagUser') {
-				const tagid = this.getNodeParameter('tagid', i) as string;
+				const tagid = String(this.getNodeParameter('tagid', i, '') || this.getNodeParameter('tagid_selected', i, '')).trim();
 				const encoding_aeskey = this.getNodeParameter('encoding_aeskey', i) as string;
 				const block_size = this.getNodeParameter('block_size', i, 1000000) as number;
 				const body: IDataObject = { tagid: parseInt(tagid, 10), encoding_aeskey };

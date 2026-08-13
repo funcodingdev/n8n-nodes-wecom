@@ -33,7 +33,13 @@ export const createMailGroupDescription: INodeProperties[] = [
 	},
 	{
 		displayName: '标签ID列表', name: 'tag_list', type: 'string',
-		displayOptions: { show: showOnly }, default: '', description: `四类群成员至少填一类；${separators}`,
+		displayOptions: { show: showOnly }, default: '',
+		description: `四类群成员至少填一类；与下方选择合并；${separators}`,
+	},
+	{
+		displayName: '标签(选择)', name: 'tag_list_selected', type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getTags' },
+		displayOptions: { show: showOnly }, default: [], description: '与上方标签列表合并去重',
 	},
 	{
 		displayName: '群组使用权限', name: 'allow_type', type: 'options',

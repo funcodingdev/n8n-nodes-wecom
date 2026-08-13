@@ -50,6 +50,16 @@ export function requireInteger(
 	return number;
 }
 
+function flattenUserIdEntries(value: unknown): string[] {
+	if (Array.isArray(value)) {
+		return value.flatMap((entry) => flattenUserIdEntries(entry));
+	}
+	return String(value ?? '')
+		.split(/[,，|\n\r]+/)
+		.map((entry) => entry.trim())
+		.filter(Boolean);
+}
+
 export function normalizeUserIdList(
 	context: IExecuteFunctions,
 	value: unknown,
@@ -58,15 +68,9 @@ export function normalizeUserIdList(
 	minimumItems: number,
 	maximumItems: number,
 ): string[] {
-	const rawEntries = Array.isArray(value)
-		? value
-		: String(value ?? '')
-				.split(/[,，|\n\r]+/)
-				.map((entry) => entry.trim())
-				.filter(Boolean);
 	const entries: string[] = [];
 	const seen = new Set<string>();
-	for (const rawEntry of rawEntries) {
+	for (const rawEntry of flattenUserIdEntries(value)) {
 		const userid = String(rawEntry ?? '').trim();
 		if (!userid) continue;
 		const identity = userid.toLowerCase();

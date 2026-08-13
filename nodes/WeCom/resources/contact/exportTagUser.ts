@@ -10,13 +10,23 @@ export const exportTagUserDescription: INodeProperties[] = [
 		displayName: '标签ID',
 		name: 'tagid',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: showOnlyForExportTag,
 		},
 		default: '',
 		placeholder: '1',
-		description: '需要导出的标签ID。要求对标签有读取权限。<a href="https://developer.work.weixin.qq.com/document/path/94853" target="_blank">官方文档</a>',
+		description: '需要导出的标签ID。要求对标签有读取权限。<a href="https://developer.work.weixin.qq.com/document/path/94853" target="_blank">官方文档</a>；可与下方选择二选一',
+	},
+	{
+		displayName: '标签(选择)',
+		name: 'tagid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getTags' },
+		default: '',
+		displayOptions: {
+			show: showOnlyForExportTag,
+		},
+		description: '与上方标签 ID 二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '加密密钥',

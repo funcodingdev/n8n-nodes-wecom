@@ -22,12 +22,22 @@ export const transferGroupChatDescription: INodeProperties[] = [
 		displayName: '新群主UserID',
 		name: 'new_owner',
 		type: 'string',
-		required: true,
 		default: '',
 		placeholder: 'zhangsan',
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '新群主的成员 UserID',
+		description: '新群主的成员 UserID；可与下方选择二选一',
+	},
+	{
+		displayName: '新群主(选择)',
+		name: 'new_owner_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: showOnly,
+		},
+		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 ];

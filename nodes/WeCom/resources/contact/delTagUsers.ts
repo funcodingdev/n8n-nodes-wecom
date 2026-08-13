@@ -10,13 +10,23 @@ export const delTagUsersDescription: INodeProperties[] = [
 		displayName: '标签ID',
 		name: 'tagid',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: showOnlyForDelTagUsers,
 		},
 		default: '',
 		placeholder: '12',
-		description: '标签ID。调用的应用必须是指定标签的创建者；成员属于应用的可见范围。<a href="https://developer.work.weixin.qq.com/document/path/90215" target="_blank">官方文档</a>',
+		description: '标签ID。调用的应用必须是指定标签的创建者；成员属于应用的可见范围。<a href="https://developer.work.weixin.qq.com/document/path/90215" target="_blank">官方文档</a>；可与下方选择二选一',
+	},
+	{
+		displayName: '标签(选择)',
+		name: 'tagid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getTags' },
+		default: '',
+		displayOptions: {
+			show: showOnlyForDelTagUsers,
+		},
+		description: '与上方标签 ID 二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: 'UserID列表',

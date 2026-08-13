@@ -10,13 +10,24 @@ export const addTagUsersDescription: INodeProperties[] = [
 		displayName: '标签ID',
 		name: 'tagid',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: showOnlyForAddTagUsers,
 		},
 		default: '',
 		placeholder: '12',
-		description: '标签ID。调用的应用必须是指定标签的创建者；成员属于应用的可见范围。注意，每个标签下部门数和人员数总和不能超过3万个。<a href="https://developer.work.weixin.qq.com/document/path/90214" target="_blank">官方文档</a>',
+		description:
+			'标签ID；可与下方选择二选一。调用的应用必须是指定标签的创建者；成员属于应用的可见范围。注意，每个标签下部门数和人员数总和不能超过3万个。<a href="https://developer.work.weixin.qq.com/document/path/90214" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '标签(选择)',
+		name: 'tagid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getTags' },
+		displayOptions: {
+			show: showOnlyForAddTagUsers,
+		},
+		default: '',
+		description: '与上方标签 ID 二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: 'UserID列表',

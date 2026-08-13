@@ -550,7 +550,15 @@ export async function executeMail(
 					'部门 ID',
 					i,
 				);
-				const tagValues = numberList(this, this.getNodeParameter('tag_list', i, ''), '标签 ID', i);
+				const tagValues = numberList(
+					this,
+					[
+						this.getNodeParameter('tag_list', i, ''),
+						this.getNodeParameter('tag_list_selected', i, []),
+					],
+					'标签 ID',
+					i,
+				);
 				if (!emailValues.length && !groupValues.length && !departmentValues.length && !tagValues.length) {
 					fail(this, '成员邮箱、群组邮箱、部门和标签至少填一类', i);
 				}
@@ -650,7 +658,15 @@ export async function executeMail(
 					'部门 ID',
 					i,
 				);
-				const tags = numberList(this, this.getNodeParameter('tag_list', i, ''), '标签 ID', i);
+				const tags = numberList(
+					this,
+					[
+						this.getNodeParameter('tag_list', i, ''),
+						this.getNodeParameter('tag_list_selected', i, []),
+					],
+					'标签 ID',
+					i,
+				);
 				if (!users.length && !departments.length && !tags.length) fail(this, '成员、部门和标签至少填写一类', i);
 				setWrappedList(body, 'userid_list', users);
 				setWrappedList(body, 'department_list', departments);

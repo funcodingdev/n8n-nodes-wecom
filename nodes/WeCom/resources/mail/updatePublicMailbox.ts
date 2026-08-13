@@ -51,7 +51,13 @@ export const updatePublicMailboxDescription: INodeProperties[] = [
 	},
 	{
 		displayName: '标签ID列表', name: 'tag_list', type: 'string',
-		displayOptions: { show: switched('updateTagList') }, default: '', description: separators,
+		displayOptions: { show: switched('updateTagList') }, default: '',
+		description: `与下方选择合并；${separators}`,
+	},
+	{
+		displayName: '标签(选择)', name: 'tag_list_selected', type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getTags' },
+		displayOptions: { show: switched('updateTagList') }, default: [], description: '与上方标签列表合并去重',
 	},
 	{
 		displayName: '更新邮箱别名列表', name: 'updateAliasList', type: 'boolean',
