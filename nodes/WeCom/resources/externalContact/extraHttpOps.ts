@@ -651,6 +651,20 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: '标签列表 JSON',
+		name: 'strategyTagsJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactAddStrategyTag'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方标签表单。支持 [{"name":"重要客户","order":0}]',
+	},
+	{
 		displayName: '标签或标签组 ID',
 		name: 'strategy_tag_id',
 		type: 'string',

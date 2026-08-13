@@ -167,9 +167,30 @@ export async function executePassiveReply(
 		}
 
 		if (cardType === 'button_interaction') {
-			const buttonData = this.getNodeParameter('button_list', itemIndex, {}) as IDataObject;
-			if (Array.isArray(buttonData.buttons)) {
-				templateCard.button_list = compactOptions(buttonData.buttons);
+			const buttonListJsonRaw = this.getNodeParameter('buttonListJson', itemIndex, '[]');
+			let buttons: IDataObject[] = [];
+			if (
+				buttonListJsonRaw !== undefined &&
+				buttonListJsonRaw !== null &&
+				String(buttonListJsonRaw).trim() !== ''
+			) {
+				let parsed: unknown = buttonListJsonRaw;
+				if (typeof buttonListJsonRaw === 'string') {
+					try {
+						parsed = JSON.parse(buttonListJsonRaw);
+					} catch {
+						fail('按钮列表 JSON 不是有效的 JSON');
+					}
+				}
+				if (!Array.isArray(parsed)) fail('按钮列表 JSON 必须是数组');
+				if ((parsed as unknown[]).length > 0) buttons = parsed as IDataObject[];
+			}
+			if (buttons.length === 0) {
+				const buttonData = this.getNodeParameter('button_list', itemIndex, {}) as IDataObject;
+				if (Array.isArray(buttonData.buttons)) buttons = buttonData.buttons as IDataObject[];
+			}
+			if (buttons.length) {
+				templateCard.button_list = compactOptions(buttons);
 			}
 			const selectionData = this.getNodeParameter('button_selection', itemIndex, {}) as IDataObject;
 			const selection = compactObject(selectionData.selectionInfo as IDataObject | undefined);

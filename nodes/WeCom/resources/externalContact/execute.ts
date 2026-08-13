@@ -3448,7 +3448,31 @@ export async function executeExternalContact(
 					bodyDefaults.group_id = this.getNodeParameter('tag_group_id', i, '') as string;
 					bodyDefaults.group_name = this.getNodeParameter('tag_group_name', i, '') as string;
 					bodyDefaults.order = this.getNodeParameter('tag_group_order', i, 0) as number;
-					bodyDefaults.tag = collectionRows(this.getNodeParameter('strategyTagCollection', i, {}), 'tags');
+					const strategyTagsJsonRaw = this.getNodeParameter('strategyTagsJson', i, '[]');
+					let strategyTags: IDataObject[] = [];
+					if (
+						strategyTagsJsonRaw !== undefined &&
+						strategyTagsJsonRaw !== null &&
+						String(strategyTagsJsonRaw).trim() !== ''
+					) {
+						let parsed: unknown = strategyTagsJsonRaw;
+						if (typeof strategyTagsJsonRaw === 'string') {
+							try {
+								parsed = JSON.parse(strategyTagsJsonRaw);
+							} catch {
+								fail(this, '规则组标签列表 JSON 不是有效的 JSON', i);
+							}
+						}
+						if (!Array.isArray(parsed)) fail(this, '规则组标签列表 JSON 必须是数组', i);
+						if (parsed.length > 0) strategyTags = parsed as IDataObject[];
+					}
+					if (strategyTags.length === 0) {
+						strategyTags = collectionRows(
+							this.getNodeParameter('strategyTagCollection', i, {}),
+							'tags',
+						);
+					}
+					bodyDefaults.tag = strategyTags;
 				}
 				if (operation === 'externalcontactEditStrategyTag') {
 					bodyDefaults.id = this.getNodeParameter('strategy_tag_id', i, '') as string;

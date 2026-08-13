@@ -92,6 +92,24 @@ const passiveButtonList: INodeProperties = {
 	],
 };
 
+const passiveButtonListJson: INodeProperties = {
+	displayName: '按钮列表 JSON',
+	name: 'buttonListJson',
+	type: 'json',
+	default: '[]',
+	displayOptions: {
+		show: {
+			...showOnlyForPassiveReply,
+			operation: ['reply'],
+			replyType: ['update_template_card'],
+			template_card_input_mode: ['form'],
+			card_type: ['button_interaction'],
+		},
+	},
+	description:
+		'可选。非空数组时覆盖上方按钮表单。支持 [{"text":"同意","style":1,"key":"button_agree"}]，1–6 个',
+};
+
 export const passiveReplyDescription: INodeProperties[] = [
 	{
 		displayName: '操作',
@@ -284,6 +302,7 @@ export const passiveReplyDescription: INodeProperties[] = [
 	},
 	...passiveTemplateCardFields,
 	passiveButtonList,
+	passiveButtonListJson,
 	{
 		displayName: '按钮替换文案',
 		name: 'replace_text',
