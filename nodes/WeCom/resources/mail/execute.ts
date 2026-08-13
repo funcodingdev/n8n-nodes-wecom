@@ -729,16 +729,39 @@ export async function executeMail(
 				const type = integer(this, this.getNodeParameter('operation_type', i), '操作类型', i, 1, 2);
 				const targetType = text(this, this.getNodeParameter('mailboxTargetType', i, 'user'), '账号类型', i);
 				const body: IDataObject = { type };
-				if (targetType === 'user') body.userid = text(this, this.getNodeParameter('userid', i, this.getNodeParameter('mailbox', i, '')), '成员 UserID', i);
+				if (targetType === 'user') {
+					body.userid = text(
+						this,
+						this.getNodeParameter('userid', i, '') ||
+							this.getNodeParameter('userid_selected', i, '') ||
+							this.getNodeParameter('mailbox', i, ''),
+						'成员 UserID',
+						i,
+					);
+				}
 				else if (targetType === 'public') body.publicemail_id = integer(this, this.getNodeParameter('publicemail_id', i), '公共邮箱 ID', i, 1, MAX_UINT32);
 				else fail(this, '账号类型只能是成员邮箱或公共邮箱', i);
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/account/act_email', body);
 			} else if (operation === 'getUserMailAttribute') {
-				const userid = text(this, this.getNodeParameter('userid', i, this.getNodeParameter('mailbox', i, '')), '成员 UserID', i);
+				const userid = text(
+					this,
+					this.getNodeParameter('userid', i, '') ||
+						this.getNodeParameter('userid_selected', i, '') ||
+						this.getNodeParameter('mailbox', i, ''),
+					'成员 UserID',
+					i,
+				);
 				const types = numberList(this, this.getNodeParameter('type', i, '1,2,3,4'), '功能属性类型', i, 1, 4, 1, 4);
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/useroption/get', { userid, type: types });
 			} else if (operation === 'updateUserMailAttribute') {
-				const userid = text(this, this.getNodeParameter('userid', i, this.getNodeParameter('mailbox', i, '')), '成员 UserID', i);
+				const userid = text(
+					this,
+					this.getNodeParameter('userid', i, '') ||
+						this.getNodeParameter('userid_selected', i, '') ||
+						this.getNodeParameter('mailbox', i, ''),
+					'成员 UserID',
+					i,
+				);
 				const optionMap = new Map<number, string>();
 				const legacy = this.getNodeParameter('imapSmtpSettings', i, {}) as IDataObject;
 				if (hasOwn(legacy, 'enable_imap')) optionMap.set(2, legacy.enable_imap ? '1' : '0');
@@ -755,7 +778,14 @@ export async function executeMail(
 				const list = [...optionMap].map(([type, value]) => ({ type, value }));
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/useroption/update', { userid, option: { list } });
 			} else if (operation === 'getMailUnreadCount') {
-				const userid = text(this, this.getNodeParameter('userid', i, this.getNodeParameter('mailbox', i, '')), '成员 UserID', i);
+				const userid = text(
+					this,
+					this.getNodeParameter('userid', i, '') ||
+						this.getNodeParameter('userid_selected', i, '') ||
+						this.getNodeParameter('mailbox', i, ''),
+					'成员 UserID',
+					i,
+				);
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/exmail/mail/get_newcount', { userid });
 			}
 

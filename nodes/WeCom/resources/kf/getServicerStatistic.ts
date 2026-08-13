@@ -37,8 +37,19 @@ export const getServicerStatisticDescription: INodeProperties[] = [
 		},
 		default: '',
 		description:
-			'可选。填写后返回该接待人员在此客服账号下的数据；留空返回客服账号维度汇总。第三方应用使用密文 UserID。<a href="https://developer.work.weixin.qq.com/document/path/95490" target="_blank">官方文档</a>',
+			'可选。填写后返回该接待人员在此客服账号下的数据；留空返回客服账号维度汇总。第三方应用使用密文 UserID。<a href="https://developer.work.weixin.qq.com/document/path/95490" target="_blank">官方文档</a>；可与下方选择二选一',
 		placeholder: 'zhangsan',
+	},
+	{
+		displayName: '接待人员(选择)',
+		name: 'servicer_userid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		default: '',
+		displayOptions: {
+			show: showOnlyForGetServicerStatistic,
+		},
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '起始日期',

@@ -300,7 +300,9 @@ export async function executeContact(
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/user/create', body);
 			} else if (operation === 'updateUser') {
-				const userid = this.getNodeParameter('userid', i) as string;
+				const userid =
+					(this.getNodeParameter('userid', i, '') as string) ||
+					(this.getNodeParameter('userid_selected', i, '') as string);
 				const body: IDataObject = { userid };
 
 				const name = this.getNodeParameter('name', i, '') as string;

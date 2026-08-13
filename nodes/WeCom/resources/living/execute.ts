@@ -174,7 +174,15 @@ export async function executeLiving(
 						this,
 						'POST',
 						'/cgi-bin/report/grid/get_user_grid_info',
-						{ userid: requireText(this, this.getNodeParameter('userid', i), '成员 UserID', i) },
+						{
+							userid: requireText(
+								this,
+								this.getNodeParameter('userid', i, '') ||
+									this.getNodeParameter('userid_selected', i, ''),
+								'成员 UserID',
+								i,
+							),
+						},
 					);
 					break;
 				}

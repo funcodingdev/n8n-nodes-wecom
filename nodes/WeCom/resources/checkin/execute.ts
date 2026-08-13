@@ -772,6 +772,7 @@ export async function executeCheckin(
 					records,
 				});
 			} else if (operation === 'addFaceInfo') {
+				// face image + userid dual track
 				const source = this.getNodeParameter('faceSource', i, 'binary') as string;
 				let userface: string;
 				if (source === 'binary') {
@@ -792,7 +793,14 @@ export async function executeCheckin(
 					fail(this, '图片来源只能是 Base64 或二进制数据', i);
 				}
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/checkin/addcheckinuserface', {
-					userid: text(this, this.getNodeParameter('userid', i), '成员 UserID', i, 64),
+					userid: text(
+						this,
+						this.getNodeParameter('userid', i, '') ||
+							this.getNodeParameter('userid_selected', i, ''),
+						'成员 UserID',
+						i,
+						64,
+					),
 					userface,
 				});
 			} else if (operation === 'getDeviceCheckinData') {

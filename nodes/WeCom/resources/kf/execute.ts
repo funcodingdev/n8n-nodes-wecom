@@ -617,7 +617,8 @@ export async function executeKf(
 				if (service_state === 3) {
 					body.servicer_userid = requireText(
 						this,
-						this.getNodeParameter('servicer_userid', i, ''),
+						this.getNodeParameter('servicer_userid', i, '') ||
+							this.getNodeParameter('servicer_userid_selected', i, ''),
 						'接待人员 UserID',
 						i,
 					);
@@ -905,7 +906,8 @@ export async function executeKf(
 				if (upgradeType === 'member') {
 					const member_userid = requireText(
 						this,
-						this.getNodeParameter('member_userid', i),
+						this.getNodeParameter('member_userid', i, '') ||
+							this.getNodeParameter('member_userid_selected', i, ''),
 						'服务专员 UserID',
 						i,
 					);
@@ -1142,7 +1144,8 @@ export async function executeKf(
 				);
 				const servicer_userid = optionalText(
 					this,
-					this.getNodeParameter('servicer_userid', i, ''),
+					this.getNodeParameter('servicer_userid', i, '') ||
+						this.getNodeParameter('servicer_userid_selected', i, ''),
 					'接待人员 UserID',
 					i,
 				);

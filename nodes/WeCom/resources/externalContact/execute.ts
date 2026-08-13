@@ -44,7 +44,13 @@ export async function executeExternalContact(
 			}
 			// 客户管理
 			else if (operation === 'getExternalContactList') {
-				const userid = requireText(this, this.getNodeParameter('userid', i), '成员 UserID', i);
+				const userid = requireText(
+					this,
+					this.getNodeParameter('userid', i, '') ||
+						this.getNodeParameter('userid_selected', i, ''),
+					'成员 UserID',
+					i,
+				);
 				response = await weComApiRequest.call(
 					this,
 					'GET',

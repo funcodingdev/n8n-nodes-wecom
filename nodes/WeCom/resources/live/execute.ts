@@ -318,7 +318,14 @@ export async function executeLive(
 			} else if (operation === 'getUserAllLivingId') {
 				const additionalFields = this.getNodeParameter('additionalFields', i, {}) as IDataObject;
 				const body: IDataObject = {
-					userid: text(this, this.getNodeParameter('userid', i), '成员 UserID', i, 64),
+					userid: text(
+						this,
+						this.getNodeParameter('userid', i, '') ||
+							this.getNodeParameter('userid_selected', i, ''),
+						'成员 UserID',
+						i,
+						64,
+					),
 				};
 				const cursor = text(this, additionalFields.cursor, '分页游标', i, 1024, false);
 				if (cursor) body.cursor = cursor;
