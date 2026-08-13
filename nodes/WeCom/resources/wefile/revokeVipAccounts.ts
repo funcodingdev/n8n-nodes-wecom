@@ -38,11 +38,11 @@ export const revokeVipAccountsDescription: INodeProperties[] = [
 				name: 'members',
 				values: [
 					{
-						displayName: '成员',
+						displayName: '成员UserID',
 						name: 'userid',
-						type: 'options',
-						typeOptions: { loadOptionsMethod: 'getAllUsers' },
+						type: 'string',
 						default: '',
+						placeholder: 'zhangsan',
 						description: '企业成员的 userid',
 					},
 				],

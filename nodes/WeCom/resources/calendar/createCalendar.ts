@@ -148,15 +148,13 @@ export const createCalendarDescription: INodeProperties[] = [
 				name: 'shares',
 				values: [
 					{
-						displayName: '成员',
+						displayName: '成员UserID',
 						name: 'userid',
-						type: 'options',
+						type: 'string',
 						default: '',
 						required: true,
-						typeOptions: {
-							loadOptionsMethod: 'getAllUsers',
-						},
-						description: '日历通知范围成员。可从列表选择或手动输入UserID',
+						placeholder: 'zhangsan',
+						description: '日历通知范围成员 UserID',
 					},
 					{
 						displayName: '权限',

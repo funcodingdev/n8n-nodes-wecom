@@ -37,14 +37,12 @@ export const addScheduleAttendeesDescription: INodeProperties[] = [
 				name: 'attendees',
 				values: [
 					{
-						displayName: '成员',
+						displayName: '成员UserID',
 						name: 'userid',
-						type: 'options',
+						type: 'string',
 						default: '',
 						required: true,
-						typeOptions: {
-							loadOptionsMethod: 'getAllUsers',
-						},
+						placeholder: 'zhangsan',
 						description: '参与者的 UserID，不多于 64 字节',
 					},
 				],
