@@ -376,7 +376,8 @@ export const sendKfMsgDescription: INodeProperties[] = [
 			},
 		},
 		default: {},
-		description: '最多 50 个菜单项，其中点击、跳转链接和小程序类型合计不超过 10 个',
+		description:
+			'最多 50 个菜单项，其中点击、跳转链接和小程序类型合计不超过 10 个；下方 JSON 非空时覆盖表单',
 		placeholder: '添加菜单项',
 		options: [
 			{
@@ -488,6 +489,20 @@ export const sendKfMsgDescription: INodeProperties[] = [
 			],
 			},
 		],
+	},
+	{
+		displayName: '菜单项列表 JSON',
+		name: 'msgmenuListJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				...showOnlyForSendKfMsg,
+				msgtype: ['msgmenu'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方菜单项表单。支持 [{"type":"click","content":"选项","reply_content":"menu_1"}]',
 	},
 	{
 		displayName: '菜单尾部文案',

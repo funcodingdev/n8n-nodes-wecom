@@ -889,9 +889,27 @@ export async function executeKf(
 					messageContent = { appid, pagepath, thumb_media_id };
 					if (title) messageContent.title = title;
 				} else if (msgtype === 'msgmenu') {
+					const menuJsonRaw = this.getNodeParameter('msgmenuListJson', i, '[]');
+					let menuItems = this.getNodeParameter('msgmenu_list.items', i, []) as unknown;
+					if (
+						menuJsonRaw !== undefined &&
+						menuJsonRaw !== null &&
+						String(menuJsonRaw).trim() !== ''
+					) {
+						let parsed: unknown = menuJsonRaw;
+						if (typeof menuJsonRaw === 'string') {
+							try {
+								parsed = JSON.parse(menuJsonRaw);
+							} catch {
+								fail(this, '菜单项列表 JSON 不是有效的 JSON', i);
+							}
+						}
+						if (!Array.isArray(parsed)) fail(this, '菜单项列表 JSON 必须是数组', i);
+						if (parsed.length > 0) menuItems = parsed;
+					}
 					messageContent = buildMsgMenuMessage(
 						this,
-						this.getNodeParameter('msgmenu_list.items', i, []),
+						menuItems,
 						this.getNodeParameter('msgmenu_head_content', i, ''),
 						this.getNodeParameter('msgmenu_tail_content', i, ''),
 						i,
@@ -978,9 +996,27 @@ export async function executeKf(
 						),
 					};
 				} else if (msgtype === 'msgmenu') {
+					const menuJsonRaw = this.getNodeParameter('msgmenuListJson', i, '[]');
+					let menuItems = this.getNodeParameter('msgmenu_list.items', i, []) as unknown;
+					if (
+						menuJsonRaw !== undefined &&
+						menuJsonRaw !== null &&
+						String(menuJsonRaw).trim() !== ''
+					) {
+						let parsed: unknown = menuJsonRaw;
+						if (typeof menuJsonRaw === 'string') {
+							try {
+								parsed = JSON.parse(menuJsonRaw);
+							} catch {
+								fail(this, '菜单项列表 JSON 不是有效的 JSON', i);
+							}
+						}
+						if (!Array.isArray(parsed)) fail(this, '菜单项列表 JSON 必须是数组', i);
+						if (parsed.length > 0) menuItems = parsed;
+					}
 					messageContent = buildMsgMenuMessage(
 						this,
-						this.getNodeParameter('msgmenu_list.items', i, []),
+						menuItems,
 						this.getNodeParameter('msgmenu_head_content', i, ''),
 						this.getNodeParameter('msgmenu_tail_content', i, ''),
 						i,

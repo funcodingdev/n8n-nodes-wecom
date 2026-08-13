@@ -117,7 +117,7 @@ export const sendKfEventMsgDescription: INodeProperties[] = [
 			},
 		},
 		default: {},
-		description: '最多 10 个菜单项',
+		description: '最多 10 个菜单项；下方 JSON 非空时覆盖表单',
 		placeholder: '添加菜单项',
 		options: [
 			{
@@ -229,6 +229,20 @@ export const sendKfEventMsgDescription: INodeProperties[] = [
 			],
 			},
 		],
+	},
+	{
+		displayName: '菜单项列表 JSON',
+		name: 'msgmenuListJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				...showOnlyForSendKfEventMsg,
+				msgtype: ['msgmenu'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方菜单项表单。支持 [{"type":"click","content":"选项","reply_content":"menu_1"}]',
 	},
 	{
 		displayName: '菜单尾部文案',
