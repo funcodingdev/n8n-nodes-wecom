@@ -1204,7 +1204,12 @@ export async function executeExternalContact(
 				if (start_time === undefined || end_time === undefined) fail(this, '开始时间和结束时间均为必填', i);
 				if (start_time > end_time) fail(this, '开始时间不能晚于结束时间', i);
 				if (end_time - start_time > 30 * 86400) fail(this, '朋友圈记录时间范围不能超过 30 天', i);
-				const creator = optionalText(this, this.getNodeParameter('creator', i, ''), '创建人 UserID', i);
+				const creator = optionalText(
+					this,
+					this.getNodeParameter('creator', i, '') || this.getNodeParameter('creator_selected', i, ''),
+					'创建人 UserID',
+					i,
+				);
 				const filter_type = requireOption(
 					this,
 					this.getNodeParameter('filter_type', i, 2),
@@ -1682,7 +1687,12 @@ export async function executeExternalContact(
 				if (start_time === undefined || end_time === undefined) fail(this, '开始时间和结束时间均为必填', i);
 				if (start_time > end_time) fail(this, '开始时间不能晚于结束时间', i);
 				if (end_time - start_time > 31 * 86400) fail(this, '群发记录时间范围不能超过 1 个月', i);
-				const creator = optionalText(this, this.getNodeParameter('creator', i, ''), '创建人 UserID', i);
+				const creator = optionalText(
+					this,
+					this.getNodeParameter('creator', i, '') || this.getNodeParameter('creator_selected', i, ''),
+					'创建人 UserID',
+					i,
+				);
 				const filter_type = requireOption(
 					this,
 					this.getNodeParameter('filter_type', i, 2),

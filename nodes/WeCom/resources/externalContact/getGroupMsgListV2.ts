@@ -57,7 +57,18 @@ export const getGroupMsgListV2Description: INodeProperties[] = [
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '群发任务创建人企业账号ID',
+		description: '群发任务创建人企业账号 ID；可与下方选择二选一',
+	},
+	{
+		displayName: '创建人(选择)',
+		name: 'creator_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		default: '',
+		displayOptions: {
+			show: showOnly,
+		},
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '创建人类型',
