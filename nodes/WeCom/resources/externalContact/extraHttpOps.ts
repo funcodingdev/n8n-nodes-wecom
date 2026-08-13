@@ -457,6 +457,20 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		options: [{ displayName: '范围节点', name: 'ranges', values: rangeNodeValues }],
 	},
 	{
+		displayName: '管理范围节点 JSON',
+		name: 'rangeNodesJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactCustomerStrategyCreate'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方管理范围表单。支持 [{"type":1,"userid":"..."}] 或 [{"type":2,"partyid":1}]，最多 100 个',
+	},
+	{
 		displayName: '添加管理范围',
 		name: 'rangeAddCollection',
 		type: 'fixedCollection',
@@ -473,6 +487,20 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		options: [{ displayName: '范围节点', name: 'ranges', values: rangeNodeValues }],
 	},
 	{
+		displayName: '添加管理范围节点 JSON',
+		name: 'rangeAddNodesJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactCustomerStrategyEdit'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方添加范围表单。支持 [{"type":1,"userid":"..."}] 或 [{"type":2,"partyid":1}]',
+	},
+	{
 		displayName: '删除管理范围',
 		name: 'rangeDelCollection',
 		type: 'fixedCollection',
@@ -487,6 +515,20 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		typeOptions: { multipleValues: true },
 		description: '从管理范围移除的节点；与添加节点合计单次最多 100 个',
 		options: [{ displayName: '范围节点', name: 'ranges', values: rangeNodeValues }],
+	},
+	{
+		displayName: '删除管理范围节点 JSON',
+		name: 'rangeDelNodesJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['externalcontactCustomerStrategyEdit'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方删除范围表单。支持 [{"type":1,"userid":"..."}] 或 [{"type":2,"partyid":1}]',
 	},
 	{
 		displayName: '更新权限配置',

@@ -18,6 +18,7 @@ import {
 	parseUserIdJson,
 	productImageAttachments,
 	rangeNodes,
+	resolveRangeCollection,
 	requireByteText,
 	requireInteger,
 	requireOption,
@@ -1620,7 +1621,7 @@ export async function executeExternalContact(
 				const privilege_manage_moment_cover_and_sign = this.getNodeParameter('privilege_manage_moment_cover_and_sign', i, true) as boolean;
 				const range = rangeNodes(
 					this,
-					this.getNodeParameter('rangeCollection', i, {}),
+					resolveRangeCollection(this, i, 'rangeCollection', 'rangeNodesJson', '管理范围'),
 					'ranges',
 					'管理范围',
 					i,
@@ -1685,7 +1686,7 @@ export async function executeExternalContact(
 				const updatePrivilege = this.getNodeParameter('updatePrivilege', i, false) as boolean;
 				const rangeAdd = rangeNodes(
 					this,
-					this.getNodeParameter('rangeAddCollection', i, {}),
+					resolveRangeCollection(this, i, 'rangeAddCollection', 'rangeAddNodesJson', '添加管理范围'),
 					'ranges',
 					'添加管理范围',
 					i,
@@ -1715,7 +1716,7 @@ export async function executeExternalContact(
 				);
 				const rangeDel = rangeNodes(
 					this,
-					this.getNodeParameter('rangeDelCollection', i, {}),
+					resolveRangeCollection(this, i, 'rangeDelCollection', 'rangeDelNodesJson', '删除管理范围'),
 					'ranges',
 					'删除管理范围',
 					i,
@@ -3375,7 +3376,7 @@ export async function executeExternalContact(
 					];
 					bodyDefaults.range = rangeNodes(
 						this,
-						this.getNodeParameter('rangeCollection', i, {}),
+						resolveRangeCollection(this, i, 'rangeCollection', 'rangeNodesJson', '管理范围'),
 						'ranges',
 						'管理范围',
 						i,
@@ -3402,7 +3403,7 @@ export async function executeExternalContact(
 					}
 					const rangeAdd = rangeNodes(
 						this,
-						this.getNodeParameter('rangeAddCollection', i, {}),
+						resolveRangeCollection(this, i, 'rangeAddCollection', 'rangeAddNodesJson', '添加管理范围'),
 						'ranges',
 						'添加管理范围',
 						i,
@@ -3410,7 +3411,7 @@ export async function executeExternalContact(
 					);
 					const rangeDel = rangeNodes(
 						this,
-						this.getNodeParameter('rangeDelCollection', i, {}),
+						resolveRangeCollection(this, i, 'rangeDelCollection', 'rangeDelNodesJson', '删除管理范围'),
 						'ranges',
 						'删除管理范围',
 						i,

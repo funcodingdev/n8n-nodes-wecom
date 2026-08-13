@@ -198,4 +198,13 @@ export const createMomentStrategyDescription: INodeProperties[] = [
 			},
 		],
 	},
+	{
+		displayName: '管理范围节点 JSON',
+		name: 'rangeNodesJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方详细节点表单（仍会与成员/部门列表合并）。支持 [{"type":1,"userid":"..."}] 或 [{"type":2,"partyid":1}]',
+	},
 ];

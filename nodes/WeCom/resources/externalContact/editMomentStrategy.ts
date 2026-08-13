@@ -214,6 +214,15 @@ export const editMomentStrategyDescription: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: '添加管理范围节点 JSON',
+		name: 'rangeAddNodesJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方添加范围详细节点（仍会与列表合并）。支持 [{"type":1,"userid":"..."}] 或 [{"type":2,"partyid":1}]',
+	},
+	{
 		displayName: '删除范围成员UserID列表',
 		name: 'range_del_userids',
 		type: 'string',
@@ -330,5 +339,14 @@ export const editMomentStrategyDescription: INodeProperties[] = [
 				],
 			},
 		],
+	},
+	{
+		displayName: '删除管理范围节点 JSON',
+		name: 'rangeDelNodesJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方删除范围详细节点（仍会与列表合并）。支持 [{"type":1,"userid":"..."}] 或 [{"type":2,"partyid":1}]',
 	},
 ];

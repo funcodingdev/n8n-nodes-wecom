@@ -578,6 +578,29 @@ export function interceptWordList(
 	return words;
 }
 
+export function resolveRangeCollection(
+	context: IExecuteFunctions,
+	itemIndex: number,
+	collectionParam: string,
+	jsonParam: string,
+	label: string,
+): IDataObject {
+	const jsonRaw = context.getNodeParameter(jsonParam, itemIndex, '[]');
+	if (jsonRaw !== undefined && jsonRaw !== null && String(jsonRaw).trim() !== '') {
+		let parsed: unknown = jsonRaw;
+		if (typeof jsonRaw === 'string') {
+			try {
+				parsed = JSON.parse(jsonRaw);
+			} catch {
+				fail(context, `${label}节点 JSON 不是有效的 JSON`, itemIndex);
+			}
+		}
+		if (!Array.isArray(parsed)) fail(context, `${label}节点 JSON 必须是数组`, itemIndex);
+		if (parsed.length > 0) return { ranges: parsed };
+	}
+	return context.getNodeParameter(collectionParam, itemIndex, {}) as IDataObject;
+}
+
 export function rangeNodes(
 	context: IExecuteFunctions,
 	value: unknown,
