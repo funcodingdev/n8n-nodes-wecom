@@ -80,6 +80,15 @@ export const addTagUsersDescription: INodeProperties[] = [
 		default: [],
 		description: '与上方列表合并去重',
 	},
+	{
+		displayName: '部门列表 JSON',
+		name: 'partylistJson',
+		type: 'json',
+		displayOptions: { show: showOnlyForAddTagUsers },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}]',
+	},
 ];
 
 

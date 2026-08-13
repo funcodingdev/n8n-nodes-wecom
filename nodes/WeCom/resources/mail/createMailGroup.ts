@@ -32,6 +32,15 @@ export const createMailGroupDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly }, default: [], description: '与上方部门列表合并去重',
 	},
 	{
+		displayName: '部门列表 JSON',
+		name: 'departmentListJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}]',
+	},
+	{
 		displayName: '标签ID列表', name: 'tag_list', type: 'string',
 		displayOptions: { show: showOnly }, default: '',
 		description: `四类群成员至少填一类；与下方选择合并；${separators}`,
@@ -40,6 +49,15 @@ export const createMailGroupDescription: INodeProperties[] = [
 		displayName: '标签(选择)', name: 'tag_list_selected', type: 'multiOptions',
 		typeOptions: { loadOptionsMethod: 'getTags' },
 		displayOptions: { show: showOnly }, default: [], description: '与上方标签列表合并去重',
+	},
+	{
+		displayName: '标签列表 JSON',
+		name: 'tagListJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"tagid":1}]',
 	},
 	{
 		displayName: '群组使用权限', name: 'allow_type', type: 'options',
@@ -63,6 +81,15 @@ export const createMailGroupDescription: INodeProperties[] = [
 		displayOptions: { show: custom }, default: [], description: '与上方部门列表合并去重',
 	},
 	{
+		displayName: '允许使用的部门 JSON',
+		name: 'allowDepartmentListJson',
+		type: 'json',
+		displayOptions: { show: custom },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}]',
+	},
+	{
 		displayName: '允许使用的标签ID', name: 'allow_taglist', type: 'string',
 		displayOptions: { show: custom }, default: '', description: `自定义权限时三类范围至少填一类；${separators}`,
 	},
@@ -70,6 +97,15 @@ export const createMailGroupDescription: INodeProperties[] = [
 		displayName: '允许使用的标签(选择)', name: 'allow_taglist_selected', type: 'multiOptions',
 		typeOptions: { loadOptionsMethod: 'getTags' },
 		displayOptions: { show: custom }, default: [], description: '与上方标签列表合并去重',
+	},
+	{
+		displayName: '允许使用的标签 JSON',
+		name: 'allowTagListJson',
+		type: 'json',
+		displayOptions: { show: custom },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"tagid":1}]',
 	},
 ];
 

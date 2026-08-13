@@ -46,6 +46,42 @@ function parseUserIdJson(
 	);
 }
 
+function parseIdJson(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	keys: string[],
+): string[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			throw new NodeOperationError(context.getNode(), `${label}不是有效的 JSON`, { itemIndex });
+		}
+	}
+	if (!Array.isArray(parsed)) {
+		throw new NodeOperationError(context.getNode(), `${label}必须是 JSON 数组`, { itemIndex });
+	}
+	if (parsed.length === 0) return [];
+	return splitCsv(
+		parsed.map((entry) => {
+			if (typeof entry === 'string' || typeof entry === 'number') return entry;
+			if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+				const row = entry as IDataObject;
+				for (const key of keys) {
+					if (row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== '') {
+						return row[key];
+					}
+				}
+			}
+			return '';
+		}),
+	);
+}
+
 function parseIntegerCsv(
 	context: IExecuteFunctions,
 	value: unknown,
@@ -587,6 +623,12 @@ export async function executeContact(
 					[
 						this.getNodeParameter('party', i, ''),
 						...(this.getNodeParameter('party_selected', i, []) as Array<string | number>),
+						...parseIdJson(this, this.getNodeParameter('partyJson', i, '[]'), '部门列表 JSON', i, [
+							'partyid',
+							'party_id',
+							'departmentid',
+							'id',
+						]),
 					].join(','),
 					'部门 ID',
 					i,
@@ -597,6 +639,11 @@ export async function executeContact(
 					[
 						this.getNodeParameter('tag', i, ''),
 						...(this.getNodeParameter('tag_selected', i, []) as Array<string | number>),
+						...parseIdJson(this, this.getNodeParameter('tagJson', i, '[]'), '标签列表 JSON', i, [
+							'tagid',
+							'tag_id',
+							'id',
+						]),
 					].join(','),
 					'标签 ID',
 					i,
@@ -724,6 +771,13 @@ export async function executeContact(
 					[
 						this.getNodeParameter('partylist', i, ''),
 						...(this.getNodeParameter('partylist_selected', i, []) as Array<string | number>),
+						...parseIdJson(
+							this,
+							this.getNodeParameter('partylistJson', i, '[]'),
+							'部门列表 JSON',
+							i,
+							['partyid', 'party_id', 'departmentid', 'id'],
+						),
 					].join(','),
 					'部门 ID',
 					i,

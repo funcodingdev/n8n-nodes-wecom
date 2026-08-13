@@ -268,6 +268,17 @@ export const createCalendarDescription: INodeProperties[] = [
 		description: '与上方公开部门列表合并去重',
 	},
 	{
+		displayName: '公开部门 JSON',
+		name: 'publicPartyidsJson',
+		type: 'json',
+		displayOptions: {
+			show: showOnlyForCreate,
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}]',
+	},
+	{
 		displayName: '高级设置',
 		name: 'advancedSettings',
 		type: 'collection',

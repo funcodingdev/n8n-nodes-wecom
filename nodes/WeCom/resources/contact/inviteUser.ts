@@ -68,6 +68,17 @@ export const inviteUserDescription: INodeProperties[] = [
 		description: '与上方部门 ID 列表合并去重，合计最多 100 个',
 	},
 	{
+		displayName: '部门列表 JSON',
+		name: 'partyJson',
+		type: 'json',
+		displayOptions: {
+			show: showOnlyForInvite,
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}]',
+	},
+	{
 		displayName: '标签ID列表',
 		name: 'tag',
 		type: 'string',
@@ -91,5 +102,16 @@ export const inviteUserDescription: INodeProperties[] = [
 		},
 		default: [],
 		description: '与上方标签 ID 列表合并去重，合计最多 100 个',
+	},
+	{
+		displayName: '标签列表 JSON',
+		name: 'tagJson',
+		type: 'json',
+		displayOptions: {
+			show: showOnlyForInvite,
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"tagid":1}]',
 	},
 ];

@@ -211,6 +211,19 @@ export const createFormDescription: INodeProperties[] = [
 				description: '逗号分隔；与下方选择合并',
 			},
 			{
+				displayName: '指定填写部门 JSON',
+				name: 'fill_in_range_departmentids_json',
+				type: 'json',
+				default: '[]',
+				displayOptions: {
+					show: {
+						fill_out_auth: [1],
+					},
+				},
+				description:
+					'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}]',
+			},
+			{
 				displayName: '指定填写部门(选择)',
 				name: 'fill_in_range_departmentids',
 				type: 'multiOptions',

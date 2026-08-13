@@ -112,6 +112,15 @@ export const modFormDescription: INodeProperties[] = [
 				description: '与上方列表合并',
 			},
 			{
+				displayName: '指定填写部门 JSON',
+				name: 'fill_in_range_departmentids_json',
+				type: 'json',
+				default: '[]',
+				displayOptions: { show: { fill_out_auth: [1] } },
+				description:
+					'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}]',
+			},
+			{
 				displayName: '收集表管理员UserID列表',
 				name: 'setting_manager_range_text',
 				type: 'string',

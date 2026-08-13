@@ -247,6 +247,17 @@ export const submitApprovalDescription: INodeProperties[] = [
 						description: '与上方列表合并去重',
 					},
 					{
+						displayName: '成员列表 JSON',
+						name: 'contact_userids_json',
+						type: 'json',
+						default: '[]',
+						displayOptions: {
+							show: { control: ['Contact'], contact_kind: ['members'] },
+						},
+						description:
+							'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+					},
+					{
 						displayName: '部门ID列表',
 						name: 'contact_partyids',
 						type: 'string',
@@ -267,6 +278,17 @@ export const submitApprovalDescription: INodeProperties[] = [
 							show: { control: ['Contact'], contact_kind: ['departments'] },
 						},
 						description: '与上方列表合并去重',
+					},
+					{
+						displayName: '部门列表 JSON',
+						name: 'contact_partyids_json',
+						type: 'json',
+						default: '[]',
+						displayOptions: {
+							show: { control: ['Contact'], contact_kind: ['departments'] },
+						},
+						description:
+							'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}]',
 					},
 					{
 						displayName: '附件MediaID列表',

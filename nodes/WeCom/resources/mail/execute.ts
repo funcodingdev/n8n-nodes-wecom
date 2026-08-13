@@ -140,6 +140,40 @@ function parseUserIdJson(
 	);
 }
 
+function parseIdJson(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	keys: string[],
+): string[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	if (parsed.length === 0) return [];
+	return listValues(
+		parsed.map((entry) => {
+			if (typeof entry === 'string' || typeof entry === 'number') return entry;
+			if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+				const row = entry as IDataObject;
+				for (const key of keys) {
+					if (row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== '') {
+						return row[key];
+					}
+				}
+			}
+			return '';
+		}),
+	);
+}
+
 function numberList(
 	context: IExecuteFunctions,
 	value: unknown,
@@ -615,6 +649,13 @@ export async function executeMail(
 					[
 						this.getNodeParameter('department_list', i, ''),
 						this.getNodeParameter('department_list_selected', i, []),
+						...parseIdJson(
+							this,
+							this.getNodeParameter('departmentListJson', i, '[]'),
+							'部门列表 JSON',
+							i,
+							['partyid', 'party_id', 'departmentid', 'id'],
+						),
 					],
 					'部门 ID',
 					i,
@@ -624,6 +665,13 @@ export async function executeMail(
 					[
 						this.getNodeParameter('tag_list', i, ''),
 						this.getNodeParameter('tag_list_selected', i, []),
+						...parseIdJson(
+							this,
+							this.getNodeParameter('tagListJson', i, '[]'),
+							'标签列表 JSON',
+							i,
+							['tagid', 'tag_id', 'id'],
+						),
 					],
 					'标签 ID',
 					i,
@@ -644,6 +692,13 @@ export async function executeMail(
 						[
 							this.getNodeParameter('allow_departmentlist', i, ''),
 							this.getNodeParameter('allow_departmentlist_selected', i, []),
+							...parseIdJson(
+								this,
+								this.getNodeParameter('allowDepartmentListJson', i, '[]'),
+								'允许使用的部门 JSON',
+								i,
+								['partyid', 'party_id', 'departmentid', 'id'],
+							),
 						],
 						'允许使用的部门 ID',
 						i,
@@ -653,6 +708,13 @@ export async function executeMail(
 						[
 							this.getNodeParameter('allow_taglist', i, ''),
 							this.getNodeParameter('allow_taglist_selected', i, []),
+							...parseIdJson(
+								this,
+								this.getNodeParameter('allowTagListJson', i, '[]'),
+								'允许使用的标签 JSON',
+								i,
+								['tagid', 'tag_id', 'id'],
+							),
 						],
 						'允许使用的标签 ID',
 						i,

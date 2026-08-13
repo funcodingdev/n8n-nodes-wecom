@@ -408,6 +408,15 @@ export const schoolContactOpsDescription: INodeProperties[] = [
 		description: '与上方列表合并去重；学生/家长 UserID 若已录入通讯录可从此选择',
 	},
 	{
+		displayName: 'UserID 列表 JSON',
+		name: 'useridListJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: show(['batchDeleteStudent', 'batchDeleteParent']) },
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '家长 UserID',
 		name: 'parent_userid',
 		type: 'string',

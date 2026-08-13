@@ -319,7 +319,16 @@ function processFormSetting(
 		if (userids.length > 0) fill_in_range.userids = userids;
 		const departmentids = stringList(
 			context,
-			[formSetting.fill_in_range_departmentids_text, formSetting.fill_in_range_departmentids],
+			[
+				formSetting.fill_in_range_departmentids_text,
+				formSetting.fill_in_range_departmentids,
+				...parseUserIdJson(
+					context,
+					formSetting.fill_in_range_departmentids_json ?? '[]',
+					'指定填写部门 JSON',
+					itemIndex,
+				),
+			],
 			'指定填写部门',
 			itemIndex,
 			0,

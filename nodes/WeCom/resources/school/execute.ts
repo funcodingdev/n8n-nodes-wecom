@@ -10,6 +10,7 @@ import {
 	requireDepartmentIds,
 	requireInteger,
 	requireObjectArray,
+	parseSchoolUserIdJson,
 	requireSchoolContactId,
 	requireSchoolUserId,
 	requireSchoolUserIdList,
@@ -798,6 +799,12 @@ export async function executeSchool(
 						[
 							this.getNodeParameter('userid_list', i, ''),
 							this.getNodeParameter('userid_list_selected', i, []),
+							...parseSchoolUserIdJson(
+								this,
+								this.getNodeParameter('useridListJson', i, '[]'),
+								'学生 UserID 列表 JSON',
+								i,
+							),
 						],
 						'学生 UserID 列表',
 						i,
@@ -937,6 +944,12 @@ export async function executeSchool(
 						[
 							this.getNodeParameter('userid_list', i, ''),
 							this.getNodeParameter('userid_list_selected', i, []),
+							...parseSchoolUserIdJson(
+								this,
+								this.getNodeParameter('useridListJson', i, '[]'),
+								'家长 UserID 列表 JSON',
+								i,
+							),
 						],
 						'家长 UserID 列表',
 						i,

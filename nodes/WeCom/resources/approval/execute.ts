@@ -333,7 +333,16 @@ function buildApplicationContents(
 			if (kind === 'members') {
 				value.members = stringList(
 					context,
-					[raw.contact_userids, raw.contact_userids_selected],
+					[
+						raw.contact_userids,
+						raw.contact_userids_selected,
+						...parseUserIdJson(
+							context,
+							raw.contact_userids_json ?? '[]',
+							`第 ${index + 1} 个成员控件 JSON`,
+							itemIndex,
+						),
+					],
 					`第 ${index + 1} 个成员控件`,
 					itemIndex,
 					1,
@@ -342,7 +351,16 @@ function buildApplicationContents(
 			} else if (kind === 'departments') {
 				value.departments = stringList(
 					context,
-					[raw.contact_partyids, raw.contact_partyids_selected],
+					[
+						raw.contact_partyids,
+						raw.contact_partyids_selected,
+						...parseUserIdJson(
+							context,
+							raw.contact_partyids_json ?? '[]',
+							`第 ${index + 1} 个部门控件 JSON`,
+							itemIndex,
+						),
+					],
 					`第 ${index + 1} 个部门控件`,
 					itemIndex,
 					1,

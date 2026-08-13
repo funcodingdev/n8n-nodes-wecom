@@ -119,10 +119,36 @@ function flattenSchoolListValues(value: unknown): string[] {
 	if (Array.isArray(value)) {
 		return value.flatMap((entry) => flattenSchoolListValues(entry));
 	}
+	if (value && typeof value === 'object') {
+		const row = value as Record<string, unknown>;
+		const id = row.userid ?? row.userid_selected ?? row.user_id ?? row.student_userid ?? row.parent_userid;
+		return id !== undefined && id !== null && String(id).trim() ? [String(id).trim()] : [];
+	}
 	return String(value ?? '')
 		.split(/[,，|\n\r]+/)
 		.map((entry) => entry.trim())
 		.filter(Boolean);
+}
+
+/** Parse optional JSON array of school userids. Empty / "[]" → []. */
+export function parseSchoolUserIdJson(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): string[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	if (parsed.length === 0) return [];
+	return flattenSchoolListValues(parsed);
 }
 
 export function requireSchoolUserIdList(

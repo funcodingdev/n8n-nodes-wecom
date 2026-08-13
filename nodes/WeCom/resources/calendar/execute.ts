@@ -418,6 +418,12 @@ export async function executeCalendar(
 					[
 						this.getNodeParameter('public_partyids', i, ''),
 						this.getNodeParameter('public_partyids_selected', i, []),
+						...normalizeUserIdSources(
+							this,
+							this.getNodeParameter('publicPartyidsJson', i, '[]'),
+							'公开部门 JSON',
+							i,
+						),
 					],
 				);
 				if (isCorpCalendar && !range) fail(this, '创建全员日历时必须指定公开范围', i);
@@ -554,6 +560,12 @@ export async function executeCalendar(
 						[
 							this.getNodeParameter('public_partyids', i, ''),
 							this.getNodeParameter('public_partyids_selected', i, []),
+							...normalizeUserIdSources(
+								this,
+								this.getNodeParameter('publicPartyidsJson', i, '[]'),
+								'公开部门 JSON',
+								i,
+							),
 						],
 					);
 					if (range) calendar.public_range = range;
