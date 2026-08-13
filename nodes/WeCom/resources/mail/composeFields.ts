@@ -177,6 +177,15 @@ export function composeFields(operation: string): INodeProperties[] {
 				],
 			}],
 		},
+		{
+			displayName: '附件列表 JSON',
+			name: 'attachmentsJson',
+			type: 'json',
+			displayOptions: { show: show(operation) },
+			default: '[]',
+			description:
+				'可选。非空数组时覆盖上方附件表单。支持 [{"file_name":"a.pdf","content":"<base64>"}]，最多 200 个',
+		},
 	];
 }
 

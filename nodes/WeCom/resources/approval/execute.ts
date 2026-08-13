@@ -890,12 +890,32 @@ export async function executeApproval(
 				});
 
 				if (useTemplateApprover === 0) {
-					const processCollection = this.getNodeParameter(
-						'processNodeCollection',
-						i,
-						{},
-					) as IDataObject;
-					const rawNodes = (processCollection.nodes as IDataObject[]) || [];
+					const processNodesJsonRaw = this.getNodeParameter('processNodesJson', i, '[]');
+					let rawNodes: IDataObject[] = [];
+					if (
+						processNodesJsonRaw !== undefined &&
+						processNodesJsonRaw !== null &&
+						String(processNodesJsonRaw).trim() !== ''
+					) {
+						let parsed: unknown = processNodesJsonRaw;
+						if (typeof processNodesJsonRaw === 'string') {
+							try {
+								parsed = JSON.parse(processNodesJsonRaw);
+							} catch {
+								fail(this, '审批流程节点 JSON 不是有效的 JSON', i);
+							}
+						}
+						if (!Array.isArray(parsed)) fail(this, '审批流程节点 JSON 必须是数组', i);
+						if (parsed.length > 0) rawNodes = parsed as IDataObject[];
+					}
+					if (rawNodes.length === 0) {
+						const processCollection = this.getNodeParameter(
+							'processNodeCollection',
+							i,
+							{},
+						) as IDataObject;
+						rawNodes = (processCollection.nodes as IDataObject[]) || [];
+					}
 					if (!rawNodes.length) fail(this, '接口指定审批人时必须添加审批流程节点', i);
 					body.process = {
 						node_list: rawNodes.map((raw, index) => {

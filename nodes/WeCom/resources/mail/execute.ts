@@ -373,12 +373,29 @@ function composeBody(
 	const body: IDataObject = { to: to.recipient!, subject, content, content_type: contentType };
 	if (cc.recipient) body.cc = cc.recipient;
 	if (bcc.recipient) body.bcc = bcc.recipient;
-	const attachmentList = attachments(
-		context,
-		context.getNodeParameter('attachmentCollection', itemIndex, {}) as IDataObject,
-		content,
+	const attachmentsJsonRaw = context.getNodeParameter('attachmentsJson', itemIndex, '[]');
+	let attachmentCollection: IDataObject = context.getNodeParameter(
+		'attachmentCollection',
 		itemIndex,
-	);
+		{},
+	) as IDataObject;
+	if (
+		attachmentsJsonRaw !== undefined &&
+		attachmentsJsonRaw !== null &&
+		String(attachmentsJsonRaw).trim() !== ''
+	) {
+		let parsed: unknown = attachmentsJsonRaw;
+		if (typeof attachmentsJsonRaw === 'string') {
+			try {
+				parsed = JSON.parse(attachmentsJsonRaw);
+			} catch {
+				fail(context, '附件列表 JSON 不是有效的 JSON', itemIndex);
+			}
+		}
+		if (!Array.isArray(parsed)) fail(context, '附件列表 JSON 必须是数组', itemIndex);
+		if (parsed.length > 0) attachmentCollection = { attachments: parsed };
+	}
+	const attachmentList = attachments(context, attachmentCollection, content, itemIndex);
 	if (attachmentList) body.attachment_list = attachmentList;
 	if (context.getNodeParameter('enable_id_trans', itemIndex, false) as boolean) body.enable_id_trans = 1;
 	return { body, toUserids: to.userids };

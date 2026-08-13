@@ -232,6 +232,15 @@ export const querySmartsheetRecordDescription: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: '筛选条件 JSON',
+		name: 'filterConditionsJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方筛选条件表单。支持 [{"field_id":"...","field_type":"FIELD_TYPE_TEXT","operator":"...","value":"..."}]',
+	},
+	{
 		displayName: '条件关系',
 		name: 'conjunction',
 		type: 'options',
@@ -279,6 +288,15 @@ export const querySmartsheetRecordDescription: INodeProperties[] = [
 				],
 			},
 		],
+	},
+	{
+		displayName: '排序规则 JSON',
+		name: 'sortJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方排序表单。支持 [{"field_title":"创建时间","desc":true}]',
 	},
 	{
 		displayName: '分页设置',

@@ -2667,7 +2667,47 @@ export async function executeWedoc(
 				if (record_ids.length > 0) body.record_ids = record_ids;
 
 				// 处理筛选条件
-				const filterConditions = this.getNodeParameter('filterConditions', i, {}) as IDataObject;
+				const filterJsonRaw = this.getNodeParameter('filterConditionsJson', i, '[]');
+				let filterSource: Array<{
+					field_id: string;
+					field_type: string;
+					operator: string;
+					value?: string;
+				}> = [];
+				if (
+					filterJsonRaw !== undefined &&
+					filterJsonRaw !== null &&
+					String(filterJsonRaw).trim() !== ''
+				) {
+					let parsed: unknown = filterJsonRaw;
+					if (typeof filterJsonRaw === 'string') {
+						try {
+							parsed = JSON.parse(filterJsonRaw);
+						} catch {
+							fail(this, '筛选条件 JSON 不是有效的 JSON', i);
+						}
+					}
+					if (!Array.isArray(parsed)) fail(this, '筛选条件 JSON 必须是数组', i);
+					if (parsed.length > 0) {
+						filterSource = parsed as Array<{
+							field_id: string;
+							field_type: string;
+							operator: string;
+							value?: string;
+						}>;
+					}
+				}
+				if (filterSource.length === 0) {
+					const filterConditions = this.getNodeParameter('filterConditions', i, {}) as IDataObject;
+					if (filterConditions.conditions && Array.isArray(filterConditions.conditions)) {
+						filterSource = filterConditions.conditions as Array<{
+							field_id: string;
+							field_type: string;
+							operator: string;
+							value?: string;
+						}>;
+					}
+				}
 				const conjunction = requiredText(
 					this,
 					this.getNodeParameter('conjunction', i, 'CONJUNCTION_AND'),
@@ -2679,13 +2719,8 @@ export async function executeWedoc(
 				}
 
 				let hasFilter = false;
-				if (filterConditions.conditions && Array.isArray(filterConditions.conditions)) {
-					const conditions = filterConditions.conditions as Array<{
-						field_id: string;
-						field_type: string;
-						operator: string;
-						value?: string;
-					}>;
+				if (filterSource.length) {
+					const conditions = filterSource;
 
 					if (conditions.length > 0) {
 						const apiConditions = conditions.map((condition, conditionIndex) => {
@@ -2862,16 +2897,49 @@ export async function executeWedoc(
 				);
 
 				// 处理排序
-				const sortConfig = this.getNodeParameter('sort', i, {}) as IDataObject;
+				const sortJsonRaw = this.getNodeParameter('sortJson', i, '[]');
+				let sortRules: Array<{
+					sort_key_type?: string;
+					field_id?: string;
+					field_title?: string;
+					desc: boolean;
+				}> = [];
+				if (
+					sortJsonRaw !== undefined &&
+					sortJsonRaw !== null &&
+					String(sortJsonRaw).trim() !== ''
+				) {
+					let parsed: unknown = sortJsonRaw;
+					if (typeof sortJsonRaw === 'string') {
+						try {
+							parsed = JSON.parse(sortJsonRaw);
+						} catch {
+							fail(this, '排序规则 JSON 不是有效的 JSON', i);
+						}
+					}
+					if (!Array.isArray(parsed)) fail(this, '排序规则 JSON 必须是数组', i);
+					if (parsed.length > 0) {
+						sortRules = parsed as Array<{
+							sort_key_type?: string;
+							field_id?: string;
+							field_title?: string;
+							desc: boolean;
+						}>;
+					}
+				}
+				if (sortRules.length === 0) {
+					const sortConfig = this.getNodeParameter('sort', i, {}) as IDataObject;
+					if (sortConfig.rules && Array.isArray(sortConfig.rules)) {
+						sortRules = sortConfig.rules as Array<{
+							sort_key_type?: string;
+							field_id?: string;
+							field_title?: string;
+							desc: boolean;
+						}>;
+					}
+				}
 				let hasSortRules = false;
-				if (sortConfig.rules && Array.isArray(sortConfig.rules) && sortConfig.rules.length > 0) {
-					const sortRules = sortConfig.rules as Array<{
-						sort_key_type?: string;
-						field_id?: string;
-						field_title?: string;
-						desc: boolean;
-					}>;
-
+				if (sortRules.length > 0) {
 					body.sort = sortRules.map((rule) => {
 						const sortItem: IDataObject = { desc: rule.desc };
 

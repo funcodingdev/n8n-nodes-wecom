@@ -593,6 +593,17 @@ export const submitApprovalDescription: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: '审批流程节点 JSON',
+		name: 'processNodesJson',
+		type: 'json',
+		displayOptions: {
+			show: { ...showOnlyForSubmitApproval, use_template_approver: [0] },
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方流程节点表单。支持 [{"type":1,"apv_rel":1,"userid_list":"u1,u2"}]',
+	},
+	{
 		displayName: '扩展请求JSON',
 		name: 'approvalExtraJson',
 		type: 'json',
