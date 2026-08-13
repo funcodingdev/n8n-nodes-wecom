@@ -1889,8 +1889,28 @@ export async function executeExternalContact(
 
 					// 标签过滤
 					if (enableTagFilter && externalUserIds.length === 0) {
-						const tagFilterGroups = this.getNodeParameter('tagFilterGroups', i, {}) as IDataObject;
-						const groups = collectionRows(tagFilterGroups, 'groups');
+						const tagFilterGroupsJsonRaw = this.getNodeParameter('tagFilterGroupsJson', i, '[]');
+						let groups: IDataObject[] = [];
+						if (
+							tagFilterGroupsJsonRaw !== undefined &&
+							tagFilterGroupsJsonRaw !== null &&
+							String(tagFilterGroupsJsonRaw).trim() !== ''
+						) {
+							let parsed: unknown = tagFilterGroupsJsonRaw;
+							if (typeof tagFilterGroupsJsonRaw === 'string') {
+								try {
+									parsed = JSON.parse(tagFilterGroupsJsonRaw);
+								} catch {
+									fail(this, '标签过滤组 JSON 不是有效的 JSON', i);
+								}
+							}
+							if (!Array.isArray(parsed)) fail(this, '标签过滤组 JSON 必须是数组', i);
+							if (parsed.length > 0) groups = parsed as IDataObject[];
+						}
+						if (groups.length === 0) {
+							const tagFilterGroups = this.getNodeParameter('tagFilterGroups', i, {}) as IDataObject;
+							groups = collectionRows(tagFilterGroups, 'groups');
+						}
 						if (groups.length === 0) fail(this, '启用标签过滤后至少需要 1 个标签组', i);
 						body.tag_filter = {
 							group_list: groups.map((group, groupIndex) => ({

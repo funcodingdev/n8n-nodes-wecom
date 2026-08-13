@@ -4017,11 +4017,32 @@ export async function executeWedoc(
 					i,
 					255,
 				);
-				const privListCollection = this.getNodeParameter(
-					'privListCollection',
-					i,
-					{},
-				) as IDataObject;
+				const privListJsonRaw = this.getNodeParameter('privListJson', i, '[]');
+				let privItems: IDataObject[] = [];
+				if (
+					privListJsonRaw !== undefined &&
+					privListJsonRaw !== null &&
+					String(privListJsonRaw).trim() !== ''
+				) {
+					let parsed: unknown = privListJsonRaw;
+					if (typeof privListJsonRaw === 'string') {
+						try {
+							parsed = JSON.parse(privListJsonRaw);
+						} catch {
+							fail(this, '子表权限列表 JSON 不是有效的 JSON', i);
+						}
+					}
+					if (!Array.isArray(parsed)) fail(this, '子表权限列表 JSON 必须是数组', i);
+					if (parsed.length > 0) privItems = parsed as IDataObject[];
+				}
+				if (privItems.length === 0) {
+					const privListCollection = this.getNodeParameter(
+						'privListCollection',
+						i,
+						{},
+					) as IDataObject;
+					privItems = (privListCollection?.items as IDataObject[]) || [];
+				}
 				const privRuleJson = this.getNodeParameter('privRuleJson', i, '{}') as string;
 				const body: IDataObject = { docid, type: update_priv_type };
 				if (![1, 2].includes(update_priv_type)) fail(this, '权限规则类型只能是 1 或 2', i);
@@ -4029,7 +4050,7 @@ export async function executeWedoc(
 					body.rule_id = integerInRange(this, priv_rule_id, '规则 ID', i, 1, 4294967295);
 				}
 				if (update_priv_type === 2 && update_priv_name) body.name = update_priv_name;
-				const priv_list = ((privListCollection?.items as IDataObject[]) || [])
+				const priv_list = privItems
 					.filter((p) => p.sheet_id)
 					.map((p) => {
 						const item: IDataObject = {

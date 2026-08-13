@@ -223,6 +223,15 @@ export const smartsheetExtraOpsDescription: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: '子表权限列表 JSON',
+		name: 'privListJson',
+		type: 'json',
+		displayOptions: show(['updateSheetPrivFull']),
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方子表权限表单。支持 [{"sheet_id":"...","priv":2,"can_insert_record":true,"record_range_type":1}]',
+	},
+	{
 		displayName: '规则扩展JSON',
 		name: 'privRuleJson',
 		type: 'json',

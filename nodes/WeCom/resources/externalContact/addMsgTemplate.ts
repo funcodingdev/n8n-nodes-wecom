@@ -126,6 +126,15 @@ export const addMsgTemplateDescription: INodeProperties[] = [
 			},
 		],
 	},
+	{
+		displayName: '标签过滤组 JSON',
+		name: 'tagFilterGroupsJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: { ...showOnly, chat_type: ['single'], enableTagFilter: [true] } },
+		description:
+			'可选。非空数组时覆盖上方标签组表单。支持 [{"tag_list":"et1,et2"}] 或 [{"tag_list":["et1","et2"]}]',
+	},
 	// 是否允许成员重新选择
 	{
 		displayName: '允许成员重新选择客户',

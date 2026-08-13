@@ -222,6 +222,15 @@ export const sendAndWaitDescription: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: '审批人可选操作 JSON',
+		name: 'customApprovalOptionsJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: showOnlyForSendAndWait },
+		description:
+			'可选。非空数组时覆盖上方操作表单。支持 [{"label":"允许","value":"allow","approved":true,"style":1}]，1–6 个',
+	},
+	{
 		displayName: '更多设置',
 		name: 'options',
 		type: 'collection',
@@ -408,11 +417,40 @@ export async function executeSendAndWait(
 		);
 	}
 
-	const customApprovalOptions = this.getNodeParameter(
+	const customApprovalOptionsJsonRaw = this.getNodeParameter(
+		'customApprovalOptionsJson',
+		itemIndex,
+		'[]',
+	);
+	let customApprovalOptions = this.getNodeParameter(
 		'customApprovalOptions',
 		itemIndex,
 		{},
 	) as CustomApprovalOptions;
+	if (
+		customApprovalOptionsJsonRaw !== undefined &&
+		customApprovalOptionsJsonRaw !== null &&
+		String(customApprovalOptionsJsonRaw).trim() !== ''
+	) {
+		let parsed: unknown = customApprovalOptionsJsonRaw;
+		if (typeof customApprovalOptionsJsonRaw === 'string') {
+			try {
+				parsed = JSON.parse(customApprovalOptionsJsonRaw);
+			} catch {
+				throw new NodeOperationError(this.getNode(), '审批人可选操作 JSON 不是有效的 JSON', {
+					itemIndex,
+				});
+			}
+		}
+		if (!Array.isArray(parsed)) {
+			throw new NodeOperationError(this.getNode(), '审批人可选操作 JSON 必须是数组', {
+				itemIndex,
+			});
+		}
+		if (parsed.length > 0) {
+			customApprovalOptions = { options: parsed as CustomApprovalOptions['options'] };
+		}
+	}
 	let approvalOptionDefinitions: ApprovalOption[];
 	try {
 		approvalOptionDefinitions = resolveApprovalOptions(customApprovalOptions);
