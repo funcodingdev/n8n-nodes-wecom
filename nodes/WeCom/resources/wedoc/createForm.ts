@@ -157,7 +157,20 @@ export const createFormDescription: INodeProperties[] = [
 				],
 			},
 			{
-				displayName: '指定填写人员',
+				displayName: '指定填写人员UserID列表',
+				name: 'fill_in_range_userids_text',
+				type: 'string',
+				default: '',
+				placeholder: 'zhangsan,lisi',
+				displayOptions: {
+					show: {
+						fill_out_auth: [1],
+					},
+				},
+				description: '逗号分隔；与下方选择合并',
+			},
+			{
+				displayName: '指定填写人员(选择)',
 				name: 'fill_in_range_userids',
 				type: 'multiOptions',
 				typeOptions: {
@@ -169,10 +182,23 @@ export const createFormDescription: INodeProperties[] = [
 						fill_out_auth: [1],
 					},
 				},
-				description: '指定的可填写的企业成员列表。从列表中选择成员',
+				description: '指定的可填写企业成员；与上方列表合并',
 			},
 			{
-				displayName: '指定填写部门',
+				displayName: '指定填写部门ID列表',
+				name: 'fill_in_range_departmentids_text',
+				type: 'string',
+				default: '',
+				placeholder: '1,2',
+				displayOptions: {
+					show: {
+						fill_out_auth: [1],
+					},
+				},
+				description: '逗号分隔；与下方选择合并',
+			},
+			{
+				displayName: '指定填写部门(选择)',
 				name: 'fill_in_range_departmentids',
 				type: 'multiOptions',
 				typeOptions: {
@@ -184,17 +210,25 @@ export const createFormDescription: INodeProperties[] = [
 						fill_out_auth: [1],
 					},
 				},
-				description: '指定的可填写的部门列表。从列表中选择部门',
+				description: '指定的可填写部门；与上方列表合并',
 			},
 			{
-				displayName: '收集表管理员',
+				displayName: '收集表管理员UserID列表',
+				name: 'setting_manager_range_text',
+				type: 'string',
+				default: '',
+				placeholder: 'zhangsan,lisi',
+				description: '逗号分隔；与下方选择合并',
+			},
+			{
+				displayName: '收集表管理员(选择)',
 				name: 'setting_manager_range',
 				type: 'multiOptions',
 				typeOptions: {
 					loadOptionsMethod: 'getAllUsers',
 				},
 				default: [],
-				description: '收集表管理员的企业成员列表。从列表中选择管理员',
+				description: '收集表管理员；与上方列表合并',
 			},
 			{
 				displayName: '定时关闭',

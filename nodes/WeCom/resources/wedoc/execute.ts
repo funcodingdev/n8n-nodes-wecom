@@ -265,44 +265,38 @@ function processFormSetting(
 
 	if (formSetting.fill_out_auth === 1) {
 		const fill_in_range: IDataObject = {};
-		if (formSetting.fill_in_range_userids) {
-			const userids = stringList(
-				context,
-				formSetting.fill_in_range_userids,
-				'指定填写成员',
-				itemIndex,
-				1,
-				1000,
-			);
-			if (userids.length > 0) fill_in_range.userids = userids;
-		}
-		if (formSetting.fill_in_range_departmentids) {
-			const departmentids = stringList(
-				context,
-				formSetting.fill_in_range_departmentids,
-				'指定填写部门',
-				itemIndex,
-				1,
-				1000,
-			).map((id) =>
-				integerInRange(context, id, '指定填写部门 ID', itemIndex, 1, Number.MAX_SAFE_INTEGER),
-			);
-			if (departmentids.length > 0) fill_in_range.departmentids = departmentids;
-		}
+		const userids = stringList(
+			context,
+			[formSetting.fill_in_range_userids_text, formSetting.fill_in_range_userids],
+			'指定填写成员',
+			itemIndex,
+			0,
+			1000,
+		);
+		if (userids.length > 0) fill_in_range.userids = userids;
+		const departmentids = stringList(
+			context,
+			[formSetting.fill_in_range_departmentids_text, formSetting.fill_in_range_departmentids],
+			'指定填写部门',
+			itemIndex,
+			0,
+			1000,
+		).map((id) =>
+			integerInRange(context, id, '指定填写部门 ID', itemIndex, 1, Number.MAX_SAFE_INTEGER),
+		);
+		if (departmentids.length > 0) fill_in_range.departmentids = departmentids;
 		if (Object.keys(fill_in_range).length > 0) processedSetting.fill_in_range = fill_in_range;
 	}
 
-	if (formSetting.setting_manager_range) {
-		const userids = stringList(
-			context,
-			formSetting.setting_manager_range,
-			'收集表管理员',
-			itemIndex,
-			1,
-			1000,
-		);
-		if (userids.length > 0) processedSetting.setting_manager_range = { userids };
-	}
+	const managerUserids = stringList(
+		context,
+		[formSetting.setting_manager_range_text, formSetting.setting_manager_range],
+		'收集表管理员',
+		itemIndex,
+		0,
+		1000,
+	);
+	if (managerUserids.length > 0) processedSetting.setting_manager_range = { userids: managerUserids };
 
 	const timedRepeatInfo: IDataObject = {};
 	if (formSetting.timed_repeat_enable) {
