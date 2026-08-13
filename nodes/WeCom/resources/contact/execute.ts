@@ -2,11 +2,12 @@ import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-wor
 import { NodeOperationError } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
 
-function splitCsv(value: string, limit?: number): string[] {
+function splitCsv(value: unknown, limit?: number): string[] {
+	const source = Array.isArray(value) ? value : [value];
 	const values = [
 		...new Set(
-			value
-				.split(',')
+			source
+				.flatMap((entry) => String(entry ?? '').split(/[,，|\n\r]+/))
 				.map((item) => item.trim())
 				.filter(Boolean),
 		),
@@ -453,8 +454,13 @@ export async function executeContact(
 				const userid = this.getNodeParameter('userid', i) as string;
 				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/user/delete', {}, { userid });
 			} else if (operation === 'batchDeleteUser') {
-				const useridlist = this.getNodeParameter('useridlist', i) as string;
-				const useridArray = splitCsv(useridlist, 200);
+				const useridArray = splitCsv(
+					[
+						this.getNodeParameter('useridlist', i, ''),
+						...(this.getNodeParameter('useridlist_selected', i, []) as string[]),
+					],
+					200,
+				);
 				if (!useridArray.length) {
 					throw new NodeOperationError(this.getNode(), '请至少填写 1 个成员 UserID', {
 						itemIndex: i,
@@ -474,12 +480,24 @@ export async function executeContact(
 					email_type,
 				});
 			} else if (operation === 'inviteUser') {
-				const user = this.getNodeParameter('user', i, '') as string;
-				const party = this.getNodeParameter('party', i, '') as string;
-				const tag = this.getNodeParameter('tag', i, '') as string;
-				const users = splitCsv(user, 1000);
-				const parties = parseIntegerCsv(this, party, '部门 ID', i, 100);
-				const tags = parseIntegerCsv(this, tag, '标签 ID', i, 100);
+				const users = splitCsv(
+					[
+						this.getNodeParameter('user', i, ''),
+						...(this.getNodeParameter('user_selected', i, []) as string[]),
+					],
+					1000,
+				);
+				const parties = parseIntegerCsv(
+					this,
+					[
+						this.getNodeParameter('party', i, ''),
+						...(this.getNodeParameter('party_selected', i, []) as Array<string | number>),
+					].join(','),
+					'部门 ID',
+					i,
+					100,
+				);
+				const tags = parseIntegerCsv(this, this.getNodeParameter('tag', i, '') as string, '标签 ID', i, 100);
 
 				const body: IDataObject = {};
 				if (users.length) body.user = users;
