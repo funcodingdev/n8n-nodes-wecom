@@ -4,17 +4,6 @@ const showOnly = { resource: ['mail'], operation: ['updatePublicMailbox'] };
 const switched = (name: string) => ({ ...showOnly, [name]: [true] });
 const separators = '可用逗号、中文逗号、竖线或换行分隔；留空可清空';
 
-const listUpdate = (label: string, switchName: string, name: string): INodeProperties[] => [
-	{
-		displayName: `更新${label}`, name: switchName, type: 'boolean',
-		displayOptions: { show: showOnly }, default: false,
-	},
-	{
-		displayName: label, name, type: 'string',
-		displayOptions: { show: switched(switchName) }, default: '', description: separators,
-	},
-];
-
 export const updatePublicMailboxDescription: INodeProperties[] = [
 	{
 		displayName: '公共邮箱ID', name: 'id', type: 'number', required: true,
@@ -28,10 +17,50 @@ export const updatePublicMailboxDescription: INodeProperties[] = [
 		displayName: '公共邮箱名称', name: 'name', type: 'string', required: true,
 		displayOptions: { show: switched('updateName') }, default: '', description: '最长 64 字节（汉字通常占 2 字节）',
 	},
-	...listUpdate('成员UserID列表', 'updateUseridList', 'userid_list'),
-	...listUpdate('部门ID列表', 'updateDepartmentList', 'department_list'),
-	...listUpdate('标签ID列表', 'updateTagList', 'tag_list'),
-	...listUpdate('邮箱别名列表', 'updateAliasList', 'alias_list'),
+	{
+		displayName: '更新成员UserID列表', name: 'updateUseridList', type: 'boolean',
+		displayOptions: { show: showOnly }, default: false,
+	},
+	{
+		displayName: '成员UserID列表', name: 'userid_list', type: 'string',
+		displayOptions: { show: switched('updateUseridList') }, default: '', description: separators,
+	},
+	{
+		displayName: '成员(选择)', name: 'userid_list_selected', type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: { show: switched('updateUseridList') }, default: [],
+		description: '与上方列表合并去重',
+	},
+	{
+		displayName: '更新部门ID列表', name: 'updateDepartmentList', type: 'boolean',
+		displayOptions: { show: showOnly }, default: false,
+	},
+	{
+		displayName: '部门ID列表', name: 'department_list', type: 'string',
+		displayOptions: { show: switched('updateDepartmentList') }, default: '', description: separators,
+	},
+	{
+		displayName: '部门(选择)', name: 'department_list_selected', type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getDepartments' },
+		displayOptions: { show: switched('updateDepartmentList') }, default: [],
+		description: '与上方列表合并去重',
+	},
+	{
+		displayName: '更新标签ID列表', name: 'updateTagList', type: 'boolean',
+		displayOptions: { show: showOnly }, default: false,
+	},
+	{
+		displayName: '标签ID列表', name: 'tag_list', type: 'string',
+		displayOptions: { show: switched('updateTagList') }, default: '', description: separators,
+	},
+	{
+		displayName: '更新邮箱别名列表', name: 'updateAliasList', type: 'boolean',
+		displayOptions: { show: showOnly }, default: false,
+	},
+	{
+		displayName: '邮箱别名列表', name: 'alias_list', type: 'string',
+		displayOptions: { show: switched('updateAliasList') }, default: '', description: separators,
+	},
 	{
 		displayName: '创建新客户端专用密码', name: 'create_auth_code', type: 'boolean',
 		displayOptions: { show: showOnly }, default: false,

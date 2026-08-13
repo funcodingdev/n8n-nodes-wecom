@@ -412,7 +412,14 @@ function updateWrappedList(
 	email = false,
 ): boolean {
 	if (!(context.getNodeParameter(switchName, itemIndex, false) as boolean)) return false;
-	const value = context.getNodeParameter(parameterName, itemIndex, '');
+	const selectedName = `${parameterName}_selected`;
+	let selected: unknown = [];
+	try {
+		selected = context.getNodeParameter(selectedName, itemIndex, []);
+	} catch {
+		selected = [];
+	}
+	const value = [context.getNodeParameter(parameterName, itemIndex, ''), selected];
 	body[parameterName] = {
 		list: numeric
 			? numberList(context, value, label, itemIndex)
@@ -565,8 +572,28 @@ export async function executeMail(
 					email: emailAddress(this, this.getNodeParameter('email', i, this.getNodeParameter('mailbox', i, '')), '公共邮箱地址', i),
 					name: publicMailboxName(this, this.getNodeParameter('name', i), i),
 				};
-				const users = stringList(this, this.getNodeParameter('userid_list', i, this.getNodeParameter('member_list', i, this.getNodeParameter('admin_list', i, ''))), '成员 UserID', i);
-				const departments = numberList(this, this.getNodeParameter('department_list', i, ''), '部门 ID', i);
+				const users = stringList(
+					this,
+					[
+						this.getNodeParameter(
+							'userid_list',
+							i,
+							this.getNodeParameter('member_list', i, this.getNodeParameter('admin_list', i, '')),
+						),
+						this.getNodeParameter('userid_list_selected', i, []),
+					],
+					'成员 UserID',
+					i,
+				);
+				const departments = numberList(
+					this,
+					[
+						this.getNodeParameter('department_list', i, ''),
+						this.getNodeParameter('department_list_selected', i, []),
+					],
+					'部门 ID',
+					i,
+				);
 				const tags = numberList(this, this.getNodeParameter('tag_list', i, ''), '标签 ID', i);
 				if (!users.length && !departments.length && !tags.length) fail(this, '成员、部门和标签至少填写一类', i);
 				setWrappedList(body, 'userid_list', users);
