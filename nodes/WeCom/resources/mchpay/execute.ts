@@ -260,7 +260,7 @@ export async function executeMchpay(
 				);
 				const formAgentId = optionalText(
 					this,
-					this.getNodeParameter('agentid', i, ''),
+					(this.getNodeParameter('agentid', i, '') || this.getNodeParameter('agentid_selected', i, '')),
 					'应用 AgentID',
 					i,
 					20,
@@ -369,7 +369,7 @@ export async function executeMchpay(
 				if (ww_msg_type === 'APPROVAL_MSG' && !approval_number) fail(this, '审批付款必须填写审批单号', i);
 				const act_name = requireText(this, this.getNodeParameter('act_name', i), '项目名称', i, 50);
 				const rawAgentId =
-					optionalText(this, this.getNodeParameter('agentid', i, ''), '应用 AgentID', i, 20) ||
+					optionalText(this, (this.getNodeParameter('agentid', i, '') || this.getNodeParameter('agentid_selected', i, '')), '应用 AgentID', i, 20) ||
 					creds.agentId ||
 					'';
 				const agentid = rawAgentId ? String(requireInteger(this, rawAgentId, '应用 AgentID', i)) : '';

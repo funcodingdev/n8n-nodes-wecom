@@ -112,13 +112,19 @@ export const mchpayDescription: INodeProperties[] = [
 		typeOptions: { maxLength: 256 },
 	},
 	{
-		displayName: '应用 AgentID',
+		displayName: '应用 ID',
 		name: 'agentid',
 		type: 'string',
-		displayOptions: { show: { ...showOnly, operation: ['sendRedpack', 'payToEmployee'] } },
 		default: '',
-		typeOptions: { maxLength: 20 },
 		description: '以企业应用名义发红包时填写；与「发送者名称」二选一，空则使用凭证中的默认应用',
+	},
+	{
+		displayName: '应用(选择)',
+		name: 'agentid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAgents' },
+		default: '',
+		description: '与上方字段二选一；均填写时以上方为准',
 	},
 	{
 		displayName: '发送者名称',

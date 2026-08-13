@@ -167,6 +167,24 @@ export class WeComWechat implements INodeType {
 					];
 				}
 			},
+
+			// 获取企业应用列表
+			async getAgents(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				try {
+					const response = await weComApiRequest.call(this, 'GET', '/cgi-bin/agent/list', {});
+					const agents = (response.agentlist as Array<{ agentid: number; name: string }>) || [];
+					if (agents.length === 0) {
+						return [{ name: '暂无应用', value: '' }];
+					}
+					return agents.map((agent) => ({
+						name: `${agent.name} (${agent.agentid})`,
+						value: String(agent.agentid),
+					}));
+					// eslint-disable-next-line @typescript-eslint/no-unused-vars
+				} catch (error) {
+					return [{ name: '获取应用列表失败', value: '' }];
+				}
+			},
 		},
 	};
 

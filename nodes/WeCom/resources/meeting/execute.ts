@@ -748,7 +748,7 @@ export async function executeMeeting(
 					false,
 				);
 				const cal_id = text(this, this.getNodeParameter('cal_id', i, ''), '日历 ID', i, 64, false);
-				const agentid = Number(this.getNodeParameter('agentid', i, 0));
+				const agentid = Number((this.getNodeParameter('agentid', i, 0) || this.getNodeParameter('agentid_selected', i, '')));
 				const createMeetingExtraJson = this.getNodeParameter(
 					'createMeetingExtraJson',
 					i,

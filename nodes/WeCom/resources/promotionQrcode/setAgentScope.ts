@@ -32,7 +32,7 @@ export async function setAgentScope(
 	);
 	const agentid = requirePositiveInteger(
 		this,
-		this.getNodeParameter('agentid', index),
+		(this.getNodeParameter('agentid', index, 0) || this.getNodeParameter('agentid_selected', index, '')),
 		'授权方应用 ID',
 		index,
 	);

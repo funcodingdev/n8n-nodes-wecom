@@ -4,13 +4,21 @@ const showOnly = { resource: ['linkedcorp'], operation: ['getAppShareInfo'] };
 
 export const getAppShareInfoDescription: INodeProperties[] = [
 	{
-		displayName: '上级/上游应用 AgentID',
+		displayName: '应用 ID',
 		name: 'agentid',
 		type: 'string',
+		default: '',
+		displayOptions: { show: showOnly },
+		description: '留空时使用当前企业微信 API 凭证中的 AgentID；可与下方选择二选一',
+	},
+	{
+		displayName: '应用(选择)',
+		name: 'agentid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAgents' },
 		displayOptions: { show: showOnly },
 		default: '',
-		placeholder: '1000001',
-		description: '留空时使用当前企业微信 API 凭证中的 AgentID',
+		description: '与上方字段二选一；均填写时以上方为准',
 	},
 	{
 		displayName: '业务类型',

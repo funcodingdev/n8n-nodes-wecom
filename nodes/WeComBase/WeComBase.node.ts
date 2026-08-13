@@ -445,6 +445,16 @@ export class WeComBase implements INodeType {
 				}));
 			},
 
+			// 获取企业应用列表
+			async getAgents(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				const response = await weComApiRequest.call(this, 'GET', '/cgi-bin/agent/list', {});
+				const agents = (response.agentlist as Array<{ agentid: number; name: string }>) || [];
+				return agents.map((agent) => ({
+					name: `${agent.name} (${agent.agentid})`,
+					value: String(agent.agentid),
+				}));
+			},
+
 			// 获取标签成员列表
 			async getTagUsers(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
 				const tagId = this.getNodeParameter('tagid', 0) as string;

@@ -25,14 +25,21 @@ export const delGroupWelcomeTemplateDescription: INodeProperties[] = [
 		description: '群欢迎语的模板ID。群欢迎语的模板ID',
 	},
 	{
-		displayName: '应用ID',
+		displayName: '应用 ID',
 		name: 'agentid',
 		type: 'number',
-		typeOptions: { minValue: 0, numberStepSize: 1 },
 		default: 0,
-		displayOptions: {
-			show: showOnly,
-		},
-		description: '授权方安装的应用agentid',
+		typeOptions: { minValue: 0, numberStepSize: 1 },
+		displayOptions: { show: showOnly },
+		description: '授权方安装的应用agentid；可与下方选择二选一',
+	},
+	{
+		displayName: '应用(选择)',
+		name: 'agentid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAgents' },
+		displayOptions: { show: showOnly },
+		default: '',
+		description: '与上方数字二选一；均填写时以数字为准',
 	},
 ];

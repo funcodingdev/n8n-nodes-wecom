@@ -216,7 +216,7 @@ export async function executeExternalContact(
 				);
 				const agentid = requireInteger(
 					this,
-					this.getNodeParameter('agentid', i, 0),
+					(this.getNodeParameter('agentid', i, 0) || this.getNodeParameter('agentid_selected', i, '')),
 					'旧套件 AgentID',
 					i,
 					0,
@@ -277,7 +277,7 @@ export async function executeExternalContact(
 				}
 				const agentid = requireInteger(
 					this,
-					this.getNodeParameter('agentid', i, 0),
+					(this.getNodeParameter('agentid', i, 0) || this.getNodeParameter('agentid_selected', i, '')),
 					'旧套件 AgentID',
 					i,
 					0,
@@ -313,7 +313,7 @@ export async function executeExternalContact(
 				if (groupIds.length > 0) body.group_id = groupIds;
 				const agentid = requireInteger(
 					this,
-					this.getNodeParameter('agentid', i, 0),
+					(this.getNodeParameter('agentid', i, 0) || this.getNodeParameter('agentid_selected', i, '')),
 					'旧套件 AgentID',
 					i,
 					0,
@@ -1788,7 +1788,7 @@ export async function executeExternalContact(
 				);
 				const agentid = requireInteger(
 					this,
-					this.getNodeParameter('agentid', i, 0),
+					(this.getNodeParameter('agentid', i, 0) || this.getNodeParameter('agentid_selected', i, '')),
 					'旧套件 AgentID',
 					i,
 					0,
@@ -1836,7 +1836,7 @@ export async function executeExternalContact(
 				);
 				const agentid = requireInteger(
 					this,
-					this.getNodeParameter('agentid', i, 0),
+					(this.getNodeParameter('agentid', i, 0) || this.getNodeParameter('agentid_selected', i, '')),
 					'旧套件 AgentID',
 					i,
 					0,
@@ -1874,7 +1874,7 @@ export async function executeExternalContact(
 				const template_id = requireText(this, this.getNodeParameter('template_id', i), '欢迎语模板 ID', i);
 				const agentid = requireInteger(
 					this,
-					this.getNodeParameter('agentid', i, 0),
+					(this.getNodeParameter('agentid', i, 0) || this.getNodeParameter('agentid_selected', i, '')),
 					'旧套件 AgentID',
 					i,
 					0,
@@ -2614,7 +2614,7 @@ export async function executeExternalContact(
 				}
 				const agentid = requireInteger(
 					this,
-					this.getNodeParameter('agentid', i),
+					(this.getNodeParameter('agentid', i, 0) || this.getNodeParameter('agentid_selected', i, '')),
 					'应用 ID',
 					i,
 					1,

@@ -173,7 +173,7 @@ export async function executeLinkedcorp(
 			let response!: IDataObject;
 			if (operation === 'getAppShareInfo') {
 				const agentid = requiredText(
-					optionalText(this.getNodeParameter('agentid', itemIndex, '')) ?? defaultAgentId,
+					optionalText((this.getNodeParameter('agentid', itemIndex, '') || this.getNodeParameter('agentid_selected', itemIndex, ''))) ?? defaultAgentId,
 					'上级/上游应用 AgentID',
 				);
 				const body: IDataObject = {
@@ -193,7 +193,7 @@ export async function executeLinkedcorp(
 					'/cgi-bin/corpgroup/corp/gettoken',
 					{
 						corpid: requiredText(this.getNodeParameter('corpid', itemIndex), '下级/下游企业 CorpID'),
-						agentid: requiredText(this.getNodeParameter('agentid', itemIndex), '下级/下游应用 AgentID'),
+						agentid: requiredText((this.getNodeParameter('agentid', itemIndex, '') || this.getNodeParameter('agentid_selected', itemIndex, '')), '下级/下游应用 AgentID'),
 						business_type: integerInRange(
 							this.getNodeParameter('business_type', itemIndex, operation === 'getMiniProgramSession' ? 1 : 0),
 							'业务类型',

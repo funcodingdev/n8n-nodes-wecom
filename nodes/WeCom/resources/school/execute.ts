@@ -651,7 +651,7 @@ export async function executeSchool(
 				case 'getAllowScope': {
 					const agentid = requireInteger(
 						this,
-						this.getNodeParameter('agentid', i),
+						(this.getNodeParameter('agentid', i, 0) || this.getNodeParameter('agentid_selected', i, '')),
 						'应用 AgentID',
 						i,
 						1,

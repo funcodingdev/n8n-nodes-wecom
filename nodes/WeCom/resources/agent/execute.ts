@@ -44,9 +44,12 @@ export async function executeAgent(
 		return text;
 	};
 	const getAgentId = (itemIndex: number): number => {
-		const agentId = Number(this.getNodeParameter('agentid', itemIndex));
+		const raw =
+			this.getNodeParameter('agentid', itemIndex, 0) ||
+			this.getNodeParameter('agentid_selected', itemIndex, '');
+		const agentId = Number(raw);
 		if (!Number.isSafeInteger(agentId) || agentId <= 0) {
-			fail('应用 ID 必须是正整数', itemIndex);
+			fail('应用 ID 必须是正整数（可填写或从下方选择）', itemIndex);
 		}
 		return agentId;
 	};

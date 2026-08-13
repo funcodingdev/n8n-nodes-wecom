@@ -216,7 +216,7 @@ export async function executeLive(
 				}
 				const agentId = integer(
 					this,
-					this.getNodeParameter('agentid', i, 0),
+					(this.getNodeParameter('agentid', i, 0) || this.getNodeParameter('agentid_selected', i, '')),
 					'应用 AgentId',
 					i,
 					0,

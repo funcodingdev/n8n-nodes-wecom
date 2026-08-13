@@ -370,7 +370,14 @@ export async function executeCalendar(
 				if (!isCorpCalendar) {
 					body.set_as_default = this.getNodeParameter('set_as_default', i, false) ? 1 : 0;
 				}
-				const agentId = integer(this, advanced.agentid ?? 0, '应用 AgentID', i, 0, MAX_UINT32);
+				const agentId = integer(
+					this,
+					advanced.agentid || advanced.agentid_selected || 0,
+					'应用 AgentID',
+					i,
+					0,
+					MAX_UINT32,
+				);
 				if (agentId) body.agentid = agentId;
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/oa/calendar/add', body);
 			} else if (operation === 'updateCalendar') {
@@ -537,7 +544,14 @@ export async function executeCalendar(
 				);
 				if (reminders) schedule.reminders = reminders;
 				const body: IDataObject = { schedule };
-				const agentId = integer(this, advanced.agentid ?? 0, '应用 AgentID', i, 0, MAX_UINT32);
+				const agentId = integer(
+					this,
+					advanced.agentid || advanced.agentid_selected || 0,
+					'应用 AgentID',
+					i,
+					0,
+					MAX_UINT32,
+				);
 				if (agentId) body.agentid = agentId;
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/oa/schedule/add', body);
 			} else if (operation === 'updateSchedule') {

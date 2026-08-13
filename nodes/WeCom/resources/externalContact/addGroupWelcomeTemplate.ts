@@ -143,13 +143,22 @@ export const addGroupWelcomeTemplateDescription: INodeProperties[] = [
 	},
 	// 其他参数
 	{
-		displayName: '应用AgentID',
+		displayName: '应用 ID',
 		name: 'agentid',
 		type: 'number',
-		typeOptions: { minValue: 0, numberStepSize: 1 },
 		default: 0,
+		typeOptions: { minValue: 0, numberStepSize: 1 },
 		displayOptions: { show: showOnly },
-		description: '授权方安装的应用agentid。仅旧的第三方多应用套件需要填此参数',
+		description: '授权方安装的应用agentid。仅旧的第三方多应用套件需要填此参数；可与下方选择二选一',
+	},
+	{
+		displayName: '应用(选择)',
+		name: 'agentid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAgents' },
+		displayOptions: { show: showOnly },
+		default: '',
+		description: '与上方数字二选一；均填写时以数字为准',
 	},
 	{
 		displayName: '是否通知成员',

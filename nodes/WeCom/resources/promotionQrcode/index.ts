@@ -207,19 +207,32 @@ export const promotionQrcodeDescription: INodeProperties[] = [
 		description: '查询注册状态接口返回的access_token（跟注册完成回调事件的AccessToken参数一致，请注意与provider_access_token的区别）',
 	},
 	{
-		displayName: '授权方应用ID',
+		displayName: '应用 ID',
 		name: 'agentid',
 		type: 'number',
-		required: true,
+		default: 0,
+		typeOptions: { minValue: 0, numberStepSize: 1 },
 		displayOptions: {
 			show: {
 				resource: ['promotionQrcode'],
 				operation: ['setAgentScope'],
 			},
 		},
-		default: 1,
-		typeOptions: { minValue: 1, maxValue: 4294967295, numberStepSize: 1 },
-		description: '需要设置可见范围的应用ID',
+		description: '需要设置可见范围的应用ID；可与下方选择二选一',
+	},
+	{
+		displayName: '应用(选择)',
+		name: 'agentid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAgents' },
+		displayOptions: {
+			show: {
+				resource: ['promotionQrcode'],
+				operation: ['setAgentScope'],
+			},
+		},
+		default: '',
+		description: '与上方数字二选一；均填写时以数字为准',
 	},
 	{
 		displayName: '应用可见范围（成员）',
