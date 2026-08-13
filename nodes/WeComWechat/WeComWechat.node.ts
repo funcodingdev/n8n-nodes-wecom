@@ -85,6 +85,42 @@ export class WeComWechat implements INodeType {
 
 	methods = {
 		loadOptions: {
+			// 获取部门列表
+			async getDepartments(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				try {
+					const response = await weComApiRequest.call(this, 'GET', '/cgi-bin/department/list', {});
+					const departments = (response.department as Array<{ id: number; name: string }>) || [];
+					if (departments.length === 0) {
+						return [{ name: '暂无部门', value: '' }];
+					}
+					return departments.map((dept) => ({
+						name: `${dept.name} (${dept.id})`,
+						value: String(dept.id),
+					}));
+					// eslint-disable-next-line @typescript-eslint/no-unused-vars
+				} catch (error) {
+					return [{ name: '获取部门列表失败', value: '' }];
+				}
+			},
+
+			// 获取标签列表
+			async getTags(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				try {
+					const response = await weComApiRequest.call(this, 'GET', '/cgi-bin/tag/list', {});
+					const tags = (response.taglist as Array<{ tagid: number; tagname: string }>) || [];
+					if (tags.length === 0) {
+						return [{ name: '暂无标签', value: '' }];
+					}
+					return tags.map((tag) => ({
+						name: `${tag.tagname} (${tag.tagid})`,
+						value: String(tag.tagid),
+					}));
+					// eslint-disable-next-line @typescript-eslint/no-unused-vars
+				} catch (error) {
+					return [{ name: '获取标签列表失败', value: '' }];
+				}
+			},
+
 			// 获取所有成员列表
 			async getAllUsers(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
 				try {

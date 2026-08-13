@@ -200,6 +200,16 @@ export class WeComOffice implements INodeType {
 					value: String(agent.agentid),
 				}));
 			},
+
+			// 获取标签列表
+			async getTags(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				const response = await weComApiRequest.call(this, 'GET', '/cgi-bin/tag/list', {});
+				const tags = (response.taglist as Array<{ tagid: number; tagname: string }>) || [];
+				return tags.map((tag) => ({
+					name: `${tag.tagname} (${tag.tagid})`,
+					value: String(tag.tagid),
+				}));
+			},
 		},
 	};
 
