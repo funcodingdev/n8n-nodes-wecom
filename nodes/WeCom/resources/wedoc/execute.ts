@@ -3411,6 +3411,12 @@ export async function executeWedoc(
 					[
 						this.getNodeParameter('userid_list', i, ''),
 						this.getNodeParameter('userid_list_selected', i, []),
+						...parseUserIdJson(
+							this,
+							this.getNodeParameter('useridListJson', i, '[]'),
+							'成员列表 JSON',
+							i,
+						),
 					],
 					'成员 UserID 列表',
 					i,
@@ -3427,6 +3433,12 @@ export async function executeWedoc(
 					[
 						this.getNodeParameter('userid_list', i, ''),
 						this.getNodeParameter('userid_list_selected', i, []),
+						...parseUserIdJson(
+							this,
+							this.getNodeParameter('useridListJson', i, '[]'),
+							'成员列表 JSON',
+							i,
+						),
 					],
 					'成员 UserID 列表',
 					i,
