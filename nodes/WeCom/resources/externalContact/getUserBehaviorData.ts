@@ -24,8 +24,17 @@ export const getUserBehaviorDataDescription: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		displayOptions: { show: { ...showOnly, filterType: ['user'] } },
-		description: '成员 ID 列表，支持逗号、竖线或换行分隔，自动去重，最多 100 个。多个成员会合并统计',
+		description: '成员 ID 列表，支持逗号、竖线或换行分隔，自动去重，最多 100 个；与下方选择合并',
 		placeholder: 'zhangsan,lisi',
+	},
+	{
+		displayName: '成员(选择)',
+		name: 'userid_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		default: [],
+		displayOptions: { show: { ...showOnly, filterType: ['user'] } },
+		description: '与上方列表合并去重，合计最多 100 个',
 	},
 	{
 		displayName: '部门 ID 列表',

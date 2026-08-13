@@ -1786,7 +1786,10 @@ export async function executeExternalContact(
 				if (filterType === 'user') {
 					body.userid = stringList(
 						this,
-						this.getNodeParameter('userid', i, ''),
+						[
+							this.getNodeParameter('userid', i, ''),
+							this.getNodeParameter('userid_selected', i, []),
+						],
 						'成员 UserID 列表',
 						i,
 						{ minimum: 1, maximum: 100 },
