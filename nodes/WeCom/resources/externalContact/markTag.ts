@@ -49,8 +49,18 @@ export const markTagDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '要添加的标签ID列表，多个ID用英文逗号分隔。<a href="https://developer.work.weixin.qq.com/document/path/92118" target="_blank">官方文档</a>。可选。要添加的标签ID，多个用逗号分隔',
+		description:
+			'要添加的标签ID列表，多个ID用英文逗号分隔；与下方 JSON 合并。<a href="https://developer.work.weixin.qq.com/document/path/92118" target="_blank">官方文档</a>',
 		placeholder: 'etXXXXXXXXXX,etYYYYYYYYYY',
+	},
+	{
+		displayName: '添加标签 JSON',
+		name: 'addTagJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: showOnly },
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["etxxx"] 或 [{"tag_id":"etxxx"}]',
 	},
 	{
 		displayName: '移除标签',
@@ -60,8 +70,18 @@ export const markTagDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '要移除的标签ID列表，多个ID用英文逗号分隔。<a href="https://developer.work.weixin.qq.com/document/path/92118" target="_blank">官方文档</a>。可选。要移除的标签ID，多个用逗号分隔',
+		description:
+			'要移除的标签ID列表，多个ID用英文逗号分隔；与下方 JSON 合并。<a href="https://developer.work.weixin.qq.com/document/path/92118" target="_blank">官方文档</a>',
 		placeholder: 'etXXXXXXXXXX,etYYYYYYYYYY',
+	},
+	{
+		displayName: '移除标签 JSON',
+		name: 'removeTagJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: showOnly },
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["etxxx"] 或 [{"tag_id":"etxxx"}]',
 	},
 ];
 

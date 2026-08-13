@@ -184,13 +184,31 @@ export async function executeExternalContact(
 			else if (operation === 'getCorpTagList') {
 				const tagIds = stringList(
 					this,
-					this.getNodeParameter('tag_id', i, ''),
+					[
+						this.getNodeParameter('tag_id', i, ''),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('tagIdJson', i, '[]'),
+							'标签ID列表 JSON',
+							i,
+							['tag_id', 'tagid', 'id'],
+						),
+					],
 					'标签 ID',
 					i,
 				);
 				const groupIds = stringList(
 					this,
-					this.getNodeParameter('group_id', i, ''),
+					[
+						this.getNodeParameter('group_id', i, ''),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('groupIdJson', i, '[]'),
+							'标签组ID列表 JSON',
+							i,
+							['group_id', 'groupid', 'id'],
+						),
+					],
 					'标签组 ID',
 					i,
 				);
@@ -306,13 +324,31 @@ export async function executeExternalContact(
 			} else if (operation === 'delCorpTag') {
 				const tagIds = stringList(
 					this,
-					this.getNodeParameter('tag_id', i, ''),
+					[
+						this.getNodeParameter('tag_id', i, ''),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('tagIdJson', i, '[]'),
+							'标签ID列表 JSON',
+							i,
+							['tag_id', 'tagid', 'id'],
+						),
+					],
 					'标签 ID',
 					i,
 				);
 				const groupIds = stringList(
 					this,
-					this.getNodeParameter('group_id', i, ''),
+					[
+						this.getNodeParameter('group_id', i, ''),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('groupIdJson', i, '[]'),
+							'标签组ID列表 JSON',
+							i,
+							['group_id', 'groupid', 'id'],
+						),
+					],
 					'标签组 ID',
 					i,
 				);
@@ -353,10 +389,33 @@ export async function executeExternalContact(
 					'外部联系人 UserID',
 					i,
 				);
-				const addTags = stringList(this, this.getNodeParameter('add_tag', i, ''), '添加标签', i);
+				const addTags = stringList(
+					this,
+					[
+						this.getNodeParameter('add_tag', i, ''),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('addTagJson', i, '[]'),
+							'添加标签 JSON',
+							i,
+							['tag_id', 'tagid', 'id'],
+						),
+					],
+					'添加标签',
+					i,
+				);
 				const removeTags = stringList(
 					this,
-					this.getNodeParameter('remove_tag', i, ''),
+					[
+						this.getNodeParameter('remove_tag', i, ''),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('removeTagJson', i, '[]'),
+							'移除标签 JSON',
+							i,
+							['tag_id', 'tagid', 'id'],
+						),
+					],
 					'移除标签',
 					i,
 				);
@@ -1784,7 +1843,16 @@ export async function executeExternalContact(
 							group_list: groups.map((group, groupIndex) => ({
 								tag_list: stringList(
 									this,
-									group.tag_list,
+									[
+										group.tag_list,
+										...parseStringIdJson(
+											this,
+											group.tag_list_json ?? '[]',
+											`第 ${groupIndex + 1} 个标签组 JSON`,
+											i,
+											['tag_id', 'tagid', 'id'],
+										),
+									],
 									`第 ${groupIndex + 1} 个标签组`,
 									i,
 									{ minimum: 1, maximum: 100 },

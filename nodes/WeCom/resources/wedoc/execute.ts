@@ -1941,11 +1941,20 @@ export async function executeWedoc(
 						// 处理单选/多选的选项
 						if (
 							['FIELD_TYPE_SINGLE_SELECT', 'FIELD_TYPE_SELECT'].includes(fieldType) &&
-							field.select_options
+							(field.select_options || field.select_options_json)
 						) {
 							const options = stringList(
 								this,
-								field.select_options,
+								[
+									field.select_options,
+									...parseStringIdJson(
+										this,
+										field.select_options_json ?? '[]',
+										'选项列表 JSON',
+										i,
+										['text', 'value', 'name', 'option'],
+									),
+								],
 								'选项列表',
 								i,
 								1,
@@ -2037,11 +2046,20 @@ export async function executeWedoc(
 						// 处理单选/多选的选项更新
 						if (
 							['FIELD_TYPE_SINGLE_SELECT', 'FIELD_TYPE_SELECT'].includes(fieldType) &&
-							field.select_options
+							(field.select_options || field.select_options_json)
 						) {
 							const options = stringList(
 								this,
-								field.select_options,
+								[
+									field.select_options,
+									...parseStringIdJson(
+										this,
+										field.select_options_json ?? '[]',
+										'选项列表 JSON',
+										i,
+										['text', 'value', 'name', 'option'],
+									),
+								],
 								'选项列表',
 								i,
 								1,

@@ -72,8 +72,17 @@ export const updateSmartsheetFieldDescription: INodeProperties[] = [
 						name: 'select_options',
 						type: 'string',
 						default: '',
-						description: '新的选项列表，多个选项用英文逗号分隔。仅对单选/多选字段有效。',
+						description:
+							'新的选项列表，多个选项用英文逗号分隔；与下方 JSON 合并。仅对单选/多选字段有效。',
 						placeholder: '例如: 选项1,选项2,选项3',
+					},
+					{
+						displayName: '选项列表 JSON',
+						name: 'select_options_json',
+						type: 'json',
+						default: '[]',
+						description:
+							'可选。非空数组时与上方列表合并去重。支持 ["选项1"] 或 [{"text":"选项1"}]',
 					},
 					{
 						displayName: '字段属性JSON',

@@ -134,6 +134,45 @@ function parseDeviceCodeJsonOptional(
 	);
 }
 
+function parseStringIdJsonOptional(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+	keys: string[],
+): string[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	if (parsed.length === 0) return [];
+	return stringList(
+		context,
+		parsed.map((entry) => {
+			if (typeof entry === 'string' || typeof entry === 'number') return entry;
+			if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+				const row = entry as IDataObject;
+				for (const key of keys) {
+					if (row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== '') {
+						return row[key];
+					}
+				}
+			}
+			return '';
+		}),
+		label,
+		itemIndex,
+		0,
+		1000,
+	);
+}
+
 function normalizeMac(context: IExecuteFunctions, value: string, itemIndex: number): string {
 	if (!/^(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}$/.test(value)) {
 		fail(context, `MAC 地址格式无效: ${value}`, itemIndex);
@@ -239,7 +278,16 @@ async function runOperation(
 			}
 			const macs = stringList(
 				context,
-				device.mac_addr ?? [],
+				[
+					device.mac_addr ?? [],
+					...parseStringIdJsonOptional(
+						context,
+						device.mac_addr_json ?? '[]',
+						`第 ${deviceIndex + 1} 个设备的 MAC 地址 JSON`,
+						itemIndex,
+						['mac', 'mac_addr', 'address'],
+					),
+				],
 				`第 ${deviceIndex + 1} 个设备的 MAC 地址`,
 				itemIndex,
 				system === 'Windows' ? 1 : 0,
@@ -258,7 +306,16 @@ async function runOperation(
 				);
 				const disks = stringList(
 					context,
-					device.harddisk_uuid ?? [],
+					[
+						device.harddisk_uuid ?? [],
+						...parseStringIdJsonOptional(
+							context,
+							device.harddisk_uuid_json ?? '[]',
+							`第 ${deviceIndex + 1} 个设备的硬盘序列号 JSON`,
+							itemIndex,
+							['uuid', 'harddisk_uuid', 'serial', 'id'],
+						),
+					],
 					'硬盘序列号',
 					itemIndex,
 					0,

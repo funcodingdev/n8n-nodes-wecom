@@ -54,7 +54,7 @@ export const importDeviceDescription: INodeProperties[] = [
 						},
 						required: true,
 						placeholder: '50:81:40:29:33:CA',
-						description: '设备MAC地址列表，Windows设备必填，每个设备最多100个',
+						description: '设备MAC地址列表，Windows设备必填；与下方 JSON 合并，每个设备最多100个',
 						default: [],
 						displayOptions: {
 							show: {
@@ -70,13 +70,21 @@ export const importDeviceDescription: INodeProperties[] = [
 							multipleValues: true,
 						},
 						placeholder: '81:40:50:29:33:DB',
-						description: '设备MAC地址列表，Mac设备选填，每个设备最多100个',
+						description: '设备MAC地址列表，Mac设备选填；与下方 JSON 合并，每个设备最多100个',
 						default: [],
 						displayOptions: {
 							show: {
 								system: ['Mac'],
 							},
 						},
+					},
+					{
+						displayName: 'MAC地址列表 JSON',
+						name: 'mac_addr_json',
+						type: 'json',
+						default: '[]',
+						description:
+							'可选。非空数组时与上方 MAC 列表合并去重。支持 ["50:81:40:29:33:CA"] 或 [{"mac":"..."}]',
 					},
 					{
 						displayName: '主板UUID',
@@ -100,13 +108,26 @@ export const importDeviceDescription: INodeProperties[] = [
 							multipleValues: true,
 						},
 						placeholder: 'HD_UUID1',
-						description: '硬盘序列号列表，Windows设备可选填，每个设备最多100个',
+						description: '硬盘序列号列表，Windows设备可选填；与下方 JSON 合并，每个设备最多100个',
 						default: [],
 						displayOptions: {
 							show: {
 								system: ['Windows'],
 							},
 						},
+					},
+					{
+						displayName: '硬盘序列号列表 JSON',
+						name: 'harddisk_uuid_json',
+						type: 'json',
+						default: '[]',
+						displayOptions: {
+							show: {
+								system: ['Windows'],
+							},
+						},
+						description:
+							'可选。非空数组时与上方列表合并去重。支持 ["HD1"] 或 [{"uuid":"HD1"}]',
 					},
 					{
 						displayName: 'Windows域名',

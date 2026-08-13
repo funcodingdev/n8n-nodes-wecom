@@ -761,7 +761,23 @@ export async function executeWefile(
 			} else if (operation === 'uploadInit') {
 				const normalizedFileName = fileName(this, this.getNodeParameter('fileName', i), '文件名', i);
 				const size = integer(this, this.getNodeParameter('fileSize', i), '文件大小', i, 1, 20 * 1024 * 1024 * 1024);
-				const blockSha = list(this, this.getNodeParameter('block_sha', i), '分块累积 SHA 列表', i, 1, 10240);
+				const blockSha = list(
+					this,
+					[
+						this.getNodeParameter('block_sha', i),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('blockShaJson', i, '[]'),
+							'分块SHA列表 JSON',
+							i,
+							['sha', 'block_sha', 'sha1', 'hash'],
+						),
+					],
+					'分块累积 SHA 列表',
+					i,
+					1,
+					10240,
+				);
 				if (blockSha.length !== Math.ceil(size / TWO_MIB)) {
 					fail(this, `分块累积 SHA 数量应为 ${Math.ceil(size / TWO_MIB)} 个`, i);
 				}

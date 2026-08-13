@@ -7,7 +7,7 @@ import {
 	requireByteText,
 	requireCharacterText,
 	requireDate,
-	requireDepartmentIds,
+	mergeDepartmentIds,
 	requireInteger,
 	requireObjectArray,
 	parseSchoolUserIdJson,
@@ -116,7 +116,13 @@ function buildStudentForCreate(
 			itemIndex,
 		),
 		name: requireCharacterText(context, entry.name, `${label}的学生姓名`, itemIndex, 32),
-		department: requireDepartmentIds(context, entry.department, `${label}的班级 ID 列表`, itemIndex),
+		department: mergeDepartmentIds(
+			context,
+			entry.department,
+			entry.departmentJson ?? entry.department_json ?? '[]',
+			`${label}的班级 ID 列表`,
+			itemIndex,
+		),
 	};
 	const mobile = optionalText(context, entry.mobile, `${label}的学生手机号`, itemIndex);
 	if (mobile !== undefined) student.mobile = mobile;
@@ -164,9 +170,10 @@ function buildStudentForUpdate(
 		updateCount++;
 	}
 	if (shouldInclude('department', 'update_department')) {
-		student.department = requireDepartmentIds(
+		student.department = mergeDepartmentIds(
 			context,
 			entry.department,
+			entry.departmentJson ?? entry.department_json ?? '[]',
 			`${label}的班级 ID 列表`,
 			itemIndex,
 		);
@@ -707,6 +714,7 @@ export async function executeSchool(
 							student_userid: this.getNodeParameter('student_userid', i),
 							name: this.getNodeParameter('name', i),
 							department: this.getNodeParameter('department', i),
+							departmentJson: this.getNodeParameter('departmentJson', i, '[]'),
 							mobile: this.getNodeParameter('mobile', i, ''),
 							to_invite: this.getNodeParameter('to_invite', i, true),
 						},
@@ -754,6 +762,7 @@ export async function executeSchool(
 							name: this.getNodeParameter('name', i, ''),
 							update_department: this.getNodeParameter('update_department', i, false),
 							department: this.getNodeParameter('department', i, ''),
+							departmentJson: this.getNodeParameter('departmentJson', i, '[]'),
 							update_mobile: this.getNodeParameter('update_mobile', i, false),
 							mobile: this.getNodeParameter('mobile', i, ''),
 						},

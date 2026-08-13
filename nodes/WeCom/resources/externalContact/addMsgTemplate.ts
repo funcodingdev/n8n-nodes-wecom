@@ -111,8 +111,16 @@ export const addMsgTemplateDescription: INodeProperties[] = [
 						name: 'tag_list',
 						type: 'string',
 						default: '',
-						description: '标签ID列表，用逗号分隔，每组最多指定100个标签',
+						description: '标签ID列表，用逗号分隔；与下方 JSON 合并，每组最多指定100个标签',
 						placeholder: 'ete19278asuMT123109rBAAAA,ete19MT12278109UYteaBAAAA',
+					},
+					{
+						displayName: '标签ID列表 JSON',
+						name: 'tag_list_json',
+						type: 'json',
+						default: '[]',
+						description:
+							'可选。非空数组时与上方列表合并去重。支持 ["etxxx"] 或 [{"tag_id":"etxxx"}]',
 					},
 				],
 			},

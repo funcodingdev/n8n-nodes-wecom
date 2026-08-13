@@ -85,18 +85,54 @@ export function requireSchoolContactId(
 	return requireByteText(context, value, label, itemIndex, 64);
 }
 
+function flattenDepartmentValues(value: unknown): string[] {
+	if (Array.isArray(value)) {
+		return value.flatMap((entry) => flattenDepartmentValues(entry));
+	}
+	return String(value ?? '')
+		.split(/[,，|\n\r]+/)
+		.map((entry) => entry.trim())
+		.filter(Boolean);
+}
+
+export function parseDepartmentIdJson(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): string[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	if (parsed.length === 0) return [];
+	return parsed.map((entry, index) => {
+		if (typeof entry === 'string' || typeof entry === 'number') return String(entry).trim();
+		if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+			const row = entry as Record<string, unknown>;
+			for (const key of ['departmentid', 'department_id', 'partyid', 'id']) {
+				if (row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== '') {
+					return String(row[key]).trim();
+				}
+			}
+		}
+		fail(context, `${label}第 ${index + 1} 项必须是正整数或含 departmentid 的对象`, itemIndex);
+	}).filter(Boolean);
+}
+
 export function requireDepartmentIds(
 	context: IExecuteFunctions,
 	value: unknown,
 	label: string,
 	itemIndex: number,
 ): number[] {
-	const rawValues = Array.isArray(value)
-		? value
-		: String(value ?? '')
-				.split(/[,，|\n\r]+/)
-				.map((entry) => entry.trim())
-				.filter(Boolean);
+	const rawValues = flattenDepartmentValues(value);
 	if (rawValues.length === 0) fail(context, `${label}不能为空`, itemIndex);
 
 	const departmentIds: number[] = [];
@@ -113,6 +149,21 @@ export function requireDepartmentIds(
 	}
 	if (departmentIds.length > 20) fail(context, `${label}不能超过 20 个`, itemIndex);
 	return departmentIds;
+}
+
+export function mergeDepartmentIds(
+	context: IExecuteFunctions,
+	primary: unknown,
+	jsonValue: unknown,
+	label: string,
+	itemIndex: number,
+): number[] {
+	return requireDepartmentIds(
+		context,
+		[primary, ...parseDepartmentIdJson(context, jsonValue, `${label} JSON`, itemIndex)],
+		label,
+		itemIndex,
+	);
 }
 
 function flattenSchoolListValues(value: unknown): string[] {

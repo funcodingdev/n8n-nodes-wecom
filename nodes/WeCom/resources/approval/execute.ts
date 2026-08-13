@@ -438,7 +438,16 @@ function buildApplicationContents(
 		} else if (control === 'RelatedApproval') {
 			const spNos = stringList(
 				context,
-				raw.related_sp_nos,
+				[
+					raw.related_sp_nos,
+					...parseStringIdJson(
+						context,
+						raw.related_sp_nos_json ?? '[]',
+						`第 ${index + 1} 个关联审批单号 JSON`,
+						itemIndex,
+						['sp_no', 'spno', 'id'],
+					),
+				],
 				`第 ${index + 1} 个关联审批单号`,
 				itemIndex,
 				1,
@@ -620,7 +629,16 @@ function buildTemplateControls(
 				fail(context, '选择器类型只能是 single 或 multi', itemIndex);
 			const options = stringList(
 				context,
-				raw.selector_options,
+				[
+					raw.selector_options,
+					...parseStringIdJson(
+						context,
+						raw.selector_options_json ?? '[]',
+						`第 ${index + 1} 个选择器选项 JSON`,
+						itemIndex,
+						['text', 'value', 'name', 'option'],
+					),
+				],
 				`第 ${index + 1} 个选择器选项`,
 				itemIndex,
 				1,

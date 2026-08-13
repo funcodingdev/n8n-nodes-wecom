@@ -2703,7 +2703,16 @@ export async function executeMeeting(
 				body.preparation_mode = this.getNodeParameter('preparation_mode', i, false) as boolean;
 				const sensitive_words = stringList(
 					this,
-					this.getNodeParameter('sensitive_words', i, ''),
+					[
+						this.getNodeParameter('sensitive_words', i, ''),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('sensitiveWordsJson', i, '[]'),
+							'聊天敏感词 JSON',
+							i,
+							['word', 'text', 'value'],
+						),
+					],
 					'聊天敏感词',
 					i,
 					0,
@@ -2975,7 +2984,16 @@ export async function executeMeeting(
 				body.preparation_mode = this.getNodeParameter('preparation_mode', i, false) as boolean;
 				const sensitive_words = stringList(
 					this,
-					this.getNodeParameter('sensitive_words', i, ''),
+					[
+						this.getNodeParameter('sensitive_words', i, ''),
+						...parseStringIdJson(
+							this,
+							this.getNodeParameter('sensitiveWordsJson', i, '[]'),
+							'聊天敏感词 JSON',
+							i,
+							['word', 'text', 'value'],
+						),
+					],
 					'聊天敏感词',
 					i,
 					0,

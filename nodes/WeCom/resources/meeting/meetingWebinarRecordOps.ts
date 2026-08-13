@@ -382,7 +382,18 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: '敏感词1,敏感词2',
-		description: 'sensitive_words，逗号分隔，最多 50 个，单词最长 10 个中文字符',
+		description: 'sensitive_words，逗号分隔；与下方 JSON 合并，最多 50 个，单词最长 10 个中文字符',
+	},
+	{
+		displayName: '聊天敏感词 JSON',
+		name: 'sensitiveWordsJson',
+		type: 'json',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['webinarCreate', 'webinarUpdate'] },
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["词1"] 或 [{"word":"词1"}]',
 	},
 	// media_setting
 	{

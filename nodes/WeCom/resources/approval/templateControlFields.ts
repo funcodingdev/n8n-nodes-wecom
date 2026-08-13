@@ -82,7 +82,16 @@ export const templateControlFields: INodeProperties[] = [
 		displayOptions: { show: { control: ['Selector'] } },
 		default: '',
 		placeholder: '选项1,选项2',
-		description: '支持逗号、中文逗号、竖线或换行分隔',
+		description: '支持逗号、中文逗号、竖线或换行分隔；与下方 JSON 合并',
+	},
+	{
+		displayName: '选项文字列表 JSON',
+		name: 'selector_options_json',
+		type: 'json',
+		displayOptions: { show: { control: ['Selector'] } },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["选项1"] 或 [{"text":"选项1"}]',
 	},
 	{
 		displayName: '日期类型',

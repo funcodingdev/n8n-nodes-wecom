@@ -326,7 +326,16 @@ export const submitApprovalDescription: INodeProperties[] = [
 						required: true,
 						displayOptions: { show: { control: ['RelatedApproval'] } },
 						placeholder: '202011180001,202011180002',
-						description: 'RelatedApproval.related_approval[].sp_no，逗号分隔',
+						description: 'RelatedApproval.related_approval[].sp_no，逗号分隔；与下方 JSON 合并',
+					},
+					{
+						displayName: '关联审批单号 JSON',
+						name: 'related_sp_nos_json',
+						type: 'json',
+						default: '[]',
+						displayOptions: { show: { control: ['RelatedApproval'] } },
+						description:
+							'可选。非空数组时与上方列表合并去重。支持 ["202011180001"] 或 [{"sp_no":"202011180001"}]',
 					},
 					{
 						displayName: '纬度',

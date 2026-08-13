@@ -73,7 +73,17 @@ export const chunkUploadOpsDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: show(['uploadInit']),
 		default: '',
-		description: '每个 2MiB 分块的累积 SHA-1（40 位十六进制），可用逗号、中文逗号、竖线或换行分隔',
+		description:
+			'每个 2MiB 分块的累积 SHA-1（40 位十六进制），可用逗号、中文逗号、竖线或换行分隔；与下方 JSON 合并',
+	},
+	{
+		displayName: '分块SHA列表 JSON',
+		name: 'blockShaJson',
+		type: 'json',
+		displayOptions: show(['uploadInit']),
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 ["sha1..."] 或 [{"sha":"sha1..."}]',
 	},
 	{
 		displayName: '跳过推送卡片',

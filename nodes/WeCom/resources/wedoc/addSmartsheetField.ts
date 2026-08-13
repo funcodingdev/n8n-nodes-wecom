@@ -70,8 +70,21 @@ export const addSmartsheetFieldDescription: INodeProperties[] = [
 								field_type: ['FIELD_TYPE_SINGLE_SELECT', 'FIELD_TYPE_SELECT'],
 							},
 						},
-						description: '选项列表，多个选项用英文逗号分隔',
+						description: '选项列表，多个选项用英文逗号分隔；与下方 JSON 合并',
 						placeholder: '例如: 选项1,选项2,选项3',
+					},
+					{
+						displayName: '选项列表 JSON',
+						name: 'select_options_json',
+						type: 'json',
+						default: '[]',
+						displayOptions: {
+							show: {
+								field_type: ['FIELD_TYPE_SINGLE_SELECT', 'FIELD_TYPE_SELECT'],
+							},
+						},
+						description:
+							'可选。非空数组时与上方列表合并去重。支持 ["选项1"] 或 [{"text":"选项1"}]',
 					},
 					{
 						displayName: '字段属性JSON',

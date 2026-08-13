@@ -39,7 +39,19 @@ export const createStudentDescription: INodeProperties[] = [
 		default: '',
 		placeholder: '1,2',
 		typeOptions: { rows: 2 },
-		description: '学生所在班级，最多 20 个正整数；支持逗号、中文逗号、竖线或换行分隔',
+		description:
+			'学生所在班级，最多 20 个正整数；与下方 JSON 合并；支持逗号、中文逗号、竖线或换行分隔',
+	},
+	{
+		displayName: '班级 ID 列表 JSON',
+		name: 'departmentJson',
+		type: 'json',
+		displayOptions: {
+			show: showOnly,
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表合并去重。支持 [1,2] 或 [{"departmentid":1}]',
 	},
 	{
 		displayName: '学生手机号',
