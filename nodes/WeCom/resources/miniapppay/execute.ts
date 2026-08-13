@@ -612,14 +612,19 @@ export async function executeMiniapppay(
 				const prepay_id = requireText(this, this.getNodeParameter('prepay_id', i), '预支付 ID', i, 1, 128);
 				const nonce = requireText(this, this.getNodeParameter('nonce', i), '随机字符串', i, 1, 32);
 				if (!/^[A-Za-z0-9]+$/.test(nonce)) fail(this, '随机字符串只能包含数字和字母', i);
-				let timestamp = requireInteger(
-					this,
-					this.getNodeParameter('timestamp', i, 0),
-					'时间戳',
-					i,
-					0,
-					4294967295,
-				);
+				const rawTimestamp = this.getNodeParameter('timestamp', i, '');
+				let timestamp = 0;
+				if (rawTimestamp !== undefined && rawTimestamp !== null && String(rawTimestamp).trim() !== '') {
+					const raw = String(rawTimestamp).trim();
+					timestamp = /^\d+$/.test(raw)
+						? Number(raw)
+						: Math.floor(Date.parse(raw) / 1000);
+					if (!Number.isSafeInteger(timestamp) || timestamp < 1 || timestamp > 4294967295) {
+						fail(this, '时间戳不是有效的日期时间', i);
+					}
+				} else {
+					timestamp = Math.floor(Date.now() / 1000);
+				}
 				const sign_type = requireText(
 					this,
 					this.getNodeParameter('sign_type', i, 'RSA'),
@@ -629,7 +634,6 @@ export async function executeMiniapppay(
 					32,
 				);
 				if (sign_type !== 'RSA') fail(this, '签名类型仅支持 RSA', i);
-				if (!timestamp) timestamp = Math.floor(Date.now() / 1000);
 
 				const body: IDataObject = { appid, prepay_id, nonce, timestamp };
 				if (sign_type) body.sign_type = sign_type;

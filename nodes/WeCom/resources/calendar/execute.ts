@@ -143,12 +143,20 @@ function publicRange(
 	context: IExecuteFunctions,
 	value: IDataObject,
 	itemIndex: number,
+	extraUserids: unknown = '',
+	extraPartyids: unknown = '',
 ): IDataObject | undefined {
-	const userids = stringList(context, value.userids, '公开成员', itemIndex, 0, 1000).map((userid) =>
+	const userSources: unknown[] = [extraUserids];
+	if (Array.isArray(value.userids)) userSources.push(...value.userids);
+	else if (value.userids !== undefined && value.userids !== null) userSources.push(value.userids);
+	const partySources: unknown[] = [extraPartyids];
+	if (Array.isArray(value.partyids)) partySources.push(...value.partyids);
+	else if (value.partyids !== undefined && value.partyids !== null) partySources.push(value.partyids);
+	const userids = stringList(context, userSources, '公开成员', itemIndex, 0, 1000).map((userid) =>
 		text(context, userid, '公开成员 UserID', itemIndex, 64),
 	);
-	const partyids = stringList(context, value.partyids, '公开部门', itemIndex, 0, 100).map(
-		(partyId) => integer(context, partyId, '公开部门 ID', itemIndex, 1, MAX_UINT32),
+	const partyids = stringList(context, partySources, '公开部门', itemIndex, 0, 100).map((partyId) =>
+		integer(context, partyId, '公开部门 ID', itemIndex, 1, MAX_UINT32),
 	);
 	if (!userids.length && !partyids.length) return undefined;
 	const range: IDataObject = {};
@@ -288,7 +296,13 @@ export async function executeCalendar(
 				const isCorpCalendar = this.getNodeParameter('isCorpCalendar', i, false) as boolean;
 				const isPublicCalendar = this.getNodeParameter('isPublicCalendar', i, false) as boolean;
 				const advanced = this.getNodeParameter('advancedSettings', i, {}) as IDataObject;
-				const range = publicRange(this, (advanced.publicRange as IDataObject) || {}, i);
+				const range = publicRange(
+					this,
+					(advanced.publicRange as IDataObject) || {},
+					i,
+					this.getNodeParameter('public_userids', i, ''),
+					this.getNodeParameter('public_partyids', i, ''),
+				);
 				if (isCorpCalendar && !range) fail(this, '创建全员日历时必须指定公开范围', i);
 				const shares = calendarShares(
 					this,
@@ -365,7 +379,10 @@ export async function executeCalendar(
 				calendar.color = color.toUpperCase();
 				const admins = stringList(
 					this,
-					this.getNodeParameter('admins', i, []),
+					[
+						this.getNodeParameter('admin_userids', i, ''),
+						...(this.getNodeParameter('admins', i, []) as string[]),
+					],
 					'日历管理员',
 					i,
 					0,
@@ -384,6 +401,8 @@ export async function executeCalendar(
 						this,
 						this.getNodeParameter('publicRange', i, {}) as IDataObject,
 						i,
+						this.getNodeParameter('public_userids', i, ''),
+						this.getNodeParameter('public_partyids', i, ''),
 					);
 					if (range) calendar.public_range = range;
 				}

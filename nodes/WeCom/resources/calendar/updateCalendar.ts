@@ -66,7 +66,18 @@ export const updateCalendarDescription: INodeProperties[] = [
 		description: '日历颜色，RGB颜色编码16进制表示，例如："#0000FF" 表示纯蓝色',
 	},
 	{
-		displayName: '管理员列表',
+		displayName: '管理员UserID列表',
+		name: 'admin_userids',
+		type: 'string',
+		displayOptions: {
+			show: showOnlyForUpdate,
+		},
+		default: '',
+		placeholder: 'zhangsan,lisi',
+		description: '日历管理员 userid，逗号分隔，最多 3 人；与下方选择合并',
+	},
+	{
+		displayName: '管理员列表(选择)',
 		name: 'admins',
 		type: 'multiOptions',
 		displayOptions: {
@@ -76,7 +87,7 @@ export const updateCalendarDescription: INodeProperties[] = [
 			loadOptionsMethod: 'getAllUsers',
 		},
 		default: [],
-		description: '日历的管理员userid列表。最多指定3人',
+		description: '日历的管理员，最多 3 人',
 	},
 	{
 		displayName: '是否不更新可订阅范围',
@@ -89,7 +100,35 @@ export const updateCalendarDescription: INodeProperties[] = [
 		description: '是否不更新可订阅范围。默认会为否，会更新可订阅范围',
 	},
 	{
-		displayName: '公开范围',
+		displayName: '公开成员UserID列表',
+		name: 'public_userids',
+		type: 'string',
+		displayOptions: {
+			show: {
+				...showOnlyForUpdate,
+				skip_public_range: [false],
+			},
+		},
+		default: '',
+		placeholder: 'zhangsan,lisi',
+		description: '公共日历公开成员，逗号分隔，最多 1000；与下方选择合并',
+	},
+	{
+		displayName: '公开部门ID列表',
+		name: 'public_partyids',
+		type: 'string',
+		displayOptions: {
+			show: {
+				...showOnlyForUpdate,
+				skip_public_range: [false],
+			},
+		},
+		default: '',
+		placeholder: '1,2',
+		description: '公共日历公开部门，逗号分隔，最多 100；与下方选择合并',
+	},
+	{
+		displayName: '公开范围(选择)',
 		name: 'publicRange',
 		type: 'collection',
 		displayOptions: {
@@ -100,7 +139,7 @@ export const updateCalendarDescription: INodeProperties[] = [
 		},
 		default: {},
 		placeholder: '添加公开范围',
-		description: '公开范围。仅当是公共日历时有效',
+		description: '公开范围。仅当是公共日历时有效；可与上方 ID 列表合并',
 		options: [
 			{
 				displayName: '公开成员列表',

@@ -672,11 +672,10 @@ export const miniapppayDescription: INodeProperties[] = [
 	{
 		displayName: '时间戳',
 		name: 'timestamp',
-		type: 'number',
-		required: true,
+		type: 'dateTime',
 		displayOptions: { show: { ...showOnly, operation: ['getSign'] } },
-		default: 0,
-		description: '秒级时间戳；0 表示使用当前时间',
+		default: '',
+		description: '签名时间（Unix 秒）；留空表示使用当前时间',
 	},
 	{
 		displayName: '签名类型',

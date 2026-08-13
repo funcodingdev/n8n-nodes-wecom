@@ -163,6 +163,29 @@ export const createCalendarDescription: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: '公开成员UserID列表',
+		name: 'public_userids',
+		type: 'string',
+		displayOptions: {
+			show: showOnlyForCreate,
+		},
+		default: '',
+		placeholder: 'zhangsan,lisi',
+		description:
+			'公共/全员日历公开成员，逗号分隔，最多 1000；与高级设置中的选择合并。创建全员日历时必须指定公开范围',
+	},
+	{
+		displayName: '公开部门ID列表',
+		name: 'public_partyids',
+		type: 'string',
+		displayOptions: {
+			show: showOnlyForCreate,
+		},
+		default: '',
+		placeholder: '1,2',
+		description: '公共/全员日历公开部门，逗号分隔，最多 100；与高级设置中的选择合并',
+	},
+	{
 		displayName: '高级设置',
 		name: 'advancedSettings',
 		type: 'collection',
@@ -181,13 +204,13 @@ export const createCalendarDescription: INodeProperties[] = [
 				description: '授权方安装的应用agentid。仅旧的第三方多应用套件需要填此参数',
 			},
 			{
-				displayName: '公开范围',
+				displayName: '公开范围(选择)',
 				name: 'publicRange',
 				type: 'collection',
 				default: {},
 				placeholder: '添加公开范围',
 				description:
-					'公开范围，仅当是公共日历时有效。&lt;strong&gt;创建全员日历时必须指定公开范围&lt;/strong&gt;。可以选择公开成员列表、公开部门列表，或两者都选',
+					'公开范围，仅当是公共日历时有效。&lt;strong&gt;创建全员日历时必须指定公开范围&lt;/strong&gt;。可与上方 ID 列表合并',
 				options: [
 					{
 						displayName: '公开成员列表',

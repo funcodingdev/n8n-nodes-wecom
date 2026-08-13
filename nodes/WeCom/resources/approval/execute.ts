@@ -23,6 +23,7 @@ const APPLICATION_CONTROLS = new Set([
 	'Vacation',
 	'Attendance',
 	'Table',
+	'Formula',
 ]);
 const TEMPLATE_CONTROLS = new Set([
 	'Text',
@@ -440,6 +441,10 @@ function buildApplicationContents(
 				}
 			}
 			value.children = children as IDataObject[];
+		} else if (control === 'Formula') {
+			value.formula = {
+				value: text(context, raw.formula_value, `第 ${index + 1} 个公式结果`, itemIndex, 128),
+			};
 		}
 		contents.push({ control, id, value });
 	}

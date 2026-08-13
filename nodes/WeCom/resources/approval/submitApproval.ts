@@ -54,7 +54,7 @@ export const submitApprovalDescription: INodeProperties[] = [
 		placeholder: '添加控件值',
 		typeOptions: { multipleValues: true },
 		description:
-			'简易控件表单：Text/Number/Money/Date/DateRange/Selector/Contact/File/RelatedApproval/Location/Vacation/Attendance/Table；更复杂结构用下方 JSON',
+			'简易控件表单：Text/Number/Money/Date/DateRange/Selector/Contact/File/RelatedApproval/Location/Vacation/Attendance/Table/Formula；更复杂结构用下方 JSON',
 		options: [
 			{
 				displayName: '控件',
@@ -81,6 +81,7 @@ export const submitApprovalDescription: INodeProperties[] = [
 							{ name: '请假 Vacation', value: 'Vacation' },
 							{ name: '出差/外出/加班 Attendance', value: 'Attendance' },
 							{ name: '明细 Table', value: 'Table' },
+							{ name: '公式 Formula', value: 'Formula' },
 						],
 						default: 'Text',
 					},
@@ -378,6 +379,16 @@ export const submitApprovalDescription: INodeProperties[] = [
 						displayOptions: { show: { control: ['Table'] } },
 						description:
 							'Table.value.children 数组；每项为 {"list":[{control,id,value},...]}，至少一行',
+					},
+					{
+						displayName: '公式结果',
+						name: 'formula_value',
+						type: 'string',
+						default: '',
+						required: true,
+						displayOptions: { show: { control: ['Formula'] } },
+						placeholder: '5.0',
+						description: 'Formula.formula.value，计算结果字符串',
 					},
 				],
 			},
