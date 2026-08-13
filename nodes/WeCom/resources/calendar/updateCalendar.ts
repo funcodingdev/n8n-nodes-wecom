@@ -114,6 +114,20 @@ export const updateCalendarDescription: INodeProperties[] = [
 		description: '公共日历公开成员，逗号分隔，最多 1000；与下方选择合并',
 	},
 	{
+		displayName: '公开成员(选择)',
+		name: 'public_userids_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: {
+				...showOnlyForUpdate,
+				skip_public_range: [false],
+			},
+		},
+		default: [],
+		description: '与上方公开成员列表合并去重',
+	},
+	{
 		displayName: '公开部门ID列表',
 		name: 'public_partyids',
 		type: 'string',
@@ -126,6 +140,20 @@ export const updateCalendarDescription: INodeProperties[] = [
 		default: '',
 		placeholder: '1,2',
 		description: '公共日历公开部门，逗号分隔，最多 100；与下方选择合并',
+	},
+	{
+		displayName: '公开部门(选择)',
+		name: 'public_partyids_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getDepartments' },
+		displayOptions: {
+			show: {
+				...showOnlyForUpdate,
+				skip_public_range: [false],
+			},
+		},
+		default: [],
+		description: '与上方公开部门列表合并去重',
 	},
 	{
 		displayName: '公开范围(选择)',
@@ -172,10 +200,21 @@ export const updateCalendarDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'zhangsan,lisi',
-		description: '通知成员 userid，逗号分隔，最多 2000；默认权限「可查看」；与下方选择合并',
+		description: '通知成员 userid，逗号分隔，最多 2000；默认权限「可查看」；与下方选择/集合合并',
 	},
 	{
-		displayName: '日历通知范围(选择)',
+		displayName: '通知范围成员(选择)',
+		name: 'share_userids_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: showOnlyForUpdate,
+		},
+		default: [],
+		description: '与上方列表合并去重；默认权限「可查看」',
+	},
+	{
+		displayName: '日历通知范围(兼容集合)',
 		name: 'sharesCollection',
 		type: 'fixedCollection',
 		displayOptions: {

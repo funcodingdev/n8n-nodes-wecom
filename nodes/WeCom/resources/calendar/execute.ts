@@ -310,15 +310,24 @@ export async function executeCalendar(
 					this,
 					(advanced.publicRange as IDataObject) || {},
 					i,
-					this.getNodeParameter('public_userids', i, ''),
-					this.getNodeParameter('public_partyids', i, ''),
+					[
+						this.getNodeParameter('public_userids', i, ''),
+						this.getNodeParameter('public_userids_selected', i, []),
+					],
+					[
+						this.getNodeParameter('public_partyids', i, ''),
+						this.getNodeParameter('public_partyids_selected', i, []),
+					],
 				);
 				if (isCorpCalendar && !range) fail(this, '创建全员日历时必须指定公开范围', i);
 				const shares = calendarShares(
 					this,
 					this.getNodeParameter('sharesCollection', i, {}) as IDataObject,
 					i,
-					this.getNodeParameter('share_userids', i, ''),
+					[
+						this.getNodeParameter('share_userids', i, ''),
+						this.getNodeParameter('share_userids_selected', i, []),
+					],
 				);
 				if (admins.length) {
 					const shareUserids = new Set(shares.map((share) => String(share.userid)));
@@ -404,7 +413,10 @@ export async function executeCalendar(
 					this,
 					this.getNodeParameter('sharesCollection', i, {}) as IDataObject,
 					i,
-					this.getNodeParameter('share_userids', i, ''),
+					[
+						this.getNodeParameter('share_userids', i, ''),
+						this.getNodeParameter('share_userids_selected', i, []),
+					],
 				);
 				if (shares.length) calendar.shares = shares;
 				const skipRange = this.getNodeParameter('skip_public_range', i, false) as boolean;
@@ -413,8 +425,14 @@ export async function executeCalendar(
 						this,
 						this.getNodeParameter('publicRange', i, {}) as IDataObject,
 						i,
-						this.getNodeParameter('public_userids', i, ''),
-						this.getNodeParameter('public_partyids', i, ''),
+						[
+							this.getNodeParameter('public_userids', i, ''),
+							this.getNodeParameter('public_userids_selected', i, []),
+						],
+						[
+							this.getNodeParameter('public_partyids', i, ''),
+							this.getNodeParameter('public_partyids_selected', i, []),
+						],
 					);
 					if (range) calendar.public_range = range;
 				}
