@@ -36,7 +36,19 @@ export const sendTextDescription: INodeProperties[] = [
 			'文本消息内容，最长不超过 2048 字节。支持换行，换行请使用 \\n。<a href="https://developer.work.weixin.qq.com/document/path/90248" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '@提醒成员',
+		displayName: '@提醒成员UserID',
+		name: 'mentionedList_manual',
+		type: 'string',
+		displayOptions: {
+			show: showOnlyForSendText,
+		},
+		default: '',
+		placeholder: 'wangqing,zhangsan 或 @all',
+		description:
+			'UserID 列表，逗号/竖线/换行分隔；@all 表示提醒所有人；与下方选择合并。<a href="https://developer.work.weixin.qq.com/document/path/90248" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '@提醒成员(选择)',
 		name: 'mentionedList',
 		type: 'multiOptions',
 		typeOptions: {
@@ -46,8 +58,7 @@ export const sendTextDescription: INodeProperties[] = [
 			show: showOnlyForSendText,
 		},
 		default: [],
-		description:
-			'可选。支持从下拉列表选择群成员，也支持切换到表达式后输入 UserID 数组或字符串。下拉列表第一项为“所有人”。<a href="https://developer.work.weixin.qq.com/document/path/90248" target="_blank">官方文档</a>',
+		description: '与上方列表合并去重；含「所有人」选项（@all）',
 	},
 	{
 		displayName: '保密消息',

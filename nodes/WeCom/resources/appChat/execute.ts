@@ -97,33 +97,33 @@ export async function executeAppChat(
 	};
 	const normalizeMentionedUsers = (value: unknown, itemIndex: number): string[] => {
 		let values: string[] = [];
-		if (Array.isArray(value)) {
-			values = value
-				.map((item) => String(item).trim())
-				.filter(Boolean);
-		} else if (typeof value === 'string') {
-			const trimmed = value.trim();
-			if (!trimmed) {
-				return [];
+		const collect = (entry: unknown) => {
+			if (entry === undefined || entry === null) return;
+			if (Array.isArray(entry)) {
+				for (const item of entry) collect(item);
+				return;
 			}
-
-			if (trimmed.startsWith('[')) {
-				try {
-					const parsed = JSON.parse(trimmed) as unknown;
-					if (Array.isArray(parsed)) {
-						values = parsed
-							.map((item) => String(item).trim())
-							.filter(Boolean);
+			if (typeof entry === 'string') {
+				const trimmed = entry.trim();
+				if (!trimmed) return;
+				if (trimmed.startsWith('[')) {
+					try {
+						const parsed = JSON.parse(trimmed) as unknown;
+						if (Array.isArray(parsed)) {
+							for (const item of parsed) collect(item);
+							return;
+						}
+					} catch (error) {
+						void error;
 					}
-				} catch (error) {
-					void error;
 				}
+				values.push(...parseDelimitedList(trimmed, '@提醒成员', 2000, itemIndex));
+				return;
 			}
-
-			if (values.length === 0) {
-				values = parseDelimitedList(trimmed, '@提醒成员', 2000, itemIndex);
-			}
-		}
+			const text = String(entry).trim();
+			if (text) values.push(text);
+		};
+		collect(value);
 
 		const normalized = [...new Set(values)];
 		if (normalized.includes('@all')) return ['@all'];
@@ -331,9 +331,10 @@ export async function executeAppChat(
 				if (operation === 'sendText') {
 					const content = this.getNodeParameter('content', i) as string;
 					const safe = this.getNodeParameter('safe', i, false) as boolean;
-					const mentionedList = this.getNodeParameter('mentionedList', i, []) as
-						| string
-						| string[];
+					const mentionedList = [
+						this.getNodeParameter('mentionedList_manual', i, ''),
+						this.getNodeParameter('mentionedList', i, []),
+					] as Array<string | string[]>;
 					const text: IDataObject = {
 						content,
 					};
