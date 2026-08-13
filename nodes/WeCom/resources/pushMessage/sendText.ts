@@ -30,7 +30,20 @@ export const sendTextDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'wangqing,zhangsan 或 @all',
-		description: 'Userid 列表，提醒群中的指定成员。多个成员可用逗号、竖线或换行分隔，@all 表示提醒所有人。示例：wangqing,zhangsan 或 @all。<a href="https://developer.work.weixin.qq.com/document/path/99110#%E6%96%87%E6%9C%AC%E7%B1%BB%E5%9E%8B" target="_blank">官方文档</a>',
+		description: 'Userid 列表，提醒群中的指定成员。多个成员可用逗号、竖线或换行分隔，@all 表示提醒所有人；与下方选择合并。<a href="https://developer.work.weixin.qq.com/document/path/99110#%E6%96%87%E6%9C%AC%E7%B1%BB%E5%9E%8B" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '@ 成员(选择)',
+		name: 'mentionedList_selected',
+		type: 'multiOptions',
+		typeOptions: {
+			loadOptionsMethod: 'getAllUsersWithAllOption',
+		},
+		displayOptions: {
+			show: showOnlyForSendText,
+		},
+		default: [],
+		description: '与上方列表合并去重；含「所有人」选项（@all）',
 	},
 	{
 		displayName: '@ 成员（手机号）',

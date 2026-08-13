@@ -59,12 +59,22 @@ export async function executePushMessage(
 		return text;
 	};
 	const normalizeDelimitedList = (value: unknown): string[] => {
-		const values = [...new Set(
-			String(value ?? '')
-				.split(/[,|\n]/)
-				.map((entry) => entry.trim())
-				.filter(Boolean),
-		)];
+		const rawParts: string[] = [];
+		const push = (entry: unknown) => {
+			if (entry === undefined || entry === null) return;
+			if (Array.isArray(entry)) {
+				for (const item of entry) push(item);
+				return;
+			}
+			const text = String(entry).trim();
+			if (!text) return;
+			for (const part of text.split(/[,|\n]+/)) {
+				const normalized = part.trim();
+				if (normalized) rawParts.push(normalized);
+			}
+		};
+		push(value);
+		const values = [...new Set(rawParts)];
 		return values.includes('@all') ? ['@all'] : values;
 	};
 	const ensureOptionalByteLength = (
@@ -433,7 +443,10 @@ export async function executePushMessage(
 					2048,
 					i,
 				);
-				const mentionedList = this.getNodeParameter('mentionedList', i, '') as string;
+				const mentionedList = normalizeDelimitedList([
+					this.getNodeParameter('mentionedList', i, ''),
+					this.getNodeParameter('mentionedList_selected', i, []),
+				]);
 				const mentionedMobileList = this.getNodeParameter('mentionedMobileList', i, '') as string;
 
 				const textBody: IDataObject = {
@@ -441,11 +454,8 @@ export async function executePushMessage(
 				};
 
 				// 处理 mentioned_list
-				if (mentionedList.trim()) {
-					const mentioned = normalizeDelimitedList(mentionedList);
-					if (mentioned.length > 0) {
-						textBody.mentioned_list = mentioned;
-					}
+				if (mentionedList.length > 0) {
+					textBody.mentioned_list = mentionedList;
 				}
 
 				// 处理 mentioned_mobile_list
