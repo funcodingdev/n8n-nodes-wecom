@@ -418,7 +418,12 @@ export async function executeAgent(
 							'/cgi-bin/agent/set_workbench_data',
 							{
 								agentid,
-								userid: requireText(this.getNodeParameter('userid', i), '用户 ID', i),
+								userid: requireText(
+									this.getNodeParameter('userid', i, '') ||
+										this.getNodeParameter('userid_selected', i, ''),
+									'用户 ID',
+									i,
+								),
 								type,
 								[type]: templateData,
 							},
@@ -450,7 +455,12 @@ export async function executeAgent(
 						'/cgi-bin/agent/get_workbench_data',
 						{
 							agentid: getAgentId(i),
-							userid: requireText(this.getNodeParameter('userid', i), '用户 ID', i),
+							userid: requireText(
+									this.getNodeParameter('userid', i, '') ||
+										this.getNodeParameter('userid_selected', i, ''),
+									'用户 ID',
+									i,
+								),
 						},
 					);
 					break;

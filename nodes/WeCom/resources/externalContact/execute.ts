@@ -395,13 +395,15 @@ export async function executeExternalContact(
 			} else if (operation === 'transferResult') {
 				const handover_userid = requireText(
 					this,
-					this.getNodeParameter('handover_userid', i),
+					this.getNodeParameter('handover_userid', i, '') ||
+						this.getNodeParameter('handover_userid_selected', i, ''),
 					'原成员 UserID',
 					i,
 				);
 				const takeover_userid = requireText(
 					this,
-					this.getNodeParameter('takeover_userid', i),
+					this.getNodeParameter('takeover_userid', i, '') ||
+						this.getNodeParameter('takeover_userid_selected', i, ''),
 					'接替成员 UserID',
 					i,
 				);
@@ -475,13 +477,15 @@ export async function executeExternalContact(
 			} else if (operation === 'resignedTransferCustomer') {
 				const handover_userid = requireText(
 					this,
-					this.getNodeParameter('handover_userid', i),
+					this.getNodeParameter('handover_userid', i, '') ||
+						this.getNodeParameter('handover_userid_selected', i, ''),
 					'离职成员 UserID',
 					i,
 				);
 				const takeover_userid = requireText(
 					this,
-					this.getNodeParameter('takeover_userid', i),
+					this.getNodeParameter('takeover_userid', i, '') ||
+						this.getNodeParameter('takeover_userid_selected', i, ''),
 					'接替成员 UserID',
 					i,
 				);
@@ -507,13 +511,15 @@ export async function executeExternalContact(
 			} else if (operation === 'resignedTransferResult') {
 				const handover_userid = requireText(
 					this,
-					this.getNodeParameter('handover_userid', i),
+					this.getNodeParameter('handover_userid', i, '') ||
+						this.getNodeParameter('handover_userid_selected', i, ''),
 					'离职成员 UserID',
 					i,
 				);
 				const takeover_userid = requireText(
 					this,
-					this.getNodeParameter('takeover_userid', i),
+					this.getNodeParameter('takeover_userid', i, '') ||
+						this.getNodeParameter('takeover_userid_selected', i, ''),
 					'接替成员 UserID',
 					i,
 				);

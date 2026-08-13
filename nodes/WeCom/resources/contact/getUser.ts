@@ -11,13 +11,23 @@ export const getUserDescription: INodeProperties[] = [
 		name: 'userid',
 		type: 'string',
 		placeholder: 'zhangsan',
-		required: true,
 		default: '',
 		displayOptions: {
 			show: showOnlyGetUser,
 		},
 		description:
-			'成员 UserID。应用只能获取可见范围内的成员信息；自 2022-06-20 起新创建自建/代开发应用不再默认返回头像、性别、手机、邮箱等敏感字段。<a href="https://developer.work.weixin.qq.com/document/path/90196" target="_blank">官方文档</a>',
+			'成员 UserID。应用只能获取可见范围内的成员信息；自 2022-06-20 起新创建自建/代开发应用不再默认返回头像、性别、手机、邮箱等敏感字段。<a href="https://developer.work.weixin.qq.com/document/path/90196" target="_blank">官方文档</a>；可与下方选择二选一',
+	},
+	{
+		displayName: '成员(选择)',
+		name: 'userid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		default: '',
+		displayOptions: {
+			show: showOnlyGetUser,
+		},
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 ];
 

@@ -10,12 +10,22 @@ export const setVacationQuotaDescription: INodeProperties[] = [
 		displayName: '成员UserID',
 		name: 'userid',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: showOnlyForSetVacationQuota,
 		},
 		default: '',
-		description: '要修改假期余额的成员UserID',
+		description: '要修改假期余额的成员UserID；可与下方选择二选一',
+	},
+	{
+		displayName: '成员(选择)',
+		name: 'userid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		default: '',
+		displayOptions: {
+			show: showOnlyForSetVacationQuota,
+		},
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '假期配置ID',

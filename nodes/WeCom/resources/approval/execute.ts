@@ -840,7 +840,14 @@ export async function executeApproval(
 					'POST',
 					'/cgi-bin/oa/vacation/getuservacationquota',
 					{
-						userid: text(this, this.getNodeParameter('userid', i), '成员 UserID', i, 64),
+						userid: text(
+							this,
+							this.getNodeParameter('userid', i, '') ||
+								this.getNodeParameter('userid_selected', i, ''),
+							'成员 UserID',
+							i,
+							64,
+						),
 					},
 				);
 			} else if (operation === 'setVacationQuota') {
@@ -865,7 +872,14 @@ export async function executeApproval(
 					fail(this, `剩余假期时长必须是 ${step} 秒的整数倍`, i);
 				}
 				const body: IDataObject = {
-					userid: text(this, this.getNodeParameter('userid', i), '成员 UserID', i, 64),
+					userid: text(
+						this,
+						this.getNodeParameter('userid', i, '') ||
+							this.getNodeParameter('userid_selected', i, ''),
+						'成员 UserID',
+						i,
+						64,
+					),
 					vacation_id: integer(
 						this,
 						this.getNodeParameter('vacation_id', i),

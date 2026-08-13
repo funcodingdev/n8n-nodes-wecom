@@ -58,7 +58,9 @@ export async function executeContact(
 			let response: IDataObject;
 
 			if (operation === 'getUser') {
-				const userid = this.getNodeParameter('userid', i) as string;
+				const userid =
+					(this.getNodeParameter('userid', i, '') as string) ||
+					(this.getNodeParameter('userid_selected', i, '') as string);
 				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/user/get', {}, { userid });
 			} else if (operation === 'listUsers') {
 				const department_id = this.getNodeParameter('department_id', i, '1') as string;
@@ -110,7 +112,9 @@ export async function executeContact(
 
 				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/department/list', {}, qs);
 			} else if (operation === 'convertToOpenid') {
-				const userid = this.getNodeParameter('userid', i) as string;
+				const userid =
+					(this.getNodeParameter('userid', i, '') as string) ||
+					(this.getNodeParameter('userid_selected', i, '') as string);
 				response = await weComApiRequest.call(
 					this,
 					'POST',
@@ -134,7 +138,9 @@ export async function executeContact(
 					{ tmp_external_userid },
 				);
 			} else if (operation === 'authSucc') {
-				const userid = this.getNodeParameter('userid', i) as string;
+				const userid =
+					(this.getNodeParameter('userid', i, '') as string) ||
+					(this.getNodeParameter('userid_selected', i, '') as string);
 				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/user/authsucc', {}, { userid });
 			} else if (operation === 'getTagList') {
 				const tag_type = this.getNodeParameter('tag_type', i, '') as string;
@@ -451,7 +457,9 @@ export async function executeContact(
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/user/update', body);
 			} else if (operation === 'deleteUser') {
-				const userid = this.getNodeParameter('userid', i) as string;
+				const userid =
+					(this.getNodeParameter('userid', i, '') as string) ||
+					(this.getNodeParameter('userid_selected', i, '') as string);
 				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/user/delete', {}, { userid });
 			} else if (operation === 'batchDeleteUser') {
 				const useridArray = splitCsv(
