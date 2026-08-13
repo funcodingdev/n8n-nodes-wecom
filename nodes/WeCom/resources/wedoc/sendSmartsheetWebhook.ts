@@ -59,12 +59,10 @@ export const sendSmartsheetWebhookDescription: INodeProperties[] = [
 		description: '完整请求体，须含 add_records 或 update_records',
 	},
 	{
-		displayName: '说明',
+		displayName: '也可在输入数据中提供 webhook_url。内容必须为 UTF-8，字段值结构见智能表格「接收外部数据」示例。',
 		name: 'sendSmartsheetWebhookNotice',
 		type: 'notice',
 		default: '',
 		displayOptions: { show: showOnly },
-		description:
-			'也可在输入数据中提供 webhook_url。内容必须为 UTF-8，字段值结构见智能表格「接收外部数据」示例。',
 	},
 ];

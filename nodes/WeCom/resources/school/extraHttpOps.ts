@@ -280,12 +280,11 @@ export const schoolExtraHttpOpsDescription: INodeProperties[] = [
 		displayOptions: { show: show(['departmentUpdate', 'departmentDelete']) },
 	},
 	{
-		displayName: '删除提示',
+		displayName: '不能删除根部门，也不能删除仍含子部门或成员的部门。删除成功后不可恢复。',
 		name: 'departmentDeleteNotice',
 		type: 'notice',
 		default: '',
 		displayOptions: { show: show(['departmentDelete']) },
-		description: '不能删除根部门，也不能删除仍含子部门或成员的部门。删除成功后不可恢复。',
 	},
 	{
 		displayName: '修改部门名称',
@@ -445,22 +444,20 @@ export const schoolExtraHttpOpsDescription: INodeProperties[] = [
 		description: '网页授权回调 Code，最多 512 个 UTF-8 字节，只能使用一次且 5 分钟后过期',
 	},
 	{
-		displayName: 'Code 使用提示',
+		displayName: '每次授权返回的 Code 均不同，只能使用一次，并会在 5 分钟后自动过期。',
 		name: 'schoolCodeNotice',
 		type: 'notice',
 		default: '',
 		displayOptions: { show: show(['getuserinfo']) },
-		description: '每次授权返回的 Code 均不同，只能使用一次，并会在 5 分钟后自动过期。',
 	},
 	{
-		displayName: '兼容操作提示',
+		displayName: '这是为旧工作流保留的兼容操作。新工作流请使用上方“家校沟通”分组中的直播详情或 V2 统计操作。',
 		name: 'schoolLivingCompatibilityNotice',
 		type: 'notice',
 		default: '',
 		displayOptions: {
 			show: show(['livingGetLivingInfo', 'livingGetUnwatchStat', 'livingGetWatchStat']),
 		},
-		description: '这是为旧工作流保留的兼容操作。新工作流请使用上方“家校沟通”分组中的直播详情或 V2 统计操作。',
 	},
 	{
 		displayName: '直播 ID',
@@ -494,12 +491,11 @@ export const schoolExtraHttpOpsDescription: INodeProperties[] = [
 		displayOptions: { show: show(['setArchSyncMode']) },
 	},
 	{
-		displayName: '同步影响提示',
+		displayName: '该设置会改变企业标签与家校通讯录之间的同步方向，请确认现有同步策略后执行。',
 		name: 'archSyncNotice',
 		type: 'notice',
 		default: '',
 		displayOptions: { show: show(['setArchSyncMode']) },
-		description: '该设置会改变企业标签与家校通讯录之间的同步方向，请确认现有同步策略后执行。',
 	},
 	{
 		displayName: '班级群创建方式',

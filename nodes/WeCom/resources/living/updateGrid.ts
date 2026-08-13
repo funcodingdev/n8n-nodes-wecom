@@ -70,14 +70,13 @@ export const updateGridDescription: INodeProperties[] = [
 		description: '关闭时保留现有网格成员；开启后按下方列表全量更新',
 	},
 	{
-		displayName: '成员更新提示',
+		displayName: '网格成员列表为全量更新。留空会清空所有成员，非空时最多 100 个。',
 		name: 'gridMemberUpdateNotice',
 		type: 'notice',
 		displayOptions: {
 			show: { ...showOnlyForUpdateGrid, update_grid_member: [true] },
 		},
 		default: '',
-		description: '网格成员列表为全量更新。留空会清空所有成员，非空时最多 100 个。',
 	},
 	{
 		displayName: '网格成员UserID列表',

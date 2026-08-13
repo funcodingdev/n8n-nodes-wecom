@@ -151,12 +151,11 @@ function attachmentsProperty(
 
 export const manageKnowledgeIntentDescription: INodeProperties[] = [
 	{
-		displayName: '权限与数量限制',
+		displayName: '仅企业内部开发支持知识库管理；第三方及代开发应用暂不支持。不同分组的问题不能重复，每个分组最多 200 个问答。<a href="https://developer.work.weixin.qq.com/document/path/95972" target="_blank">官方文档</a>',
 		name: 'knowledgeIntentNotice',
 		type: 'notice',
 		displayOptions: { show: showOnly },
 		default: '',
-		description: '仅企业内部开发支持知识库管理；第三方及代开发应用暂不支持。不同分组的问题不能重复，每个分组最多 200 个问答。<a href="https://developer.work.weixin.qq.com/document/path/95972" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '操作类型',
@@ -173,12 +172,11 @@ export const manageKnowledgeIntentDescription: INodeProperties[] = [
 		default: 'list',
 	},
 	{
-		displayName: '删除提示',
+		displayName: '删除知识库问答会立即生效，请确认问答 ID 无误。',
 		name: 'deleteKnowledgeIntentNotice',
 		type: 'notice',
 		displayOptions: { show: { ...showOnly, action_type: ['del'] } },
 		default: '',
-		description: '删除知识库问答会立即生效，请确认问答 ID 无误。',
 	},
 	{
 		displayName: '输入方式',

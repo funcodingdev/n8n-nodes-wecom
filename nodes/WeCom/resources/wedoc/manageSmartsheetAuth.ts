@@ -9,13 +9,11 @@ const showOnly = { resource: ['wedoc'], operation: ['manageSmartsheetAuth'] };
  */
 export const manageSmartsheetAuthDescription: INodeProperties[] = [
 	{
-		displayName: '说明',
+		displayName: '本操作对应 update_sheet_priv 的简化场景（默认改全员权限下单子表）。细粒度字段/记录规则请使用「更新子表内容权限」。',
 		name: 'manageAuthNotice',
 		type: 'notice',
 		displayOptions: { show: showOnly },
 		default: '',
-		description:
-			'本操作对应 update_sheet_priv 的简化场景（默认改全员权限下单子表）。细粒度字段/记录规则请使用「更新子表内容权限」。',
 	},
 	{
 		displayName: '文档ID',

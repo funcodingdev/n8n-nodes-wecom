@@ -50,12 +50,11 @@ export const sendKfMsgDescription: INodeProperties[] = [
 		placeholder: 'wmxxxxxxxxxxxxxxxxxxxx',
 	},
 	{
-		displayName: '发送限制',
+		displayName: '仅可在客户主动发消息后的 48 小时内发送，最多 5 条。接口返回成功不代表最终送达，还需关注消息发送失败回调。<a href="https://developer.work.weixin.qq.com/document/path/94677" target="_blank">官方文档</a>',
 		name: 'sendKfMsgNotice',
 		type: 'notice',
 		displayOptions: { show: showOnlyForSendKfMsg },
 		default: '',
-		description: '仅可在客户主动发消息后的 48 小时内发送，最多 5 条。接口返回成功不代表最终送达，还需关注消息发送失败回调。<a href="https://developer.work.weixin.qq.com/document/path/94677" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '消息 ID',

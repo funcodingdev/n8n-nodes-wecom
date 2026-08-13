@@ -151,15 +151,13 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 		description: '额外请求字段，与上方合并（JSON 优先）',
 	},
 	{
-		displayName: '说明',
+		displayName: '获取布局模板列表为 GET 接口，无需请求参数。返回 layout_template_list，可用于添加布局时填写模板 ID。',
 		name: 'listLayoutTemplateNotice',
 		type: 'notice',
 		displayOptions: {
 			show: { resource: ['meeting'], operation: ['listLayoutTemplate'] },
 		},
 		default: '',
-		description:
-			'获取布局模板列表为 GET 接口，无需请求参数。返回 layout_template_list，可用于添加布局时填写模板 ID。',
 	},
 	{
 		displayName: '审批方式',

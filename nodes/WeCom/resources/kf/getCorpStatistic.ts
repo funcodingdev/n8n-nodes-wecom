@@ -7,12 +7,11 @@ const showOnlyForGetCorpStatistic = {
 
 export const getCorpStatisticDescription: INodeProperties[] = [
 	{
-		displayName: '统计日期限制',
+		displayName: '仅可查询昨天至前 180 天的数据，闭区间跨度最多 31 天；当天数据需次日生成，建议早上 6 点后查询。非零点时间会由企业微信向下取整到当天零点。',
 		name: 'corpStatisticNotice',
 		type: 'notice',
 		displayOptions: { show: showOnlyForGetCorpStatistic },
 		default: '',
-		description: '仅可查询昨天至前 180 天的数据，闭区间跨度最多 31 天；当天数据需次日生成，建议早上 6 点后查询。非零点时间会由企业微信向下取整到当天零点。',
 	},
 	{
 		displayName: '客服账号',

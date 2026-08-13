@@ -20,13 +20,12 @@ export const deleteEventCategoryDescription: INodeProperties[] = [
 			'分类 id。<a href="https://developer.work.weixin.qq.com/document/path/94538" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '删除提示',
+		displayName: '删除事件类别会影响后续上报分类选择，请确认分类 ID 无误后执行。此操作不可恢复。',
 		name: 'deleteCategoryNotice',
 		type: 'notice',
 		displayOptions: {
 			show: showOnlyForDeleteEventCategory,
 		},
 		default: '',
-		description: '删除事件类别会影响后续上报分类选择，请确认分类 ID 无误后执行。此操作不可恢复。',
 	},
 ];

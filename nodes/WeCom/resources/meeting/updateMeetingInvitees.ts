@@ -4,13 +4,11 @@ const showOnly = { resource: ['meeting'], operation: ['updateMeetingInvitees'] }
 
 export const updateMeetingInviteesDescription: INodeProperties[] = [
 	{
-		displayName: '说明',
+		displayName: '官方接口 set_invitees 为覆盖式设置完整受邀列表（非增量）。管理员须在列表中。<a href="https://developer.work.weixin.qq.com/document/path/98162" target="_blank">官方文档</a>',
 		name: 'updateInviteesNotice',
 		type: 'notice',
 		displayOptions: { show: showOnly },
 		default: '',
-		description:
-			'官方接口 set_invitees 为覆盖式设置完整受邀列表（非增量）。管理员须在列表中。<a href="https://developer.work.weixin.qq.com/document/path/98162" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '会议ID',

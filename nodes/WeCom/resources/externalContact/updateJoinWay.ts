@@ -8,12 +8,11 @@ function showWhen(name: string, value: boolean = true) {
 
 export const updateJoinWayDescription: INodeProperties[] = [
 	{
-		displayName: '覆盖更新提示',
+		displayName: '场景和群聊 ID 列表为必填并会覆盖原配置；其他字段仅在开启对应“更新”开关后发送',
 		name: 'updateJoinWayNotice',
 		type: 'notice',
 		default: '',
 		displayOptions: { show: showOnly },
-		description: '场景和群聊 ID 列表为必填并会覆盖原配置；其他字段仅在开启对应“更新”开关后发送',
 	},
 	{
 		displayName: '配置ID',

@@ -142,14 +142,13 @@ export const promotionQrcodeDescription: INodeProperties[] = [
 		description: '跟进人的userid。必须是服务商所在企业的成员。若配置该值，则由该注册码创建的企业，在服务商管理后台，该企业的报备记录会自动标注跟进人员为指定成员',
 	},
 	{
-		displayName: '注册码使用提示',
+		displayName: '返回的 register_code 只能消费一次；请在 expires_in 有效期内生成注册链接并完成跳转。',
 		name: 'registerCodeNotice',
 		type: 'notice',
 		displayOptions: {
 			show: { resource: ['promotionQrcode'], operation: ['getRegisterCode'] },
 		},
 		default: '',
-		description: '返回的 register_code 只能消费一次；请在 expires_in 有效期内生成注册链接并完成跳转。',
 	},
 	{
 		displayName: '注册码',
@@ -167,14 +166,13 @@ export const promotionQrcodeDescription: INodeProperties[] = [
 		description: '查询的注册码。register_code生成后的查询有效期为24小时。仅支持注册完成回调事件或者获取注册码返回的register_code调用',
 	},
 	{
-		displayName: '查询时效提示',
+		displayName: '注册码生成后仅可在 24 小时内查询；仅支持本接口生成或注册完成回调返回的 register_code。',
 		name: 'registerInfoNotice',
 		type: 'notice',
 		displayOptions: {
 			show: { resource: ['promotionQrcode'], operation: ['getRegisterInfo'] },
 		},
 		default: '',
-		description: '注册码生成后仅可在 24 小时内查询；仅支持本接口生成或注册完成回调返回的 register_code。',
 	},
 	{
 		displayName: 'Access Token',
@@ -251,14 +249,13 @@ export const promotionQrcodeDescription: INodeProperties[] = [
 		placeholder: '例如: 1,2,3',
 	},
 	{
-		displayName: '可见范围覆盖提示',
+		displayName: '该接口会覆盖应用可见范围；任一列表留空都会清空对应成员、部门或标签范围。通讯录同步完成或迁移 Access Token 超过约 30 分钟后不可再调用。',
 		name: 'agentScopeNotice',
 		type: 'notice',
 		displayOptions: {
 			show: { resource: ['promotionQrcode'], operation: ['setAgentScope'] },
 		},
 		default: '',
-		description: '该接口会覆盖应用可见范围；任一列表留空都会清空对应成员、部门或标签范围。通讯录同步完成或迁移 Access Token 超过约 30 分钟后不可再调用。',
 	},
 	{
 		displayName: 'Access Token',
@@ -278,13 +275,12 @@ export const promotionQrcodeDescription: INodeProperties[] = [
 		description: '查询注册状态接口返回的access_token（跟注册完成回调事件的AccessToken参数一致，请注意与provider_access_token的区别）',
 	},
 	{
-		displayName: '同步完成提示',
+		displayName: '执行后会解除通讯录锁定并使迁移 Access Token 失效，之后不能再设置授权应用可见范围。请确认所有通讯录与范围设置都已完成。',
 		name: 'contactSyncNotice',
 		type: 'notice',
 		displayOptions: {
 			show: { resource: ['promotionQrcode'], operation: ['setContactSyncSuccess'] },
 		},
 		default: '',
-		description: '执行后会解除通讯录锁定并使迁移 Access Token 失效，之后不能再设置授权应用可见范围。请确认所有通讯录与范围设置都已完成。',
 	},
 ];

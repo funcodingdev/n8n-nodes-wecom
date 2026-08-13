@@ -39,7 +39,7 @@ export const systemDescription: INodeProperties[] = [
 		default: 'getApiDomainIp',
 	},
 	{
-		displayName: '说明',
+		displayName: '这些操作无需额外业务参数，使用当前企业微信应用凭证即可。',
 		name: 'systemBasicNotice',
 		type: 'notice',
 		displayOptions: {
@@ -49,10 +49,9 @@ export const systemDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '这些操作无需额外业务参数，使用当前企业微信应用凭证即可。',
 	},
 	{
-		displayName: 'Access Token 安全提示',
+		displayName: '此操作会把 Access Token 写入工作流执行数据。请勿返回给前端、写入日志或发送到不可信服务；普通企业微信操作会自动鉴权，无需手动获取。',
 		name: 'accessTokenSecurityNotice',
 		type: 'notice',
 		default: '',
@@ -62,7 +61,6 @@ export const systemDescription: INodeProperties[] = [
 				operation: ['getAccessToken'],
 			},
 		},
-		description: '此操作会把 Access Token 写入工作流执行数据。请勿返回给前端、写入日志或发送到不可信服务；普通企业微信操作会自动鉴权，无需手动获取。',
 	},
 	...systemExtraHttpOpsDescription,
 ];

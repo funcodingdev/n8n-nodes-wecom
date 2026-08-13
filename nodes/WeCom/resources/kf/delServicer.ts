@@ -7,14 +7,13 @@ const showOnlyForDelServicer = {
 
 export const delServicerDescription: INodeProperties[] = [
 	{
-		displayName: '移除提示',
+		displayName: '移除后，所选成员或部门将不再接待该客服账号的会话。接口会分别返回每个对象的处理结果。',
 		name: 'deleteServicerNotice',
 		type: 'notice',
 		displayOptions: {
 			show: showOnlyForDelServicer,
 		},
 		default: '',
-		description: '移除后，所选成员或部门将不再接待该客服账号的会话。接口会分别返回每个对象的处理结果。',
 	},
 	{
 		displayName: '客服账号',

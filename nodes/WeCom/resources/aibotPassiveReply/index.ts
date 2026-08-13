@@ -51,7 +51,7 @@ export const aibotPassiveReplyDescription: INodeProperties[] = [
 		description: '选择回复操作类型',
 	},
 	{
-		displayName: '被动回复要求',
+		displayName: '请将智能机器人触发器的“响应方式”设为“等待工作流（被动回复）”，选择与触发器相同的“消息接收 API”凭证，并让本节点作为分支最后一个节点；回复必须在 5 秒内完成。',
 		name: 'passiveReplyNotice',
 		type: 'notice',
 		default: '',
@@ -61,10 +61,9 @@ export const aibotPassiveReplyDescription: INodeProperties[] = [
 				operation: ['replyWelcome', 'replyMessage', 'updateTemplateCard'],
 			},
 		},
-		description: '请将智能机器人触发器的“响应方式”设为“等待工作流（被动回复）”，选择与触发器相同的“消息接收 API”凭证，并让本节点作为分支最后一个节点；回复必须在 5 秒内完成。',
 	},
 	{
-		displayName: '主动回复要求',
+		displayName: '请将智能机器人触发器的“响应方式”设为“立即响应（主动回复）”。每个 response_url 仅可调用一次，有效期 1 小时。',
 		name: 'activeReplyNotice',
 		type: 'notice',
 		default: '',
@@ -74,7 +73,6 @@ export const aibotPassiveReplyDescription: INodeProperties[] = [
 				operation: ['activeReply'],
 			},
 		},
-		description: '请将智能机器人触发器的“响应方式”设为“立即响应（主动回复）”。每个 response_url 仅可调用一次，有效期 1 小时。',
 	},
 	{
 		displayName: '回复类型',

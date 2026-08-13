@@ -7,12 +7,11 @@ const showOnlyForDeleteLivingReplayData = {
 
 export const deleteLivingReplayDataDescription: INodeProperties[] = [
 	{
-		displayName: '删除提示',
+		displayName: '此操作会删除直播回放数据，且仅允许操作当前应用创建的直播。',
 		name: 'deleteLivingReplayNotice',
 		type: 'notice',
 		displayOptions: { show: showOnlyForDeleteLivingReplayData },
 		default: '',
-		description: '此操作会删除直播回放数据，且仅允许操作当前应用创建的直播。',
 	},
 	{
 		displayName: '直播 ID',

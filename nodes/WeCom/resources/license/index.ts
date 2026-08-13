@@ -178,45 +178,40 @@ export const licenseDescription: INodeProperties[] = [
 		default: 'createNewOrder',
 	},
 	{
-		displayName: '说明',
+		displayName: '查询服务商充值账户余额（单位：分）。仅需 Provider Access Token，无其他业务参数。',
 		name: 'licenseBalanceNotice',
 		type: 'notice',
 		displayOptions: {
 			show: { resource: ['license'], operation: ['getAccountBalance'] },
 		},
 		default: '',
-		description:
-			'查询服务商充值账户余额（单位：分）。仅需 Provider Access Token，无其他业务参数。',
 	},
 	{
-		displayName: '支付方式提示',
+		displayName: '提交余额支付任务成功后，订单将无法再变更支付方式；请先核对订单 ID 和充值账户余额。',
 		name: 'licensePaymentNotice',
 		type: 'notice',
 		displayOptions: {
 			show: { resource: ['license'], operation: ['submitPayJob'] },
 		},
 		default: '',
-		description: '提交余额支付任务成功后，订单将无法再变更支付方式；请先核对订单 ID 和充值账户余额。',
 	},
 	{
-		displayName: '取消提示',
+		displayName: '取消操作会立即关闭符合条件的未支付订单，请确认订单 ID 和订单类型。',
 		name: 'licenseCancelNotice',
 		type: 'notice',
 		displayOptions: {
 			show: { resource: ['license'], operation: ['cancelOrder'] },
 		},
 		default: '',
-		description: '取消操作会立即关闭符合条件的未支付订单，请确认订单 ID 和订单类型。',
 	},
 	{
-		displayName: '接口状态',
+		displayName: '企业微信文档注明：民生行业接口许可优惠政策已于 2023 年 3 月 31 日到期，当前接口可能不再支持查询。',
 		name: 'licensePolicyExpiredNotice',
 		type: 'notice',
 		displayOptions: {
 			show: { resource: ['license'], operation: ['supportPolicyQuery'] },
 		},
 		default: '',
-		description: '企业微信文档注明：民生行业接口许可优惠政策已于 2023 年 3 月 31 日到期，当前接口可能不再支持查询。',
 	},
 	{
 		displayName: 'Provider Access Token',

@@ -196,7 +196,7 @@ export const systemExtraHttpOpsDescription: INodeProperties[] = [
 		description: '与当前凭证对应的小程序通过 wx.login 获取的临时登录 code',
 	},
 	{
-		displayName: '票据缓存提示',
+		displayName: 'jsapi_ticket 通常有效 7200 秒且接口有严格频率限制。请在工作流中缓存结果，避免每次页面请求都重新获取。',
 		name: 'jsapiTicketNotice',
 		type: 'notice',
 		default: '',
@@ -206,6 +206,5 @@ export const systemExtraHttpOpsDescription: INodeProperties[] = [
 				operation: ['getJsapiTicket', 'ticketGet'],
 			},
 		},
-		description: 'jsapi_ticket 通常有效 7200 秒且接口有严格频率限制。请在工作流中缓存结果，避免每次页面请求都重新获取。',
 	},
 ];

@@ -488,12 +488,11 @@ export const miniapppayDescription: INodeProperties[] = [
 			'ubo_info、finance_institution_info、补充材料等深层嵌套，与上方合并；合并后仍会校验官方必填对象与经营场景条件',
 	},
 	{
-		displayName: '进件资料提示',
+		displayName: '主体、证件、超级管理员、结算账户和经营场景资料将提交微信支付审核。企业法人不是受益人、金融机构或经办人场景，请在高级 JSON 中补齐对应官方字段。',
 		name: 'applyMchNotice',
 		type: 'notice',
 		displayOptions: { show: { ...showOnly, operation: ['applyMch'] } },
 		default: '',
-		description: '主体、证件、超级管理员、结算账户和经营场景资料将提交微信支付审核。企业法人不是受益人、金融机构或经办人场景，请在高级 JSON 中补齐对应官方字段。',
 	},
 	// 公共商户字段
 	{
@@ -645,12 +644,11 @@ export const miniapppayDescription: INodeProperties[] = [
 		description: '可选，合并进请求体的扩展字段；核心订单身份、金额、支付者与门店字段以表单为准',
 	},
 	{
-		displayName: '关闭订单提示',
+		displayName: '订单关闭后不能继续支付。请确认商户号与订单号无误后执行。',
 		name: 'closeOrderNotice',
 		type: 'notice',
 		displayOptions: { show: { ...showOnly, operation: ['closeOrder'] } },
 		default: '',
-		description: '订单关闭后不能继续支付。请确认商户号与订单号无误后执行。',
 	},
 	// getSign
 	{
@@ -739,12 +737,11 @@ export const miniapppayDescription: INodeProperties[] = [
 		description: '待分账状态订单可填 AVAILABLE，从二级商户余额退款',
 	},
 	{
-		displayName: '退款提示',
+		displayName: '退款金额不能超过原订单金额；同一商户退款单号重复请求只会退款一笔。单笔订单申请退款频率上限为每分钟 1 次。',
 		name: 'refundNotice',
 		type: 'notice',
 		displayOptions: { show: { ...showOnly, operation: ['refund'] } },
 		default: '',
-		description: '退款金额不能超过原订单金额；同一商户退款单号重复请求只会退款一笔。单笔订单申请退款频率上限为每分钟 1 次。',
 	},
 	// getBill
 	{
@@ -792,12 +789,11 @@ export const miniapppayDescription: INodeProperties[] = [
 			'交易账单申请返回的 download_url（约 30 秒有效，形如 https://api.mch.weixin.qq.com/v3/billdownload/file?token=...）',
 	},
 	{
-		displayName: '下载地址安全提示',
+		displayName: '下载地址约 30 秒有效。节点仅允许访问 api.mch.weixin.qq.com 的官方 HTTPS 账单下载路径。',
 		name: 'downloadBillNotice',
 		type: 'notice',
 		displayOptions: { show: { ...showOnly, operation: ['downloadBillFile'] } },
 		default: '',
-		description: '下载地址约 30 秒有效。节点仅允许访问 api.mch.weixin.qq.com 的官方 HTTPS 账单下载路径。',
 	},
 	{
 		displayName: 'Authorization 头',
@@ -826,11 +822,10 @@ export const miniapppayDescription: INodeProperties[] = [
 		description: '输入数据中的图片二进制字段名，支持 JPG/PNG/BMP',
 	},
 	{
-		displayName: '图片有效期提示',
+		displayName: '仅支持 JPG/JPEG、PNG、BMP。上传所得图片 ID 最长 30 天有效，相关申请全部完成后可能立即失效。',
 		name: 'uploadImageNotice',
 		type: 'notice',
 		displayOptions: { show: { ...showOnly, operation: ['uploadImage'] } },
 		default: '',
-		description: '仅支持 JPG/JPEG、PNG、BMP。上传所得图片 ID 最长 30 天有效，相关申请全部完成后可能立即失效。',
 	},
 ];

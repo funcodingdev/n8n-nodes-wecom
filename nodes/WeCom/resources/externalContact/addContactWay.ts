@@ -4,12 +4,11 @@ const showOnly = { resource: ['externalContact'], operation: ['addContactWay'] }
 
 export const addContactWayDescription: INodeProperties[] = [
 	{
-		displayName: '配置 ID 保存提示',
+		displayName: '接口创建的「联系我」不会显示在管理后台。请保存输出中的 config_id；丢失后可能无法编辑或删除该配置',
 		name: 'contactWayConfigIdNotice',
 		type: 'notice',
 		default: '',
 		displayOptions: { show: showOnly },
-		description: '接口创建的「联系我」不会显示在管理后台。请保存输出中的 config_id；丢失后可能无法编辑或删除该配置',
 	},
 	{
 		displayName: '联系方式类型',
@@ -105,12 +104,11 @@ export const addContactWayDescription: INodeProperties[] = [
 		description: '是否临时会话模式，true表示使用临时会话模式，默认为false。临时会话模式仅支持医疗行业企业创建',
 	},
 	{
-		displayName: '临时会话限制',
+		displayName: '临时会话仅支持医疗行业、单人联系方式；二维码和会话有效期均不得超过 14 天',
 		name: 'temporaryContactWayNotice',
 		type: 'notice',
 		default: '',
 		displayOptions: { show: { ...showOnly, is_temp: [true] } },
-		description: '临时会话仅支持医疗行业、单人联系方式；二维码和会话有效期均不得超过 14 天',
 	},
 	{
 		displayName: '二维码有效期（秒）',

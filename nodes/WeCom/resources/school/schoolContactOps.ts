@@ -234,12 +234,11 @@ export const schoolContactOpsDescription: INodeProperties[] = [
 		description: '要删除的学生 UserID，长度不超过 64 个 UTF-8 字节',
 	},
 	{
-		displayName: '删除提示',
+		displayName: '删除会移除学生及其家校通讯录关系。请确认 UserID 列表无误后再执行。',
 		name: 'deleteStudentNotice',
 		type: 'notice',
 		default: '',
 		displayOptions: { show: show(['deleteStudent', 'batchDeleteStudent']) },
-		description: '删除会移除学生及其家校通讯录关系。请确认 UserID 列表无误后再执行。',
 	},
 	{
 		displayName: '学生 UserID',
@@ -269,14 +268,13 @@ export const schoolContactOpsDescription: INodeProperties[] = [
 		description: '不能与现有 UserID 重复；每个学生仅能修改一次',
 	},
 	{
-		displayName: 'UserID 修改提示',
+		displayName: '每个学生仅能修改一次 UserID；更新成功后请同步所有依赖旧 UserID 的工作流。',
 		name: 'studentUseridUpdateNotice',
 		type: 'notice',
 		default: '',
 		displayOptions: {
 			show: { ...show(['updateStudent']), update_new_student_userid: [true] },
 		},
-		description: '每个学生仅能修改一次 UserID；更新成功后请同步所有依赖旧 UserID 的工作流。',
 	},
 	{
 		displayName: '修改学生姓名',
@@ -440,12 +438,11 @@ export const schoolContactOpsDescription: INodeProperties[] = [
 		description: '要删除的家长 UserID，长度不超过 64 个 UTF-8 字节',
 	},
 	{
-		displayName: '删除提示',
+		displayName: '删除会移除家长及其家校通讯录关系。请确认 UserID 列表无误后再执行。',
 		name: 'deleteParentNotice',
 		type: 'notice',
 		default: '',
 		displayOptions: { show: show(['deleteParent', 'batchDeleteParent']) },
-		description: '删除会移除家长及其家校通讯录关系。请确认 UserID 列表无误后再执行。',
 	},
 	{
 		displayName: '修改家长 UserID',
@@ -466,14 +463,13 @@ export const schoolContactOpsDescription: INodeProperties[] = [
 		description: '不能与现有 UserID 重复；每个家长仅能修改一次',
 	},
 	{
-		displayName: 'UserID 修改提示',
+		displayName: '每个家长仅能修改一次 UserID；更新成功后请同步所有依赖旧 UserID 的工作流。',
 		name: 'parentUseridUpdateNotice',
 		type: 'notice',
 		default: '',
 		displayOptions: {
 			show: { ...show(['updateParent']), update_new_parent_userid: [true] },
 		},
-		description: '每个家长仅能修改一次 UserID；更新成功后请同步所有依赖旧 UserID 的工作流。',
 	},
 	{
 		displayName: '修改手机号',
@@ -499,12 +495,11 @@ export const schoolContactOpsDescription: INodeProperties[] = [
 		description: '启用后全量替换孩子列表；空列表会被企业微信忽略',
 	},
 	{
-		displayName: '孩子列表全量更新提示',
+		displayName: '该字段是全量更新：未列出的原有孩子关系将被移除。列表必须包含 1–10 个孩子。',
 		name: 'childrenUpdateNotice',
 		type: 'notice',
 		default: '',
 		displayOptions: { show: { ...show(['updateParent']), update_children: [true] } },
-		description: '该字段是全量更新：未列出的原有孩子关系将被移除。列表必须包含 1–10 个孩子。',
 	},
 	{
 		displayName: '孩子列表',

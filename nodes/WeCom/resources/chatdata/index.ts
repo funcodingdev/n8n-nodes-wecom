@@ -120,12 +120,11 @@ export const chatdataDescription: INodeProperties[] = [
 		description: 'public_key_ver，更换公钥时需大于旧版本号',
 	},
 	{
-		displayName: '公钥轮换提示',
+		displayName: '仅接受 RSA-2048 PUBLIC KEY PEM。更换公钥时版本号必须高于旧版本；请先安全保存对应私钥，私钥不要提交到此节点。',
 		name: 'publicKeyNotice',
 		type: 'notice',
 		displayOptions: { show: { ...showOnly, operation: ['setPublicKey'] } },
 		default: '',
-		description: '仅接受 RSA-2048 PUBLIC KEY PEM。更换公钥时版本号必须高于旧版本；请先安全保存对应私钥，私钥不要提交到此节点。',
 	},
 	// getAuthUserList
 	{
@@ -171,12 +170,11 @@ export const chatdataDescription: INodeProperties[] = [
 		description: '应用关联的 program_id',
 	},
 	{
-		displayName: '回调切换提示',
+		displayName: '同一应用只能设置一个接收程序；再次设置会把原接收程序切换为当前程序。',
 		name: 'callbackNotice',
 		type: 'notice',
 		displayOptions: { show: { ...showOnly, operation: ['setReceiveCallback'] } },
 		default: '',
-		description: '同一应用只能设置一个接收程序；再次设置会把原接收程序切换为当前程序。',
 	},
 	// sensitive info
 	{
@@ -221,12 +219,11 @@ export const chatdataDescription: INodeProperties[] = [
 		default: false,
 	},
 	{
-		displayName: '敏感信息显示提示',
+		displayName: '该配置会改变指定成员在会话组件中看到的手机号、身份证号和银行卡号显示方式。',
 		name: 'sensitiveInfoNotice',
 		type: 'notice',
 		displayOptions: { show: { ...showOnly, operation: ['setHideSensitiveInfoConfig'] } },
 		default: '',
-		description: '该配置会改变指定成员在会话组件中看到的手机号、身份证号和银行卡号显示方式。',
 	},
 	// log level
 	{
@@ -285,14 +282,13 @@ export const chatdataDescription: INodeProperties[] = [
 		typeOptions: { maxLength: 256 },
 	},
 	{
-		displayName: '专区调用提示',
+		displayName: '请求数据必须符合所选能力在管理端配置的输入协议；异步调用会创建任务，结果需用返回的 jobid 查询。',
 		name: 'programCallNotice',
 		type: 'notice',
 		displayOptions: {
 			show: { ...showOnly, operation: ['syncCallProgram', 'asyncProgramTask'] },
 		},
 		default: '',
-		description: '请求数据必须符合所选能力在管理端配置的输入协议；异步调用会创建任务，结果需用返回的 jobid 查询。',
 	},
 	// debug
 	{
@@ -305,14 +301,13 @@ export const chatdataDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
-		displayName: '调试模式提示',
+		displayName: '调试模式会改变专区程序的调试调用状态。调试 Token 属于敏感凭证，请勿写入输出或日志。',
 		name: 'debugModeNotice',
 		type: 'notice',
 		displayOptions: {
 			show: { ...showOnly, operation: ['openDebugMode', 'closeDebugMode'] },
 		},
 		default: '',
-		description: '调试模式会改变专区程序的调试调用状态。调试 Token 属于敏感凭证，请勿写入输出或日志。',
 	},
 	{
 		displayName: '二进制字段名',
@@ -333,11 +328,10 @@ export const chatdataDescription: INodeProperties[] = [
 		description: '目前仅支持 file',
 	},
 	{
-		displayName: '临时文件提示',
+		displayName: '文件大小必须为 6B–60MB。返回的 media_id 仅 3 天有效，且不能跨企业或跨应用使用。',
 		name: 'uploadMediaNotice',
 		type: 'notice',
 		displayOptions: { show: { ...showOnly, operation: ['uploadMedia'] } },
 		default: '',
-		description: '文件大小必须为 6B–60MB。返回的 media_id 仅 3 天有效，且不能跨企业或跨应用使用。',
 	},
 ];

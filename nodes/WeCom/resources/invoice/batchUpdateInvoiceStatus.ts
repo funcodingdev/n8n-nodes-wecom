@@ -44,7 +44,7 @@ export const batchUpdateInvoiceStatusDescription: INodeProperties[] = [
 		description: '选择整批发票的锁定、解锁或核销状态。此接口是事务性操作，任一发票失败时整批回滚。<a href="https://developer.work.weixin.qq.com/document/path/90286" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '不可逆操作提示',
+		displayName: '核销是不可逆操作，成功后所有发票将从对应用户卡包中移除。批量接口具有事务性，任一发票失败时整批回滚。',
 		name: 'closureWarning',
 		type: 'notice',
 		default: '',
@@ -54,7 +54,6 @@ export const batchUpdateInvoiceStatusDescription: INodeProperties[] = [
 				reimburse_status: ['INVOICE_REIMBURSE_CLOSURE'],
 			},
 		},
-		description: '核销是不可逆操作，成功后所有发票将从对应用户卡包中移除。批量接口具有事务性，任一发票失败时整批回滚。',
 	},
 	{
 		displayName: '发票列表输入方式',

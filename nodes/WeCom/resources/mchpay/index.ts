@@ -38,13 +38,11 @@ export const mchpayDescription: INodeProperties[] = [
 		default: 'sendRedpack',
 	},
 	{
-		displayName: '说明',
+		displayName: '这些是旧版企业红包/企业付款 XML 接口，全新创建的企业微信通常不可用。使用前请配置「企业微信商户支付」凭证（商户号、密钥与证书）；收款人 OpenID 可先用通讯录「userid 与 openid 互换」获取。',
 		name: 'mchNotice',
 		type: 'notice',
 		displayOptions: { show: showOnly },
 		default: '',
-		description:
-			'这些是旧版企业红包/企业付款 XML 接口，全新创建的企业微信通常不可用。使用前请配置「企业微信商户支付」凭证（商户号、密钥与证书）；收款人 OpenID 可先用通讯录「userid 与 openid 互换」获取。',
 	},
 	// --- 红包 ---
 	{
@@ -168,22 +166,20 @@ export const mchpayDescription: INodeProperties[] = [
 		description: '额外业务字段，仅接受安全 XML 字段名及字符串/数字值；表单中的核心字段始终优先',
 	},
 	{
-		displayName: '红包资金风险提示',
+		displayName: '该操作会实际发放资金。系统错误或超时时必须使用原商户订单号查询或重试，不能更换单号，否则可能重复发放。',
 		name: 'redpackRiskNotice',
 		type: 'notice',
 		displayOptions: { show: { ...showOnly, operation: ['sendRedpack'] } },
 		default: '',
-		description: '该操作会实际发放资金。系统错误或超时时必须使用原商户订单号查询或重试，不能更换单号，否则可能重复发放。',
 	},
 	{
-		displayName: '查询时效提示',
+		displayName: '查询接口仅支持最近 30 天内的订单。查无记录不等于发放失败，请保留原单号并稍后重试。',
 		name: 'queryAgeNotice',
 		type: 'notice',
 		displayOptions: {
 			show: { ...showOnly, operation: ['queryRedpack', 'queryPayToEmployee'] },
 		},
 		default: '',
-		description: '查询接口仅支持最近 30 天内的订单。查无记录不等于发放失败，请保留原单号并稍后重试。',
 	},
 	// --- 付款 ---
 	{
@@ -277,11 +273,10 @@ export const mchpayDescription: INodeProperties[] = [
 		description: 'ww_msg_type=APPROVAL_MSG 时填写',
 	},
 	{
-		displayName: '付款资金风险提示',
+		displayName: '该操作会实际向员工付款。业务结果不明确时先用原商户订单号查询；重试必须保持原单号和原参数，避免重复付款。',
 		name: 'payRiskNotice',
 		type: 'notice',
 		displayOptions: { show: { ...showOnly, operation: ['payToEmployee'] } },
 		default: '',
-		description: '该操作会实际向员工付款。业务结果不明确时先用原商户订单号查询；重试必须保持原单号和原参数，避免重复付款。',
 	},
 ];

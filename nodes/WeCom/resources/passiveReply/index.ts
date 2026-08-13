@@ -110,7 +110,7 @@ export const passiveReplyDescription: INodeProperties[] = [
 		default: 'reply',
 	},
 	{
-		displayName: '使用提示',
+		displayName: '本操作必须连接“企业微信消息接收（被动回复）”触发器、选择与触发器相同的“消息接收 API”凭证，并作为分支最后一个节点；企业微信要求在 5 秒内返回。',
 		name: 'passiveReplyNotice',
 		type: 'notice',
 		default: '',
@@ -120,7 +120,6 @@ export const passiveReplyDescription: INodeProperties[] = [
 				operation: ['reply'],
 			},
 		},
-		description: '本操作必须连接“企业微信消息接收（被动回复）”触发器、选择与触发器相同的“消息接收 API”凭证，并作为分支最后一个节点；企业微信要求在 5 秒内返回。',
 	},
 	{
 		displayName: '回复消息类型',

@@ -7,12 +7,11 @@ const showOnly = {
 
 export const cancelMomentTaskDescription: INodeProperties[] = [
 	{
-		displayName: '停止限制',
+		displayName: '停止任务只能阻止尚未发表的内容，无法撤回已经发表到客户朋友圈的信息',
 		name: 'cancelMomentNotice',
 		type: 'notice',
 		default: '',
 		displayOptions: { show: showOnly },
-		description: '停止任务只能阻止尚未发表的内容，无法撤回已经发表到客户朋友圈的信息',
 	},
 	{
 		displayName: '任务ID',

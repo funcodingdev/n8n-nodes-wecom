@@ -130,14 +130,13 @@ export const msgauditDescription: INodeProperties[] = [
 		description: '1–100 个对象；每项必须包含 userid 与官方拼写 exteranalopenid',
 	},
 	{
-		displayName: '同意状态数据提示',
+		displayName: '返回内容包含客户或群成员的会话存档同意状态与变更时间，请按企业合规要求处理和保存。',
 		name: 'agreeNotice',
 		type: 'notice',
 		displayOptions: {
 			show: { ...showOnly, operation: ['checkSingleAgree', 'checkRoomAgree'] },
 		},
 		default: '',
-		description: '返回内容包含客户或群成员的会话存档同意状态与变更时间，请按企业合规要求处理和保存。',
 	},
 	{
 		displayName: '机器人ID',

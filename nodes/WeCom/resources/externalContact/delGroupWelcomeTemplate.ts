@@ -7,12 +7,11 @@ const showOnly = {
 
 export const delGroupWelcomeTemplateDescription: INodeProperties[] = [
 	{
-		displayName: '删除提示',
+		displayName: '此操作会从企业入群欢迎语素材库删除指定模板，请确认模板 ID',
 		name: 'deleteGroupWelcomeTemplateNotice',
 		type: 'notice',
 		default: '',
 		displayOptions: { show: showOnly },
-		description: '此操作会从企业入群欢迎语素材库删除指定模板，请确认模板 ID',
 	},
 	{
 		displayName: '模板ID',

@@ -490,13 +490,12 @@ export const accountIdDescription: INodeProperties[] = [
 		description: 'ID类型：1-userid与corpid; 3-external_userid。多个值请使用"Add Value"按钮添加',
 	},
 	{
-		displayName: '迁移完成提示',
+		displayName: '仅在企业下所有第三方应用对应类型的新旧 ID 已全部迁移后执行。该状态用于宣告迁移完成，请勿提前设置。',
 		name: 'finishMigrationNotice',
 		type: 'notice',
 		displayOptions: {
 			show: { resource: ['accountId'], operation: ['finishOpenidMigration'] },
 		},
 		default: '',
-		description: '仅在企业下所有第三方应用对应类型的新旧 ID 已全部迁移后执行。该状态用于宣告迁移完成，请勿提前设置。',
 	},
 ];

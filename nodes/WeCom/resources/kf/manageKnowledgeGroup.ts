@@ -4,12 +4,11 @@ const showOnly = { resource: ['kf'], operation: ['manageKnowledgeGroup'] };
 
 export const manageKnowledgeGroupDescription: INodeProperties[] = [
 	{
-		displayName: '权限与数量限制',
+		displayName: '仅企业内部开发支持知识库管理；第三方及代开发应用暂不支持。分组名不可重复，全部分组最多 100 个。<a href="https://developer.work.weixin.qq.com/document/path/95971" target="_blank">官方文档</a>',
 		name: 'knowledgeGroupNotice',
 		type: 'notice',
 		displayOptions: { show: showOnly },
 		default: '',
-		description: '仅企业内部开发支持知识库管理；第三方及代开发应用暂不支持。分组名不可重复，全部分组最多 100 个。<a href="https://developer.work.weixin.qq.com/document/path/95971" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '操作类型',
@@ -49,12 +48,11 @@ export const manageKnowledgeGroupDescription: INodeProperties[] = [
 		description: '知识库分组的唯一ID',
 	},
 	{
-		displayName: '默认分组限制',
+		displayName: '系统自动创建的默认分组不可修改或删除；请先通过列表响应中的 is_default 判断。',
 		name: 'defaultGroupMutationNotice',
 		type: 'notice',
 		displayOptions: { show: { ...showOnly, action_type: ['del', 'mod'] } },
 		default: '',
-		description: '系统自动创建的默认分组不可修改或删除；请先通过列表响应中的 is_default 判断。',
 	},
 	// 修改分组参数
 	{

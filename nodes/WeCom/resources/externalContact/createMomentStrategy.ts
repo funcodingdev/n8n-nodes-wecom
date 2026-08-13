@@ -24,12 +24,11 @@ export const createMomentStrategyDescription: INodeProperties[] = [
 		description: '父规则组ID，如果不指定父规则组则为0',
 	},
 	{
-		displayName: '父规则组继承提示',
+		displayName: '存在父规则组时，管理范围必须是父规则组的子集，权限会完全继承父组且本节点不会发送权限配置',
 		name: 'parentMomentStrategyNotice',
 		type: 'notice',
 		default: '',
 		displayOptions: { show: { ...showOnly, parent_id: [{ _cnd: { gt: 0 } }] } },
-		description: '存在父规则组时，管理范围必须是父规则组的子集，权限会完全继承父组且本节点不会发送权限配置',
 	},
 	{
 		displayName: '管理员列表',

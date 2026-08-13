@@ -7,14 +7,13 @@ const showOnlyForDelKfAccount = {
 
 export const delKfAccountDescription: INodeProperties[] = [
 	{
-		displayName: '删除提示',
+		displayName: '删除客服账号后将无法继续使用该账号提供服务，请确认所选账号无正在处理的业务。',
 		name: 'deleteKfAccountNotice',
 		type: 'notice',
 		displayOptions: {
 			show: showOnlyForDelKfAccount,
 		},
 		default: '',
-		description: '删除客服账号后将无法继续使用该账号提供服务，请确认所选账号无正在处理的业务。',
 	},
 	{
 		displayName: '客服账号',

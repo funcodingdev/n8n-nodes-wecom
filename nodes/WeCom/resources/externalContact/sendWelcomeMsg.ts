@@ -4,12 +4,11 @@ const showOnly = { resource: ['externalContact'], operation: ['sendWelcomeMsg'] 
 
 export const sendWelcomeMsgDescription: INodeProperties[] = [
 	{
-		displayName: '时效提示',
+		displayName: 'welcome_code 仅在添加外部联系人回调后 20 秒内有效，请让工作流尽快执行此节点',
 		name: 'welcomeCodeExpiryNotice',
 		type: 'notice',
 		default: '',
 		displayOptions: { show: showOnly },
-		description: 'welcome_code 仅在添加外部联系人回调后 20 秒内有效，请让工作流尽快执行此节点',
 	},
 	{
 		displayName: '欢迎语Code',

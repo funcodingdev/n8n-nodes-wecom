@@ -7,12 +7,11 @@ const showOnlyForGetHealthReportStat = {
 
 export const getHealthReportStatDescription: INodeProperties[] = [
 	{
-		displayName: '权限与日期限制',
+		displayName: '仅配置为“健康上报 - 可调用接口的应用”的自建应用可调用；第三方及代开发应用暂不支持。仅可获取最近 30 天内的数据。',
 		name: 'healthReportStatNotice',
 		type: 'notice',
 		displayOptions: { show: showOnlyForGetHealthReportStat },
 		default: '',
-		description: '仅配置为“健康上报 - 可调用接口的应用”的自建应用可调用；第三方及代开发应用暂不支持。仅可获取最近 30 天内的数据。',
 	},
 	{
 		displayName: '日期',

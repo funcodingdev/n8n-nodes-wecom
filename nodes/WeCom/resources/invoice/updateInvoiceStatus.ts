@@ -63,7 +63,7 @@ export const updateInvoiceStatusDescription: INodeProperties[] = [
 		description: '选择锁定、解锁或核销。锁定后不能重复提交；解锁恢复可提交状态；核销后从用户卡包移除且不可逆。<a href="https://developer.work.weixin.qq.com/document/path/90285" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '不可逆操作提示',
+		displayName: '核销是不可逆操作，成功后该发票将从用户卡包中移除。请确认报销流程确已完成。',
 		name: 'closureWarning',
 		type: 'notice',
 		default: '',
@@ -73,6 +73,5 @@ export const updateInvoiceStatusDescription: INodeProperties[] = [
 				reimburse_status: ['INVOICE_REIMBURSE_CLOSURE'],
 			},
 		},
-		description: '核销是不可逆操作，成功后该发票将从用户卡包中移除。请确认报销流程确已完成。',
 	},
 ];

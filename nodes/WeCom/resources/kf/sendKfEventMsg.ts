@@ -17,12 +17,11 @@ const showOnlyForSendKfEventMsg = {
 
 export const sendKfEventMsgDescription: INodeProperties[] = [
 	{
-		displayName: '事件响应限制',
+		displayName: '事件 Code 具有场景、会话状态和有效期限制，且通过事件回调下发的 Code 仅可使用一次；欢迎语与结束语 Code 通常仅 20 秒有效。<a href="https://developer.work.weixin.qq.com/document/path/95122" target="_blank">官方文档</a>',
 		name: 'sendKfEventMsgNotice',
 		type: 'notice',
 		displayOptions: { show: showOnlyForSendKfEventMsg },
 		default: '',
-		description: '事件 Code 具有场景、会话状态和有效期限制，且通过事件回调下发的 Code 仅可使用一次；欢迎语与结束语 Code 通常仅 20 秒有效。<a href="https://developer.work.weixin.qq.com/document/path/95122" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '事件响应 Code',

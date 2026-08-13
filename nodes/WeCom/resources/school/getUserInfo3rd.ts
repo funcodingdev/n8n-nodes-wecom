@@ -7,12 +7,11 @@ const showOnly = {
 
 export const getUserInfo3rdDescription: INodeProperties[] = [
 	{
-		displayName: '第三方应用限制',
+		displayName: '仅第三方应用使用，代开发自建应用不可调用。授权 Code 只能使用一次，5 分钟内有效，且跳转域名须完全匹配应用可信域名。',
 		name: 'getUserInfo3rdNotice',
 		type: 'notice',
 		displayOptions: { show: showOnly },
 		default: '',
-		description: '仅第三方应用使用，代开发自建应用不可调用。授权 Code 只能使用一次，5 分钟内有效，且跳转域名须完全匹配应用可信域名。',
 	},
 	{
 		displayName: 'Suite Access Token',

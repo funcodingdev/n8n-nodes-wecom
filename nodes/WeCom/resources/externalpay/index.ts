@@ -44,13 +44,11 @@ export const externalpayDescription: INodeProperties[] = [
 		default: 'getBillList',
 	},
 	{
-		displayName: '说明',
+		displayName: '管理企业对外收款，包括商户号、收款记录与资金流水。企业红包、向员工付款请使用「企业红包与向员工付款」；小程序进件请使用「小程序对外收款」。',
 		name: 'corpPayNotice',
 		type: 'notice',
 		displayOptions: { show: showOnly },
 		default: '',
-		description:
-			'管理企业对外收款，包括商户号、收款记录与资金流水。企业红包、向员工付款请使用「企业红包与向员工付款」；小程序进件请使用「小程序对外收款」。',
 	},
 	// getMerchant / setMchUseScope
 	{
@@ -107,12 +105,11 @@ export const externalpayDescription: INodeProperties[] = [
 		description: '正整数标签 ID 列表；支持逗号、中文逗号、竖线或换行分隔',
 	},
 	{
-		displayName: '范围更新提示',
+		displayName: '该操作会整体更新商户号可使用范围。请确认成员、部门与标签列表完整后执行。',
 		name: 'scopeUpdateNotice',
 		type: 'notice',
 		displayOptions: { show: { ...showOnly, operation: ['setMchUseScope'] } },
 		default: '',
-		description: '该操作会整体更新商户号可使用范围。请确认成员、部门与标签列表完整后执行。',
 	},
 	// getBillList / getFundFlow
 	{
@@ -174,12 +171,11 @@ export const externalpayDescription: INodeProperties[] = [
 		description: '返回的最大记录数，默认 100，最多 200 条',
 	},
 	{
-		displayName: '资金流水提示',
+		displayName: '只能查询不早于 2022-12-01 且最长保留 3 年的流水；当日流水通常在次日上午 11 点后生成。',
 		name: 'fundFlowNotice',
 		type: 'notice',
 		displayOptions: { show: { ...showOnly, operation: ['getFundFlow'] } },
 		default: '',
-		description: '只能查询不早于 2022-12-01 且最长保留 3 年的流水；当日流水通常在次日上午 11 点后生成。',
 	},
 	// getPaymentInfo
 	{

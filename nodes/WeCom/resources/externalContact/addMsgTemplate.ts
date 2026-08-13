@@ -4,12 +4,11 @@ const showOnly = { resource: ['externalContact'], operation: ['addMsgTemplate'] 
 
 export const addMsgTemplateDescription: INodeProperties[] = [
 	{
-		displayName: '发送机制说明',
+		displayName: '此接口只创建群发任务，不会直接发送；成员需在企业微信中确认后才会触达客户或客户群',
 		name: 'groupMessageConfirmationNotice',
 		type: 'notice',
 		default: '',
 		displayOptions: { show: showOnly },
-		description: '此接口只创建群发任务，不会直接发送；成员需在企业微信中确认后才会触达客户或客户群',
 	},
 	{
 		displayName: '群发任务类型',

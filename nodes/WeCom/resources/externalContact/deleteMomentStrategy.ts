@@ -7,12 +7,11 @@ const showOnly = {
 
 export const deleteMomentStrategyDescription: INodeProperties[] = [
 	{
-		displayName: '删除提示',
+		displayName: '此操作会删除指定朋友圈规则组，请确认规则组 ID',
 		name: 'deleteMomentStrategyNotice',
 		type: 'notice',
 		default: '',
 		displayOptions: { show: showOnly },
-		description: '此操作会删除指定朋友圈规则组，请确认规则组 ID',
 	},
 	{
 		displayName: '规则组ID',

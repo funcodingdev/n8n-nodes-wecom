@@ -30,23 +30,21 @@ export const deleteGridDescription: INodeProperties[] = [
 			'要删除的网格 id。<a href="https://developer.work.weixin.qq.com/document/path/94480" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '删除提示',
+		displayName: '目标网格及其子网格不包含网格员时，接口会删除目标及全部子网格。此操作不可恢复。',
 		name: 'deleteGridNotice',
 		type: 'notice',
 		displayOptions: {
 			show: showOnlyForDeleteGrid,
 		},
 		default: '',
-		description: '目标网格及其子网格不包含网格员时，接口会删除目标及全部子网格。此操作不可恢复。',
 	},
 	{
-		displayName: '根网格删除警告',
+		displayName: '根网格删除范围可能覆盖整棵网格树。请仅在确认需要删除所有符合条件的网格时执行。',
 		name: 'deleteRootGridNotice',
 		type: 'notice',
 		displayOptions: {
 			show: { ...showOnlyForDeleteGrid, delete_root_grid: [true] },
 		},
 		default: '',
-		description: '根网格删除范围可能覆盖整棵网格树。请仅在确认需要删除所有符合条件的网格时执行。',
 	},
 ];

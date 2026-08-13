@@ -861,7 +861,7 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		description: 'true 举手，false 放下',
 	},
 	{
-		displayName: '说明',
+		displayName: '专属短链不支持 Webinar/个人会议号。创建时需 customer_data（可用 userData 自动 Base64）。',
 		name: 'customerShortUrlNotice',
 		type: 'notice',
 		displayOptions: {
@@ -871,8 +871,6 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description:
-			'专属短链不支持 Webinar/个人会议号。创建时需 customer_data（可用 userData 自动 Base64）。',
 	},
 	{
 		displayName: '客户专属字段输入方式',

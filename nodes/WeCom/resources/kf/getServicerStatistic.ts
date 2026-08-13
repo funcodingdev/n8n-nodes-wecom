@@ -7,12 +7,11 @@ const showOnlyForGetServicerStatistic = {
 
 export const getServicerStatisticDescription: INodeProperties[] = [
 	{
-		displayName: '统计日期限制',
+		displayName: '仅可查询昨天至前 180 天的数据，闭区间跨度最多 31 天；不选择接待人员时返回客服账号维度汇总数据。',
 		name: 'servicerStatisticNotice',
 		type: 'notice',
 		displayOptions: { show: showOnlyForGetServicerStatistic },
 		default: '',
-		description: '仅可查询昨天至前 180 天的数据，闭区间跨度最多 31 天；不选择接待人员时返回客服账号维度汇总数据。',
 	},
 	{
 		displayName: '客服账号',

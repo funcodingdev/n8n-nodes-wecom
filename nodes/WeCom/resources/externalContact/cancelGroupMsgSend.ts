@@ -7,12 +7,11 @@ const showOnly = {
 
 export const cancelGroupMsgSendDescription: INodeProperties[] = [
 	{
-		displayName: '停止限制',
+		displayName: '停止群发只能阻止尚未发送的任务，无法撤回已经群发给客户的消息',
 		name: 'cancelGroupMessageNotice',
 		type: 'notice',
 		default: '',
 		displayOptions: { show: showOnly },
-		description: '停止群发只能阻止尚未发送的任务，无法撤回已经群发给客户的消息',
 	},
 	{
 		displayName: '群发消息ID',
