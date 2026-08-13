@@ -442,7 +442,8 @@ export async function createOrder(
 	if (payType === 1) body.bank_receipt_media_id = bankReceiptMediaId;
 	const creator = optionalText(
 		this,
-		this.getNodeParameter('creator', index, ''),
+		this.getNodeParameter('creator', index, '') ||
+			this.getNodeParameter('creator_selected', index, ''),
 		'订单创建人 UserID',
 		index,
 	);

@@ -13,7 +13,8 @@ export async function markInvoiceStatus(
 	const orderId = requireText(this, this.getNodeParameter('orderId', index), '订单号', index);
 	const operUserid = requireText(
 		this,
-		this.getNodeParameter('operUserid', index),
+		this.getNodeParameter('operUserid', index, '') ||
+			this.getNodeParameter('operUserid_selected', index, ''),
 		'操作人 UserID',
 		index,
 	);

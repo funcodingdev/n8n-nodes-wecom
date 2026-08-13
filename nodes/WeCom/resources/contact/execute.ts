@@ -572,7 +572,11 @@ export async function executeContact(
 				);
 			} else if (operation === 'createDepartment') {
 				const name = this.getNodeParameter('name', i) as string;
-				const parentid = this.getNodeParameter('parentid', i, '1') as string;
+				const parentid = String(
+					this.getNodeParameter('parentid', i, '1') ||
+						this.getNodeParameter('parentid_selected', i, '') ||
+						'1',
+				).trim();
 
 				const body: IDataObject = {
 					name,
@@ -588,14 +592,19 @@ export async function executeContact(
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/department/create', body);
 			} else if (operation === 'updateDepartment') {
-				const id = this.getNodeParameter('id', i) as string;
+				const id = String(
+					this.getNodeParameter('id', i, '') || this.getNodeParameter('id_selected', i, ''),
+				).trim();
 				const body: IDataObject = { id: parseInt(id, 10) };
 
 				const name = this.getNodeParameter('name', i, '') as string;
 				if (name) body.name = name;
 				const name_en = this.getNodeParameter('name_en', i, '') as string;
 				if (name_en) body.name_en = name_en;
-				const parentid = this.getNodeParameter('parentid', i, '') as string;
+				const parentid = String(
+					this.getNodeParameter('parentid', i, '') ||
+						this.getNodeParameter('parentid_selected', i, ''),
+				).trim();
 				if (parentid) body.parentid = parseInt(parentid, 10);
 				const update_order = this.getNodeParameter('update_order', i, false) as boolean;
 				if (update_order) {
@@ -604,15 +613,21 @@ export async function executeContact(
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/department/update', body);
 			} else if (operation === 'deleteDepartment') {
-				const id = this.getNodeParameter('id', i) as string;
+				const id = String(
+					this.getNodeParameter('id', i, '') || this.getNodeParameter('id_selected', i, ''),
+				).trim();
 				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/department/delete', {}, { id });
 			} else if (operation === 'getSubDepartmentIds') {
-				const id = this.getNodeParameter('id', i, '') as string;
+				const id = String(
+					this.getNodeParameter('id', i, '') || this.getNodeParameter('id_selected', i, ''),
+				).trim();
 				const qs: IDataObject = {};
 				if (id) qs.id = id;
 				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/department/simplelist', {}, qs);
 			} else if (operation === 'getDepartmentDetail') {
-				const id = this.getNodeParameter('id', i) as string;
+				const id = String(
+					this.getNodeParameter('id', i, '') || this.getNodeParameter('id_selected', i, ''),
+				).trim();
 				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/department/get', {}, { id });
 			} else if (operation === 'createTag') {
 				const tagname = this.getNodeParameter('tagname', i) as string;

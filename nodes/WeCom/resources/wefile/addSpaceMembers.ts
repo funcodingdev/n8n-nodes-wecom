@@ -108,11 +108,19 @@ export const addSpaceMembersDescription: INodeProperties[] = [
 					{
 						displayName: '部门',
 						name: 'departmentid',
-						required: true,
 						type: 'string',
 						default: '',
 						displayOptions: { show: { type: [2] } },
-						description: '部门的departmentid',
+						description: '部门的departmentid；可与下方选择二选一',
+					},
+					{
+						displayName: '部门(选择)',
+						name: 'departmentid_selected',
+						type: 'options',
+						typeOptions: { loadOptionsMethod: 'getDepartments' },
+						default: '',
+						displayOptions: { show: { type: [2] } },
+						description: '与上方部门 ID 二选一；均填写时以字符串为准',
 					},
 					{
 						displayName: '成员权限',

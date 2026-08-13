@@ -10,13 +10,23 @@ export const updateDepartmentDescription: INodeProperties[] = [
 		displayName: '部门ID',
 		name: 'id',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: showOnlyForUpdateDept,
 		},
 		default: '',
 		placeholder: '100',
-		description: '部门 ID，32位整型。注意：部门的最大层级为15层；部门总数不能超过3万个；每个部门下的节点不能超过3万个。<a href="https://developer.work.weixin.qq.com/document/path/90206" target="_blank">官方文档</a>',
+		description: '部门 ID，32位整型。注意：部门的最大层级为15层；部门总数不能超过3万个；每个部门下的节点不能超过3万个；可与下方选择二选一。<a href="https://developer.work.weixin.qq.com/document/path/90206" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '部门(选择)',
+		name: 'id_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getDepartments' },
+		displayOptions: {
+			show: showOnlyForUpdateDept,
+		},
+		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '部门名称',
@@ -49,7 +59,18 @@ export const updateDepartmentDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: '1',
-		description: '可选。父部门 ID，32位整型。如若要移动部门，需要有新父部门的管理权限。如果非必须的字段未指定，则不更新该字段。<a href="https://developer.work.weixin.qq.com/document/path/90206" target="_blank">官方文档</a>',
+		description: '可选。父部门 ID，32位整型。如若要移动部门，需要有新父部门的管理权限。如果非必须的字段未指定，则不更新该字段；可与下方选择二选一。<a href="https://developer.work.weixin.qq.com/document/path/90206" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '父部门(选择)',
+		name: 'parentid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getDepartments' },
+		displayOptions: {
+			show: showOnlyForUpdateDept,
+		},
+		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '更新次序值',

@@ -33,13 +33,23 @@ export const createDepartmentDescription: INodeProperties[] = [
 		displayName: '父部门ID',
 		name: 'parentid',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: showOnlyForCreateDept,
 		},
 		default: '1',
 		placeholder: '1',
-		description: '父部门 ID，32位整型。根部门 ID 为 1。注意：部门的最大层级为15层；部门总数不能超过3万个；每个部门下的节点不能超过3万个。<a href="https://developer.work.weixin.qq.com/document/path/90205" target="_blank">官方文档</a>',
+		description: '父部门 ID，32位整型。根部门 ID 为 1。注意：部门的最大层级为15层；部门总数不能超过3万个；每个部门下的节点不能超过3万个；可与下方选择二选一。<a href="https://developer.work.weixin.qq.com/document/path/90205" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '父部门(选择)',
+		name: 'parentid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getDepartments' },
+		displayOptions: {
+			show: showOnlyForCreateDept,
+		},
+		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '在父部门中的次序值',

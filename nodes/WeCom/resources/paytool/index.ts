@@ -227,7 +227,21 @@ export const paytoolDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '订单创建人的userid。设置的创建人需要有收银台收款的权限，设置后，如果有「企业取消应用订单」、「应用订单确认失败提醒」的消息会推送给创建人',
+		description: '订单创建人的userid。设置的创建人需要有收银台收款的权限，设置后，如果有「企业取消应用订单」、「应用订单确认失败提醒」的消息会推送给创建人；可与下方选择二选一',
+	},
+	{
+		displayName: '订单创建人(选择)',
+		name: 'creator_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: {
+				resource: ['paytool'],
+				operation: ['createOrder'],
+			},
+		},
+		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	// 普通第三方应用相关参数
 	{
@@ -880,7 +894,6 @@ export const paytoolDescription: INodeProperties[] = [
 		displayName: '操作人userid',
 		name: 'operUserid',
 		type: 'string',
-		required: true,
 		displayOptions: {
 			show: {
 				resource: ['paytool'],
@@ -888,7 +901,21 @@ export const paytoolDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '标记开票状态的操作人。操作人需要有「收银台-发票管理」的权限',
+		description: '标记开票状态的操作人。操作人需要有「收银台-发票管理」的权限；可与下方选择二选一',
+	},
+	{
+		displayName: '操作人(选择)',
+		name: 'operUserid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: {
+				resource: ['paytool'],
+				operation: ['markInvoiceStatus'],
+			},
+		},
+		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '开票状态',
