@@ -27,7 +27,17 @@ export const delTagUsersDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'user1,user2',
-		description: '可选。企业成员ID列表，注意：userlist、partylist不能同时为空，单次请求长度不超过1000。多个成员ID用逗号分隔。<a href="https://developer.work.weixin.qq.com/document/path/90215" target="_blank">官方文档</a>',
+		description:
+			'可选。企业成员 ID，逗号分隔；与下方选择合并。userlist、partylist 不能同时为空，单次最多 1000 人。<a href="https://developer.work.weixin.qq.com/document/path/90215" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '成员(选择)',
+		name: 'userlist_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: { show: showOnlyForDelTagUsers },
+		default: [],
+		description: '与上方列表合并去重',
 	},
 	{
 		displayName: '部门ID列表',
@@ -38,7 +48,18 @@ export const delTagUsersDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: '2,4',
-		description: '可选。企业部门ID列表，注意：userlist、partylist不能同时为空，单次请求长度不超过100。多个部门ID用逗号分隔。<a href="https://developer.work.weixin.qq.com/document/path/90215" target="_blank">官方文档</a>',
+		description:
+			'可选。企业部门 ID，逗号分隔；与下方选择合并。userlist、partylist 不能同时为空，单次最多 100 个部门。<a href="https://developer.work.weixin.qq.com/document/path/90215" target="_blank">官方文档</a>',
+	},
+	{
+		displayName: '部门(选择)',
+		name: 'partylist_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getDepartments' },
+		displayOptions: { show: showOnlyForDelTagUsers },
+		default: [],
+		description: '与上方列表合并去重',
 	},
 ];
+
 

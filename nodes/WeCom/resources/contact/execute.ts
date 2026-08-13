@@ -587,10 +587,23 @@ export async function executeContact(
 				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/tag/delete', {}, { tagid });
 			} else if (operation === 'addTagUsers') {
 				const tagid = this.getNodeParameter('tagid', i) as string;
-				const userlist = this.getNodeParameter('userlist', i, '') as string;
-				const partylist = this.getNodeParameter('partylist', i, '') as string;
-				const users = splitCsv(userlist, 1000);
-				const parties = parseIntegerCsv(this, partylist, '部门 ID', i, 100);
+				const users = splitCsv(
+					[
+						this.getNodeParameter('userlist', i, ''),
+						...(this.getNodeParameter('userlist_selected', i, []) as string[]),
+					],
+					1000,
+				);
+				const parties = parseIntegerCsv(
+					this,
+					[
+						this.getNodeParameter('partylist', i, ''),
+						...(this.getNodeParameter('partylist_selected', i, []) as Array<string | number>),
+					].join(','),
+					'部门 ID',
+					i,
+					100,
+				);
 
 				// userlist、partylist不能同时为空
 				if (!users.length && !parties.length) {
@@ -608,10 +621,23 @@ export async function executeContact(
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/tag/addtagusers', body);
 			} else if (operation === 'delTagUsers') {
 				const tagid = this.getNodeParameter('tagid', i) as string;
-				const userlist = this.getNodeParameter('userlist', i, '') as string;
-				const partylist = this.getNodeParameter('partylist', i, '') as string;
-				const users = splitCsv(userlist, 1000);
-				const parties = parseIntegerCsv(this, partylist, '部门 ID', i, 100);
+				const users = splitCsv(
+					[
+						this.getNodeParameter('userlist', i, ''),
+						...(this.getNodeParameter('userlist_selected', i, []) as string[]),
+					],
+					1000,
+				);
+				const parties = parseIntegerCsv(
+					this,
+					[
+						this.getNodeParameter('partylist', i, ''),
+						...(this.getNodeParameter('partylist_selected', i, []) as Array<string | number>),
+					].join(','),
+					'部门 ID',
+					i,
+					100,
+				);
 
 				// userlist、partylist不能同时为空
 				if (!users.length && !parties.length) {
