@@ -64,6 +64,15 @@ export const getUserBehaviorDataDescription: INodeProperties[] = [
 		description: '与上方部门列表合并去重，合计最多 100 个',
 	},
 	{
+		displayName: '部门列表 JSON',
+		name: 'partyidJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: { ...showOnly, filterType: ['party'] } },
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}]',
+	},
+	{
 		displayName: '起始时间（必填）',
 		name: 'start_time',
 		type: 'dateTime',

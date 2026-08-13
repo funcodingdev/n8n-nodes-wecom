@@ -96,6 +96,15 @@ export const addContactWayDescription: INodeProperties[] = [
 		description: '与上方列表合并',
 	},
 	{
+		displayName: '部门列表 JSON',
+		name: 'partyJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: { ...showOnly, type: [2] } },
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}]',
+	},
+	{
 		displayName: '备注',
 		name: 'remark',
 		type: 'string',

@@ -66,6 +66,40 @@ function parseUserIdJsonOptional(
 	);
 }
 
+function parsePartyIdJsonOptional(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): string[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	if (parsed.length === 0) return [];
+	return stringList(
+		context,
+		parsed.map((entry) => {
+			if (typeof entry === 'string' || typeof entry === 'number') return entry;
+			if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+				const row = entry as IDataObject;
+				return row.partyid ?? row.party_id ?? row.departmentid ?? row.department_id ?? row.id ?? '';
+			}
+			return '';
+		}),
+		label,
+		itemIndex,
+		0,
+		1000,
+	);
+}
+
 function normalizeMac(context: IExecuteFunctions, value: string, itemIndex: number): string {
 	if (!/^(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}$/.test(value)) {
 		fail(context, `MAC 地址格式无效: ${value}`, itemIndex);
@@ -313,6 +347,12 @@ async function runOperation(
 			[
 				context.getNodeParameter('department_id_list', itemIndex, ''),
 				context.getNodeParameter('department_id_list_selected', itemIndex, []),
+				...parsePartyIdJsonOptional(
+					context,
+					context.getNodeParameter('departmentIdListJson', itemIndex, '[]'),
+					'部门列表 JSON',
+					itemIndex,
+				),
 			],
 			'部门 ID 列表',
 			itemIndex,

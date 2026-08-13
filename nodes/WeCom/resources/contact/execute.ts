@@ -818,6 +818,13 @@ export async function executeContact(
 					[
 						this.getNodeParameter('partylist', i, ''),
 						...(this.getNodeParameter('partylist_selected', i, []) as Array<string | number>),
+						...parseIdJson(
+							this,
+							this.getNodeParameter('partylistJson', i, '[]'),
+							'部门列表 JSON',
+							i,
+							['partyid', 'party_id', 'departmentid', 'id'],
+						),
 					].join(','),
 					'部门 ID',
 					i,

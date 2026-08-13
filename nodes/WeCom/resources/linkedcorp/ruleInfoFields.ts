@@ -34,6 +34,15 @@ export function ruleInfoFields(
 			description: '与上方上游部门列表合并去重',
 		},
 		{
+			displayName: '上游部门 JSON',
+			name: 'ownerDepartmentidsJson',
+			type: 'json',
+			displayOptions: { show: { ...showOnly, rule_info_input_mode: ['form'] } },
+			default: '[]',
+			description:
+				'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}] / [{"departmentid":1}]',
+		},
+		{
 			displayName: '上游成员 ID 列表',
 			name: 'owner_userids',
 			type: 'string',

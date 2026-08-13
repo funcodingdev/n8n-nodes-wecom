@@ -687,6 +687,12 @@ export async function executeExternalContact(
 								[
 									this.getNodeParameter('party', i, ''),
 									this.getNodeParameter('party_selected', i, []),
+									...parsePartyIdJson(
+										this,
+										this.getNodeParameter('partyJson', i, '[]'),
+										'部门列表 JSON',
+										i,
+									),
 								],
 								'部门 ID',
 								i,
@@ -808,6 +814,12 @@ export async function executeExternalContact(
 						[
 							this.getNodeParameter('party', i, ''),
 							this.getNodeParameter('party_selected', i, []),
+							...parsePartyIdJson(
+								this,
+								this.getNodeParameter('partyJson', i, '[]'),
+								'部门列表 JSON',
+								i,
+							),
 						],
 						'部门 ID',
 						i,
@@ -2044,6 +2056,12 @@ export async function executeExternalContact(
 						[
 							this.getNodeParameter('partyid', i, ''),
 							this.getNodeParameter('partyid_selected', i, []),
+							...parsePartyIdJson(
+								this,
+								this.getNodeParameter('partyidJson', i, '[]'),
+								'部门列表 JSON',
+								i,
+							),
 						],
 						'部门 ID 列表',
 						i,
@@ -3108,6 +3126,12 @@ export async function executeExternalContact(
 						bodyDefaults.partyid = [
 							this.getNodeParameter('behavior_partyid', i, ''),
 							this.getNodeParameter('behavior_partyid_selected', i, []),
+							...parsePartyIdJson(
+								this,
+								this.getNodeParameter('behaviorPartyidJson', i, '[]'),
+								'部门列表 JSON',
+								i,
+							),
 						];
 					}
 					bodyDefaults.start_time = dateTimeToUnixTimestamp(

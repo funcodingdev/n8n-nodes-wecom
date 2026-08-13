@@ -925,6 +925,21 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		description: '与上方部门列表合并去重，合计最多 100 个',
 	},
 	{
+		displayName: '部门列表 JSON',
+		name: 'behaviorPartyidJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: {
+			show: {
+				resource: ['externalContact'],
+				operation: ['crmGetUserBehaviorData'],
+				behaviorFilterType: ['party'],
+			},
+		},
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}]',
+	},
+	{
 		displayName: '统计开始时间',
 		name: 'behavior_start_time',
 		type: 'dateTime',

@@ -48,6 +48,38 @@ function parseUserIdJsonList(
 	);
 }
 
+function parsePartyIdJsonList(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): Array<string | number> {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	if (parsed.length === 0) return [];
+	return (parsed as unknown[]).map((entry) => {
+		if (typeof entry === 'string' || typeof entry === 'number') return entry;
+		if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+			const row = entry as IDataObject;
+			return (row.partyid ??
+				row.party_id ??
+				row.departmentid ??
+				row.department_id ??
+				row.id ??
+				'') as string | number;
+		}
+		return '';
+	});
+}
+
 function buildMsgMenuMessage(
 	context: IExecuteFunctions,
 	menuItemsValue: unknown,
@@ -534,6 +566,12 @@ export async function executeKf(
 					[
 						this.getNodeParameter('department_id_list_text', i, ''),
 						this.getNodeParameter('department_id_list', i, []),
+						...parsePartyIdJsonList(
+							this,
+							this.getNodeParameter('departmentIdListJson', i, '[]'),
+							'接待部门 JSON',
+							i,
+						),
 					],
 					'接待人员部门列表',
 					i,
@@ -577,6 +615,12 @@ export async function executeKf(
 					[
 						this.getNodeParameter('department_id_list_text', i, ''),
 						this.getNodeParameter('department_id_list', i, []),
+						...parsePartyIdJsonList(
+							this,
+							this.getNodeParameter('departmentIdListJson', i, '[]'),
+							'接待部门 JSON',
+							i,
+						),
 					],
 					'接待人员部门列表',
 					i,

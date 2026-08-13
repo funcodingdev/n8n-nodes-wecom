@@ -92,4 +92,15 @@ export const delServicerDescription: INodeProperties[] = [
 		default: [],
 		description: '最多 100 个。与接待人员至少填写一项。<a href="https://developer.work.weixin.qq.com/document/path/94647" target="_blank">官方文档</a>',
 	},
+	{
+		displayName: '接待部门 JSON',
+		name: 'departmentIdListJson',
+		type: 'json',
+		displayOptions: {
+			show: showOnlyForDelServicer,
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}] / [{"departmentid":1}]',
+	},
 ];

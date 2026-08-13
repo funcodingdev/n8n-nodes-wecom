@@ -102,6 +102,20 @@ export const getScreenOperRecordDescription: INodeProperties[] = [
 		description: '与上方部门列表合并去重，合计最多 100 个',
 	},
 	{
+		displayName: '部门列表 JSON',
+		name: 'departmentIdListJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['security'],
+				operation: ['getScreenOperRecord'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}] / [{"departmentid":1}]',
+	},
+	{
 		displayName: '截屏内容类型',
 		name: 'screen_shot_type',
 		type: 'options',

@@ -81,6 +81,15 @@ export const updateContactWayDescription: INodeProperties[] = [
 		displayOptions: { show: showWhen('updateParty') },
 		description: '与上方列表合并去重',
 	},
+	{
+		displayName: '部门列表 JSON',
+		name: 'partyJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: showWhen('updateParty') },
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}]',
+	},
 	updateToggle('更新备注', 'updateRemark', '开启后覆盖原备注；留空可清空备注'),
 	{
 		displayName: '备注',
