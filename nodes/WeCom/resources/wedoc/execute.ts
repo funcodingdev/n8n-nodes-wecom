@@ -149,6 +149,35 @@ function stringList(
 	return unique;
 }
 
+function parseUserIdJson(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): string[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	if (parsed.length === 0) return [];
+	return listValues(
+		parsed.map((entry) => {
+			if (typeof entry === 'string' || typeof entry === 'number') return entry;
+			if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+				const row = entry as IDataObject;
+				return row.userid ?? row.userid_selected ?? row.user_id ?? '';
+			}
+			return '';
+		}),
+	);
+}
+
 function integerInRange(
 	context: IExecuteFunctions,
 	value: unknown,
@@ -3587,6 +3616,12 @@ export async function executeWedoc(
 					[
 						add_member_userids,
 						this.getNodeParameter('add_member_userids_selected', i, []),
+						...parseUserIdJson(
+							this,
+							this.getNodeParameter('addMemberUseridsJson', i, '[]'),
+							'添加成员 JSON',
+							i,
+						),
 					],
 					'添加成员 UserID 列表',
 					i,
@@ -3598,6 +3633,12 @@ export async function executeWedoc(
 					[
 						del_member_userids,
 						this.getNodeParameter('del_member_userids_selected', i, []),
+						...parseUserIdJson(
+							this,
+							this.getNodeParameter('delMemberUseridsJson', i, '[]'),
+							'删除成员 JSON',
+							i,
+						),
 					],
 					'删除成员 UserID 列表',
 					i,

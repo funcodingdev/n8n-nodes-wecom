@@ -61,6 +61,15 @@ export function composeFields(operation: string): INodeProperties[] {
 			default: [],
 			description: '与上方收件人 UserID 列表合并去重',
 		},
+		{
+			displayName: '收件人 JSON',
+			name: 'toUseridsJson',
+			type: 'json',
+			displayOptions: { show: show(operation) },
+			default: '[]',
+			description:
+				'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+		},
 		recipientCollection(operation, '抄送邮箱', 'ccListCollection'),
 		{
 			displayName: '抄送UserID列表',
@@ -79,6 +88,15 @@ export function composeFields(operation: string): INodeProperties[] {
 			default: [],
 			description: '与上方抄送 UserID 列表合并去重',
 		},
+		{
+			displayName: '抄送人 JSON',
+			name: 'ccUseridsJson',
+			type: 'json',
+			displayOptions: { show: show(operation) },
+			default: '[]',
+			description:
+				'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+		},
 		recipientCollection(operation, '密送邮箱', 'bccListCollection'),
 		{
 			displayName: '密送UserID列表',
@@ -96,6 +114,15 @@ export function composeFields(operation: string): INodeProperties[] {
 			displayOptions: { show: show(operation) },
 			default: [],
 			description: '与上方密送 UserID 列表合并去重',
+		},
+		{
+			displayName: '密送人 JSON',
+			name: 'bccUseridsJson',
+			type: 'json',
+			displayOptions: { show: show(operation) },
+			default: '[]',
+			description:
+				'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
 		},
 		{
 			displayName: '正文格式',
@@ -252,6 +279,18 @@ export function scheduleAdminSelectedField(operation: string): INodeProperties {
 	};
 }
 
+export function scheduleAdminsJsonField(operation: string): INodeProperties {
+	return {
+		displayName: '日程管理员 JSON',
+		name: 'scheduleAdminsJson',
+		type: 'json',
+		displayOptions: { show: show(operation, { scheduleMethod: ['request'] }) },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重，最多 3 人。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	};
+}
+
 export function meetingFields(operation: string): INodeProperties[] {
 	return [
 		{
@@ -270,6 +309,15 @@ export function meetingFields(operation: string): INodeProperties[] {
 			displayOptions: { show: show(operation, { scheduleMethod: ['request'] }) },
 			default: [],
 			description: '与上方列表合并去重，合计最多 10 人',
+		},
+		{
+			displayName: '主持人 JSON',
+			name: 'meetingHostsJson',
+			type: 'json',
+			displayOptions: { show: show(operation, { scheduleMethod: ['request'] }) },
+			default: '[]',
+			description:
+				'可选。非空数组时与上方列表/选择合并去重，最多 10 人。支持 ["userid1"] 或 [{"userid":"userid1"}]',
 		},
 		{
 			displayName: '会议管理员UserID',

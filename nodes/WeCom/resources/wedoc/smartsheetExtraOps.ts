@@ -80,6 +80,15 @@ export const smartsheetExtraOpsDescription: INodeProperties[] = [
 		description: '与上方添加列表合并去重',
 	},
 	{
+		displayName: '添加成员 JSON',
+		name: 'addMemberUseridsJson',
+		type: 'json',
+		displayOptions: show(['modPrivRuleMember']),
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '删除成员UserID',
 		name: 'del_member_userids',
 		type: 'string',
@@ -96,6 +105,15 @@ export const smartsheetExtraOpsDescription: INodeProperties[] = [
 		displayOptions: show(['modPrivRuleMember']),
 		default: [],
 		description: '与上方删除列表合并去重',
+	},
+	{
+		displayName: '删除成员 JSON',
+		name: 'delMemberUseridsJson',
+		type: 'json',
+		displayOptions: show(['modPrivRuleMember']),
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
 	},
 	{
 		displayName: '权限规则类型',

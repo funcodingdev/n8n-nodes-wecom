@@ -111,6 +111,35 @@ function stringList(
 	return unique;
 }
 
+function parseUserIdJson(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): string[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	if (parsed.length === 0) return [];
+	return listValues(
+		parsed.map((entry) => {
+			if (typeof entry === 'string' || typeof entry === 'number') return entry;
+			if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+				const row = entry as IDataObject;
+				return row.userid ?? row.userid_selected ?? row.user_id ?? '';
+			}
+			return '';
+		}),
+	);
+}
+
 function numberList(
 	context: IExecuteFunctions,
 	value: unknown,
@@ -261,6 +290,12 @@ function composeBody(
 		[
 			context.getNodeParameter('to_userids', itemIndex, ''),
 			context.getNodeParameter('to_userids_selected', itemIndex, []),
+			...parseUserIdJson(
+				context,
+				context.getNodeParameter('toUseridsJson', itemIndex, '[]'),
+				'收件人 JSON',
+				itemIndex,
+			),
 		],
 		'收件人',
 		itemIndex,
@@ -272,6 +307,12 @@ function composeBody(
 		[
 			context.getNodeParameter('cc_userids', itemIndex, ''),
 			context.getNodeParameter('cc_userids_selected', itemIndex, []),
+			...parseUserIdJson(
+				context,
+				context.getNodeParameter('ccUseridsJson', itemIndex, '[]'),
+				'抄送人 JSON',
+				itemIndex,
+			),
 		],
 		'抄送人',
 		itemIndex,
@@ -283,6 +324,12 @@ function composeBody(
 		[
 			context.getNodeParameter('bcc_userids', itemIndex, ''),
 			context.getNodeParameter('bcc_userids_selected', itemIndex, []),
+			...parseUserIdJson(
+				context,
+				context.getNodeParameter('bccUseridsJson', itemIndex, '[]'),
+				'密送人 JSON',
+				itemIndex,
+			),
 		],
 		'密送人',
 		itemIndex,
@@ -468,6 +515,12 @@ export async function executeMail(
 						[
 							this.getNodeParameter('schedule_admin_userids', i, ''),
 							this.getNodeParameter('schedule_admin_userids_selected', i, []),
+							...parseUserIdJson(
+								this,
+								this.getNodeParameter('scheduleAdminsJson', i, '[]'),
+								'日程管理员 JSON',
+								i,
+							),
 						],
 						'日程管理员',
 						i,
@@ -491,6 +544,12 @@ export async function executeMail(
 						[
 							this.getNodeParameter('meeting_host_userids', i, ''),
 							this.getNodeParameter('meeting_host_userids_selected', i, []),
+							...parseUserIdJson(
+								this,
+								this.getNodeParameter('meetingHostsJson', i, '[]'),
+								'会议主持人 JSON',
+								i,
+							),
 						],
 						'会议主持人',
 						i,

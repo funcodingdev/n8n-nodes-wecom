@@ -3,6 +3,7 @@ import {
 	composeFields,
 	scheduleAdminField,
 	scheduleAdminSelectedField,
+	scheduleAdminsJsonField,
 	scheduleFields,
 } from './composeFields';
 
@@ -20,4 +21,5 @@ export const sendScheduleMailDescription: INodeProperties[] = [
 	...scheduleFields('sendScheduleMail', '日程'),
 	scheduleAdminField('sendScheduleMail'),
 	scheduleAdminSelectedField('sendScheduleMail'),
+	scheduleAdminsJsonField('sendScheduleMail'),
 ];
