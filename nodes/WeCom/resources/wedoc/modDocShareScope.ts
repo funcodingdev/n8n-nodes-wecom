@@ -115,7 +115,7 @@ export const modDocShareScopeDescription: INodeProperties[] = [
 		default: {},
 		placeholder: '添加部门',
 		typeOptions: { multipleValues: true },
-		description: '指定文档查看权限的部门列表，留空表示清空',
+		description: '指定文档查看权限的部门列表，留空表示清空；下方 JSON 非空时覆盖表单',
 		options: [
 			{
 				displayName: '部门',
@@ -147,5 +147,14 @@ export const modDocShareScopeDescription: INodeProperties[] = [
 				],
 			},
 		],
+	},
+	{
+		displayName: '特定部门列表 JSON',
+		name: 'coAuthListJson',
+		type: 'json',
+		displayOptions: { show: { ...showOnly, update_co_auth_list: [true] } },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方部门表单。支持 [{"departmentid":1,"auth":1}]',
 	},
 ];

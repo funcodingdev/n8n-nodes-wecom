@@ -1426,6 +1426,24 @@ export async function executeWedoc(
 					0,
 					4294967295,
 				);
+				const requestsJsonRaw = this.getNodeParameter('requestsJson', i, '[]');
+				let requestsFromJson: IDataObject[] | null = null;
+				if (
+					requestsJsonRaw !== undefined &&
+					requestsJsonRaw !== null &&
+					String(requestsJsonRaw).trim() !== ''
+				) {
+					let parsed: unknown = requestsJsonRaw;
+					if (typeof requestsJsonRaw === 'string') {
+						try {
+							parsed = JSON.parse(requestsJsonRaw);
+						} catch {
+							fail(this, '操作列表 JSON 不是有效的 JSON', i);
+						}
+					}
+					if (!Array.isArray(parsed)) fail(this, '操作列表 JSON 必须是数组', i);
+					if (parsed.length > 0) requestsFromJson = parsed as IDataObject[];
+				}
 				const requestsCollection = this.getNodeParameter(
 					'requestsCollection',
 					i,
@@ -1433,8 +1451,9 @@ export async function executeWedoc(
 				) as IDataObject;
 
 				const requests: IDataObject[] = [];
-
-				if (requestsCollection.requests && Array.isArray(requestsCollection.requests)) {
+				if (requestsFromJson) {
+					requests.push(...requestsFromJson);
+				} else if (requestsCollection.requests && Array.isArray(requestsCollection.requests)) {
 					for (const [requestIndex, req] of (requestsCollection.requests as IDataObject[]).entries()) {
 						const request: IDataObject = {};
 						const location = () => ({
@@ -1574,6 +1593,24 @@ export async function executeWedoc(
 				);
 			} else if (operation === 'modSheetContent') {
 				const docid = requiredText(this, this.getNodeParameter('docid', i), '文档 ID', i);
+				const sheetRequestsJsonRaw = this.getNodeParameter('requestsJson', i, '[]');
+				let sheetRequestsFromJson: IDataObject[] | null = null;
+				if (
+					sheetRequestsJsonRaw !== undefined &&
+					sheetRequestsJsonRaw !== null &&
+					String(sheetRequestsJsonRaw).trim() !== ''
+				) {
+					let parsed: unknown = sheetRequestsJsonRaw;
+					if (typeof sheetRequestsJsonRaw === 'string') {
+						try {
+							parsed = JSON.parse(sheetRequestsJsonRaw);
+						} catch {
+							fail(this, '操作列表 JSON 不是有效的 JSON', i);
+						}
+					}
+					if (!Array.isArray(parsed)) fail(this, '操作列表 JSON 必须是数组', i);
+					if (parsed.length > 0) sheetRequestsFromJson = parsed as IDataObject[];
+				}
 				const requestsCollection = this.getNodeParameter(
 					'requestsCollection',
 					i,
@@ -1582,7 +1619,9 @@ export async function executeWedoc(
 
 				const requests: IDataObject[] = [];
 
-				if (requestsCollection.requests && Array.isArray(requestsCollection.requests)) {
+				if (sheetRequestsFromJson) {
+					requests.push(...sheetRequestsFromJson);
+				} else if (requestsCollection.requests && Array.isArray(requestsCollection.requests)) {
 					for (const [requestIndex, req] of (requestsCollection.requests as IDataObject[]).entries()) {
 						const request: IDataObject = {};
 
@@ -2946,14 +2985,35 @@ export async function executeWedoc(
 					i,
 					{},
 				) as IDataObject;
+				const parseMemberJson = (raw: unknown, label: string): IDataObject[] | null => {
+					if (raw === undefined || raw === null || String(raw).trim() === '') return null;
+					let parsed: unknown = raw;
+					if (typeof raw === 'string') {
+						try {
+							parsed = JSON.parse(raw);
+						} catch {
+							fail(this, `${label}不是有效的 JSON`, i);
+						}
+					}
+					if (!Array.isArray(parsed)) fail(this, `${label}必须是数组`, i);
+					if (parsed.length === 0) return null;
+					return parsed as IDataObject[];
+				};
 
 				const body: IDataObject = { docid };
-				const added = Array.isArray(addMemberCollection.members)
-					? (addMemberCollection.members as IDataObject[])
-					: [];
-				const updated = Array.isArray(updateMemberCollection.members)
-					? (updateMemberCollection.members as IDataObject[])
-					: [];
+				const added =
+					parseMemberJson(this.getNodeParameter('addMemberJson', i, '[]'), '添加通知范围 JSON') ??
+					(Array.isArray(addMemberCollection.members)
+						? (addMemberCollection.members as IDataObject[])
+						: []);
+				const updated =
+					parseMemberJson(
+						this.getNodeParameter('updateMemberJson', i, '[]'),
+						'更新成员权限 JSON',
+					) ??
+					(Array.isArray(updateMemberCollection.members)
+						? (updateMemberCollection.members as IDataObject[])
+						: []);
 				const updateMembers = [...added, ...updated].map((member) =>
 					buildDocMember(this, member, i, true),
 				);
@@ -2971,11 +3031,12 @@ export async function executeWedoc(
 				}
 				if (updateMembers.length) body.update_file_member_list = updateMembers;
 
-				const deleted = Array.isArray(delMemberCollection.members)
-					? (delMemberCollection.members as IDataObject[]).map((member) =>
-							buildDocMember(this, member, i, false),
-						)
-					: [];
+				const deletedSource =
+					parseMemberJson(this.getNodeParameter('delMemberJson', i, '[]'), '删除通知范围 JSON') ??
+					(Array.isArray(delMemberCollection.members)
+						? (delMemberCollection.members as IDataObject[])
+						: []);
+				const deleted = deletedSource.map((member) => buildDocMember(this, member, i, false));
 				const deletedIdentities = deleted.map(memberIdentity);
 				if (new Set(deletedIdentities).size !== deletedIdentities.length) {
 					fail(this, '删除文档通知范围中不能包含重复成员', i);
@@ -3070,11 +3131,28 @@ export async function executeWedoc(
 
 				if (updateCoAuthList) {
 					const coAuthCollection = this.getNodeParameter('coAuthCollection', i, {}) as IDataObject;
-					const rawDepartments = Array.isArray(coAuthCollection.departments)
+					const coAuthJsonRaw = this.getNodeParameter('coAuthListJson', i, '[]');
+					let rawDepartments = Array.isArray(coAuthCollection.departments)
 						? (coAuthCollection.departments as IDataObject[])
 						: Array.isArray(coAuthCollection.members)
 							? (coAuthCollection.members as IDataObject[])
 							: [];
+					if (
+						coAuthJsonRaw !== undefined &&
+						coAuthJsonRaw !== null &&
+						String(coAuthJsonRaw).trim() !== ''
+					) {
+						let parsed: unknown = coAuthJsonRaw;
+						if (typeof coAuthJsonRaw === 'string') {
+							try {
+								parsed = JSON.parse(coAuthJsonRaw);
+							} catch {
+								fail(this, '特定部门列表 JSON 不是有效的 JSON', i);
+							}
+						}
+						if (!Array.isArray(parsed)) fail(this, '特定部门列表 JSON 必须是数组', i);
+						if (parsed.length > 0) rawDepartments = parsed as IDataObject[];
+					}
 
 					body.update_co_auth_list = true;
 					body.co_auth_list = rawDepartments.map((department) => {

@@ -24,7 +24,7 @@ export const modSheetContentDescription: INodeProperties[] = [
 		default: {},
 		placeholder: '添加操作',
 		typeOptions: { multipleValues: true },
-		description: '表格编辑操作列表',
+		description: '表格编辑操作列表；下方 JSON 非空时覆盖表单（官方 requests 结构）',
 		options: [
 			{
 				displayName: '操作',
@@ -171,5 +171,15 @@ export const modSheetContentDescription: INodeProperties[] = [
 				],
 			},
 		],
+	},
+
+	{
+		displayName: '操作列表 JSON',
+		name: 'requestsJson',
+		type: 'json',
+		displayOptions: { show: showOnlyForModSheet },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方操作表单。填写企业微信官方 requests 数组结构，单次最多 5 项',
 	},
 ];

@@ -87,4 +87,14 @@ export const updateUserMailAttributeDescription: INodeProperties[] = [
 			},
 		],
 	},
+
+	{
+		displayName: '功能属性列表 JSON',
+		name: 'optionListJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方属性表单及快捷设置合并（同 type 以后出现的为准）。支持 [{"type":2,"value":"1"}]',
+	},
 ];

@@ -98,4 +98,14 @@ export const sendSchoolMessageMpNewsDescription: INodeProperties[] = [
 		default: false,
 		description: '可选。表示是否开启ID转译，默认否。开启后可以将userid/部门ID转成对应的企业通讯录内部的用户名/部门名',
 	},
+
+	{
+		displayName: '图文列表 JSON',
+		name: 'articlesJson',
+		type: 'json',
+		displayOptions: { show: showOnlyForSendSchoolMessageMpNews },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方图文表单。支持 [{"title":"...","thumb_media_id":"...","content":"..."}]，1–8 条',
+	},
 ];

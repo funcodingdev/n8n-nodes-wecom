@@ -3170,7 +3170,24 @@ export async function executeExternalContact(
 					const media_id = requireText(this, this.getNodeParameter('media_id', i), '文件 Media ID', i);
 					body.file = { media_id };
 				} else if (msgtype === 'news') {
-					const articleRows = collectionRows(this.getNodeParameter('articles', i, {}), 'article');
+					const articlesJsonRaw = this.getNodeParameter('articlesJson', i, '[]');
+					let articleRows = collectionRows(this.getNodeParameter('articles', i, {}), 'article');
+					if (
+						articlesJsonRaw !== undefined &&
+						articlesJsonRaw !== null &&
+						String(articlesJsonRaw).trim() !== ''
+					) {
+						let parsed: unknown = articlesJsonRaw;
+						if (typeof articlesJsonRaw === 'string') {
+							try {
+								parsed = JSON.parse(articlesJsonRaw);
+							} catch {
+								fail(this, '图文列表 JSON 不是有效的 JSON', i);
+							}
+						}
+						if (!Array.isArray(parsed)) fail(this, '图文列表 JSON 必须是数组', i);
+						if (parsed.length > 0) articleRows = parsed as IDataObject[];
+					}
 					if (articleRows.length < 1 || articleRows.length > 8) fail(this, '图文消息数量必须为 1–8 条', i);
 					const articleList = articleRows.map((article, articleIndex) => {
 						const item: IDataObject = {
@@ -3187,7 +3204,24 @@ export async function executeExternalContact(
 					body.news = { articles: articleList };
 					body.enable_id_trans = enable_id_trans ? 1 : 0;
 				} else if (msgtype === 'mpnews') {
-					const articleRows = collectionRows(this.getNodeParameter('articles', i, {}), 'article');
+					const articlesJsonRaw = this.getNodeParameter('articlesJson', i, '[]');
+					let articleRows = collectionRows(this.getNodeParameter('articles', i, {}), 'article');
+					if (
+						articlesJsonRaw !== undefined &&
+						articlesJsonRaw !== null &&
+						String(articlesJsonRaw).trim() !== ''
+					) {
+						let parsed: unknown = articlesJsonRaw;
+						if (typeof articlesJsonRaw === 'string') {
+							try {
+								parsed = JSON.parse(articlesJsonRaw);
+							} catch {
+								fail(this, '图文列表 JSON 不是有效的 JSON', i);
+							}
+						}
+						if (!Array.isArray(parsed)) fail(this, '图文列表 JSON 必须是数组', i);
+						if (parsed.length > 0) articleRows = parsed as IDataObject[];
+					}
 					if (articleRows.length < 1 || articleRows.length > 8) fail(this, 'Mpnews 图文数量必须为 1–8 条', i);
 					const articleList = articleRows.map((article, articleIndex) => {
 						const item: IDataObject = {

@@ -100,6 +100,33 @@ export const modDocMemberRuleDescription: INodeProperties[] = [
 		default: '',
 	},
 	memberCollection('addMemberCollection', '添加通知范围', '添加成员', true),
+	{
+		displayName: '添加通知范围 JSON',
+		name: 'addMemberJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方「添加通知范围」表单。支持 [{"userid":"...","auth":1}] 或 [{"tmp_external_userid":"...","auth":1}]',
+	},
 	memberCollection('updateMemberCollection', '更新成员权限', '更新成员', true),
+	{
+		displayName: '更新成员权限 JSON',
+		name: 'updateMemberJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方「更新成员权限」表单。支持 [{"userid":"...","auth":2}]',
+	},
 	memberCollection('delMemberCollection', '删除通知范围', '删除成员', false),
+	{
+		displayName: '删除通知范围 JSON',
+		name: 'delMemberJson',
+		type: 'json',
+		displayOptions: { show: showOnly },
+		default: '[]',
+		description:
+			'可选。非空数组时覆盖上方「删除通知范围」表单。支持 [{"userid":"..."}] 或 [{"tmp_external_userid":"..."}]',
+	},
 ];

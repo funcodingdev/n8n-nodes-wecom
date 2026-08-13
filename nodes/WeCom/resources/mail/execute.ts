@@ -1104,7 +1104,30 @@ export async function executeMail(
 				if (hasOwn(legacy, 'enable_imap')) optionMap.set(2, legacy.enable_imap ? '1' : '0');
 				if (hasOwn(legacy, 'enable_smtp')) optionMap.set(3, legacy.enable_smtp ? '1' : '0');
 				const collection = this.getNodeParameter('optionList', i, {}) as IDataObject;
-				const options = Array.isArray(collection.options) ? (collection.options as IDataObject[]) : [];
+				const formOptions = Array.isArray(collection.options)
+					? (collection.options as IDataObject[])
+					: [];
+				const optionJsonRaw = this.getNodeParameter('optionListJson', i, '[]');
+				let options = formOptions;
+				if (
+					optionJsonRaw !== undefined &&
+					optionJsonRaw !== null &&
+					String(optionJsonRaw).trim() !== ''
+				) {
+					let parsed: unknown = optionJsonRaw;
+					if (typeof optionJsonRaw === 'string') {
+						try {
+							parsed = JSON.parse(optionJsonRaw);
+						} catch {
+							fail(this, '功能属性列表 JSON 不是有效的 JSON', i);
+						}
+					}
+					if (!Array.isArray(parsed)) fail(this, '功能属性列表 JSON 必须是数组', i);
+					if (parsed.length > 0) {
+						// 先写入表单，再用 JSON 覆盖同 type（JSON 优先）
+						options = [...formOptions, ...(parsed as IDataObject[])];
+					}
+				}
 				for (const option of options) {
 					const type = integer(this, option.type, '功能属性类型', i, 1, 4);
 					const value = text(this, option.value, '功能属性值', i);
