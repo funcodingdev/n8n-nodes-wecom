@@ -31,7 +31,29 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
-		displayName: '外呼号码列表',
+		displayName: '外呼手机号列表',
+		name: 'phone_callout_phones',
+		type: 'string',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['phoneCallout'] },
+		},
+		default: '',
+		placeholder: '13800138000,13900139000',
+		description: '逗号分隔手机号；默认国家码 86；与下方表单合并，合计最多 50 路',
+	},
+	{
+		displayName: '默认国家/地区代码',
+		name: 'phone_callout_default_area',
+		type: 'number',
+		displayOptions: {
+			show: { resource: ['meeting'], operation: ['phoneCallout'] },
+		},
+		default: 86,
+		typeOptions: { minValue: 1, maxValue: 9999 },
+		description: '仅作用于上方手机号列表',
+	},
+	{
+		displayName: '外呼号码(详细)',
 		name: 'phoneCalloutCollection',
 		type: 'fixedCollection',
 		displayOptions: {
@@ -40,7 +62,7 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 		default: {},
 		placeholder: '添加号码',
 		typeOptions: { multipleValues: true },
-		description: 'phone_numbers，单次最多 50 路',
+		description: 'phone_numbers，可指定分机号；与上方列表合并，单次最多 50 路',
 		options: [
 			{
 				displayName: '号码',

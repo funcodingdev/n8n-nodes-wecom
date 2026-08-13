@@ -2134,10 +2134,27 @@ export async function executeMeeting(
 					{},
 				) as IDataObject;
 				const rawNumbers = (phoneCollection?.numbers as IDataObject[]) || [];
-				if (rawNumbers.length < 1 || rawNumbers.length > 50) {
-					fail(this, '外呼号码数量必须为 1–50 个', i);
-				}
-				const phone_numbers = rawNumbers.map((n, numberIndex) => {
+				const defaultArea = integer(
+					this,
+					this.getNodeParameter('phone_callout_default_area', i, 86),
+					'默认国家/地区代码',
+					i,
+					1,
+					9999,
+				);
+				const quickPhones = stringList(
+					this,
+					this.getNodeParameter('phone_callout_phones', i, ''),
+					'外呼手机号',
+					i,
+					0,
+					50,
+				);
+				const phone_numbers: IDataObject[] = quickPhones.map((phone) => ({
+					area: defaultArea,
+					phone: text(this, phone, '外呼手机号', i, 32),
+				}));
+				for (const [numberIndex, n] of rawNumbers.entries()) {
 					const item: IDataObject = {
 						area: integer(this, n.area ?? 86, '国家/地区代码', i, 1, 9999),
 						phone: text(this, n.phone, `第 ${numberIndex + 1} 个外呼号码`, i, 32),
@@ -2145,8 +2162,11 @@ export async function executeMeeting(
 					if (n.extension_number) {
 						item.extension_number = text(this, n.extension_number, '分机号', i, 16);
 					}
-					return item;
-				});
+					phone_numbers.push(item);
+				}
+				if (phone_numbers.length < 1 || phone_numbers.length > 50) {
+					fail(this, '外呼号码数量必须为 1–50 个', i);
+				}
 				const body: IDataObject = { meetingid };
 				body.phone_numbers = phone_numbers;
 				Object.assign(body, jsonObject(this, extraJson, '外呼扩展 JSON', i));

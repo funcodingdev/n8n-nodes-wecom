@@ -109,9 +109,10 @@ function buildAuthInfo(
 	includeAuth: boolean,
 	spaceMembers: boolean,
 	allowedAuth?: number[],
+	minMembers = 1,
 ): IDataObject[] {
-	if (members.length < 1 || members.length > 1000) {
-		fail(context, '成员或部门数量必须为 1–1000 个', itemIndex);
+	if (members.length < minMembers || members.length > 1000) {
+		fail(context, `成员或部门数量必须为 ${minMembers}–1000 个`, itemIndex);
 	}
 	const identities = new Set<string>();
 	let adminCount = 0;
@@ -146,6 +147,43 @@ function buildAuthInfo(
 	return authInfo;
 }
 
+function mergeAuthMembers(
+	context: IExecuteFunctions,
+	itemIndex: number,
+	collection: IDataObject,
+	includeAuth: boolean,
+	spaceMembers: boolean,
+	allowedAuth?: number[],
+	minMembers = 1,
+	defaultAuth = 1,
+): IDataObject[] {
+	const fromForm = Array.isArray(collection.members) ? (collection.members as IDataObject[]) : [];
+	const members: IDataObject[] = [...fromForm];
+	const userids = list(context, context.getNodeParameter('member_userids', itemIndex, ''), '成员 UserID', itemIndex, 0, 1000);
+	const departmentids = list(
+		context,
+		context.getNodeParameter('member_departmentids', itemIndex, ''),
+		'部门 ID',
+		itemIndex,
+		0,
+		1000,
+	);
+	const listAuth = includeAuth
+		? integer(context, context.getNodeParameter('member_list_auth', itemIndex, defaultAuth), '列表默认权限', itemIndex, 1, 7)
+		: undefined;
+	for (const userid of userids) {
+		const entry: IDataObject = { type: 1, userid };
+		if (includeAuth) entry.auth = listAuth;
+		members.push(entry);
+	}
+	for (const departmentid of departmentids) {
+		const entry: IDataObject = { type: 2, departmentid };
+		if (includeAuth) entry.auth = listAuth;
+		members.push(entry);
+	}
+	return buildAuthInfo(context, members, itemIndex, includeAuth, spaceMembers, allowedAuth, minMembers);
+}
+
 export async function executeWefile(
 	this: IExecuteFunctions,
 	operation: string,
@@ -169,10 +207,9 @@ export async function executeWefile(
 					space_sub_type: spaceSubType,
 				};
 
-				// 处理权限信息（使用成员数组）
-				if (authInfoCollection.members && Array.isArray(authInfoCollection.members)) {
-					body.auth_info = buildAuthInfo(this, authInfoCollection.members as IDataObject[], i, true, true);
-				}
+				// 处理权限信息：表单选择 + 逗号分隔 UserID/部门
+				const authInfo = mergeAuthMembers(this, i, authInfoCollection, true, true, [1, 4, 7], 0);
+				if (authInfo.length) body.auth_info = authInfo;
 
 				responseData = await weComApiRequest.call(
 					this,
@@ -215,11 +252,7 @@ export async function executeWefile(
 				const authInfoCollection = this.getNodeParameter('authInfoCollection', i, {}) as IDataObject;
 
 				const body: IDataObject = { spaceid: spaceId };
-
-				const members = Array.isArray(authInfoCollection.members)
-					? (authInfoCollection.members as IDataObject[])
-					: [];
-				body.auth_info = buildAuthInfo(this, members, i, true, true, [1, 7]);
+				body.auth_info = mergeAuthMembers(this, i, authInfoCollection, true, true, [1, 7], 1);
 
 				responseData = await weComApiRequest.call(
 					this,
@@ -232,11 +265,7 @@ export async function executeWefile(
 				const authInfoCollection = this.getNodeParameter('authInfoCollection', i, {}) as IDataObject;
 
 				const body: IDataObject = { spaceid: spaceId };
-
-				const members = Array.isArray(authInfoCollection.members)
-					? (authInfoCollection.members as IDataObject[])
-					: [];
-				body.auth_info = buildAuthInfo(this, members, i, false, true);
+				body.auth_info = mergeAuthMembers(this, i, authInfoCollection, false, true, undefined, 1);
 
 				responseData = await weComApiRequest.call(
 					this,
@@ -439,11 +468,7 @@ export async function executeWefile(
 				const authInfoCollection = this.getNodeParameter('authInfoCollection', i, {}) as IDataObject;
 
 				const body: IDataObject = { fileid: fileId };
-
-				const members = Array.isArray(authInfoCollection.members)
-					? (authInfoCollection.members as IDataObject[])
-					: [];
-				body.auth_info = buildAuthInfo(this, members, i, true, false);
+				body.auth_info = mergeAuthMembers(this, i, authInfoCollection, true, false, [1], 1);
 
 				responseData = await weComApiRequest.call(
 					this,
@@ -456,11 +481,7 @@ export async function executeWefile(
 				const authInfoCollection = this.getNodeParameter('authInfoCollection', i, {}) as IDataObject;
 
 				const body: IDataObject = { fileid: fileId };
-
-				const members = Array.isArray(authInfoCollection.members)
-					? (authInfoCollection.members as IDataObject[])
-					: [];
-				body.auth_info = buildAuthInfo(this, members, i, false, false);
+				body.auth_info = mergeAuthMembers(this, i, authInfoCollection, false, false, undefined, 1);
 
 				responseData = await weComApiRequest.call(
 					this,

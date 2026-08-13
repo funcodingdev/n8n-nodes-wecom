@@ -21,14 +21,41 @@ export const createSpaceDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly },
 	},
 	{
-		displayName: '空间其他成员信息',
+		displayName: '成员UserID列表',
+		name: 'member_userids',
+		type: 'string',
+		displayOptions: { show: showOnly },
+		default: '',
+		placeholder: 'zhangsan,lisi',
+		description: '可选。逗号分隔；与下方表单合并，默认权限见「列表默认权限」',
+	},
+	{
+		displayName: '部门ID列表',
+		name: 'member_departmentids',
+		type: 'string',
+		displayOptions: { show: showOnly },
+		default: '',
+		placeholder: '1,2',
+		description: '可选。逗号分隔部门 ID；与下方表单合并',
+	},
+	{
+		displayName: '列表默认权限',
+		name: 'member_list_auth',
+		type: 'options',
+		displayOptions: { show: showOnly },
+		default: 1,
+		options: authOptions,
+		description: '仅作用于上方逗号列表；表单内每项可单独设权限',
+	},
+	{
+		displayName: '空间其他成员信息(选择)',
 		name: 'authInfoCollection',
 		type: 'fixedCollection',
 		typeOptions: {
 			multipleValues: true,
 		},
 		default: {},
-		description: '可选。空间的其他成员信息，可以添加成员或部门并设置权限。<a href="https://developer.work.weixin.qq.com/document/path/93654" target="_blank">更多信息</a>',
+		description: '可选。空间的其他成员信息，可以添加成员或部门并设置权限；可与上方列表合并。<a href="https://developer.work.weixin.qq.com/document/path/93654" target="_blank">更多信息</a>',
 		displayOptions: { show: showOnly },
 		options: [
 			{
