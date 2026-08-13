@@ -73,6 +73,15 @@ export const createCustomerAcquisitionLinkDescription: INodeProperties[] = [
 		description: '与上方列表合并去重',
 	},
 	{
+		displayName: '部门列表 JSON',
+		name: 'departmentListJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: { ...showOnly, rangeType: ['department', 'both'] } },
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}]',
+	},
+	{
 		displayName: '跳过验证',
 		name: 'skip_verify',
 		type: 'boolean',

@@ -145,6 +145,15 @@ export const updateInterceptRuleDescription: INodeProperties[] = [
 		displayOptions: { show: { ...showOnly, enableAddRange: [true] } },
 		description: '与上方列表合并去重',
 	},
+	{
+		displayName: '新增部门 JSON',
+		name: 'addDepartmentListJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: { ...showOnly, enableAddRange: [true] } },
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}]',
+	},
 	// 删除适用范围
 	{
 		displayName: '删除适用范围',
@@ -198,5 +207,14 @@ export const updateInterceptRuleDescription: INodeProperties[] = [
 		default: [],
 		displayOptions: { show: { ...showOnly, enableRemoveRange: [true] } },
 		description: '与上方列表合并去重',
+	},
+	{
+		displayName: '删除部门 JSON',
+		name: 'removeDepartmentListJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: { ...showOnly, enableRemoveRange: [true] } },
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}]',
 	},
 ];

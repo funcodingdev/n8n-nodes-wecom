@@ -1104,6 +1104,12 @@ export async function executeExternalContact(
 						[
 							this.getNodeParameter('sender_department_list', i, ''),
 							this.getNodeParameter('sender_department_list_selected', i, []),
+							...parsePartyIdJson(
+								this,
+								this.getNodeParameter('senderDepartmentListJson', i, '[]'),
+								'发表部门 JSON',
+								i,
+							),
 						],
 						'发表部门列表',
 						i,
@@ -2241,6 +2247,12 @@ export async function executeExternalContact(
 						[
 							this.getNodeParameter('applicable_department_list', i, ''),
 							this.getNodeParameter('applicable_department_list_selected', i, []),
+							...parsePartyIdJson(
+								this,
+								this.getNodeParameter('applicableDepartmentListJson', i, '[]'),
+								'适用部门 JSON',
+								i,
+							),
 						],
 						'适用部门 ID 列表',
 						i,
@@ -2336,6 +2348,12 @@ export async function executeExternalContact(
 						[
 							this.getNodeParameter('add_department_list', i, ''),
 							this.getNodeParameter('add_department_list_selected', i, []),
+							...parsePartyIdJson(
+								this,
+								this.getNodeParameter('addDepartmentListJson', i, '[]'),
+								'新增部门 JSON',
+								i,
+							),
 						],
 						'新增部门 ID 列表',
 						i,
@@ -2372,6 +2390,12 @@ export async function executeExternalContact(
 						[
 							this.getNodeParameter('remove_department_list', i, ''),
 							this.getNodeParameter('remove_department_list_selected', i, []),
+							...parsePartyIdJson(
+								this,
+								this.getNodeParameter('removeDepartmentListJson', i, '[]'),
+								'删除部门 JSON',
+								i,
+							),
 						],
 						'删除部门 ID 列表',
 						i,
@@ -2550,6 +2574,12 @@ export async function executeExternalContact(
 						[
 							this.getNodeParameter('department_list', i, ''),
 							this.getNodeParameter('department_list_selected', i, []),
+							...parsePartyIdJson(
+								this,
+								this.getNodeParameter('departmentListJson', i, '[]'),
+								'使用范围部门 JSON',
+								i,
+							),
 						],
 						'使用范围部门 ID 列表',
 						i,
@@ -2641,6 +2671,12 @@ export async function executeExternalContact(
 							[
 								this.getNodeParameter('department_list', i, ''),
 								this.getNodeParameter('department_list_selected', i, []),
+								...parsePartyIdJson(
+									this,
+									this.getNodeParameter('departmentListJson', i, '[]'),
+									'使用范围部门 JSON',
+									i,
+								),
 							],
 							'使用范围部门 ID 列表',
 							i,

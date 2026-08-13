@@ -57,6 +57,15 @@ export const addMomentTaskDescription: INodeProperties[] = [
 		description: '与上方列表合并去重',
 	},
 	{
+		displayName: '发表部门 JSON',
+		name: 'senderDepartmentListJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: { ...showOnly, enableVisibleRange: [true] } },
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}]',
+	},
+	{
 		displayName: '指定可见客户',
 		name: 'enableExternalContactList',
 		type: 'boolean',

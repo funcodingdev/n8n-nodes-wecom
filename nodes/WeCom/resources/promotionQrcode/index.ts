@@ -307,6 +307,20 @@ export const promotionQrcodeDescription: INodeProperties[] = [
 		description: '与上方部门列表合并去重',
 	},
 	{
+		displayName: '应用可见范围部门 JSON',
+		name: 'allowPartyJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['promotionQrcode'],
+				operation: ['setAgentScope'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}]',
+	},
+	{
 		displayName: '应用可见范围（标签）',
 		name: 'allowTag',
 		type: 'string',
@@ -334,6 +348,20 @@ export const promotionQrcodeDescription: INodeProperties[] = [
 		},
 		default: [],
 		description: '与上方标签列表合并去重',
+	},
+	{
+		displayName: '应用可见范围标签 JSON',
+		name: 'allowTagJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['promotionQrcode'],
+				operation: ['setAgentScope'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"tagid":1}]',
 	},
 	{
 		displayName: '该接口会覆盖应用可见范围；任一列表留空都会清空对应成员、部门或标签范围。通讯录同步完成或迁移 Access Token 超过约 30 分钟后不可再调用。',

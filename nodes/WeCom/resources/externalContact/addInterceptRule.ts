@@ -96,6 +96,15 @@ export const addInterceptRuleDescription: INodeProperties[] = [
 		displayOptions: { show: { ...showOnly, applicableRangeType: ['department', 'both'] } },
 		description: '与上方列表合并去重',
 	},
+	{
+		displayName: '部门列表 JSON',
+		name: 'applicableDepartmentListJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: { ...showOnly, applicableRangeType: ['department', 'both'] } },
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"partyid":1}]',
+	},
 	// 额外拦截语义
 	{
 		displayName: '启用额外拦截语义',

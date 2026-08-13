@@ -62,6 +62,12 @@ export async function setAgentScope(
 		[
 			this.getNodeParameter('allowParty', index, ''),
 			this.getNodeParameter('allowParty_selected', index, []),
+			...parseUserIdJsonList(
+				this,
+				this.getNodeParameter('allowPartyJson', index, '[]'),
+				'部门列表 JSON',
+				index,
+			),
 		],
 		'部门 ID 列表',
 		index,
@@ -71,6 +77,12 @@ export async function setAgentScope(
 		[
 			this.getNodeParameter('allowTag', index, ''),
 			this.getNodeParameter('allowTag_selected', index, []),
+			...parseUserIdJsonList(
+				this,
+				this.getNodeParameter('allowTagJson', index, '[]'),
+				'标签列表 JSON',
+				index,
+			),
 		],
 		'标签 ID 列表',
 		index,
