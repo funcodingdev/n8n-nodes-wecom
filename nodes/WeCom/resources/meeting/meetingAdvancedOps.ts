@@ -112,7 +112,7 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 		description: 'poll_id',
 	},
 	{
-		displayName: '操作者UserID',
+		displayName: '操作者临时OpenID',
 		name: 'poll_operator_userid',
 		type: 'string',
 		required: true,
@@ -120,7 +120,7 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 			show: { resource: ['meeting'], operation: ['getPollDetail', 'getPollList'] },
 		},
 		default: '',
-		description: 'operator_userid',
+		description: 'operator_userid：会中操作者的临时 OpenID（非企业通讯录 UserID）',
 	},
 	{
 		displayName: '操作者实例ID',
