@@ -48,6 +48,9 @@ export function requirePositiveInteger(
 }
 
 function splitList(value: unknown): string[] {
+	if (Array.isArray(value)) {
+		return value.flatMap((entry) => splitList(entry));
+	}
 	return String(value ?? '')
 		.split(/[,，|\n\r]+/)
 		.map((entry) => entry.trim())

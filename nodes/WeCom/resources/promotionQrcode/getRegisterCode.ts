@@ -35,7 +35,14 @@ export async function getRegisterCode(
 	if (adminMobile && !/^\d{11}$/.test(adminMobile)) fail(this, '管理员手机号必须是 11 位数字', index);
 	const state = optionalText(this, this.getNodeParameter('state', index, ''), 'State 值', index, 128);
 	if (state && !/^[A-Za-z0-9]+$/.test(state)) fail(this, 'State 值只能包含英文字母和数字', index);
-	const followUser = optionalText(this, this.getNodeParameter('followUser', index, ''), '跟进人 UserID', index, 64);
+	const followUser = optionalText(
+		this,
+		this.getNodeParameter('followUser', index, '') ||
+			this.getNodeParameter('followUser_selected', index, ''),
+		'跟进人 UserID',
+		index,
+		64,
+	);
 
 	const body: IDataObject = {
 		template_id: templateId,

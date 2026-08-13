@@ -36,9 +36,33 @@ export async function setAgentScope(
 		'授权方应用 ID',
 		index,
 	);
-	const allowUser = parseTextList(this, this.getNodeParameter('allowUser', index, ''), '成员列表', index);
-	const allowParty = parseIdList(this, this.getNodeParameter('allowParty', index, ''), '部门 ID 列表', index);
-	const allowTag = parseIdList(this, this.getNodeParameter('allowTag', index, ''), '标签 ID 列表', index);
+	const allowUser = parseTextList(
+		this,
+		[
+			this.getNodeParameter('allowUser', index, ''),
+			this.getNodeParameter('allowUser_selected', index, []),
+		],
+		'成员列表',
+		index,
+	);
+	const allowParty = parseIdList(
+		this,
+		[
+			this.getNodeParameter('allowParty', index, ''),
+			this.getNodeParameter('allowParty_selected', index, []),
+		],
+		'部门 ID 列表',
+		index,
+	);
+	const allowTag = parseIdList(
+		this,
+		[
+			this.getNodeParameter('allowTag', index, ''),
+			this.getNodeParameter('allowTag_selected', index, []),
+		],
+		'标签 ID 列表',
+		index,
+	);
 
 	const body: IDataObject = {
 		agentid,

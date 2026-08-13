@@ -139,7 +139,22 @@ export const promotionQrcodeDescription: INodeProperties[] = [
 		},
 		default: '',
 		typeOptions: { maxLength: 64 },
-		description: '跟进人的userid。必须是服务商所在企业的成员。若配置该值，则由该注册码创建的企业，在服务商管理后台，该企业的报备记录会自动标注跟进人员为指定成员',
+		description:
+			'跟进人的userid。必须是服务商所在企业的成员；可与下方选择二选一。若配置该值，则由该注册码创建的企业，在服务商管理后台，该企业的报备记录会自动标注跟进人员为指定成员',
+	},
+	{
+		displayName: '跟进人(选择)',
+		name: 'followUser_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: {
+				resource: ['promotionQrcode'],
+				operation: ['getRegisterCode'],
+			},
+		},
+		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '返回的 register_code 只能消费一次；请在 expires_in 有效期内生成注册链接并完成跳转。',
@@ -217,8 +232,23 @@ export const promotionQrcodeDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '成员 userid 列表，支持逗号、中文逗号、竖线或换行分隔并自动去重；未填会清空成员范围',
+		description:
+			'成员 userid 列表，支持逗号、中文逗号、竖线或换行分隔并自动去重；与下方选择合并；未填且未选择会清空成员范围',
 		placeholder: '例如: zhansan,lisi',
+	},
+	{
+		displayName: '应用可见范围成员(选择)',
+		name: 'allowUser_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		displayOptions: {
+			show: {
+				resource: ['promotionQrcode'],
+				operation: ['setAgentScope'],
+			},
+		},
+		default: [],
+		description: '与上方成员列表合并去重',
 	},
 	{
 		displayName: '应用可见范围（部门）',
@@ -231,8 +261,23 @@ export const promotionQrcodeDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '正整数部门 ID 列表，支持逗号、中文逗号、竖线或换行分隔；未填会清空部门范围',
+		description:
+			'正整数部门 ID 列表，支持逗号、中文逗号、竖线或换行分隔；与下方选择合并；未填且未选择会清空部门范围',
 		placeholder: '例如: 1,2,3',
+	},
+	{
+		displayName: '应用可见范围部门(选择)',
+		name: 'allowParty_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getDepartments' },
+		displayOptions: {
+			show: {
+				resource: ['promotionQrcode'],
+				operation: ['setAgentScope'],
+			},
+		},
+		default: [],
+		description: '与上方部门列表合并去重',
 	},
 	{
 		displayName: '应用可见范围（标签）',
@@ -245,8 +290,23 @@ export const promotionQrcodeDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		description: '正整数标签 ID 列表，支持逗号、中文逗号、竖线或换行分隔；未填会清空标签范围',
+		description:
+			'正整数标签 ID 列表，支持逗号、中文逗号、竖线或换行分隔；与下方选择合并；未填且未选择会清空标签范围',
 		placeholder: '例如: 1,2,3',
+	},
+	{
+		displayName: '应用可见范围标签(选择)',
+		name: 'allowTag_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getTags' },
+		displayOptions: {
+			show: {
+				resource: ['promotionQrcode'],
+				operation: ['setAgentScope'],
+			},
+		},
+		default: [],
+		description: '与上方标签列表合并去重',
 	},
 	{
 		displayName: '该接口会覆盖应用可见范围；任一列表留空都会清空对应成员、部门或标签范围。通讯录同步完成或迁移 Access Token 超过约 30 分钟后不可再调用。',
