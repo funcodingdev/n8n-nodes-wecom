@@ -141,7 +141,22 @@ export async function executeJournal(
 						if (!['creator', 'department', 'template_id'].includes(key)) {
 							fail(this, `第 ${index + 1} 个汇报筛选类型不受支持`, i);
 						}
-						return { key, value: text(this, filter.value, `第 ${index + 1} 个筛选值`, i, 256) };
+						const selected =
+							key === 'creator'
+								? filter.value_userid_selected
+								: key === 'department'
+									? filter.value_department_selected
+									: '';
+						return {
+							key,
+							value: text(
+								this,
+								filter.value || selected,
+								`第 ${index + 1} 个筛选值`,
+								i,
+								256,
+							),
+						};
 					});
 				}
 				const response = await weComApiRequest.call(
