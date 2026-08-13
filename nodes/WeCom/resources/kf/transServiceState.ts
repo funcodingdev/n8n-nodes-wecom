@@ -78,6 +78,7 @@ export const transServiceStateDescription: INodeProperties[] = [
 		default: '',
 		displayOptions: {
 			show: { ...showOnlyForTransServiceState, service_state: [3] },
+		},
 		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 ];
