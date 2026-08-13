@@ -25,6 +25,15 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 		default: [],
 		description: '与上方列表合并去重',
 	},
+	{
+		displayName: '用户列表 JSON',
+		name: 'useridsJson',
+		type: 'json',
+		displayOptions: { show: showOnlyForUpdateTemplateCard },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
 	...templateCardFormProperties(showOnlyForUpdateTemplateCard),
 	{
 		displayName: '反馈 ID',

@@ -71,6 +71,17 @@ export const createDocDescription: INodeProperties[] = [
 		description: '文档管理员 userid 列表，与上方合并，合计最多 3 人',
 	},
 	{
+		displayName: '管理员 JSON',
+		name: 'adminUsersJson',
+		type: 'json',
+		displayOptions: {
+			show: showOnlyForCreate,
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重，最多 3 人。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '指定空间位置',
 		name: 'useSpaceId',
 		type: 'boolean',

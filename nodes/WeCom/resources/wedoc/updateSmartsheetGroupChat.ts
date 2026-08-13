@@ -77,6 +77,17 @@ export const updateSmartsheetGroupChatDescription: INodeProperties[] = [
 		description: '与上方添加列表合并去重',
 	},
 	{
+		displayName: '添加成员 JSON',
+		name: 'addUserListJson',
+		type: 'json',
+		displayOptions: {
+			show: showOnly,
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '删除成员列表',
 		name: 'del_user_list',
 		type: 'string',
@@ -98,5 +109,16 @@ export const updateSmartsheetGroupChatDescription: INodeProperties[] = [
 		},
 		default: [],
 		description: '与上方删除列表合并去重',
+	},
+	{
+		displayName: '删除成员 JSON',
+		name: 'delUserListJson',
+		type: 'json',
+		displayOptions: {
+			show: showOnly,
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
 	},
 ];

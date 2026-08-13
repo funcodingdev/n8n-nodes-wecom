@@ -331,6 +331,28 @@ export async function executeAIBotPassiveReply(
 			}
 			const useridsStr = this.getNodeParameter('userids', itemIndex, '') as string;
 			const useridsSelected = this.getNodeParameter('userids_selected', itemIndex, []) as string[];
+			const useridsFromJson = (() => {
+				const raw = this.getNodeParameter('useridsJson', itemIndex, '[]');
+				if (raw === undefined || raw === null || String(raw).trim() === '') return [] as string[];
+				let parsed: unknown = raw;
+				if (typeof raw === 'string') {
+					try {
+						parsed = JSON.parse(raw);
+					} catch {
+						fail('用户列表 JSON 不是有效的 JSON');
+					}
+				}
+				if (!Array.isArray(parsed)) fail('用户列表 JSON 必须是数组');
+				return (parsed as unknown[]).flatMap((entry) => {
+					if (typeof entry === 'string' || typeof entry === 'number') return [String(entry).trim()];
+					if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+						const row = entry as IDataObject;
+						const id = row.userid ?? row.userid_selected ?? row.user_id;
+						return id ? [String(id).trim()] : [];
+					}
+					return [];
+				}).filter(Boolean);
+			})();
 			const templateCard = resolveTemplateCard.call(this, itemIndex, true);
 			const configuredTaskId = String(templateCard.task_id ?? '').trim();
 			if (configuredTaskId && configuredTaskId !== incomingTaskId) {
@@ -351,6 +373,7 @@ export async function executeAIBotPassiveReply(
 			const mergedUserids = [
 				...useridsStr.split(/[,|\n，]+/).map((id) => id.trim()).filter(Boolean),
 				...useridsSelected.map((id) => String(id ?? '').trim()).filter(Boolean),
+				...useridsFromJson,
 			];
 			if (mergedUserids.length) {
 				replyBody.userids = [...new Set(mergedUserids)];

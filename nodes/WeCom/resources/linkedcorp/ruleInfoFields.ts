@@ -51,6 +51,15 @@ export function ruleInfoFields(
 			description: '与上方上游成员列表合并去重',
 		},
 		{
+			displayName: '上游成员 JSON',
+			name: 'ownerUseridsJson',
+			type: 'json',
+			displayOptions: { show: { ...showOnly, rule_info_input_mode: ['form'] } },
+			default: '[]',
+			description:
+				'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+		},
+		{
 			displayName: '下游分组 ID 列表',
 			name: 'member_groupids',
 			type: 'string',

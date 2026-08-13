@@ -1,7 +1,13 @@
 import type { IExecuteFunctions, IDataObject, IHttpRequestOptions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { getWeComBaseUrl } from '../../shared/transport';
-import { parseIdList, parseTextList, requirePositiveInteger, requireText } from './utils';
+import {
+	parseIdList,
+	parseTextList,
+	parseUserIdJsonList,
+	requirePositiveInteger,
+	requireText,
+} from './utils';
 
 /**
  * 设置授权应用可见范围
@@ -41,6 +47,12 @@ export async function setAgentScope(
 		[
 			this.getNodeParameter('allowUser', index, ''),
 			this.getNodeParameter('allowUser_selected', index, []),
+			...parseUserIdJsonList(
+				this,
+				this.getNodeParameter('allowUserJson', index, '[]'),
+				'成员列表 JSON',
+				index,
+			),
 		],
 		'成员列表',
 		index,

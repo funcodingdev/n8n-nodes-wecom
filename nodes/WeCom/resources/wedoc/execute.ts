@@ -1289,6 +1289,12 @@ export async function executeWedoc(
 					[
 						this.getNodeParameter('admin_users_text', i, ''),
 						this.getNodeParameter('admin_users', i, []),
+						...parseUserIdJson(
+							this,
+							this.getNodeParameter('adminUsersJson', i, '[]'),
+							'管理员 JSON',
+							i,
+						),
 					],
 					'管理员 UserID 列表',
 					i,
@@ -2976,10 +2982,22 @@ export async function executeWedoc(
 				const addUserRaw = [
 					this.getNodeParameter('add_user_list', i, ''),
 					this.getNodeParameter('add_user_list_selected', i, []),
+					...parseUserIdJson(
+						this,
+						this.getNodeParameter('addUserListJson', i, '[]'),
+						'添加成员 JSON',
+						i,
+					),
 				];
 				const delUserRaw = [
 					this.getNodeParameter('del_user_list', i, ''),
 					this.getNodeParameter('del_user_list_selected', i, []),
+					...parseUserIdJson(
+						this,
+						this.getNodeParameter('delUserListJson', i, '[]'),
+						'删除成员 JSON',
+						i,
+					),
 				];
 				const addUsers = stringList(this, addUserRaw, '添加成员列表', i, 0, 500);
 				const delUsers = stringList(this, delUserRaw, '删除成员列表', i, 0, 500);

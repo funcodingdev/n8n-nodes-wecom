@@ -264,6 +264,20 @@ export const promotionQrcodeDescription: INodeProperties[] = [
 		description: '与上方成员列表合并去重',
 	},
 	{
+		displayName: '应用可见范围成员 JSON',
+		name: 'allowUserJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['promotionQrcode'],
+				operation: ['setAgentScope'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '应用可见范围（部门）',
 		name: 'allowParty',
 		type: 'string',

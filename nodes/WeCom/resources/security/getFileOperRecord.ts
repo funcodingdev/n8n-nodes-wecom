@@ -60,6 +60,20 @@ export const getFileOperRecordDescription: INodeProperties[] = [
 		description: '需要查询的文件操作者的 userid，与上方列表合并，单次最多 100 个',
 	},
 	{
+		displayName: '用户列表 JSON',
+		name: 'useridListJson',
+		type: 'json',
+		displayOptions: {
+			show: {
+				resource: ['security'],
+				operation: ['getFileOperRecord'],
+			},
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '操作类型',
 		name: 'operation_type',
 		type: 'collection',
