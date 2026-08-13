@@ -5,16 +5,29 @@ export const getDeviceByUserDescription: INodeProperties[] = [
 		displayName: '成员UserID',
 		name: 'last_login_userid',
 		type: 'string',
-		required: true,
+				displayOptions: {
+			show: {
+				resource: ['security'],
+				operation: ['getDeviceByUser'],
+			},
+		},
+		description: '要查询设备的成员 UserID；可与下方选择二选一',
+		placeholder: 'zhangsan',
+		default: '',
+	},
+	{
+		displayName: '成员(选择)',
+		name: 'last_login_userid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		default: '',
 		displayOptions: {
 			show: {
 				resource: ['security'],
 				operation: ['getDeviceByUser'],
 			},
 		},
-		description: '要查询设备的成员 UserID',
-		placeholder: 'zhangsan',
-		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '设备类型',

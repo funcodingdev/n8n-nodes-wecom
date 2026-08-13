@@ -75,7 +75,21 @@ export const getMemberOperLogDescription: INodeProperties[] = [
 		},
 		default: '',
 		placeholder: 'zhangsan',
-		description: '操作者过滤，需在应用可见范围内；留空表示不过滤',
+		description: '操作者过滤，需在应用可见范围内；留空表示不过滤；可与下方选择二选一',
+	},
+	{
+		displayName: '成员(选择)',
+		name: 'userid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
+		default: '',
+		displayOptions: {
+			show: {
+				resource: ['security'],
+				operation: ['getMemberOperLog'],
+			},
+		},
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '游标',

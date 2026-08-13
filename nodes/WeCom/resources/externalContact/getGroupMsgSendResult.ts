@@ -21,12 +21,22 @@ export const getGroupMsgSendResultDescription: INodeProperties[] = [
 		displayName: '发送成员UserID',
 		name: 'userid',
 		type: 'string',
-		required: true,
+				default: '',
+		displayOptions: {
+			show: showOnly,
+		},
+		description: '发送成员userid，通过获取群发成员发送任务列表接口返回；可与下方选择二选一',
+	},
+	{
+		displayName: '发送成员(选择)',
+		name: 'userid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getAllUsers' },
 		default: '',
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '发送成员userid，通过获取群发成员发送任务列表接口返回',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '每页数量',

@@ -1239,7 +1239,13 @@ export async function executeExternalContact(
 				);
 			} else if (operation === 'getMomentCustomerList') {
 				const moment_id = requireText(this, this.getNodeParameter('moment_id', i), '朋友圈 ID', i);
-				const userid = requireText(this, this.getNodeParameter('userid', i), '发表成员 UserID', i);
+				const userid = requireText(
+					this,
+					this.getNodeParameter('userid', i, '') ||
+						this.getNodeParameter('userid_selected', i, ''),
+					'发表成员 UserID',
+					i,
+				);
 				const cursor = optionalText(this, this.getNodeParameter('cursor', i, ''), '游标', i);
 				const limit = requireInteger(this, this.getNodeParameter('limit', i, 500), '每页数量', i, 1, 1000);
 
@@ -1254,7 +1260,13 @@ export async function executeExternalContact(
 				);
 			} else if (operation === 'getMomentSendResult') {
 				const moment_id = requireText(this, this.getNodeParameter('moment_id', i), '朋友圈 ID', i);
-				const userid = requireText(this, this.getNodeParameter('userid', i), '发表成员 UserID', i);
+				const userid = requireText(
+					this,
+					this.getNodeParameter('userid', i, '') ||
+						this.getNodeParameter('userid_selected', i, ''),
+					'发表成员 UserID',
+					i,
+				);
 				const cursor = optionalText(this, this.getNodeParameter('cursor', i, ''), '游标', i);
 				const limit = requireInteger(this, this.getNodeParameter('limit', i, 3000), '每页数量', i, 1, 5000);
 
@@ -1269,7 +1281,13 @@ export async function executeExternalContact(
 				);
 			} else if (operation === 'getMomentComments') {
 				const moment_id = requireText(this, this.getNodeParameter('moment_id', i), '朋友圈 ID', i);
-				const userid = requireText(this, this.getNodeParameter('userid', i), '发表成员 UserID', i);
+				const userid = requireText(
+					this,
+					this.getNodeParameter('userid', i, '') ||
+						this.getNodeParameter('userid_selected', i, ''),
+					'发表成员 UserID',
+					i,
+				);
 
 				response = await weComApiRequest.call(
 					this,
@@ -1699,7 +1717,13 @@ export async function executeExternalContact(
 				);
 			} else if (operation === 'getGroupMsgSendResult') {
 				const msgid = requireText(this, this.getNodeParameter('msgid', i), '群发消息 ID', i);
-				const userid = requireText(this, this.getNodeParameter('userid', i), '发送成员 UserID', i);
+				const userid = requireText(
+					this,
+					this.getNodeParameter('userid', i, '') ||
+						this.getNodeParameter('userid_selected', i, ''),
+					'发送成员 UserID',
+					i,
+				);
 				const limit = requireInteger(this, this.getNodeParameter('limit', i, 500), '每页数量', i, 1, 1000);
 				const cursor = optionalText(this, this.getNodeParameter('cursor', i, ''), '游标', i);
 

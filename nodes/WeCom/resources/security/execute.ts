@@ -208,7 +208,8 @@ async function runOperation(
 		return await weComApiRequest.call(context, 'POST', '/cgi-bin/security/trustdevice/get_by_user', {
 			last_login_userid: requiredText(
 				context,
-				context.getNodeParameter('last_login_userid', itemIndex),
+				context.getNodeParameter('last_login_userid', itemIndex, '') ||
+					context.getNodeParameter('last_login_userid_selected', itemIndex, ''),
 				'成员 UserID',
 				itemIndex,
 			),
@@ -387,7 +388,8 @@ async function runOperation(
 		}
 		const userid = optionalText(
 			context,
-			context.getNodeParameter('userid', itemIndex, ''),
+			context.getNodeParameter('userid', itemIndex, '') ||
+				context.getNodeParameter('userid_selected', itemIndex, ''),
 			'操作者 UserID',
 			itemIndex,
 			128,
