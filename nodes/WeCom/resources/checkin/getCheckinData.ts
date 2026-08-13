@@ -52,6 +52,15 @@ export const getCheckinDataDescription: INodeProperties[] = [
 		description: '与上方列表合并去重，合计最多 100 个',
 	},
 	{
+		displayName: '成员列表 JSON',
+		name: 'useridlistJson',
+		type: 'json',
+		displayOptions: { show: showOnlyForGetCheckinData },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '打卡类型',
 		name: 'opencheckindatatype',
 		type: 'options',

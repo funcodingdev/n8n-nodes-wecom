@@ -480,7 +480,17 @@ function updateWrappedList(
 	} catch {
 		selected = [];
 	}
-	const value = [context.getNodeParameter(parameterName, itemIndex, ''), selected];
+	const value: unknown[] = [context.getNodeParameter(parameterName, itemIndex, ''), selected];
+	if (!numeric && !email && parameterName === 'userid_list') {
+		value.push(
+			...parseUserIdJson(
+				context,
+				context.getNodeParameter('useridListJson', itemIndex, '[]'),
+				'成员列表 JSON',
+				itemIndex,
+			),
+		);
+	}
 	body[parameterName] = {
 		list: numeric
 			? numberList(context, value, label, itemIndex)
@@ -712,6 +722,12 @@ export async function executeMail(
 							this.getNodeParameter('member_list', i, this.getNodeParameter('admin_list', i, '')),
 						),
 						this.getNodeParameter('userid_list_selected', i, []),
+						...parseUserIdJson(
+							this,
+							this.getNodeParameter('useridListJson', i, '[]'),
+							'成员列表 JSON',
+							i,
+						),
 					],
 					'成员 UserID',
 					i,
@@ -798,6 +814,12 @@ export async function executeMail(
 					[
 						this.getNodeParameter('userid_list', i, this.getNodeParameter('mailbox_list', i, '')),
 						this.getNodeParameter('userid_list_selected', i, []),
+						...parseUserIdJson(
+							this,
+							this.getNodeParameter('useridListJson', i, '[]'),
+							'成员列表 JSON',
+							i,
+						),
 					],
 					'成员 UserID 列表',
 					i,
