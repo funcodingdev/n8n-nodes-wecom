@@ -48,6 +48,17 @@ export const createDocDescription: INodeProperties[] = [
 	},
 	{
 		displayName: '管理员UserID列表',
+		name: 'admin_users_text',
+		type: 'string',
+		displayOptions: {
+			show: showOnlyForCreate,
+		},
+		default: '',
+		placeholder: 'zhangsan,lisi',
+		description: '逗号分隔，最多 3 人；与下方选择合并。创建者默认为管理员',
+	},
+	{
+		displayName: '管理员(选择)',
 		name: 'admin_users',
 		type: 'multiOptions',
 		typeOptions: {
@@ -57,7 +68,7 @@ export const createDocDescription: INodeProperties[] = [
 			show: showOnlyForCreate,
 		},
 		default: [],
-		description: '文档管理员 userid 列表，最多 3 人。创建者默认为管理员',
+		description: '文档管理员 userid 列表，与上方合并，合计最多 3 人',
 	},
 	{
 		displayName: '指定空间位置',

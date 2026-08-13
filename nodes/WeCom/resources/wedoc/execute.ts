@@ -1240,11 +1240,18 @@ export async function executeWedoc(
 				const body: IDataObject = { doc_type, doc_name };
 
 				// 处理管理员用户列表 (multiOptions类型,返回string[])
-				const adminUsersParam = this.getNodeParameter('admin_users', i, []) as string | string[];
-				if (adminUsersParam) {
-					const adminUsers = stringList(this, adminUsersParam, '管理员 UserID 列表', i, 0, 3);
-					if (adminUsers.length > 0) body.admin_users = adminUsers;
-				}
+				const adminUsers = stringList(
+					this,
+					[
+						this.getNodeParameter('admin_users_text', i, ''),
+						this.getNodeParameter('admin_users', i, []),
+					],
+					'管理员 UserID 列表',
+					i,
+					0,
+					3,
+				);
+				if (adminUsers.length > 0) body.admin_users = adminUsers;
 
 				if (useSpaceId) {
 					const spaceid = requiredText(this, this.getNodeParameter('spaceid', i), '空间 ID', i);

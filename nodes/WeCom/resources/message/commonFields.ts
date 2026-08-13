@@ -77,7 +77,8 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 					recipientType: ['users', 'mixed'],
 				},
 			},
-			description: '选择会收到消息的成员，最多 1000 人。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
+			description:
+				'选择会收到消息的成员，最多 1000 人；可与下方成员 ID 文本合并。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
 		},
 		{
 			displayName: '选择部门',
@@ -93,7 +94,8 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 					recipientType: ['departments', 'mixed'],
 				},
 			},
-			description: '所选部门中的成员都会收到消息，最多 100 个部门。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
+			description:
+				'所选部门中的成员都会收到消息，最多 100 个部门；可与下方部门 ID 文本合并。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
 		},
 		{
 			displayName: '选择标签',
@@ -109,7 +111,8 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 					recipientType: ['tags', 'mixed'],
 				},
 			},
-			description: '带有所选标签的成员都会收到消息，最多 100 个标签。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
+			description:
+				'带有所选标签的成员都会收到消息，最多 100 个标签；可与下方标签 ID 文本合并。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
 		},
 		{
 			displayName: '成员 ID',
@@ -120,11 +123,11 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 			displayOptions: {
 				show: {
 					...showCondition,
-					recipientType: ['manual'],
+					recipientType: ['manual', 'users', 'mixed'],
 				},
 			},
 			description:
-				'多个成员 ID 用逗号或 | 分隔，最多 1000 个；输入 @all 可发送给应用可见范围内的所有成员。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
+				'多个成员 ID 用逗号或 | 分隔，最多 1000 个；与上方选择合并；输入 @all 可发送给应用可见范围内所有成员。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
 		},
 		{
 			displayName: '部门 ID',
@@ -135,11 +138,11 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 			displayOptions: {
 				show: {
 					...showCondition,
-					recipientType: ['manual'],
+					recipientType: ['manual', 'departments', 'mixed'],
 				},
 			},
 			description:
-				'多个部门 ID 用逗号或 | 分隔，最多 100 个。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
+				'多个部门 ID 用逗号或 | 分隔，最多 100 个；与上方选择合并。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
 		},
 		{
 			displayName: '标签 ID',
@@ -150,11 +153,11 @@ export function getRecipientFields(operation: string): INodeProperties[] {
 			displayOptions: {
 				show: {
 					...showCondition,
-					recipientType: ['manual'],
+					recipientType: ['manual', 'tags', 'mixed'],
 				},
 			},
 			description:
-				'多个标签 ID 用逗号或 | 分隔，最多 100 个。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
+				'多个标签 ID 用逗号或 | 分隔，最多 100 个；与上方选择合并。<a href="https://developer.work.weixin.qq.com/document/path/90236" target="_blank">官方文档</a>',
 		},
 	];
 }
@@ -201,24 +204,35 @@ export function extractRecipients(
 	}
 
 	const result: { touser?: string; toparty?: string; totag?: string } = {};
+	const mergeValues = (
+		selected: string | string[] | undefined,
+		manual: string | undefined,
+		limit: number,
+	): string | undefined => {
+		const parts: string[] = [];
+		if (Array.isArray(selected)) parts.push(...selected);
+		else if (typeof selected === 'string' && selected) parts.push(selected);
+		if (manual) parts.push(manual);
+		return normalizeRecipientValue(parts, limit);
+	};
 
 	if (recipientType === 'mixed') {
-		result.touser = normalizeRecipientValue(touser, 1000);
-		result.toparty = normalizeRecipientValue(toparty, 100);
-		result.totag = normalizeRecipientValue(totag, 100);
+		result.touser = mergeValues(touser, touser_manual, 1000);
+		result.toparty = mergeValues(toparty, toparty_manual, 100);
+		result.totag = mergeValues(totag, totag_manual, 100);
 		return result;
 	}
 
 	if (recipientType === 'users') {
-		result.touser = normalizeRecipientValue(touser, 1000);
+		result.touser = mergeValues(touser, touser_manual, 1000);
 	}
 
 	if (recipientType === 'departments') {
-		result.toparty = normalizeRecipientValue(toparty, 100);
+		result.toparty = mergeValues(toparty, toparty_manual, 100);
 	}
 
 	if (recipientType === 'tags') {
-		result.totag = normalizeRecipientValue(totag, 100);
+		result.totag = mergeValues(totag, totag_manual, 100);
 	}
 
 	return result;

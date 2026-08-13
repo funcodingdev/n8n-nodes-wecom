@@ -132,18 +132,16 @@ export const systemExtraHttpOpsDescription: INodeProperties[] = [
 		description: '企业微信移动端 SDK 授权回调返回的一次性 code',
 	},
 	{
-		displayName: '成员',
+		displayName: '成员UserID',
 		name: 'sys_userid',
-		type: 'options',
-		typeOptions: {
-			loadOptionsMethod: 'getAllUsers',
-		},
+		type: 'string',
 		required: true,
 		default: '',
+		placeholder: 'zhangsan',
 		displayOptions: {
 			show: { resource: ['system'], operation: ['userTfaSucc'] },
 		},
-		description: '选择完成二次验证的企业成员，或使用表达式指定 UserID',
+		description: '完成二次验证的企业成员 UserID',
 	},
 	{
 		displayName: '二次验证授权码',
@@ -157,28 +155,24 @@ export const systemExtraHttpOpsDescription: INodeProperties[] = [
 		description: '获取用户二次验证信息接口返回的 tfa_code，5 分钟内有效且只能使用一次',
 	},
 	{
-		displayName: '操作者',
+		displayName: '操作者UserID',
 		name: 'launch_operator_userid',
-		type: 'options',
-		typeOptions: {
-			loadOptionsMethod: 'getAllUsers',
-		},
+		type: 'string',
 		required: true,
 		default: '',
+		placeholder: 'zhangsan',
 		displayOptions: {
 			show: { resource: ['system'], operation: ['getLaunchCode'] },
 		},
 		description: '当前操作者；必须在应用可见范围内',
 	},
 	{
-		displayName: '单聊对象',
+		displayName: '单聊对象UserID',
 		name: 'launch_chat_userid',
-		type: 'options',
-		typeOptions: {
-			loadOptionsMethod: 'getAllUsers',
-		},
+		type: 'string',
 		required: true,
 		default: '',
+		placeholder: 'lisi',
 		displayOptions: {
 			show: { resource: ['system'], operation: ['getLaunchCode'] },
 		},

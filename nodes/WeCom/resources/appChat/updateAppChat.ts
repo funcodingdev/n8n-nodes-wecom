@@ -68,12 +68,9 @@ export const updateAppChatDescription: INodeProperties[] = [
 			'单独修改群名称时必填；组合更新时按需填写。最多 50 个 UTF-8 字符。<a href="https://developer.work.weixin.qq.com/document/path/98913" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '群主ID',
+		displayName: '群主UserID',
 		name: 'owner',
-		type: 'options',
-		typeOptions: {
-			loadOptionsMethod: 'getAllUsers',
-		},
+		type: 'string',
 		displayOptions: {
 			show: {
 				...showOnlyForUpdateAppChat,
@@ -81,7 +78,7 @@ export const updateAppChatDescription: INodeProperties[] = [
 			},
 		},
 		default: '',
-		placeholder: 'userid',
+		placeholder: 'zhangsan',
 		description:
 			'单独修改群主时必填；组合更新时按需填写。新群主必须是群成员；删除当前群主时也必须填写。<a href="https://developer.work.weixin.qq.com/document/path/98913" target="_blank">官方文档</a>',
 	},

@@ -19,19 +19,16 @@ export const createAppChatDescription: INodeProperties[] = [
 			'可选。群聊名称。最多50个utf8字符，超过将自动截断。<a href="https://developer.work.weixin.qq.com/document/path/90245" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '群主ID',
+		displayName: '群主UserID',
 		name: 'owner',
-		type: 'options',
-		typeOptions: {
-			loadOptionsMethod: 'getAllUsers',
-		},
+		type: 'string',
 		displayOptions: {
 			show: showOnlyForCreateAppChat,
 		},
 		default: '',
-		placeholder: 'userid',
+		placeholder: 'zhangsan',
 		description:
-			'可选。指定群主的 ID，必须是userlist的成员之一。如果不填，系统会随机从userlist中选一人作为群主。<a href="https://developer.work.weixin.qq.com/document/path/90245" target="_blank">官方文档</a>',
+			'可选。指定群主的 UserID，必须是 userlist 成员之一；不填则系统随机指定。<a href="https://developer.work.weixin.qq.com/document/path/90245" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '选择成员',
