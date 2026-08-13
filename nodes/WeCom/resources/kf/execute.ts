@@ -383,7 +383,7 @@ export async function executeKf(
 			} else if (operation === 'delKfAccount') {
 				const open_kfid = requireByteText(
 					this,
-					this.getNodeParameter('open_kfid', i),
+					(this.getNodeParameter('open_kfid', i, '') || this.getNodeParameter('open_kfid_selected', i, '')),
 					'客服账号 ID',
 					i,
 					64,
@@ -395,7 +395,7 @@ export async function executeKf(
 			} else if (operation === 'updateKfAccount') {
 				const open_kfid = requireByteText(
 					this,
-					this.getNodeParameter('open_kfid', i),
+					(this.getNodeParameter('open_kfid', i, '') || this.getNodeParameter('open_kfid_selected', i, '')),
 					'客服账号 ID',
 					i,
 					64,
@@ -450,7 +450,7 @@ export async function executeKf(
 			} else if (operation === 'getKfAccountLink') {
 				const open_kfid = requireByteText(
 					this,
-					this.getNodeParameter('open_kfid', i),
+					(this.getNodeParameter('open_kfid', i, '') || this.getNodeParameter('open_kfid_selected', i, '')),
 					'客服账号 ID',
 					i,
 					64,
@@ -475,7 +475,7 @@ export async function executeKf(
 			else if (operation === 'addServicer') {
 				const open_kfid = requireByteText(
 					this,
-					this.getNodeParameter('open_kfid', i),
+					(this.getNodeParameter('open_kfid', i, '') || this.getNodeParameter('open_kfid_selected', i, '')),
 					'客服账号 ID',
 					i,
 					64,
@@ -512,7 +512,7 @@ export async function executeKf(
 			} else if (operation === 'delServicer') {
 				const open_kfid = requireByteText(
 					this,
-					this.getNodeParameter('open_kfid', i),
+					(this.getNodeParameter('open_kfid', i, '') || this.getNodeParameter('open_kfid_selected', i, '')),
 					'客服账号 ID',
 					i,
 					64,
@@ -549,7 +549,7 @@ export async function executeKf(
 			} else if (operation === 'listServicer') {
 				const open_kfid = requireByteText(
 					this,
-					this.getNodeParameter('open_kfid', i),
+					(this.getNodeParameter('open_kfid', i, '') || this.getNodeParameter('open_kfid_selected', i, '')),
 					'客服账号 ID',
 					i,
 					64,
@@ -569,7 +569,7 @@ export async function executeKf(
 				// https://developer.work.weixin.qq.com/document/path/94669
 				const open_kfid = requireByteText(
 					this,
-					this.getNodeParameter('open_kfid', i),
+					(this.getNodeParameter('open_kfid', i, '') || this.getNodeParameter('open_kfid_selected', i, '')),
 					'客服账号 ID',
 					i,
 					64,
@@ -588,7 +588,7 @@ export async function executeKf(
 			} else if (operation === 'transServiceState') {
 				const open_kfid = requireByteText(
 					this,
-					this.getNodeParameter('open_kfid', i),
+					(this.getNodeParameter('open_kfid', i, '') || this.getNodeParameter('open_kfid_selected', i, '')),
 					'客服账号 ID',
 					i,
 					64,
@@ -628,7 +628,7 @@ export async function executeKf(
 			} else if (operation === 'sendKfMsg') {
 				const open_kfid = requireByteText(
 					this,
-					this.getNodeParameter('open_kfid', i),
+					(this.getNodeParameter('open_kfid', i, '') || this.getNodeParameter('open_kfid_selected', i, '')),
 					'客服账号 ID',
 					i,
 					64,
@@ -881,7 +881,7 @@ export async function executeKf(
 				// 官方路径：/cgi-bin/kf/customer/upgrade_service
 				const open_kfid = requireByteText(
 					this,
-					this.getNodeParameter('open_kfid', i),
+					(this.getNodeParameter('open_kfid', i, '') || this.getNodeParameter('open_kfid_selected', i, '')),
 					'客服账号 ID',
 					i,
 					64,
@@ -944,7 +944,7 @@ export async function executeKf(
 				// https://developer.work.weixin.qq.com/document/path/94674
 				const open_kfid = requireByteText(
 					this,
-					this.getNodeParameter('open_kfid', i),
+					(this.getNodeParameter('open_kfid', i, '') || this.getNodeParameter('open_kfid_selected', i, '')),
 					'客服账号 ID',
 					i,
 					64,
@@ -977,7 +977,7 @@ export async function executeKf(
 			} else if (operation === 'syncMsg') {
 				const open_kfid = requireByteText(
 					this,
-					this.getNodeParameter('open_kfid', i),
+					(this.getNodeParameter('open_kfid', i, '') || this.getNodeParameter('open_kfid_selected', i, '')),
 					'客服账号 ID',
 					i,
 					64,
@@ -1110,7 +1110,7 @@ export async function executeKf(
 			else if (operation === 'getCorpStatistic') {
 				const open_kfid = requireByteText(
 					this,
-					this.getNodeParameter('open_kfid', i),
+					(this.getNodeParameter('open_kfid', i, '') || this.getNodeParameter('open_kfid_selected', i, '')),
 					'客服账号 ID',
 					i,
 					64,
@@ -1137,7 +1137,7 @@ export async function executeKf(
 			} else if (operation === 'getServicerStatistic') {
 				const open_kfid = requireByteText(
 					this,
-					this.getNodeParameter('open_kfid', i),
+					(this.getNodeParameter('open_kfid', i, '') || this.getNodeParameter('open_kfid_selected', i, '')),
 					'客服账号 ID',
 					i,
 					64,

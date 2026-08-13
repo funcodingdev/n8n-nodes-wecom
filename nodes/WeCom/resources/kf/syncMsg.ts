@@ -9,17 +9,20 @@ export const syncMsgDescription: INodeProperties[] = [
 	{
 		displayName: '客服账号',
 		name: 'open_kfid',
-		type: 'options',
-		typeOptions: {
-			loadOptionsMethod: 'getKfAccounts',
-		},
-		required: true,
-		displayOptions: {
-			show: showOnlyForSyncMsg,
-		},
+		type: 'string',
+		displayOptions: { show: showOnlyForSyncMsg },
 		default: '',
-		description: '指定拉取消息的客服账号。接口仅可读取最近 3 天内的消息和事件。<a href="https://developer.work.weixin.qq.com/document/path/94670" target="_blank">官方文档</a>',
 		placeholder: 'wkxxxxxxxxxxxxxxxxxx',
+		description: '指定拉取消息的客服账号。接口仅可读取最近 3 天内的消息和事件。<a href="https://developer.work.weixin.qq.com/document/path/94670" target="_blank">官方文档</a>；可与下方选择二选一',
+	},
+	{
+		displayName: '客服账号(选择)',
+		name: 'open_kfid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getKfAccounts' },
+		displayOptions: { show: showOnlyForSyncMsg },
+		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '游标',

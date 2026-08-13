@@ -26,16 +26,20 @@ export const sendKfMsgDescription: INodeProperties[] = [
 	{
 		displayName: '客服账号',
 		name: 'open_kfid',
-		type: 'options',
-		typeOptions: {
-			loadOptionsMethod: 'getKfAccounts',
-		},
-		required: true,
-		displayOptions: {
-			show: showOnlyForSendKfMsg,
-		},
+		type: 'string',
+		displayOptions: { show: showOnlyForSendKfMsg },
 		default: '',
-		description: '选择要使用的客服账号',
+		placeholder: 'wkxxxxxxxxxxxxxxxxxx',
+		description: '选择要使用的客服账号；可与下方选择二选一',
+	},
+	{
+		displayName: '客服账号(选择)',
+		name: 'open_kfid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getKfAccounts' },
+		displayOptions: { show: showOnlyForSendKfMsg },
+		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '客户 External UserID',

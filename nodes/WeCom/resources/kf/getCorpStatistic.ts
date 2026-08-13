@@ -16,17 +16,20 @@ export const getCorpStatisticDescription: INodeProperties[] = [
 	{
 		displayName: '客服账号',
 		name: 'open_kfid',
-		type: 'options',
-		typeOptions: {
-			loadOptionsMethod: 'getKfAccounts',
-		},
-		required: true,
-		displayOptions: {
-			show: showOnlyForGetCorpStatistic,
-		},
+		type: 'string',
+		displayOptions: { show: showOnlyForGetCorpStatistic },
 		default: '',
-		description: '要查询企业汇总统计的客服账号。<a href="https://developer.work.weixin.qq.com/document/path/95489" target="_blank">官方文档</a>',
 		placeholder: 'wkxxxxxxxxxxxxxxxxxx',
+		description: '要查询企业汇总统计的客服账号。<a href="https://developer.work.weixin.qq.com/document/path/95489" target="_blank">官方文档</a>；可与下方选择二选一',
+	},
+	{
+		displayName: '客服账号(选择)',
+		name: 'open_kfid_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getKfAccounts' },
+		displayOptions: { show: showOnlyForGetCorpStatistic },
+		default: '',
+		description: '与上方字符串二选一；均填写时以字符串为准',
 	},
 	{
 		displayName: '起始日期',
