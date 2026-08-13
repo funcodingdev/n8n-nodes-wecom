@@ -51,7 +51,16 @@ export const submitApprovalDescription: INodeProperties[] = [
 		type: 'number',
 		displayOptions: { show: showOnlyForSubmitApproval },
 		default: 0,
-		description: 'choose_department，不填默认为主部门',
+		description: 'choose_department，不填默认为主部门；可与下方选择二选一',
+	},
+	{
+		displayName: '提单部门(选择)',
+		name: 'choose_department_selected',
+		type: 'options',
+		typeOptions: { loadOptionsMethod: 'getDepartments' },
+		displayOptions: { show: showOnlyForSubmitApproval },
+		default: '',
+		description: '与上方部门 ID 二选一；均填写时以数字字段为准',
 	},
 	{
 		displayName: '申请表单控件值',

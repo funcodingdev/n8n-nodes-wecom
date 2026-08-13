@@ -126,6 +126,15 @@ export const modDocShareScopeDescription: INodeProperties[] = [
 						name: 'departmentid',
 						type: 'number',
 						default: 0,
+						description: '可与下方选择二选一',
+					},
+					{
+						displayName: '部门(选择)',
+						name: 'departmentid_selected',
+						type: 'options',
+						typeOptions: { loadOptionsMethod: 'getDepartments' },
+						default: '',
+						description: '与上方部门 ID 二选一；均填写时以数字字段为准',
 					},
 					{
 						displayName: '权限',

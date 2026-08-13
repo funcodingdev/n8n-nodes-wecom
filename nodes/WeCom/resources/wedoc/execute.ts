@@ -2850,7 +2850,7 @@ export async function executeWedoc(
 						return {
 							departmentid: integerInRange(
 								this,
-								department.departmentid,
+								department.departmentid || department.departmentid_selected,
 								'部门 ID',
 								i,
 								1,

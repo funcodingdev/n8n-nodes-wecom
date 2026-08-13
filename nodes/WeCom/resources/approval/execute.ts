@@ -702,7 +702,8 @@ export async function executeApproval(
 				};
 				const department = integer(
 					this,
-					this.getNodeParameter('choose_department', i, 0),
+					this.getNodeParameter('choose_department', i, 0) ||
+						this.getNodeParameter('choose_department_selected', i, ''),
 					'提单部门 ID',
 					i,
 					0,
