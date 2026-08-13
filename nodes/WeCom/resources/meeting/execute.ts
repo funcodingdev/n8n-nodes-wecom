@@ -542,7 +542,14 @@ function normalizeLayoutPages(
 							fail(context, `第 ${userIndex + 1} 个宫格用户必须是对象`, itemIndex);
 						}
 						const user = rawUser as IDataObject;
-						const userid = text(context, user.userid, '宫格用户 UserID', itemIndex, 64, false);
+						const userid = text(
+							context,
+							user.userid || user.userid_selected,
+							'宫格用户 UserID',
+							itemIndex,
+							64,
+							false,
+						);
 						const tmpOpenid = text(
 							context,
 							user.tmp_openid,
@@ -574,7 +581,14 @@ function normalizeLayoutPages(
 					normalizedSeat.user_list = users;
 				}
 			} else {
-				const userid = text(context, seat.userid, '宫格用户 UserID', itemIndex, 64, false);
+				const userid = text(
+					context,
+					seat.userid || seat.userid_selected,
+					'宫格用户 UserID',
+					itemIndex,
+					64,
+					false,
+				);
 				const tmpOpenid = text(
 					context,
 					seat.tmp_openid,
@@ -1575,10 +1589,10 @@ export async function executeMeeting(
 					this.getNodeParameter('invitee_userids_selected', i, []),
 				];
 				((inviteesCollection?.invitees as IDataObject[]) || []).forEach((inv) => {
-					if (inv.userid) rawIds.push(inv.userid);
+					if (inv.userid || inv.userid_selected) rawIds.push(inv.userid || inv.userid_selected);
 				});
 				((addInviteesCollection?.invitees as IDataObject[]) || []).forEach((inv) => {
-					if (inv.userid) rawIds.push(inv.userid);
+					if (inv.userid || inv.userid_selected) rawIds.push(inv.userid || inv.userid_selected);
 				});
 				const ids = stringList(this, rawIds, '受邀成员', i, 0, 2000);
 
@@ -1876,7 +1890,7 @@ export async function executeMeeting(
 				if (useridCollection.users) {
 					const usersList = useridCollection.users as IDataObject[];
 					usersList.forEach((u) => {
-						if (u.userid) rawUserids.push(u.userid);
+						if (u.userid || u.userid_selected) rawUserids.push(u.userid || u.userid_selected);
 					});
 				}
 				const userid_list = stringList(this, rawUserids, '高级功能账号 UserID', i, 1, 100);
@@ -1898,7 +1912,7 @@ export async function executeMeeting(
 				if (useridCollection.users) {
 					const usersList = useridCollection.users as IDataObject[];
 					usersList.forEach((u) => {
-						if (u.userid) rawUserids.push(u.userid);
+						if (u.userid || u.userid_selected) rawUserids.push(u.userid || u.userid_selected);
 					});
 				}
 				const userid_list = stringList(this, rawUserids, '高级功能账号 UserID', i, 1, 100);

@@ -439,7 +439,20 @@ export const sendTemplateCardDescription: INodeProperties[] = [
 						type: 'string',
 						default: '',
 						placeholder: 'zhangsan',
-						description: '成员详情的userid，horizontal_content_list.type是3时必填',
+						description: '成员详情的userid，horizontal_content_list.type是3时必填；可与下方选择二选一',
+						displayOptions: {
+							show: {
+								type: [3],
+							},
+						},
+					},
+					{
+						displayName: '成员(选择)',
+						name: 'userid_selected',
+						type: 'options',
+						typeOptions: { loadOptionsMethod: 'getAllUsers' },
+						default: '',
+						description: '与上方字符串二选一；均填写时以字符串为准',
 						displayOptions: {
 							show: {
 								type: [3],

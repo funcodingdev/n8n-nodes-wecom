@@ -76,8 +76,11 @@ export function validateTemplateCard(
 		if (Number(item.type) === 2 && !item.media_id) {
 			fail('horizontal_content_list[].media_id 在 type=2 时必填');
 		}
-		if (Number(item.type) === 3 && !item.userid) {
-			fail('horizontal_content_list[].userid 在 type=3 时必填');
+		if (Number(item.type) === 3) {
+			const memberUserid = String(item.userid || item.userid_selected || '').trim();
+			if (!memberUserid) fail('horizontal_content_list[].userid 在 type=3 时必填');
+			item.userid = memberUserid;
+			delete item.userid_selected;
 		}
 	}
 
@@ -966,7 +969,18 @@ export async function executeMessage(
 
 					// 添加horizontal_content_list
 					if (horizontalContentListData.items && Array.isArray(horizontalContentListData.items)) {
-						template_card.horizontal_content_list = horizontalContentListData.items;
+						template_card.horizontal_content_list = (
+							horizontalContentListData.items as IDataObject[]
+						).map((item) => {
+							const normalized = { ...item };
+							if (Number(normalized.type) === 3) {
+								normalized.userid = String(
+									normalized.userid || normalized.userid_selected || '',
+								).trim();
+								delete normalized.userid_selected;
+							}
+							return normalized;
+						});
 					}
 
 					// 添加jump_list
@@ -1232,7 +1246,18 @@ export async function executeMessage(
 
 					// 添加horizontal_content_list
 					if (horizontalContentListData.items && Array.isArray(horizontalContentListData.items)) {
-						template_card.horizontal_content_list = horizontalContentListData.items;
+						template_card.horizontal_content_list = (
+							horizontalContentListData.items as IDataObject[]
+						).map((item) => {
+							const normalized = { ...item };
+							if (Number(normalized.type) === 3) {
+								normalized.userid = String(
+									normalized.userid || normalized.userid_selected || '',
+								).trim();
+								delete normalized.userid_selected;
+							}
+							return normalized;
+						});
 					}
 
 					// 添加jump_list

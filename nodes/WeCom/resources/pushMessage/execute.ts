@@ -257,7 +257,15 @@ export async function executePushMessage(
 			}
 			if (type === 1) ensureHttpUrl(entry.url, `template_card.horizontal_content_list[${index}].url`, itemIndex);
 			if (type === 2) requireText(entry.media_id, `template_card.horizontal_content_list[${index}].media_id`, itemIndex);
-			if (type === 3) requireText(entry.userid, `template_card.horizontal_content_list[${index}].userid`, itemIndex);
+			if (type === 3) {
+				const memberUserid = requireText(
+					entry.userid || entry.userid_selected,
+					`template_card.horizontal_content_list[${index}].userid`,
+					itemIndex,
+				);
+				entry.userid = memberUserid;
+				delete entry.userid_selected;
+			}
 		});
 
 		const jumpList = asObjectArray(templateCard.jump_list, 'template_card.jump_list', itemIndex);
