@@ -119,6 +119,15 @@ export const updateInterceptRuleDescription: INodeProperties[] = [
 		description: '与上方列表合并去重',
 	},
 	{
+		displayName: '新增成员 JSON',
+		name: 'addUserListJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: { ...showOnly, enableAddRange: [true] } },
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '新增部门ID列表',
 		name: 'add_department_list',
 		type: 'string',
@@ -162,6 +171,15 @@ export const updateInterceptRuleDescription: INodeProperties[] = [
 		default: [],
 		displayOptions: { show: { ...showOnly, enableRemoveRange: [true] } },
 		description: '与上方列表合并去重',
+	},
+	{
+		displayName: '删除成员 JSON',
+		name: 'removeUserListJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: { ...showOnly, enableRemoveRange: [true] } },
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
 	},
 	{
 		displayName: '删除部门ID列表',

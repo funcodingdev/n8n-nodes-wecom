@@ -5,6 +5,7 @@ import {
 	normalizeUserIdList,
 	optionalText,
 	optionalUnixSeconds,
+	parseUserIdJson,
 	requireCharacterText,
 	requireInteger,
 	requireText,
@@ -77,6 +78,12 @@ export async function executeLiving(
 							[
 								this.getNodeParameter('grid_admin', i, ''),
 								this.getNodeParameter('grid_admin_selected', i, []),
+								...parseUserIdJson(
+									this,
+									this.getNodeParameter('gridAdminJson', i, '[]'),
+									'负责人 JSON',
+									i,
+								),
 							],
 							'负责人列表',
 							i,
@@ -89,6 +96,12 @@ export async function executeLiving(
 						[
 							this.getNodeParameter('grid_member', i, ''),
 							this.getNodeParameter('grid_member_selected', i, []),
+							...parseUserIdJson(
+								this,
+								this.getNodeParameter('gridMemberJson', i, '[]'),
+								'网格成员 JSON',
+								i,
+							),
 						],
 						'网格成员列表',
 						i,
@@ -125,6 +138,12 @@ export async function executeLiving(
 							[
 								this.getNodeParameter('grid_admin', i, ''),
 								this.getNodeParameter('grid_admin_selected', i, []),
+								...parseUserIdJson(
+									this,
+									this.getNodeParameter('gridAdminJson', i, '[]'),
+									'负责人 JSON',
+									i,
+								),
 							],
 							'负责人列表',
 							i,
@@ -138,6 +157,12 @@ export async function executeLiving(
 							[
 								this.getNodeParameter('grid_member', i, ''),
 								this.getNodeParameter('grid_member_selected', i, []),
+								...parseUserIdJson(
+									this,
+									this.getNodeParameter('gridMemberJson', i, '[]'),
+									'网格成员 JSON',
+									i,
+								),
 							],
 							'网格成员列表',
 							i,

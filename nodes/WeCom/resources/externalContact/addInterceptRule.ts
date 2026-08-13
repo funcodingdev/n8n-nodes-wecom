@@ -70,6 +70,15 @@ export const addInterceptRuleDescription: INodeProperties[] = [
 		description: '与上方列表合并去重',
 	},
 	{
+		displayName: '成员列表 JSON',
+		name: 'applicableUserListJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: { ...showOnly, applicableRangeType: ['user', 'both'] } },
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '部门ID列表',
 		name: 'applicable_department_list',
 		type: 'string',

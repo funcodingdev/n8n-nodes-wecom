@@ -169,6 +169,15 @@ export const manageMeetingroomDescription: INodeProperties[] = [
 		description: '与上方成员列表合并去重',
 	},
 	{
+		displayName: '可用成员 JSON',
+		name: 'rangeUserListJson',
+		type: 'json',
+		displayOptions: { show: { ...showOnly, action: ['add'], set_range: [true] } },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '可用部门ID',
 		name: 'range_department_list',
 		type: 'string',
@@ -313,6 +322,15 @@ export const manageMeetingroomDescription: INodeProperties[] = [
 		displayOptions: { show: { ...showOnly, action: ['edit'], update_range: [true] } },
 		default: [],
 		description: '与上方成员列表合并去重',
+	},
+	{
+		displayName: '新可用成员 JSON',
+		name: 'rangeUserListEditJson',
+		type: 'json',
+		displayOptions: { show: { ...showOnly, action: ['edit'], update_range: [true] } },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
 	},
 	{
 		displayName: '新可用部门ID',

@@ -53,6 +53,15 @@ export const updateContactWayDescription: INodeProperties[] = [
 		displayOptions: { show: showWhen('updateUsers') },
 		description: '与上方列表合并去重',
 	},
+	{
+		displayName: '成员列表 JSON',
+		name: 'userJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: showWhen('updateUsers') },
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
 	updateToggle('更新部门列表', 'updateParty', '开启后使用下面的列表覆盖原部门列表；留空会发送空数组'),
 	{
 		displayName: '配置的部门ID列表',

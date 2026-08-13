@@ -69,6 +69,15 @@ export const addContactWayDescription: INodeProperties[] = [
 		description: '与上方列表合并；单人模式合并后仍须恰好 1 人',
 	},
 	{
+		displayName: '成员列表 JSON',
+		name: 'userJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: { show: showOnly },
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '配置的部门ID列表',
 		name: 'party',
 		type: 'string',

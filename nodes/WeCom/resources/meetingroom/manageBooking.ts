@@ -178,6 +178,15 @@ export const manageBookingDescription: INodeProperties[] = [
 		description: '与上方列表合并去重',
 	},
 	{
+		displayName: '参会人员 JSON',
+		name: 'attendeesJson',
+		type: 'json',
+		displayOptions: { show: { ...showOnly, action: ['book'] } },
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '日程ID',
 		name: 'schedule_id',
 		type: 'string',

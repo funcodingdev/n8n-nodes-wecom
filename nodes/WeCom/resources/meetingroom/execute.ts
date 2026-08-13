@@ -75,6 +75,11 @@ function listValues(value: unknown): string[] {
 	if (Array.isArray(value)) {
 		return value.flatMap((entry) => listValues(entry));
 	}
+	if (value && typeof value === 'object') {
+		const row = value as IDataObject;
+		const id = row.userid ?? row.userid_selected ?? row.user_id;
+		return id !== undefined && id !== null && String(id).trim() ? [String(id).trim()] : [];
+	}
 	return String(value ?? '')
 		.split(LIST_SEPARATOR)
 		.map((entry) => entry.trim())
@@ -91,6 +96,26 @@ function stringList(
 	const unique = [...new Set(listValues(value))];
 	if (unique.length > max) fail(context, `${label}最多支持 ${max} 个`, itemIndex);
 	return unique;
+}
+
+function parseUserIdJson(
+	context: IExecuteFunctions,
+	value: unknown,
+	label: string,
+	itemIndex: number,
+): string[] {
+	if (value === undefined || value === null || String(value).trim() === '') return [];
+	let parsed: unknown = value;
+	if (typeof value === 'string') {
+		try {
+			parsed = JSON.parse(value);
+		} catch {
+			fail(context, `${label}不是有效的 JSON`, itemIndex);
+		}
+	}
+	if (!Array.isArray(parsed)) fail(context, `${label}必须是 JSON 数组`, itemIndex);
+	if (parsed.length === 0) return [];
+	return listValues(parsed);
 }
 
 function equipmentList(
@@ -255,6 +280,12 @@ export async function executeMeetingroom(
 							[
 								this.getNodeParameter('range_user_list', i, ''),
 								this.getNodeParameter('range_user_list_selected', i, []),
+								...parseUserIdJson(
+									this,
+									this.getNodeParameter('rangeUserListJson', i, '[]'),
+									'可用成员 JSON',
+									i,
+								),
 							],
 							[
 								this.getNodeParameter('range_department_list', i, ''),
@@ -329,6 +360,12 @@ export async function executeMeetingroom(
 							[
 								this.getNodeParameter('range_user_list_edit', i, ''),
 								this.getNodeParameter('range_user_list_edit_selected', i, []),
+								...parseUserIdJson(
+									this,
+									this.getNodeParameter('rangeUserListEditJson', i, '[]'),
+									'新可用成员 JSON',
+									i,
+								),
 							],
 							[
 								this.getNodeParameter('range_department_list_edit', i, ''),
@@ -459,6 +496,12 @@ export async function executeMeetingroom(
 						[
 							this.getNodeParameter('attendees', i, ''),
 							this.getNodeParameter('attendees_selected', i, []),
+							...parseUserIdJson(
+								this,
+								this.getNodeParameter('attendeesJson', i, '[]'),
+								'参会人员 JSON',
+								i,
+							),
 						],
 						'参会人员',
 						i,

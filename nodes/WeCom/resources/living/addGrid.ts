@@ -57,6 +57,17 @@ export const addGridDescription: INodeProperties[] = [
 		description: '与上方负责人列表合并去重，合计 1–20 个',
 	},
 	{
+		displayName: '负责人 JSON',
+		name: 'gridAdminJson',
+		type: 'json',
+		displayOptions: {
+			show: showOnlyForAddGrid,
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
+	},
+	{
 		displayName: '网格成员UserID列表',
 		name: 'grid_member',
 		type: 'string',
@@ -79,5 +90,16 @@ export const addGridDescription: INodeProperties[] = [
 		},
 		default: [],
 		description: '与上方成员列表合并去重，合计最多 100 个',
+	},
+	{
+		displayName: '网格成员 JSON',
+		name: 'gridMemberJson',
+		type: 'json',
+		displayOptions: {
+			show: showOnlyForAddGrid,
+		},
+		default: '[]',
+		description:
+			'可选。非空数组时与上方列表/选择合并去重。支持 ["userid1"] 或 [{"userid":"userid1"}]',
 	},
 ];

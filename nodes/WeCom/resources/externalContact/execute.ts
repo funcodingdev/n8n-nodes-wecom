@@ -660,7 +660,16 @@ export async function executeExternalContact(
 				const scene = requireOption(this, this.getNodeParameter('scene', i), '场景', i, [1, 2]);
 				const users = stringList(
 					this,
-					[this.getNodeParameter('user', i, ''), this.getNodeParameter('user_selected', i, [])],
+					[
+						this.getNodeParameter('user', i, ''),
+						this.getNodeParameter('user_selected', i, []),
+						...parseUserIdJson(
+							this,
+							this.getNodeParameter('userJson', i, '[]'),
+							'成员列表 JSON',
+							i,
+						),
+					],
 					'成员 UserID',
 					i,
 					{ maximum: 100 },
@@ -771,7 +780,16 @@ export async function executeExternalContact(
 				if (this.getNodeParameter('updateUsers', i, false) as boolean) {
 					body.user = stringList(
 						this,
-						[this.getNodeParameter('user', i, ''), this.getNodeParameter('user_selected', i, [])],
+						[
+							this.getNodeParameter('user', i, ''),
+							this.getNodeParameter('user_selected', i, []),
+							...parseUserIdJson(
+								this,
+								this.getNodeParameter('userJson', i, '[]'),
+								'成员列表 JSON',
+								i,
+							),
+						],
 						'成员 UserID',
 						i,
 						{ maximum: 100 },
@@ -2187,6 +2205,12 @@ export async function executeExternalContact(
 						[
 							this.getNodeParameter('applicable_user_list', i, ''),
 							this.getNodeParameter('applicable_user_list_selected', i, []),
+							...parseUserIdJson(
+								this,
+								this.getNodeParameter('applicableUserListJson', i, '[]'),
+								'适用成员 JSON',
+								i,
+							),
 						],
 						'适用成员 UserID 列表',
 						i,
@@ -2278,6 +2302,12 @@ export async function executeExternalContact(
 						[
 							this.getNodeParameter('add_user_list', i, ''),
 							this.getNodeParameter('add_user_list_selected', i, []),
+							...parseUserIdJson(
+								this,
+								this.getNodeParameter('addUserListJson', i, '[]'),
+								'新增成员 JSON',
+								i,
+							),
 						],
 						'新增成员 UserID 列表',
 						i,
@@ -2308,6 +2338,12 @@ export async function executeExternalContact(
 						[
 							this.getNodeParameter('remove_user_list', i, ''),
 							this.getNodeParameter('remove_user_list_selected', i, []),
+							...parseUserIdJson(
+								this,
+								this.getNodeParameter('removeUserListJson', i, '[]'),
+								'删除成员 JSON',
+								i,
+							),
 						],
 						'删除成员 UserID 列表',
 						i,
