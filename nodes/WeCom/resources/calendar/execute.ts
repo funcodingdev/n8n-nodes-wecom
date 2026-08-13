@@ -120,10 +120,14 @@ function calendarShares(
 	context: IExecuteFunctions,
 	collection: IDataObject,
 	itemIndex: number,
+	extraUserids: unknown = '',
 ): IDataObject[] {
-	const rawShares = (collection.shares as IDataObject[]) || [];
-	if (rawShares.length > 2000) fail(context, '日历通知范围最多支持 2000 人', itemIndex);
 	const shares = new Map<string, IDataObject>();
+	for (const userid of stringList(context, extraUserids, '通知成员', itemIndex, 0, 2000)) {
+		const id = text(context, userid, '通知成员 UserID', itemIndex, 64);
+		shares.set(id, { userid: id, permission: 1 });
+	}
+	const rawShares = (collection.shares as IDataObject[]) || [];
 	for (const [index, rawShare] of rawShares.entries()) {
 		const userid = text(
 			context,
@@ -136,6 +140,7 @@ function calendarShares(
 		if (permission !== 1 && permission !== 3) fail(context, '通知成员权限只能是 1 或 3', itemIndex);
 		shares.set(userid, { userid, permission });
 	}
+	if (shares.size > 2000) fail(context, '日历通知范围最多支持 2000 人', itemIndex);
 	return [...shares.values()];
 }
 
@@ -308,6 +313,7 @@ export async function executeCalendar(
 					this,
 					this.getNodeParameter('sharesCollection', i, {}) as IDataObject,
 					i,
+					this.getNodeParameter('share_userids', i, ''),
 				);
 				if (admins.length) {
 					const shareUserids = new Set(shares.map((share) => String(share.userid)));
@@ -393,6 +399,7 @@ export async function executeCalendar(
 					this,
 					this.getNodeParameter('sharesCollection', i, {}) as IDataObject,
 					i,
+					this.getNodeParameter('share_userids', i, ''),
 				);
 				if (shares.length) calendar.shares = shares;
 				const skipRange = this.getNodeParameter('skip_public_range', i, false) as boolean;

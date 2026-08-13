@@ -164,7 +164,18 @@ export const updateCalendarDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '日历通知范围',
+		displayName: '通知范围UserID列表',
+		name: 'share_userids',
+		type: 'string',
+		displayOptions: {
+			show: showOnlyForUpdate,
+		},
+		default: '',
+		placeholder: 'zhangsan,lisi',
+		description: '通知成员 userid，逗号分隔，最多 2000；默认权限「可查看」；与下方选择合并',
+	},
+	{
+		displayName: '日历通知范围(选择)',
 		name: 'sharesCollection',
 		type: 'fixedCollection',
 		displayOptions: {
@@ -175,7 +186,7 @@ export const updateCalendarDescription: INodeProperties[] = [
 		typeOptions: {
 			multipleValues: true,
 		},
-		description: '日历通知范围成员列表。最多2000人',
+		description: '日历通知范围成员列表。最多2000人；可与上方 UserID 列表合并',
 		options: [
 			{
 				displayName: '通知成员',
