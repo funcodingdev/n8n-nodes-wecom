@@ -799,7 +799,37 @@ export async function executeMessage(
 					}
 					miniprogramNotice = miniprogramNoticeJson;
 				} else {
-					const contentItemList = (content_items.item as IDataObject[]) || [];
+					const contentItemsJsonRaw = this.getNodeParameter('contentItemsJson', i, '[]');
+					let contentItemList: IDataObject[] = [];
+					if (
+						contentItemsJsonRaw !== undefined &&
+						contentItemsJsonRaw !== null &&
+						String(contentItemsJsonRaw).trim() !== ''
+					) {
+						let parsed: unknown = contentItemsJsonRaw;
+						if (typeof contentItemsJsonRaw === 'string') {
+							try {
+								parsed = JSON.parse(contentItemsJsonRaw);
+							} catch {
+								throw new NodeOperationError(
+									this.getNode(),
+									'消息内容键值对 JSON 不是有效的 JSON',
+									{ itemIndex: i },
+								);
+							}
+						}
+						if (!Array.isArray(parsed)) {
+							throw new NodeOperationError(
+								this.getNode(),
+								'消息内容键值对 JSON 必须是数组',
+								{ itemIndex: i },
+							);
+						}
+						if (parsed.length > 0) contentItemList = parsed as IDataObject[];
+					}
+					if (contentItemList.length === 0) {
+						contentItemList = (content_items.item as IDataObject[]) || [];
+					}
 					miniprogramNotice = {
 						appid,
 						page,

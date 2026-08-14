@@ -40,7 +40,18 @@ export const createStudentDescription: INodeProperties[] = [
 		placeholder: '1,2',
 		typeOptions: { rows: 2 },
 		description:
-			'学生所在班级，最多 20 个正整数；与下方 JSON 合并；支持逗号、中文逗号、竖线或换行分隔',
+			'学生所在班级，最多 20 个正整数；与下方选择/JSON 合并；支持逗号、中文逗号、竖线或换行分隔',
+	},
+	{
+		displayName: '班级(选择)',
+		name: 'department_selected',
+		type: 'multiOptions',
+		typeOptions: { loadOptionsMethod: 'getDepartments' },
+		displayOptions: {
+			show: showOnly,
+		},
+		default: [],
+		description: '与上方列表合并去重；家校班级若已同步为部门时可从此选择',
 	},
 	{
 		displayName: '班级 ID 列表 JSON',
@@ -51,7 +62,7 @@ export const createStudentDescription: INodeProperties[] = [
 		},
 		default: '[]',
 		description:
-			'可选。非空数组时与上方列表合并去重。支持 [1,2] 或 [{"departmentid":1}]',
+			'可选。非空数组时与上方列表/选择合并去重。支持 [1,2] 或 [{"departmentid":1}]',
 	},
 	{
 		displayName: '学生手机号',

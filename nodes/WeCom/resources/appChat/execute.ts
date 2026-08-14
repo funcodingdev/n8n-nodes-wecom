@@ -118,7 +118,7 @@ export async function executeAppChat(
 		return values;
 	};
 	const normalizeMentionedUsers = (value: unknown, itemIndex: number): string[] => {
-		let values: string[] = [];
+		const values: string[] = [];
 		const collect = (entry: unknown) => {
 			if (entry === undefined || entry === null) return;
 			if (Array.isArray(entry)) {

@@ -579,6 +579,6 @@ export const addSmartsheetRecordDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly },
 		default: '[]',
 		description:
-			'可选。非空数组时覆盖上方记录表单。官方 records 结构，例如 [{\"values\":{\"字段标题\":[{\"type\":\"text\",\"text\":\"...\"}]}}]',
+			'可选。非空数组时覆盖上方记录表单。官方 records 结构，例如 [{"values":{"字段标题":[{"type":"text","text":"..."}]}}]',
 	},
 ];

@@ -611,6 +611,6 @@ export const updateSmartsheetRecordDescription: INodeProperties[] = [
 		displayOptions: { show: showOnly },
 		default: '[]',
 		description:
-			'可选。非空数组时覆盖上方记录表单。官方 records 结构，例如 [{\"record_id\":\"...\",\"values\":{...}}]',
+			'可选。非空数组时覆盖上方记录表单。官方 records 结构，例如 [{"record_id":"...","values":{...}}]',
 	},
 ];

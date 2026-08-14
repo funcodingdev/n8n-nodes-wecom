@@ -167,6 +167,20 @@ export const sendMiniprogramNoticeDescription: INodeProperties[] = [
 		],
 	},
 	{
+		displayName: '消息内容键值对 JSON',
+		name: 'contentItemsJson',
+		type: 'json',
+		default: '[]',
+		displayOptions: {
+			show: {
+				...showOnlySendMiniprogramNotice,
+				miniprogram_notice_input_mode: ['form'],
+			},
+		},
+		description:
+			'可选。非空数组时覆盖上方内容项表单。支持 [{"key":"姓名","value":"张三"}]，最多 10 项',
+	},
+	{
 		displayName: '是否开启ID转译',
 		name: 'enable_id_trans',
 		type: 'boolean',
