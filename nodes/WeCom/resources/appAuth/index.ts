@@ -401,7 +401,7 @@ export const appAuthDescription: INodeProperties[] = [
 		description: '仅旧的多应用套件需要设置；值为 1 时按接口默认行为不发送该字段',
 	},
 	{
-		displayName: 'State',
+		displayName: 'State 参数',
 		name: 'state',
 		type: 'string',
 		displayOptions: {

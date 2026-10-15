@@ -135,7 +135,7 @@ export const addCheckinRecordDescription: INodeProperties[] = [
 		description: '打卡附件 media_id，当前最多允许 1 个',
 	},
 	{
-		displayName: '打卡记录JSON',
+		displayName: '打卡记录（JSON）',
 		name: 'recordsJson',
 		type: 'json',
 		required: true,

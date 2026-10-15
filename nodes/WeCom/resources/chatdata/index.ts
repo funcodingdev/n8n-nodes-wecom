@@ -258,7 +258,7 @@ export const chatdataDescription: INodeProperties[] = [
 		typeOptions: { maxLength: 256 },
 	},
 	{
-		displayName: '请求数据JSON',
+		displayName: '请求数据（JSON）',
 		name: 'request_data',
 		type: 'json',
 		required: true,

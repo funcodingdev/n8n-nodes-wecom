@@ -112,7 +112,7 @@ export const manageSmartsheetAuthDescription: INodeProperties[] = [
 		description: 'record_priv.record_range_type',
 	},
 	{
-		displayName: '扩展JSON',
+		displayName: '扩展（JSON）',
 		name: 'manageAuthExtraJson',
 		type: 'json',
 		displayOptions: { show: showOnly },

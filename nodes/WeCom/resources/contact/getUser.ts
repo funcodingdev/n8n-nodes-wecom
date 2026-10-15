@@ -18,7 +18,7 @@ export const getUserDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyGetUser,
 		},
-		description: '从列表中选择成员，或使用表达式指定 UserID。应用只能获取可见范围内的成员信息，且每种应用获取的字段有所不同。从2022年6月20号20点开始，新创建的自建应用与代开发应用，不再返回以下字段：头像、性别、手机、邮箱、企业邮箱、员工个人二维码、地址，需要通过oauth2手工授权的方式获取管理员与员工本人授权的字段。<a href="https://developer.work.weixin.qq.com/document/path/90196" target="_blank">官方文档</a>。Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+		description: '从列表中选择成员，或使用表达式指定 UserID。仅能获取可见范围内的成员；新建的自建应用不再返回头像、手机、邮箱等敏感字段。<a href="https://developer.work.weixin.qq.com/document/path/90196" target="_blank">官方文档</a>。Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
 	},
 ];
 

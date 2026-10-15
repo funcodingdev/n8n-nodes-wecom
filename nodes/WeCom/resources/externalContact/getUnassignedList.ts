@@ -29,7 +29,7 @@ export const getUnassignedListDescription: INodeProperties[] = [
 		description: '每次返回的最大记录数。每次返回的最大记录数，默认1000，最大1000',
 	},
 	{
-		displayName: 'Cursor',
+		displayName: '分页游标',
 		name: 'cursor',
 		type: 'string',
 		default: '',

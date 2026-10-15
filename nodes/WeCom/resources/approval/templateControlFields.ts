@@ -171,7 +171,7 @@ export const templateControlFields: INodeProperties[] = [
 		description: '留空表示可关联所有模板；支持逗号、中文逗号、竖线或换行分隔',
 	},
 	{
-		displayName: '控件配置JSON',
+		displayName: '控件配置（JSON）',
 		name: 'control_config_json',
 		type: 'json',
 		default: '{}',

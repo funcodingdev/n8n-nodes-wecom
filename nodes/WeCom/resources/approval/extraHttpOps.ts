@@ -288,7 +288,7 @@ export const approvalExtraHttpOpsDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '审批节点扩展JSON',
+		displayName: '审批节点扩展（JSON）',
 		name: 'af_process_node_list_json',
 		type: 'json',
 		displayOptions: {
@@ -301,7 +301,7 @@ export const approvalExtraHttpOpsDescription: INodeProperties[] = [
 		description: '非空数组时覆盖上方节点表单',
 	},
 	{
-		displayName: '请求体JSON',
+		displayName: '请求体（JSON）',
 		name: 'requestBody',
 		type: 'json',
 		displayOptions: {
@@ -311,7 +311,7 @@ export const approvalExtraHttpOpsDescription: INodeProperties[] = [
 		description: '其余字段与上方合并，同名字段以 JSON 为准',
 	},
 	{
-		displayName: 'Query参数JSON',
+		displayName: '查询参数（JSON）',
 		name: 'requestQuery',
 		type: 'json',
 		displayOptions: {

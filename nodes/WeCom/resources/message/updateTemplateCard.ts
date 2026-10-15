@@ -9,7 +9,7 @@ const showOnlyUpdateTemplateCard = {
 export const updateTemplateCardDescription: INodeProperties[] = [
 	...getRecipientFields('updateTemplateCard'),
 	{
-		displayName: '原消息的Response_code',
+		displayName: '原消息的 response_code',
 		name: 'response_code',
 		type: 'string',
 		required: true,
@@ -272,7 +272,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						description: '引用文献样式区域点击事件',
 					},
 					{
-						displayName: '小程序Appid',
+						displayName: '小程序AppID',
 						name: 'appid',
 						type: 'string',
 						required: true,
@@ -441,7 +441,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						},
 					},
 					{
-						displayName: '成员Userid',
+						displayName: '成员UserID',
 						name: 'userid',
 						type: 'string',
 						required: true,
@@ -523,7 +523,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						},
 					},
 					{
-						displayName: '小程序Appid',
+						displayName: '小程序AppID',
 						name: 'appid',
 						type: 'string',
 						required: true,
@@ -608,7 +608,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						},
 					},
 					{
-						displayName: '小程序Appid',
+						displayName: '小程序AppID',
 						name: 'appid',
 						type: 'string',
 						required: true,
@@ -1214,7 +1214,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						},
 					},
 					{
-						displayName: '小程序Appid',
+						displayName: '小程序AppID',
 						name: 'appid',
 						type: 'string',
 						required: true,

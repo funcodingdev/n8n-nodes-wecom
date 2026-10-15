@@ -367,7 +367,7 @@ export const schoolContactOpsDescription: INodeProperties[] = [
 		options: [{ displayName: '学生', name: 'students', values: studentUpdateValues }],
 	},
 	{
-		displayName: '学生列表 JSON',
+		displayName: '学生列表（JSON）',
 		name: 'studentsJson',
 		type: 'json',
 		required: true,
@@ -554,7 +554,7 @@ export const schoolContactOpsDescription: INodeProperties[] = [
 		options: [{ displayName: '家长', name: 'parents', values: parentUpdateValues }],
 	},
 	{
-		displayName: '家长列表 JSON',
+		displayName: '家长列表（JSON）',
 		name: 'parentsJson',
 		type: 'json',
 		required: true,

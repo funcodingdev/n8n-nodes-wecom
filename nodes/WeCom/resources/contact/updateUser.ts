@@ -262,7 +262,7 @@ export const updateUserDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '成员对外属性扩展JSON',
+		displayName: '成员对外属性扩展（JSON）',
 		name: 'external_profile',
 		type: 'json',
 		displayOptions: { show: showOnlyForUpdate },
@@ -362,7 +362,7 @@ export const updateUserDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '扩展属性扩展JSON',
+		displayName: '扩展属性扩展（JSON）',
 		name: 'extattr',
 		type: 'json',
 		displayOptions: { show: showOnlyForUpdate },
@@ -387,7 +387,7 @@ export const updateUserDescription: INodeProperties[] = [
 		description: '逗号分隔，最多 5 个；清空请用扩展 JSON 传空数组',
 	},
 	{
-		displayName: '企业邮箱别名扩展JSON',
+		displayName: '企业邮箱别名扩展（JSON）',
 		name: 'biz_mail_alias',
 		type: 'json',
 		displayOptions: { show: showOnlyForUpdate },

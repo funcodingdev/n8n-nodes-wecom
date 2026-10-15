@@ -109,7 +109,7 @@ export const accountIdDescription: INodeProperties[] = [
 		description: '企业授权的代开发自建应用或第三方应用的agentid',
 	},
 	{
-		displayName: 'Open Userid列表',
+		displayName: 'Open UserID 列表',
 		name: 'openUseridList',
 		type: 'string',
 		typeOptions: {
@@ -126,7 +126,7 @@ export const accountIdDescription: INodeProperties[] = [
 		description: 'Open_userid列表，最多不超过1000个。必须是source_agentid对应的应用所获取的open_userid，多个值请使用"Add Value"按钮添加',
 	},
 	{
-		displayName: 'External Userid',
+		displayName: '外部联系人 UserID',
 		name: 'externalUserid',
 		type: 'string',
 		required: true,
@@ -206,7 +206,7 @@ export const accountIdDescription: INodeProperties[] = [
 		description: '转换的目标用户类型',
 	},
 	{
-		displayName: 'Tmp External Userid列表',
+		displayName: '临时外部联系人 ID 列表',
 		name: 'tmpExternalUseridList',
 		type: 'string',
 		typeOptions: {
@@ -268,7 +268,7 @@ export const accountIdDescription: INodeProperties[] = [
 		description: '服务商主体下的密文 corpid',
 	},
 	{
-		displayName: 'Userid列表',
+		displayName: 'UserID列表',
 		name: 'useridList',
 		type: 'string',
 		typeOptions: {
@@ -285,7 +285,7 @@ export const accountIdDescription: INodeProperties[] = [
 		description: '获取到的成员ID列表，最多不超过1000个。多个值请使用"Add Value"按钮添加',
 	},
 	{
-		displayName: 'External Userid列表',
+		displayName: '外部联系人 UserID 列表',
 		name: 'externalUseridList',
 		type: 'string',
 		typeOptions: {
@@ -315,7 +315,7 @@ export const accountIdDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
-		displayName: 'Unionid',
+		displayName: 'UnionID',
 		name: 'unionid',
 		type: 'string',
 		required: true,
@@ -329,7 +329,7 @@ export const accountIdDescription: INodeProperties[] = [
 		description: '微信客户的unionid',
 	},
 	{
-		displayName: 'Openid',
+		displayName: 'OpenID',
 		name: 'openid',
 		type: 'string',
 		required: true,
@@ -367,7 +367,7 @@ export const accountIdDescription: INodeProperties[] = [
 		default: 0,
 	},
 	{
-		displayName: 'External Userid列表',
+		displayName: '外部联系人 UserID 列表',
 		name: 'externalUserid',
 		type: 'string',
 		typeOptions: {

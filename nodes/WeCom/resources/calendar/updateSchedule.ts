@@ -160,7 +160,7 @@ export const updateScheduleDescription: INodeProperties[] = [
 		default: {},
 		placeholder: '添加提醒设置',
 		description:
-			'提醒相关信息。注意：若修改字段跟会议室有关联，已预约会议室的日程无法通过此接口进行更新。跟会议室关联的字段有：start_time、end_time、is_whole_day、is_repeat、repeat_type、repeat_until、is_custom_repeat、repeat_interval、repeat_day_of_week、repeat_day_of_month、timezone',
+			'提醒相关信息。已预约会议室的日程不能通过此接口修改时间、重复规则等与会议室相关的字段。',
 		options: [
 			{
 				displayName: '提醒设置',

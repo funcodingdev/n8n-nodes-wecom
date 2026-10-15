@@ -413,7 +413,7 @@ export const meetingLayoutOpsDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '布局/背景配置JSON',
+		displayName: '布局/背景配置（JSON）',
 		name: 'layoutConfigJson',
 		type: 'json',
 		displayOptions: { show: { resource: ['meeting'], operation: needLayoutBody } },
@@ -421,7 +421,7 @@ export const meetingLayoutOpsDescription: INodeProperties[] = [
 		description: '高级输入：添加接口可提供完整 layout_list，修改接口可提供完整 page_list',
 	},
 	{
-		displayName: '扩展请求JSON',
+		displayName: '扩展请求（JSON）',
 		name: 'layoutExtraJson',
 		type: 'json',
 		displayOptions: {

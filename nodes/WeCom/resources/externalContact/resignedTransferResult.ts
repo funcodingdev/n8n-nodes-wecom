@@ -35,7 +35,7 @@ export const resignedTransferResultDescription: INodeProperties[] = [
 		description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>。接替成员的userid',
 	},
 	{
-		displayName: 'Cursor',
+		displayName: '分页游标',
 		name: 'cursor',
 		type: 'string',
 		default: '',

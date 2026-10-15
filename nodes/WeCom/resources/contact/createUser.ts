@@ -262,7 +262,7 @@ export const createUserDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '成员对外属性扩展JSON',
+		displayName: '成员对外属性扩展（JSON）',
 		name: 'external_profile',
 		type: 'json',
 		displayOptions: { show: showOnlyForCreate },
@@ -373,7 +373,7 @@ export const createUserDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '扩展属性扩展JSON',
+		displayName: '扩展属性扩展（JSON）',
 		name: 'extattr',
 		type: 'json',
 		displayOptions: { show: showOnlyForCreate },

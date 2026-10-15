@@ -128,7 +128,7 @@ export const modSheetContentDescription: INodeProperties[] = [
 						typeOptions: { rows: 3 },
 					},
 					{
-						displayName: 'Grid Data JSON',
+						displayName: '网格数据（JSON）',
 						name: 'grid_data_json',
 						type: 'json',
 						default: '{}',

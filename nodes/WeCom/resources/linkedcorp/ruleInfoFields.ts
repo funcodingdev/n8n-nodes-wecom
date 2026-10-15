@@ -49,7 +49,7 @@ export function ruleInfoFields(
 			description: '与下游分组 ID 列表至少填写一项；支持逗号、竖线或换行分隔',
 		},
 		{
-			displayName: '规则详情 JSON',
+			displayName: '规则详情（JSON）',
 			name: 'rule_info_json',
 			type: 'json',
 			required: true,

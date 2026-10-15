@@ -132,7 +132,7 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 		description: 'limit，最大 100',
 	},
 	{
-		displayName: '扩展请求JSON',
+		displayName: '扩展请求（JSON）',
 		name: 'extraJson',
 		type: 'json',
 		displayOptions: {
@@ -272,7 +272,7 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '报名配置扩展JSON',
+		displayName: '报名配置扩展（JSON）',
 		name: 'enrollConfigJson',
 		type: 'json',
 		displayOptions: {
@@ -350,7 +350,7 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 		description: 'action：1 取消批准(回待审批) / 2 拒绝 / 3 批准',
 	},
 	{
-		displayName: '审批扩展JSON',
+		displayName: '审批扩展（JSON）',
 		name: 'approveJson',
 		type: 'json',
 		displayOptions: {
@@ -537,7 +537,7 @@ export const meetingAdvancedOpsDescription: INodeProperties[] = [
 		default: false,
 	},
 	{
-		displayName: '会中控制扩展JSON',
+		displayName: '会中控制扩展（JSON）',
 		name: 'realcontrolJson',
 		type: 'json',
 		displayOptions: {

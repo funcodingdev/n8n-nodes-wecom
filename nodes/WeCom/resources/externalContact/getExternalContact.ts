@@ -19,7 +19,7 @@ export const getExternalContactDescription: INodeProperties[] = [
 		placeholder: 'wmxxxxxxxxxxxxxxxxxx',
 	},
 	{
-		displayName: 'Cursor',
+		displayName: '分页游标',
 		name: 'cursor',
 		type: 'string',
 		default: '',

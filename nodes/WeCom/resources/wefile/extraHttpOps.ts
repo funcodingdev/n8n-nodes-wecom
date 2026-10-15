@@ -38,7 +38,7 @@ export const wefileExtraHttpOpsDescription: INodeProperties[] = [
 		description: '微盘 fileid',
 	},
 	{
-		displayName: '请求体JSON',
+		displayName: '请求体（JSON）',
 		name: 'requestBody',
 		type: 'json',
 		displayOptions: {
@@ -48,7 +48,7 @@ export const wefileExtraHttpOpsDescription: INodeProperties[] = [
 		description: '其余字段与 fileid 合并',
 	},
 	{
-		displayName: 'Query参数JSON',
+		displayName: '查询参数（JSON）',
 		name: 'requestQuery',
 		type: 'json',
 		displayOptions: {

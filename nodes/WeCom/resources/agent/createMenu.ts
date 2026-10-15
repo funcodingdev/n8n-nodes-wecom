@@ -198,7 +198,7 @@ export const createMenuDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '一级菜单 JSON',
+		displayName: '一级菜单（JSON）',
 		name: 'button',
 		type: 'json',
 		required: true,

@@ -318,7 +318,7 @@ export const manageRulesDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '使用高级配置(JSON)',
+		displayName: '使用高级配置（JSON）',
 		name: 'useAdvancedConfig',
 		type: 'boolean',
 		displayOptions: { show: { ...showOnly, action: ['create', 'update'] } },
@@ -326,7 +326,7 @@ export const manageRulesDescription: INodeProperties[] = [
 		description: '开启后 advancedConfig 会合并进 group（可覆盖上方字段）',
 	},
 	{
-		displayName: '高级配置JSON',
+		displayName: '高级配置（JSON）',
 		name: 'advancedConfig',
 		type: 'json',
 		displayOptions: {

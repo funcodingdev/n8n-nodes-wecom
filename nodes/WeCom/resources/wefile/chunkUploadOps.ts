@@ -83,7 +83,7 @@ export const chunkUploadOpsDescription: INodeProperties[] = [
 		default: false,
 	},
 	{
-		displayName: 'upload_key',
+		displayName: '上传凭证',
 		name: 'upload_key',
 		type: 'string',
 		required: true,

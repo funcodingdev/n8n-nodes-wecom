@@ -417,7 +417,7 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '投票问题扩展JSON',
+		displayName: '投票问题扩展（JSON）',
 		name: 'poll_questions_json',
 		type: 'json',
 		displayOptions: {
@@ -552,7 +552,7 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '被操作用户扩展JSON',
+		displayName: '被操作用户扩展（JSON）',
 		name: 'operated_users_json',
 		type: 'json',
 		displayOptions: { show: { resource: ['meeting'], operation: needOperatedUsers } },
@@ -675,7 +675,7 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '列表数据扩展JSON',
+		displayName: '列表数据扩展（JSON）',
 		name: 'list_data_json',
 		type: 'json',
 		displayOptions: { show: { resource: ['meeting'], operation: needListJson } },
@@ -1090,7 +1090,7 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		description: '分页大小；等候室/健康度最大 50',
 	},
 	{
-		displayName: '扩展请求JSON',
+		displayName: '扩展请求（JSON）',
 		name: 'cr_extra_json',
 		type: 'json',
 		displayOptions: { show: { resource: ['meeting'], operation: allOps } },

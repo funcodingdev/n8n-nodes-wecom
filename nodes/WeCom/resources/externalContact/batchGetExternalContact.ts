@@ -21,7 +21,7 @@ export const batchGetExternalContactDescription: INodeProperties[] = [
 		description: '企业成员的 UserID 列表，最多 100 个。可从列表多选，或使用表达式传入逗号、竖线或换行分隔的 UserID',
 	},
 	{
-		displayName: 'Cursor',
+		displayName: '分页游标',
 		name: 'cursor',
 		type: 'string',
 		default: '',

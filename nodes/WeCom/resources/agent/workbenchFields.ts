@@ -371,7 +371,7 @@ export function getWorkbenchFields(
 			description: '开启后 Webview 内仅支持 wxwork://openurl?url=… 链接，且外层 jump_url 失效',
 		},
 		{
-			displayName: '模版数据 JSON',
+			displayName: '模版数据（JSON）',
 			name: 'workbenchDataJson',
 			type: 'json',
 			required: true,

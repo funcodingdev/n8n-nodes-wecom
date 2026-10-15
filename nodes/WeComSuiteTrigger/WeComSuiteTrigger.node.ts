@@ -54,7 +54,7 @@ export class WeComSuiteTrigger implements INodeType {
 		],
 		properties: [
 			{
-				displayName: 'Path',
+				displayName: '路径',
 				name: 'path',
 				type: 'string',
 				default: '',

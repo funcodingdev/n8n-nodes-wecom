@@ -191,7 +191,7 @@ export const manageKnowledgeIntentDescription: INodeProperties[] = [
 		description: '使用结构化表单，或提供符合企业微信接口结构的完整请求 JSON',
 	},
 	{
-		displayName: '问答请求 JSON',
+		displayName: '问答请求（JSON）',
 		name: 'intentBodyJson',
 		type: 'json',
 		required: true,

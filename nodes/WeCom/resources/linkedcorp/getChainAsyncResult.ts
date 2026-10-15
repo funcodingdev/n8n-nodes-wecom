@@ -7,7 +7,7 @@ const showOnlyForGetResult = {
 
 export const getChainAsyncResultDescription: INodeProperties[] = [
 	{
-		displayName: 'Job ID',
+		displayName: '任务 ID',
 		name: 'jobid',
 		type: 'string',
 		required: true,

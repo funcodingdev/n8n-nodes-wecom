@@ -240,7 +240,7 @@ export const submitApprovalDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '申请表单数据JSON',
+		displayName: '申请表单数据（JSON）',
 		name: 'apply_data_json',
 		type: 'json',
 		displayOptions: { show: showOnlyForSubmitApproval },
@@ -337,7 +337,7 @@ export const submitApprovalDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '扩展请求JSON',
+		displayName: '扩展请求（JSON）',
 		name: 'approvalExtraJson',
 		type: 'json',
 		displayOptions: { show: showOnlyForSubmitApproval },
