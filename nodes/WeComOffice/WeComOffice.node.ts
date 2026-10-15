@@ -215,6 +215,8 @@ export class WeComOffice implements INodeType {
 			mail: executeMail,
 			approval: executeApproval,
 			journal: executeJournal,
+			calendar: executeCalendar,
+			phone: executePhone,
 		};
 		const paginated = await executeWithPagination.call(
 			this,

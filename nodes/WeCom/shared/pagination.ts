@@ -7,30 +7,44 @@ import type {
 import { NodeOperationError } from 'n8n-workflow';
 
 /**
- * 游标分页配置
- * - cursorParam：节点上的游标参数名
- * - nextKey：响应中下一页游标字段，默认依次尝试 next_cursor、new_next_cursor
+ * 分页配置
+ * - kind：cursor 为游标分页，offset 为偏移量分页
+ * - param：节点上的游标/偏移量参数，集合内参数用“集合名.参数名”表示
+ * - limitParam：偏移量分页的每页条数参数，用于判断最后一页
+ * - nextKey：响应中下一页游标/偏移量字段
+ *   游标默认依次尝试 next_cursor、new_next_cursor；偏移量默认依次尝试 next、next_offset，均无时按本页条数递增
  * - listKey：列表字段，默认取响应中唯一的顶层数组
  */
-interface CursorPagination {
-	cursorParam: string;
+interface Pagination {
+	kind: 'cursor' | 'offset';
+	param: string;
+	limitParam?: string;
 	nextKey?: string;
 	listKey?: string;
 }
 
-type ResourcePagination = Record<string, CursorPagination>;
+type ResourcePagination = Record<string, Pagination>;
 
-const cursor = (cursorParam = 'cursor', extra: Partial<CursorPagination> = {}): CursorPagination => ({
-	cursorParam,
+const cursor = (param = 'cursor', extra: Partial<Pagination> = {}): Pagination => ({
+	kind: 'cursor',
+	param,
 	...extra,
 });
 
-const ops = (names: string[], config: CursorPagination = cursor()): ResourcePagination =>
+const offset = (param = 'offset', limitParam = 'limit'): Pagination => ({
+	kind: 'offset',
+	param,
+	limitParam,
+});
+
+const ops = (names: string[], config: Pagination = cursor()): ResourcePagination =>
 	Object.fromEntries(names.map((name) => [name, config]));
 
 /** 支持自动翻页的列表操作（按资源分组） */
 export const PAGINATED_OPERATIONS: Record<string, ResourcePagination> = {
 	contact: ops(['listUserIds']),
+	calendar: ops(['listCalendarSchedules'], offset()),
+	phone: ops(['getDialRecord'], offset()),
 	linkedcorp: ops(['getAppShareInfo', 'getChainInfo']),
 	agent: ops(['listAppShareInfo']),
 	license: ops(['listOrder', 'listOrderAccount', 'getUnionOrder', 'listActivedAccount']),
@@ -75,6 +89,8 @@ export const PAGINATED_OPERATIONS: Record<string, ResourcePagination> = {
 		...ops(['getSmartsheetGroupChatList', 'getAdvancedAccountList']),
 		// 收集表统计返回的下一页游标字段为 cursor
 		getFormStatistic: cursor('cursor', { nextKey: 'cursor' }),
+		...ops(['querySmartsheetView', 'querySmartsheetField', 'getFieldGroups'], offset()),
+		querySmartsheetRecord: offset('pagination.offset', 'pagination.limit'),
 	},
 	wefile: ops(['getVipAccountsList']),
 	mail: ops(['getMailList', 'getMailAdvancedAccountList']),
@@ -109,16 +125,17 @@ export const PAGINATED_OPERATIONS: Record<string, ResourcePagination> = {
 			['externalcontactCustomerStrategyList', 'externalcontactCustomerStrategyGetRange', 'crmGetUnassignedList'],
 			cursor('ec_cursor'),
 		),
+		getGroupChatStatistic: offset(),
 	},
-	kf: ops(['syncMsg']),
-	school: ops(['getUserLivingId']),
+	kf: { ...ops(['syncMsg']), listKfAccount: offset() },
+	school: { ...ops(['getUserLivingId']), getHealthReportJobIds: offset() },
 	living: ops(['getInspectEventList', 'getResidentEventList']),
 };
 
 /** 防止接口返回异常游标时无限翻页 */
 const MAX_PAGES = 1000;
 
-function paginationConfig(resource: string, operation: string): CursorPagination | undefined {
+function paginationConfig(resource: string, operation: string): Pagination | undefined {
 	return PAGINATED_OPERATIONS[resource]?.[operation];
 }
 
@@ -133,7 +150,9 @@ export function withPagination(properties: INodeProperties[]): INodeProperties[]
 		const resources = (show?.resource as string[] | undefined) ?? [];
 		const operations = (show?.operation as string[] | undefined) ?? [];
 		const paged = resources.flatMap((resource) =>
-			operations.filter((operation) => paginationConfig(resource, operation)?.cursorParam === property.name),
+			operations.filter(
+				(operation) => paginationConfig(resource, operation)?.param.split('.')[0] === property.name,
+			),
 		);
 		if (!paged.length) {
 			result.push(property);
@@ -150,7 +169,7 @@ export function withPagination(properties: INodeProperties[]): INodeProperties[]
 				{
 					name: '单页（返回原始响应）',
 					value: 'page',
-					description: '只请求一次，可用返回的 next_cursor 手动翻页',
+					description: '只请求一次，可手动填写游标或偏移量翻页',
 				},
 				{
 					name: '返回全部',
@@ -195,7 +214,7 @@ function isFinished(response: IDataObject): boolean {
 function extractList(
 	context: IExecuteFunctions,
 	response: IDataObject,
-	config: CursorPagination,
+	config: Pagination,
 	itemIndex: number,
 ): IDataObject[] | undefined {
 	if (config.listKey) return (response[config.listKey] as IDataObject[] | undefined) ?? [];
@@ -211,7 +230,7 @@ function extractList(
 
 /**
  * 自动翻页执行列表操作。非分页操作或“单页”模式返回 undefined，由调用方按原逻辑执行。
- * 每页调用原有的资源执行函数，只把游标参数替换为上一页返回的游标。
+ * 每页调用原有的资源执行函数，只把游标/偏移量参数替换为下一页的值。
  */
 export async function executeWithPagination(
 	this: IExecuteFunctions,
@@ -227,17 +246,29 @@ export async function executeWithPagination(
 	const mode = this.getNodeParameter('paginationMode', 0, 'page') as string;
 	if (mode === 'page') return undefined;
 
+	const [anchor, nested] = config.param.split('.');
 	const returnData: INodeExecutionData[] = [];
 	for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
 		const maxResults =
 			mode === 'limit' ? Number(this.getNodeParameter('maxResults', itemIndex, 100)) : Infinity;
-		let nextCursor: unknown;
+		// 自动翻页从首页开始：游标为空，偏移量为 0
+		let position: unknown = config.kind === 'offset' ? 0 : undefined;
 		const collected: IDataObject[] = [];
+		const readParam = (path: string | undefined): unknown => {
+			if (!path) return undefined;
+			const [name, key] = path.split('.');
+			const value = this.getNodeParameter(name, itemIndex, undefined);
+			return key ? (value as IDataObject | undefined)?.[key] : value;
+		};
 		const pageContext = new Proxy(this, {
 			get: (target, property) => {
 				if (property === 'getNodeParameter') {
 					return (name: string, _index: number, fallback?: unknown, options?: IDataObject) => {
-						if (name === config.cursorParam) return nextCursor ?? fallback ?? '';
+						if (name === anchor) {
+							if (!nested) return position ?? fallback ?? '';
+							const collection = target.getNodeParameter(name, itemIndex, {}) as IDataObject;
+							return { ...collection, [nested]: position };
+						}
 						return target.getNodeParameter(name, itemIndex, fallback as never, options);
 					};
 				}
@@ -261,20 +292,24 @@ export async function executeWithPagination(
 					break;
 				}
 				collected.push(...list);
-				const next = config.nextKey
-					? response[config.nextKey]
-					: (response.next_cursor ?? response.new_next_cursor);
-				if (
-					collected.length >= maxResults ||
-					isFinished(response) ||
-					next === undefined ||
-					next === null ||
-					next === '' ||
-					next === nextCursor
-				) {
-					break;
+				if (collected.length >= maxResults || isFinished(response)) break;
+
+				let next: unknown;
+				if (config.kind === 'cursor') {
+					next = config.nextKey
+						? response[config.nextKey]
+						: (response.next_cursor ?? response.new_next_cursor);
+				} else {
+					if (!list.length) break;
+					const pageSize = Number(readParam(config.limitParam));
+					const hasPagingFlag = 'has_more' in response || 'ending' in response;
+					// 没有 has_more 等标记时，返回条数不足一页说明已是最后一页
+					if (!hasPagingFlag && pageSize > 0 && list.length < pageSize) break;
+					next = response.next ?? response.next_offset ?? Number(position) + list.length;
+					if (response.total !== undefined && Number(next) >= Number(response.total)) break;
 				}
-				nextCursor = next;
+				if (next === undefined || next === null || next === '' || next === position) break;
+				position = next;
 			}
 		} catch (error) {
 			if (!this.continueOnFail()) throw error;
