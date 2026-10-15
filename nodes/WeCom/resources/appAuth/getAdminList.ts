@@ -1,6 +1,7 @@
 import type { IExecuteFunctions, IDataObject, IHttpRequestOptions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { getWeComBaseUrl } from '../../shared/transport';
+import { weComErrorSuffix } from '../../shared/errorHints';
 
 /**
  * 获取应用管理员列表
@@ -47,7 +48,7 @@ export async function getAdminList(
 		if (response.errcode !== undefined && response.errcode !== 0) {
 			throw new NodeOperationError(
 				this.getNode(),
-				`获取应用管理员列表失败: ${response.errmsg} (错误码: ${response.errcode})`,
+				`获取应用管理员列表失败: ${response.errmsg} (错误码: ${response.errcode})${weComErrorSuffix(response.errcode)}`,
 				{ itemIndex: index },
 			);
 		}

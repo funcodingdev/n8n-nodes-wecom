@@ -4,6 +4,7 @@ import { weComApiRequest } from '../../shared/transport';
 import { chunkedUpload, SINGLE_UPLOAD_LIMIT } from '../../shared/chunkedUpload';
 import { SMARTDOC_OPERATIONS } from './smartdocOps';
 import { executeSmartdocOperation } from './smartdocExecute';
+import { weComErrorSuffix } from '../../shared/errorHints';
 
 const WEDOC_OPERATIONS = new Set([
 	'createDoc', 'renameDoc', 'deleteDoc', 'getDocInfo', 'shareDoc', 'modDocContent',
@@ -2020,7 +2021,7 @@ export async function executeWedoc(
 				if (response.errcode !== undefined && response.errcode !== 0) {
 					throw new NodeOperationError(
 						this.getNode(),
-						`智能表格 Webhook 请求失败: ${String(response.errmsg || '')} (错误码: ${String(response.errcode)})`,
+						`智能表格 Webhook 请求失败: ${String(response.errmsg || '')} (错误码: ${String(response.errcode)})${weComErrorSuffix(response.errcode)}`,
 						{ itemIndex: i },
 					);
 				}

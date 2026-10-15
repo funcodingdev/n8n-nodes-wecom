@@ -4,6 +4,7 @@ import { buildTemplateCardFromForm } from './templateCardForm';
 import { validateTemplateCard } from '../message/execute';
 import { WeComCrypto } from '../../shared/crypto';
 import { createHash } from 'crypto';
+import { weComErrorSuffix } from '../../shared/errorHints';
 
 /** 智能机器人主动回复官方路径（response_url 中包含此 path） */
 const AIBOT_RESPONSE_PATH = '/cgi-bin/aibot/response';
@@ -414,7 +415,7 @@ export async function executeAIBotPassiveReply(
 			timeout: 5000,
 		}) as IDataObject;
 		if (response.errcode !== undefined && Number(response.errcode) !== 0) {
-			fail(`主动回复失败：${String(response.errmsg ?? '未知错误')}（错误码 ${String(response.errcode)}）`);
+			fail(`主动回复失败：${String(response.errmsg ?? '未知错误')}（错误码 ${String(response.errcode)}）${weComErrorSuffix(response.errcode)}`);
 		}
 		return [{
 			json: {

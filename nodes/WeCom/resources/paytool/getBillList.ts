@@ -8,6 +8,7 @@ import {
 	requireInteger,
 	requireText,
 } from './utils';
+import { weComErrorSuffix } from '../../shared/errorHints';
 
 /** 获取代支付流水：https://developer.work.weixin.qq.com/document/path/99602 */
 export async function getBillList(
@@ -62,7 +63,7 @@ export async function getBillList(
 		if (response.errcode !== undefined && Number(response.errcode) !== 0) {
 			fail(
 				this,
-				`获取代支付流水失败: ${response.errmsg} (错误码: ${response.errcode})`,
+				`获取代支付流水失败: ${response.errmsg} (错误码: ${response.errcode})${weComErrorSuffix(response.errcode)}`,
 				index,
 			);
 		}

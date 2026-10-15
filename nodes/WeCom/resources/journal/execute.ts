@@ -1,6 +1,7 @@
 import type { IDataObject, IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
+import { weComErrorSuffix } from '../../shared/errorHints';
 
 const MAX_UINT32 = 4294967295;
 const DAY_SECONDS = 86400;
@@ -230,7 +231,7 @@ export async function executeJournal(
 					try {
 						const errorBody = JSON.parse(buffer.toString('utf8')) as IDataObject;
 						if (Number(errorBody.errcode) !== 0) {
-							fail(this, `下载微盘文件失败：${errorBody.errmsg}（错误码 ${errorBody.errcode}）`, i);
+							fail(this, `下载微盘文件失败：${errorBody.errmsg}（错误码 ${errorBody.errcode}）${weComErrorSuffix(errorBody.errcode)}`, i);
 						}
 					} catch (error) {
 						if (error instanceof NodeOperationError) throw error;

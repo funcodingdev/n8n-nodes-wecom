@@ -8,6 +8,7 @@ import type {
 } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import type { IWeComAccessTokenResponse, IWeComCredentials } from './types';
+import { weComErrorDescription } from './errorHints';
 
 /**
  * Token 缓存数据结构
@@ -269,6 +270,7 @@ async function fetchAccessToken(
 		throw new NodeOperationError(
 			this.getNode(),
 			`获取 Access Token 失败: ${response.errmsg} (错误码: ${response.errcode})`,
+			{ description: weComErrorDescription(response.errcode) },
 		);
 	}
 
@@ -371,6 +373,7 @@ export async function weComApiRequest(
 			throw new NodeOperationError(
 				this.getNode(),
 				`企业微信 API 错误: ${jsonResponse.errmsg} (错误码: ${jsonResponse.errcode})`,
+				{ description: weComErrorDescription(jsonResponse.errcode) },
 			);
 		}
 

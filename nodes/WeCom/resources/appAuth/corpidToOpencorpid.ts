@@ -1,6 +1,7 @@
 import type { IExecuteFunctions, IDataObject, IHttpRequestOptions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { getWeComBaseUrl } from '../../shared/transport';
+import { weComErrorSuffix } from '../../shared/errorHints';
 
 /**
  * 明文corpid转换为加密corpid
@@ -59,7 +60,7 @@ export async function corpidToOpencorpid(
 		if (response.errcode !== undefined && response.errcode !== 0) {
 			throw new NodeOperationError(
 				this.getNode(),
-				`明文corpid转换为加密corpid失败: ${response.errmsg} (错误码: ${response.errcode})`,
+				`明文corpid转换为加密corpid失败: ${response.errmsg} (错误码: ${response.errcode})${weComErrorSuffix(response.errcode)}`,
 				{ itemIndex: index },
 			);
 		}

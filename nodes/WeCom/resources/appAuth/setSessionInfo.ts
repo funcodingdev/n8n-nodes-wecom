@@ -1,6 +1,7 @@
 import type { IExecuteFunctions, IDataObject, IHttpRequestOptions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { getWeComBaseUrl } from '../../shared/transport';
+import { weComErrorSuffix } from '../../shared/errorHints';
 
 /**
  * 设置授权配置
@@ -83,7 +84,7 @@ export async function setSessionInfo(
 		if (response.errcode !== undefined && response.errcode !== 0) {
 			throw new NodeOperationError(
 				this.getNode(),
-				`设置授权配置失败: ${response.errmsg} (错误码: ${response.errcode})`,
+				`设置授权配置失败: ${response.errmsg} (错误码: ${response.errcode})${weComErrorSuffix(response.errcode)}`,
 				{ itemIndex: index },
 			);
 		}

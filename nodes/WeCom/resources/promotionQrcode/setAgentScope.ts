@@ -2,6 +2,7 @@ import type { IExecuteFunctions, IDataObject, IHttpRequestOptions } from 'n8n-wo
 import { NodeOperationError } from 'n8n-workflow';
 import { getWeComBaseUrl } from '../../shared/transport';
 import { parseIdList, parseTextList, requirePositiveInteger, requireText } from './utils';
+import { weComErrorSuffix } from '../../shared/errorHints';
 
 /**
  * 设置授权应用可见范围
@@ -65,7 +66,7 @@ export async function setAgentScope(
 		if (response.errcode !== undefined && response.errcode !== 0) {
 			throw new NodeOperationError(
 				this.getNode(),
-				`设置授权应用可见范围失败: ${response.errmsg} (错误码: ${response.errcode})`,
+				`设置授权应用可见范围失败: ${response.errmsg} (错误码: ${response.errcode})${weComErrorSuffix(response.errcode)}`,
 				{ itemIndex: index },
 			);
 		}

@@ -2,6 +2,7 @@ import { createHmac, randomBytes } from 'crypto';
 import type { IExecuteFunctions, IDataObject, IHttpRequestOptions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { getWeComBaseUrl } from '../../shared/transport';
+import { weComErrorSuffix } from '../../shared/errorHints';
 
 export function fail(
 	context: IExecuteFunctions,
@@ -156,7 +157,7 @@ export async function paytoolApiRequest(
 		if (response.errcode !== undefined && Number(response.errcode) !== 0) {
 			fail(
 				context,
-				`${options.label}失败: ${response.errmsg} (错误码: ${response.errcode})`,
+				`${options.label}失败: ${response.errmsg} (错误码: ${response.errcode})${weComErrorSuffix(response.errcode)}`,
 				itemIndex,
 			);
 		}

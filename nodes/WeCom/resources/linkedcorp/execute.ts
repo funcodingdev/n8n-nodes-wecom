@@ -1,6 +1,7 @@
 import type { IDataObject, IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { getWeComBaseUrl, weComApiRequest } from '../../shared/transport';
+import { weComErrorSuffix } from '../../shared/errorHints';
 
 const splitList = (value: unknown): string[] => [...new Set(
 	String(value ?? '').split(/[,|\n]/).map((entry) => entry.trim()).filter(Boolean),
@@ -202,7 +203,7 @@ export async function executeLinkedcorp(
 						json: true,
 					}) as IDataObject;
 					if (Number(response.errcode ?? 0) !== 0) {
-						fail(`转换小程序 Session 失败：${String(response.errmsg ?? '未知错误')}（错误码 ${String(response.errcode)}）`);
+						fail(`转换小程序 Session 失败：${String(response.errmsg ?? '未知错误')}（错误码 ${String(response.errcode)}）${weComErrorSuffix(response.errcode)}`);
 					}
 				}
 			} else if (operation === 'getLinkedCustomer') {

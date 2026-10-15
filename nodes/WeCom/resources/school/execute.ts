@@ -15,6 +15,7 @@ import {
 	requireSchoolUserIdList,
 	requireText,
 } from './utils';
+import { weComErrorSuffix } from '../../shared/errorHints';
 
 const STANDARD_GRADES = new Set([
 	0, 1, 2, 3, 4, 5, 31, 32, 33, 34, 35, 36, 37, 38, 39, 61, 62, 63, 64, 91, 92, 93,
@@ -682,7 +683,7 @@ export async function executeSchool(
 					if (responseData.errcode !== undefined && responseData.errcode !== 0) {
 						fail(
 							this,
-							`获取第三方访问用户身份失败: ${String(responseData.errmsg ?? '未知错误')} (错误码: ${String(responseData.errcode)})`,
+							`获取第三方访问用户身份失败: ${String(responseData.errmsg ?? '未知错误')} (错误码: ${String(responseData.errcode)})${weComErrorSuffix(responseData.errcode)}`,
 							i,
 						);
 					}
