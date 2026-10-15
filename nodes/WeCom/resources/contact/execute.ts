@@ -1,8 +1,9 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
+import { CONTACT_RULE_OPERATIONS, executeContactRuleOperation } from './contactRuleOps';
 
-function splitCsv(value: string, limit?: number): string[] {
+function splitCsv(value: string, limit?: number, label = '列表'): string[] {
 	const values = [
 		...new Set(
 			value
@@ -11,7 +12,11 @@ function splitCsv(value: string, limit?: number): string[] {
 				.filter(Boolean),
 		),
 	];
-	return limit === undefined ? values : values.slice(0, limit);
+	// 超出接口上限时报错，避免静默截断后只处理部分数据
+	if (limit !== undefined && values.length > limit) {
+		throw new Error(`${label}最多 ${limit} 个，当前 ${values.length} 个`);
+	}
+	return values;
 }
 
 function parseIntegerCsv(
@@ -30,8 +35,12 @@ function parseIntegerCsv(
 			{ itemIndex },
 		);
 	}
-	const numbers = values.map(Number);
-	return limit === undefined ? numbers : numbers.slice(0, limit);
+	if (limit !== undefined && values.length > limit) {
+		throw new NodeOperationError(context.getNode(), `${label}最多 ${limit} 个，当前 ${values.length} 个`, {
+			itemIndex,
+		});
+	}
+	return values.map(Number);
 }
 
 function requireAtLeastOne(
@@ -259,7 +268,7 @@ export async function executeContact(
 				}
 				const direct_leader = this.getNodeParameter('direct_leader', i, '') as string;
 				if (direct_leader) {
-					body.direct_leader = splitCsv(direct_leader, 1);
+					body.direct_leader = splitCsv(direct_leader, 1, '直属上级');
 				}
 				const main_department = this.getNodeParameter('main_department', i, 0) as number;
 				if (main_department) {
@@ -401,7 +410,7 @@ export async function executeContact(
 				}
 				const direct_leader = this.getNodeParameter('direct_leader', i, '') as string;
 				if (direct_leader) {
-					body.direct_leader = splitCsv(direct_leader, 1);
+					body.direct_leader = splitCsv(direct_leader, 1, '直属上级');
 				}
 				const main_department = this.getNodeParameter('main_department', i, 0) as number;
 				if (main_department) {
@@ -434,7 +443,7 @@ export async function executeContact(
 				}
 				const biz_mail_alias_list = this.getNodeParameter('biz_mail_alias_list', i, '') as string;
 				const biz_mail_alias = this.getNodeParameter('biz_mail_alias', i, '{}') as string;
-				const aliases = splitCsv(biz_mail_alias_list, 5);
+				const aliases = splitCsv(biz_mail_alias_list, 5, '企业邮箱别名');
 				if (aliases.length) body.biz_mail_alias = { item: aliases };
 				if (biz_mail_alias && biz_mail_alias !== '{}') {
 					try {
@@ -454,7 +463,7 @@ export async function executeContact(
 				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/user/delete', {}, { userid });
 			} else if (operation === 'batchDeleteUser') {
 				const useridlist = this.getNodeParameter('useridlist', i) as string;
-				const useridArray = splitCsv(useridlist, 200);
+				const useridArray = splitCsv(useridlist, 200, '成员 UserID');
 				if (!useridArray.length) {
 					throw new NodeOperationError(this.getNode(), '请至少填写 1 个成员 UserID', {
 						itemIndex: i,
@@ -477,7 +486,7 @@ export async function executeContact(
 				const user = this.getNodeParameter('user', i, '') as string;
 				const party = this.getNodeParameter('party', i, '') as string;
 				const tag = this.getNodeParameter('tag', i, '') as string;
-				const users = splitCsv(user, 1000);
+				const users = splitCsv(user, 1000, '成员 UserID');
 				const parties = parseIntegerCsv(this, party, '部门 ID', i, 100);
 				const tags = parseIntegerCsv(this, tag, '标签 ID', i, 100);
 
@@ -571,7 +580,7 @@ export async function executeContact(
 				const tagid = this.getNodeParameter('tagid', i) as string;
 				const userlist = this.getNodeParameter('userlist', i, '') as string;
 				const partylist = this.getNodeParameter('partylist', i, '') as string;
-				const users = splitCsv(userlist, 1000);
+				const users = splitCsv(userlist, 1000, '成员 UserID');
 				const parties = parseIntegerCsv(this, partylist, '部门 ID', i, 100);
 
 				// userlist、partylist不能同时为空
@@ -592,7 +601,7 @@ export async function executeContact(
 				const tagid = this.getNodeParameter('tagid', i) as string;
 				const userlist = this.getNodeParameter('userlist', i, '') as string;
 				const partylist = this.getNodeParameter('partylist', i, '') as string;
-				const users = splitCsv(userlist, 1000);
+				const users = splitCsv(userlist, 1000, '成员 UserID');
 				const parties = parseIntegerCsv(this, partylist, '部门 ID', i, 100);
 
 				// userlist、partylist不能同时为空
@@ -697,8 +706,10 @@ export async function executeContact(
 			} else if (operation === 'getExportResult') {
 				const jobid = this.getNodeParameter('jobid', i) as string;
 				response = await weComApiRequest.call(this, 'GET', '/cgi-bin/export/get_result', {}, { jobid });
+			} else if (CONTACT_RULE_OPERATIONS.includes(operation)) {
+				response = await executeContactRuleOperation.call(this, operation, i);
 			} else {
-				response = {};
+				throw new NodeOperationError(this.getNode(), `不支持的通讯录操作：${operation}`, { itemIndex: i });
 			}
 
 			returnData.push({

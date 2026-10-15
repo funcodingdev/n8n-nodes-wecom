@@ -5,7 +5,7 @@ specfusion_id: wecom_98b899cbb143
 source_url: "https://developer.work.weixin.qq.com/document/path/98412"
 last_updated: "2026-02-12T17:14:01.715Z"
 calibrated_from: "SpecFusion"
-calibrated_at: "2026-08-11T07:49:39Z"
+synced_at: "2026-10-15T15:24:46Z"
 ---
 将应用获取的外部用户临时id`tmp_external_userid`，转换为external_userid。
 

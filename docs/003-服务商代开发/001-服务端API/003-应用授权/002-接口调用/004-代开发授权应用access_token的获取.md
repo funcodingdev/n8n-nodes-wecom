@@ -5,8 +5,10 @@ specfusion_id: wecom_2db80ac2a8a5
 source_url: "https://developer.work.weixin.qq.com/document/path/97164"
 last_updated: "2026-02-12T17:39:06.651Z"
 calibrated_from: "SpecFusion"
-calibrated_at: "2026-08-11T08:04:14Z"
+synced_at: "2026-10-15T15:24:46Z"
 ---
+获取[代开发应用的secret](#42542)之后，接口调用凭证access_token的获取方式与自建应用完全一致，即调用的是[获取access_token](#15074)接口。
+
 ::: tip
 注意，这与第三方应用的access_token获取方式不一样。
 :::

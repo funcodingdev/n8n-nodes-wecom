@@ -95,7 +95,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 			'选择模板卡片的类型。<a href="https://developer.work.weixin.qq.com/document/path/94888" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '卡片来源（可选）',
+		displayName: '卡片来源',
 		name: 'source',
 		type: 'fixedCollection',
 		default: {},
@@ -113,7 +113,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 				displayName: '来源信息',
 				values: [
 					{
-						displayName: '来源图标URL（可选）',
+						displayName: '来源图标URL',
 						name: 'icon_url',
 						type: 'string',
 						default: '',
@@ -121,7 +121,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						description: '来源图标的URL地址',
 					},
 					{
-						displayName: '来源描述（可选）',
+						displayName: '来源描述',
 						name: 'desc',
 						type: 'string',
 						default: '',
@@ -129,7 +129,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						description: '来源图片的描述，建议不超过20个字（支持ID转译）',
 					},
 					{
-						displayName: '来源文字颜色（可选）',
+						displayName: '来源文字颜色',
 						name: 'desc_color',
 						type: 'options',
 						options: [
@@ -158,7 +158,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '一级标题（可选）',
+		displayName: '一级标题',
 		name: 'main_title',
 		type: 'fixedCollection',
 		default: {},
@@ -176,7 +176,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 				displayName: '标题内容',
 				values: [
 					{
-						displayName: '标题（可选）',
+						displayName: '标题',
 						name: 'title',
 						type: 'string',
 						default: '',
@@ -184,7 +184,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						description: '一级标题，建议不超过36个字，文本通知型卡片本字段非必填，但不可本字段和sub_title_text都不填（支持ID转译）',
 					},
 					{
-						displayName: '副标题（可选）',
+						displayName: '副标题',
 						name: 'desc',
 						type: 'string',
 						default: '',
@@ -196,7 +196,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '关键数据样式（可选）',
+		displayName: '关键数据样式',
 		name: 'emphasis_content',
 		type: 'fixedCollection',
 		default: {},
@@ -213,7 +213,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 				displayName: '关键数据',
 				values: [
 					{
-						displayName: '数据（可选）',
+						displayName: '数据',
 						name: 'title',
 						type: 'string',
 						default: '',
@@ -221,7 +221,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						description: '关键数据内容',
 					},
 					{
-						displayName: '数据描述（可选）',
+						displayName: '数据描述',
 						name: 'desc',
 						type: 'string',
 						default: '',
@@ -233,7 +233,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '引用文献样式（可选）',
+		displayName: '引用文献样式',
 		name: 'quote_area',
 		type: 'fixedCollection',
 		default: {},
@@ -251,7 +251,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 				displayName: '引用内容',
 				values: [
 					{
-						displayName: '引用类型（可选）',
+						displayName: '引用类型',
 						name: 'type',
 						type: 'options',
 						options: [
@@ -272,9 +272,10 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						description: '引用文献样式区域点击事件',
 					},
 					{
-						displayName: '小程序Appid（可选）',
+						displayName: '小程序Appid',
 						name: 'appid',
 						type: 'string',
+						required: true,
 						default: '',
 						placeholder: 'wx1234567890abcdef',
 						displayOptions: {
@@ -285,7 +286,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						description: '点击跳转的小程序的appid，必须是与当前应用关联的小程序，quote_area.type是2时必填',
 					},
 					{
-						displayName: '小程序Page路径（可选）',
+						displayName: '小程序Page路径',
 						name: 'pagepath',
 						type: 'string',
 						default: '',
@@ -298,9 +299,10 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						description: '点击跳转的小程序的pagepath，quote_area.type是2时选填',
 					},
 					{
-						displayName: '跳转链接（可选）',
+						displayName: '跳转链接',
 						name: 'url',
 						type: 'string',
+						required: true,
 						default: '',
 						placeholder: 'https://example.com',
 						displayOptions: {
@@ -311,7 +313,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						description: '点击跳转的URL，quote_area.type是1时必填',
 					},
 					{
-						displayName: '引用标题（可选）',
+						displayName: '引用标题',
 						name: 'title',
 						type: 'string',
 						default: '',
@@ -319,7 +321,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						description: '引用文献的标题',
 					},
 					{
-						displayName: '引用文本（可选）',
+						displayName: '引用文本',
 						name: 'quote_text',
 						type: 'string',
 						typeOptions: {
@@ -334,7 +336,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '二级普通文本（可选）',
+		displayName: '二级普通文本',
 		name: 'sub_title_text',
 		type: 'string',
 		default: '',
@@ -348,7 +350,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 		description: '二级普通文本，建议不超过160个字（支持ID转译）。<a href="https://developer.work.weixin.qq.com/document/path/94888" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '二级标题+文本列表（可选）',
+		displayName: '二级标题+文本列表',
 		name: 'horizontal_content_list',
 		type: 'fixedCollection',
 		typeOptions: {
@@ -378,7 +380,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						description: '二级标题，建议不超过5个字',
 					},
 					{
-						displayName: '内容（可选）',
+						displayName: '内容',
 						name: 'value',
 						type: 'string',
 						default: '',
@@ -386,7 +388,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						description: '二级文本，如果horizontal_content_list.type是2，该字段代表文件名称（要包含文件类型），建议不超过30个字（支持ID转译）',
 					},
 					{
-						displayName: '链接类型（可选）',
+						displayName: '链接类型',
 						name: 'type',
 						type: 'options',
 						options: [
@@ -408,12 +410,13 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 							},
 						],
 						default: 0,
-						description: '链接类型',
+						description: '二级文本的点击行为：普通文本、跳转 URL、下载附件或跳转成员详情',
 					},
 					{
-						displayName: '跳转链接（可选）',
+						displayName: '跳转链接',
 						name: 'url',
 						type: 'string',
+						required: true,
 						default: '',
 						placeholder: 'https://example.com',
 						description: '链接跳转的URL，horizontal_content_list.type是1时必填',
@@ -424,9 +427,10 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						},
 					},
 					{
-						displayName: '附件Media ID（可选）',
+						displayName: '附件Media ID',
 						name: 'media_id',
 						type: 'string',
+						required: true,
 						default: '',
 						placeholder: 'MEDIA_ID',
 						description: '附件的media_id，horizontal_content_list.type是2时必填',
@@ -437,9 +441,10 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						},
 					},
 					{
-						displayName: '成员Userid（可选）',
+						displayName: '成员Userid',
 						name: 'userid',
 						type: 'string',
+						required: true,
 						default: '',
 						placeholder: 'zhangsan',
 						description: '成员详情的userid，horizontal_content_list.type是3时必填',
@@ -454,7 +459,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '跳转指引样式列表（可选）',
+		displayName: '跳转指引样式列表',
 		name: 'jump_list',
 		type: 'fixedCollection',
 		typeOptions: {
@@ -475,7 +480,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 				displayName: '跳转指引',
 				values: [
 					{
-						displayName: '跳转链接类型（可选）',
+						displayName: '跳转链接类型',
 						name: 'type',
 						type: 'options',
 						options: [
@@ -504,9 +509,10 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						description: '跳转链接样式的文案内容，建议不超过18个字',
 					},
 					{
-						displayName: '跳转链接（可选）',
+						displayName: '跳转链接',
 						name: 'url',
 						type: 'string',
+						required: true,
 						default: '',
 						placeholder: 'https://example.com',
 						description: '跳转链接的URL，jump_list.type是1时必填',
@@ -517,9 +523,10 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						},
 					},
 					{
-						displayName: '小程序Appid（可选）',
+						displayName: '小程序Appid',
 						name: 'appid',
 						type: 'string',
+						required: true,
 						default: '',
 						placeholder: 'wx1234567890abcdef',
 						description: '跳转链接的小程序的appid，必须是与当前应用关联的小程序，jump_list.type是2时必填',
@@ -530,7 +537,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						},
 					},
 					{
-						displayName: '小程序Page路径（可选）',
+						displayName: '小程序Page路径',
 						name: 'pagepath',
 						type: 'string',
 						default: '',
@@ -566,7 +573,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 				displayName: '跳转设置',
 				values: [
 					{
-						displayName: '跳转事件类型（可选）',
+						displayName: '跳转事件类型',
 						name: 'type',
 						type: 'options',
 						options: [
@@ -587,9 +594,10 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						description: '跳转事件类型。text_notice和news_notice必填本字段；button_interaction可选',
 					},
 					{
-						displayName: '跳转链接（可选）',
+						displayName: '跳转链接',
 						name: 'url',
 						type: 'string',
+						required: true,
 						default: '',
 						placeholder: 'https://example.com',
 						description: '跳转事件的URL，card_action.type是1时必填',
@@ -600,9 +608,10 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						},
 					},
 					{
-						displayName: '小程序Appid（可选）',
+						displayName: '小程序Appid',
 						name: 'appid',
 						type: 'string',
+						required: true,
 						default: '',
 						placeholder: 'wx1234567890abcdef',
 						description: '跳转事件的小程序的appid，必须是与当前应用关联的小程序，card_action.type是2时必填',
@@ -613,7 +622,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						},
 					},
 					{
-						displayName: '小程序Page路径（可选）',
+						displayName: '小程序Page路径',
 						name: 'pagepath',
 						type: 'string',
 						default: '',
@@ -630,7 +639,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '是否开启ID转译（可选）',
+		displayName: '是否开启ID转译',
 		name: 'enable_id_trans',
 		type: 'boolean',
 		default: false,
@@ -643,7 +652,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 		description: '表示是否开启ID转译，默认否。开启后会将消息中的userid转为@对应成员。<a href="https://developer.work.weixin.qq.com/document/path/94888" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '按钮替换文案（可选）',
+		displayName: '按钮替换文案',
 		name: 'replace_text',
 		type: 'string',
 		default: '',
@@ -673,7 +682,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 			'开启后将按官方简单更新模式发送，只提交 button.replace_name，并使用上方按钮替换文案作为禁用后的按钮文案。',
 	},
 	{
-		displayName: '下拉式选择器（可选）',
+		displayName: '下拉式选择器',
 		name: 'button_selection',
 		type: 'fixedCollection',
 		default: {},
@@ -701,7 +710,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						description: '下拉式的选择器的key，用户提交选项后，会产生回调事件，回调事件会带上该key值表示该题，最长支持1024字节',
 					},
 					{
-						displayName: '选择器标题（可选）',
+						displayName: '选择器标题',
 						name: 'title',
 						type: 'string',
 						default: '',
@@ -709,7 +718,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						description: '下拉式的选择器左边的标题',
 					},
 					{
-						displayName: '默认选定ID（可选）',
+						displayName: '默认选定ID',
 						name: 'selected_id',
 						type: 'string',
 						default: '',
@@ -759,7 +768,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '按钮列表（可选）',
+		displayName: '按钮列表',
 		name: 'button_list',
 		type: 'fixedCollection',
 		typeOptions: {
@@ -781,7 +790,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 				displayName: '按钮',
 				values: [
 					{
-						displayName: '按钮点击事件类型（可选）',
+						displayName: '按钮点击事件类型',
 						name: 'type',
 						type: 'options',
 						options: [
@@ -806,7 +815,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						description: '按钮文案，建议不超过10个字',
 					},
 					{
-						displayName: '按钮样式（可选）',
+						displayName: '按钮样式',
 						name: 'style',
 						type: 'options',
 						options: [
@@ -828,12 +837,13 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 							},
 						],
 						default: 1,
-						description: '按钮样式',
+						description: '按钮样式，取值 1～4，不填默认样式 1',
 					},
 					{
-						displayName: '按钮Key（可选）',
+						displayName: '按钮Key',
 						name: 'key',
 						type: 'string',
+						required: true,
 						default: '',
 						placeholder: 'btn_agree',
 						description: '按钮key值，用户点击后，会产生回调事件将本参数作为EventKey返回，回调事件会带上该key值，最长支持1024字节，不可重复，button_list.type是0时必填',
@@ -844,9 +854,10 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						},
 					},
 					{
-						displayName: '跳转链接（可选）',
+						displayName: '跳转链接',
 						name: 'url',
 						type: 'string',
+						required: true,
 						default: '',
 						placeholder: 'https://example.com',
 						description: '跳转事件的URL，button_list.type是1时必填',
@@ -861,7 +872,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '下拉式选择器列表（可选）',
+		displayName: '下拉式选择器列表',
 		name: 'select_list',
 		type: 'fixedCollection',
 		typeOptions: {
@@ -892,7 +903,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						description: '下拉式的选择器题目的key，用户提交选项后，会产生回调事件，回调事件会带上该key值表示该题，最长支持1024字节，不可重复',
 					},
 					{
-						displayName: '选择器标题（可选）',
+						displayName: '选择器标题',
 						name: 'title',
 						type: 'string',
 						default: '',
@@ -900,7 +911,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						description: '下拉式的选择器上面的title',
 					},
 					{
-						displayName: '默认选定ID（可选）',
+						displayName: '默认选定ID',
 						name: 'selected_id',
 						type: 'string',
 						default: '',
@@ -908,7 +919,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						description: '默认选定的ID，不填或错填默认第一个',
 					},
 					{
-						displayName: '是否可以选择状态（可选）',
+						displayName: '是否可以选择状态',
 						name: 'disable',
 						type: 'boolean',
 						default: false,
@@ -956,7 +967,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '选择题Key值（可选）',
+		displayName: '选择题Key值',
 		name: 'checkbox_question_key',
 		type: 'string',
 		default: '',
@@ -972,7 +983,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 			'选择题key值，用户提交选项后，会产生回调事件，回调事件会带上该key值表示该题，最长支持1024字节。<a href="https://developer.work.weixin.qq.com/document/path/94888" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '选择题模式（可选）',
+		displayName: '选择题模式',
 		name: 'checkbox_mode',
 		type: 'options',
 		options: [
@@ -996,7 +1007,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 		description: '选择题模式，单选：0，多选：1，不填默认0。<a href="https://developer.work.weixin.qq.com/document/path/94888" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '是否可以选择状态（可选）',
+		displayName: '是否可以选择状态',
 		name: 'checkbox_disable',
 		type: 'boolean',
 		default: false,
@@ -1009,7 +1020,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: '选项列表（可选）',
+		displayName: '选项列表',
 		name: 'option_list',
 		type: 'fixedCollection',
 		typeOptions: {
@@ -1066,7 +1077,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '提交按钮文案（可选）',
+		displayName: '提交按钮文案',
 		name: 'submit_button_text',
 		type: 'string',
 		default: '提交',
@@ -1082,7 +1093,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 			'提交按钮文案，不填默认为提交。<a href="https://developer.work.weixin.qq.com/document/path/94888" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '提交按钮Key值（可选）',
+		displayName: '提交按钮Key值',
 		name: 'submit_button_key',
 		type: 'string',
 		default: '',
@@ -1098,7 +1109,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 			'提交按钮key值，用户提交选项后，会产生回调事件，回调事件会将本参数作为EventKey返回。<a href="https://developer.work.weixin.qq.com/document/path/94888" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '图片样式（可选）',
+		displayName: '图片样式',
 		name: 'card_image',
 		type: 'fixedCollection',
 		default: {},
@@ -1126,7 +1137,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						description: '图片的URL',
 					},
 					{
-						displayName: '图片宽高比（可选）',
+						displayName: '图片宽高比',
 						name: 'aspect_ratio',
 						type: 'number',
 						default: 1.3,
@@ -1141,7 +1152,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '左图右文样式（可选）',
+		displayName: '左图右文样式',
 		name: 'image_text_area',
 		type: 'fixedCollection',
 		default: {},
@@ -1160,7 +1171,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 				displayName: '图片内容',
 				values: [
 					{
-						displayName: '左图右文样式区域点击事件（可选）',
+						displayName: '左图右文样式区域点击事件',
 						name: 'type',
 						type: 'options',
 						options: [
@@ -1189,9 +1200,10 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						description: '左图右文样式的图片URL',
 					},
 					{
-						displayName: '跳转链接（可选）',
+						displayName: '跳转链接',
 						name: 'url',
 						type: 'string',
+						required: true,
 						default: '',
 						placeholder: 'https://example.com',
 						description: '点击跳转的URL，image_text_area.type是1时必填',
@@ -1202,9 +1214,10 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						},
 					},
 					{
-						displayName: '小程序Appid（可选）',
+						displayName: '小程序Appid',
 						name: 'appid',
 						type: 'string',
+						required: true,
 						default: '',
 						placeholder: 'wx1234567890abcdef',
 						description: '点击跳转的小程序的appid，必须是与当前应用关联的小程序，image_text_area.type是2时必填',
@@ -1215,7 +1228,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						},
 					},
 					{
-						displayName: '小程序Page路径（可选）',
+						displayName: '小程序Page路径',
 						name: 'pagepath',
 						type: 'string',
 						default: '',
@@ -1228,7 +1241,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						},
 					},
 					{
-						displayName: '标题（可选）',
+						displayName: '标题',
 						name: 'title',
 						type: 'string',
 						default: '',
@@ -1236,7 +1249,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						description: '图片的标题',
 					},
 					{
-						displayName: '描述（可选）',
+						displayName: '描述',
 						name: 'desc',
 						type: 'string',
 						typeOptions: {
@@ -1251,7 +1264,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '卡片二级垂直内容（可选）',
+		displayName: '卡片二级垂直内容',
 		name: 'vertical_content_list',
 		type: 'fixedCollection',
 		typeOptions: {
@@ -1282,7 +1295,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 						description: '卡片二级标题，建议不超过38个字',
 					},
 					{
-						displayName: '描述（可选）',
+						displayName: '描述',
 						name: 'desc',
 						type: 'string',
 						default: '',
@@ -1294,7 +1307,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '卡片右上角更多操作按钮（可选）',
+		displayName: '卡片右上角更多操作按钮',
 		name: 'action_menu',
 		type: 'fixedCollection',
 		default: {},
@@ -1311,7 +1324,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 				displayName: '操作菜单',
 				values: [
 					{
-						displayName: '菜单描述（可选）',
+						displayName: '菜单描述',
 						name: 'desc',
 						type: 'string',
 						default: '',
@@ -1333,7 +1346,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 								displayName: '操作',
 								values: [
 									{
-										displayName: '操作文本（可选）',
+										displayName: '操作文本',
 										name: 'text',
 										type: 'string',
 										default: '',
@@ -1341,7 +1354,7 @@ export const updateTemplateCardDescription: INodeProperties[] = [
 										description: '操作的文本',
 									},
 									{
-										displayName: '操作Key（可选）',
+										displayName: '操作Key',
 										name: 'key',
 										type: 'string',
 										default: '',

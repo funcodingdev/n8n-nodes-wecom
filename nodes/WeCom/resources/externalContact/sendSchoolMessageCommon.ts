@@ -57,7 +57,7 @@ export const sendSchoolMessageCommonDescription: INodeProperties[] = [
 		default: 'text',
 		required: true,
 		description:
-			'选择要发送的消息类型。<a href="https://developer.work.weixin.qq.com/document/path/92320" target="_blank">官方文档</a>。选择消息类型',
+			'选择要发送的消息类型。<a href="https://developer.work.weixin.qq.com/document/path/92320" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '应用 ID',

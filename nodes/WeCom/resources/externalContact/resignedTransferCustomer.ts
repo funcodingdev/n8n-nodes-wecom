@@ -45,7 +45,7 @@ export const resignedTransferCustomerDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '要转移的客户external_userid列表，多个用英文逗号分隔，一次最多转移100个客户。只能转移该离职成员的客户。<a href="https://developer.work.weixin.qq.com/document/path/94081" target="_blank">官方文档</a>。要转移的客户external_userid列表，多个用逗号分隔',
+		description: '要转移的客户external_userid列表，多个用英文逗号分隔，一次最多转移100个客户。只能转移该离职成员的客户。<a href="https://developer.work.weixin.qq.com/document/path/94081" target="_blank">官方文档</a>',
 		placeholder: 'wmxxxxxxxxxxxxxxxxxx,wmyyyyyyyyyyyyyyyyyy',
 	},
 ];

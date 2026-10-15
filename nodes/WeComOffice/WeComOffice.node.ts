@@ -20,6 +20,7 @@ import { hrDescription } from '../WeCom/resources/hr';
 import { meetingroomDescription } from '../WeCom/resources/meetingroom';
 import { emergencyDescription } from '../WeCom/resources/emergency';
 import { phoneDescription } from '../WeCom/resources/phone';
+import { todoDescription } from '../WeCom/resources/todo';
 import { executeWedoc } from '../WeCom/resources/wedoc/execute';
 import { executeWefile } from '../WeCom/resources/wefile/execute';
 import { executeMail } from '../WeCom/resources/mail/execute';
@@ -33,6 +34,7 @@ import { executeHr } from '../WeCom/resources/hr/execute';
 import { executeMeetingroom } from '../WeCom/resources/meetingroom/execute';
 import { executeEmergency } from '../WeCom/resources/emergency/execute';
 import { executePhone } from '../WeCom/resources/phone/execute';
+import { executeTodo } from '../WeCom/resources/todo/execute';
 import { weComApiRequest } from '../WeCom/shared/transport';
 
 export class WeComOffice implements INodeType {
@@ -44,7 +46,7 @@ export class WeComOffice implements INodeType {
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: '企业微信办公功能 - 文档、微盘、邮件、日程、会议、直播、打卡、审批、汇报、人事、会议室、紧急通知、公费电话',
+		description: '企业微信办公功能 - 文档、微盘、邮件、日程、待办、会议、直播、打卡、审批、汇报、人事、会议室、紧急通知、公费电话',
 		defaults: {
 			name: '企业微信-办公',
 		},
@@ -74,7 +76,7 @@ export class WeComOffice implements INodeType {
 					{
 						name: '文档',
 						value: 'wedoc',
-						description: '文档管理（在线文档、表格、智能表格等）',
+						description: '文档管理（在线文档、表格、智能表格、智能文档等）',
 					},
 					{
 						name: '微盘',
@@ -100,6 +102,11 @@ export class WeComOffice implements INodeType {
 						name: '日程',
 						value: 'calendar',
 						description: '日程管理（日历、日程、参与者等）',
+					},
+					{
+						name: '待办',
+						value: 'todo',
+						description: '待办管理（获取详情、更新状态等）',
 					},
 					{
 						name: '打卡',
@@ -152,6 +159,7 @@ export class WeComOffice implements INodeType {
 			...meetingroomDescription,
 			...emergencyDescription,
 			...phoneDescription,
+			...todoDescription,
 		],
 		usableAsTool: true,
 	};
@@ -226,6 +234,8 @@ export class WeComOffice implements INodeType {
 			returnData = await executeEmergency.call(this, operation as string, items);
 		} else if (resource === 'phone') {
 			returnData = await executePhone.call(this, operation as string, items);
+		} else if (resource === 'todo') {
+			returnData = await executeTodo.call(this, operation as string, items);
 		}
 
 		return [returnData];

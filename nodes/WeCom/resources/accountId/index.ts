@@ -384,7 +384,7 @@ export const accountIdDescription: INodeProperties[] = [
 		description: '该企业的外部联系人ID，最多可同时查询100个外部联系人。多个值请使用"Add Value"按钮添加',
 	},
 	{
-		displayName: '客户群ID（可选）',
+		displayName: '客户群ID',
 		name: 'chatId',
 		type: 'string',
 		displayOptions: {

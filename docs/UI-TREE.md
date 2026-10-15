@@ -13,7 +13,7 @@ n8n 节点面板
 │  type: weComBase
 │  配置顺序: Credential → Resource → Operation → Parameters
 │
-│  ├─ 资源 · 通讯录管理  (contact)  · 38 ops
+│  ├─ 资源 · 通讯录管理  (contact)  · 42 ops
 │  │   ├─ [成员管理]
 │  │   │   ├─ 创建成员  (createUser)
 │  │   │   ├─ 读取成员  (getUser)
@@ -51,12 +51,17 @@ n8n 节点面板
 │  │   │   ├─ 全量覆盖成员  (batchReplaceUser)
 │  │   │   ├─ 全量覆盖部门  (batchReplaceDepartment)
 │  │   │   └─ 获取异步任务结果  (getAsyncResult)
-│  │   └─ [异步导出]
-│  │       ├─ 导出成员  (exportSimpleUser)
-│  │       ├─ 导出成员详情  (exportUser)
-│  │       ├─ 导出部门  (exportDepartment)
-│  │       ├─ 导出标签成员  (exportTagUser)
-│  │       └─ 获取导出结果  (getExportResult)
+│  │   ├─ [异步导出]
+│  │   │   ├─ 导出成员  (exportSimpleUser)
+│  │   │   ├─ 导出成员详情  (exportUser)
+│  │   │   ├─ 导出部门  (exportDepartment)
+│  │   │   ├─ 导出标签成员  (exportTagUser)
+│  │   │   └─ 获取导出结果  (getExportResult)
+│  │   └─ [查看权限]
+│  │       ├─ 读取规则列表  (listContactRules)
+│  │       ├─ 创建规则  (createContactRules)
+│  │       ├─ 修改规则  (updateContactRules)
+│  │       └─ 删除规则  (deleteContactRules)
 │
 │  ├─ 资源 · 应用消息  (message)  · 16 ops
 │  │   ├─ [基础消息]
@@ -113,11 +118,12 @@ n8n 节点面板
 │  │   └─ [消息接收与发送]
 │  │       └─ 被动回复  (reply)
 │
-│  ├─ 资源 · 智能机器人被动回复  (aibotPassiveReply)  · 4 ops
-│  │   └─ [智能机器人被动回复]
-│  │       ├─ 回复欢迎语  (replyWelcome)
-│  │       ├─ 回复用户消息  (replyMessage)
-│  │       ├─ 更新模板卡片  (updateTemplateCard)
+│  ├─ 资源 · 智能机器人回复  (aibotPassiveReply)  · 4 ops
+│  │   ├─ [被动回复]
+│  │   │   ├─ 回复欢迎语  (replyWelcome)
+│  │   │   ├─ 回复用户消息  (replyMessage)
+│  │   │   └─ 更新模板卡片  (updateTemplateCard)
+│  │   └─ [主动回复]
 │  │       └─ 主动回复消息  (activeReply)
 │
 │  ├─ 资源 · 企业互联  (linkedcorp)  · 18 ops
@@ -288,10 +294,11 @@ n8n 节点面板
 │  │       ├─ 付款  (payToEmployee)
 │  │       └─ 查询付款记录  (queryPayToEmployee)
 │
-│  ├─ 资源 · 数据与智能专区  (chatdata)  · 14 ops
+│  ├─ 资源 · 数据与智能专区  (chatdata)  · 15 ops
 │  │   ├─ [基础]
 │  │   │   ├─ 设置公钥  (setPublicKey)
 │  │   │   ├─ 获取授权存档成员列表  (getAuthUserList)
+│  │   │   ├─ 获取文件内容存档授权成员列表  (getFileArchiveAuthUserList)
 │  │   │   ├─ 设置专区接收回调  (setReceiveCallback)
 │  │   │   ├─ 设置敏感信息隐藏  (setHideSensitiveInfoConfig)
 │  │   │   ├─ 获取敏感信息隐藏配置  (getHideSensitiveInfoConfig)
@@ -373,7 +380,7 @@ n8n 节点面板
 │  type: weComOffice
 │  配置顺序: Credential → Resource → Operation → Parameters
 │
-│  ├─ 资源 · 文档  (wedoc)  · 53 ops
+│  ├─ 资源 · 文档  (wedoc)  · 71 ops
 │  │   ├─ [管理文档]
 │  │   │   ├─ 新建文档  (createDoc)
 │  │   │   ├─ 重命名文档  (renameDoc)
@@ -434,10 +441,29 @@ n8n 节点面板
 │  │   │   ├─ 分配高级功能账号  (allocateAdvancedAccount)
 │  │   │   ├─ 取消高级功能账号  (deallocateAdvancedAccount)
 │  │   │   └─ 获取高级功能账号列表  (getAdvancedAccountList)
-│  │   └─ [素材管理]
-│  │       └─ 上传文档图片  (uploadDocImage)
+│  │   ├─ [素材管理]
+│  │   │   ├─ 上传文档图片  (uploadDocImage)
+│  │   │   └─ 上传文档文件  (uploadDocFile)
+│  │   └─ [智能文档]
+│  │       ├─ 获取页面结构  (smartdocGetPageHierarchy)
+│  │       ├─ 添加页面  (smartdocAddPage)
+│  │       ├─ 更新页面  (smartdocUpdatePage)
+│  │       ├─ 删除页面  (smartdocDeletePage)
+│  │       ├─ 获取内容块列表  (smartdocGetBlockList)
+│  │       ├─ 添加内容块  (smartdocAddBlocks)
+│  │       ├─ 更新内容块  (smartdocUpdateBlocks)
+│  │       ├─ 删除内容块  (smartdocDeleteBlocks)
+│  │       ├─ 导出为 Markdown  (smartdocExport)
+│  │       ├─ 查询导出结果  (smartdocGetExportResult)
+│  │       ├─ 获取数据源  (smartdocGetSmartsheetInfo)
+│  │       ├─ 添加数据表  (smartdocAddSmartsheet)
+│  │       ├─ 更新数据表  (smartdocUpdateSmartsheet)
+│  │       ├─ 删除数据表  (smartdocDeleteSmartsheet)
+│  │       ├─ 发布  (smartdocPublish)
+│  │       ├─ 取消发布  (smartdocCancelPublish)
+│  │       └─ 修改发布页可查看范围  (smartdocPublishSetting)
 │
-│  ├─ 资源 · 微盘  (wefile)  · 31 ops
+│  ├─ 资源 · 微盘  (wefile)  · 32 ops
 │  │   ├─ [空间管理]
 │  │   │   ├─ 创建空间  (createSpace)
 │  │   │   ├─ 删除空间  (deleteSpace)
@@ -445,6 +471,16 @@ n8n 节点面板
 │  │   │   ├─ 获取空间信息  (getSpaceInfo)
 │  │   │   ├─ 获取空间邀请链接  (getSpaceInviteLink)
 │  │   │   └─ 空间安全设置  (spaceSecuritySettings)
+│  │   ├─ [权限管理]
+│  │   │   ├─ 获取空间权限信息  (getSpaceAuthInfo)
+│  │   │   ├─ 添加空间成员  (addSpaceMembers)
+│  │   │   ├─ 移除空间成员  (removeSpaceMembers)
+│  │   │   ├─ 添加文件成员  (addFileMembers)
+│  │   │   ├─ 移除文件成员  (removeFileMembers)
+│  │   │   ├─ 获取文件权限信息  (getFilePermissions)
+│  │   │   ├─ 文件分享设置  (fileShareSettings)
+│  │   │   ├─ 获取文件分享链接  (getFileShareLink)
+│  │   │   └─ 文件安全设置  (fileSecuritySettings)
 │  │   ├─ [文件管理]
 │  │   │   ├─ 上传文件  (uploadFile)
 │  │   │   ├─ 下载文件  (downloadFile)
@@ -454,15 +490,6 @@ n8n 节点面板
 │  │   │   ├─ 重命名文件  (renameFile)
 │  │   │   ├─ 获取文件列表  (getFileList)
 │  │   │   └─ 获取文件信息  (getFileInfo)
-│  │   ├─ [权限管理]
-│  │   │   ├─ 添加空间成员  (addSpaceMembers)
-│  │   │   ├─ 移除空间成员  (removeSpaceMembers)
-│  │   │   ├─ 添加文件成员  (addFileMembers)
-│  │   │   ├─ 移除文件成员  (removeFileMembers)
-│  │   │   ├─ 获取文件权限信息  (getFilePermissions)
-│  │   │   ├─ 文件分享设置  (fileShareSettings)
-│  │   │   ├─ 获取文件分享链接  (getFileShareLink)
-│  │   │   └─ 文件安全设置  (fileSecuritySettings)
 │  │   ├─ [高级功能]
 │  │   │   ├─ 分配高级功能账号  (assignVipAccounts)
 │  │   │   ├─ 取消高级功能账号  (revokeVipAccounts)
@@ -511,7 +538,7 @@ n8n 节点面板
 │  │       ├─ 更改用户功能属性  (updateUserMailAttribute)
 │  │       └─ 获取邮件未读数  (getMailUnreadCount)
 │
-│  ├─ 资源 · 会议  (meeting)  · 107 ops
+│  ├─ 资源 · 会议  (meeting)  · 108 ops
 │  │   ├─ [预约会议管理]
 │  │   │   ├─ 创建预约会议  (createMeeting)
 │  │   │   ├─ 修改预约会议  (updateMeeting)
@@ -635,6 +662,7 @@ n8n 节点面板
 │  │   │   ├─ 创建客户专属短链  (createCustomerShortUrl)
 │  │   │   └─ 获取客户专属短链  (getCustomerShortUrl)
 │  │   └─ [高级账号]
+│  │       ├─ 查询批量分配任务结果  (vipBatchAddJobResult)
 │  │       └─ 查询批量取消任务结果  (vipBatchDelJobResult)
 │
 │  ├─ 资源 · 直播  (live)  · 9 ops
@@ -688,7 +716,7 @@ n8n 节点面板
 │  │   └─ [打卡]
 │  │       └─ 清空规则数组字段  (clearCheckinOptionArrayField)
 │
-│  ├─ 资源 · 审批  (approval)  · 13 ops
+│  ├─ 资源 · 审批  (approval)  · 14 ops
 │  │   ├─ [审批申请]
 │  │   │   ├─ 提交审批申请  (submitApproval)
 │  │   │   ├─ 获取审批申请详情  (getApprovalDetail)
@@ -706,7 +734,8 @@ n8n 节点面板
 │  │   │   └─ 获取审批数据(旧版)  (getapprovaldata)
 │  │   └─ [高级功能]
 │  │       ├─ 获取申请单列表  (advancedFeatureGetApplyIdList)
-│  │       └─ 设置审批详情  (advancedFeatureSetApprovalDetail)
+│  │       ├─ 设置审批详情  (advancedFeatureSetApprovalDetail)
+│  │       └─ 获取申请单详情  (advancedFeatureGetApprovalInfo)
 │
 │  ├─ 资源 · 汇报  (journal)  · 4 ops
 │  │   ├─ [汇报记录]
@@ -734,9 +763,14 @@ n8n 节点面板
 │  │       ├─ 发起语音电话  (makeVoiceCall)
 │  │       └─ 获取接听状态  (getCallStatus)
 │
-│  └─ 资源 · 公费电话  (phone)  · 1 ops
-│      └─ [公费电话]
-│          └─ 获取公费电话拨打记录  (getDialRecord)
+│  ├─ 资源 · 公费电话  (phone)  · 1 ops
+│  │   └─ [公费电话]
+│  │       └─ 获取公费电话拨打记录  (getDialRecord)
+│
+│  └─ 资源 · 待办  (todo)  · 2 ops
+│      └─ [待办]
+│          ├─ 获取待办详情  (getTodo)
+│          └─ 更新待办状态  (updateTodo)
 │
 ├─ 企业微信(WeCom)-连接微信
 │  type: weComWechat
@@ -1000,4 +1034,4 @@ n8n 节点面板
         └─ 参数 · 返回原始数据
 ```
 
-**统计**：Action 节点 3 · 资源 40 · 操作 716 · 触发器 4
+**统计**：Action 节点 3 · 资源 41 · 操作 744 · 触发器 4

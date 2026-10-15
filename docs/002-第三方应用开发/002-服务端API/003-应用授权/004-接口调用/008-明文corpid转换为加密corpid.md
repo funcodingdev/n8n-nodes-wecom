@@ -5,8 +5,10 @@ specfusion_id: wecom_323d1b2ebc6b
 source_url: "https://developer.work.weixin.qq.com/document/path/95604"
 last_updated: "2026-02-12T17:11:27.040Z"
 calibrated_from: "SpecFusion"
-calibrated_at: "2026-08-11T07:48:09Z"
+synced_at: "2026-10-15T15:24:46Z"
 ---
+为更好地保护企业与用户的数据，第三方应用获取的corpid不再是明文的corpid，将升级为第三方服务商级别的加密corpid（[了解更多](#35863)）。第三方可以将已有的明文corpid转换为第三方的加密corpid。
+
 **请求方式：**POST（**HTTPS**）
 **请求地址**：https://qyapi.weixin.qq.com/cgi-bin/service/corpid_to_opencorpid?provider_access_token=ACCESS_TOKEN 
 

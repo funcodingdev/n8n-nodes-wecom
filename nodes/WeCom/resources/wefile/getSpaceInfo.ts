@@ -1,6 +1,6 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-const showOnly = { resource: ['wefile'], operation: ['getSpaceInfo'] };
+const showOnly = { resource: ['wefile'], operation: ['getSpaceInfo', 'getSpaceAuthInfo'] };
 
 export const getSpaceInfoDescription: INodeProperties[] = [
 	{

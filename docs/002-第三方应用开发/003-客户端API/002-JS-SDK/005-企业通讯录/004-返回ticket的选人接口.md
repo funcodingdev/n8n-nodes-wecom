@@ -5,8 +5,10 @@ specfusion_id: wecom_98e66273f80e
 source_url: "https://developer.work.weixin.qq.com/document/path/94516"
 last_updated: "2026-02-12T17:31:29.653Z"
 calibrated_from: "SpecFusion"
-calibrated_at: "2026-08-11T08:00:50Z"
+synced_at: "2026-10-15T15:24:46Z"
 ---
+[[toc]]
+
 <!-- import selectPrivilegedContact from @wecom/jssdk -->
 
 ## 旧版jweixin调用

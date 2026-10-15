@@ -201,6 +201,12 @@ export const controlRoomsOperationOptions = [
 		description: '获取电话入会临时 OpenID',
 	},
 	{
+		name: '[高级账号] 查询批量分配任务结果',
+		value: 'vipBatchAddJobResult',
+		action: '查询批量分配任务结果',
+		description: '查询批量分配高级账号任务结果',
+	},
+	{
 		name: '[高级账号] 查询批量取消任务结果',
 		value: 'vipBatchDelJobResult',
 		action: '查询批量取消任务结果',
@@ -218,6 +224,7 @@ const needMeetingId = allOps.filter(
 			'roomsListControllers',
 			'roomsListDevices',
 			'roomsListMeetings',
+			'vipBatchAddJobResult',
 			'vipBatchDelJobResult',
 			'pollGetThemeInfo',
 			'checkDeviceInMeeting',
@@ -467,10 +474,10 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		displayOptions: {
-			show: { resource: ['meeting'], operation: ['vipBatchDelJobResult'] },
+			show: { resource: ['meeting'], operation: ['vipBatchAddJobResult', 'vipBatchDelJobResult'] },
 		},
 		default: '',
-		description: '批量取消高级账号任务的 jobid',
+		description: '批量分配或取消高级账号任务返回的 jobid',
 	},
 	{
 		displayName: '被操作用户',

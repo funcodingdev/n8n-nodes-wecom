@@ -27,6 +27,14 @@ export const approvalExtraHttpOps: ExtraHttpOp[] = [
 		path: '/cgi-bin/advanced_feature/set_approval_detail',
 		method: 'POST',
 	},
+	{
+		id: 'advancedFeatureGetApprovalInfo',
+		name: '[高级功能] 获取申请单详情',
+		action: '获取高级功能申请单详情',
+		description: '获取成员高级功能申请单的详细信息',
+		path: '/cgi-bin/advanced_feature/get_approval_info',
+		method: 'POST',
+	},
 ];
 
 export const approvalExtraHttpOpsById: Record<string, ExtraHttpOp> = Object.fromEntries(
@@ -158,11 +166,11 @@ export const approvalExtraHttpOpsDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['approval'],
-				operation: ['advancedFeatureSetApprovalDetail'],
+				operation: ['advancedFeatureSetApprovalDetail', 'advancedFeatureGetApprovalInfo'],
 			},
 		},
 		default: '',
-		description: 'apply_id',
+		description: '申请单 ID（apply_id），可通过“获取申请单列表”获得',
 	},
 	{
 		displayName: '审批ID',

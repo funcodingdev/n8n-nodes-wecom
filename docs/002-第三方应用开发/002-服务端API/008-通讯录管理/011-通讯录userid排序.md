@@ -5,8 +5,9 @@ specfusion_id: wecom_6d35326d6746
 source_url: "https://developer.work.weixin.qq.com/document/path/92093"
 last_updated: "2026-02-12T17:15:57.917Z"
 calibrated_from: "SpecFusion"
-calibrated_at: "2026-08-11T07:50:40Z"
+synced_at: "2026-10-15T15:24:46Z"
 ---
+**请求方式：**POST（**HTTPS**）
 **请求地址：**https://qyapi.weixin.qq.com/cgi-bin/service/contact/sort?provider_access_token=ACCESS_TOKEN
 
 **请求包体：**

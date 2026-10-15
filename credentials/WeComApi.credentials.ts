@@ -64,14 +64,15 @@ export class WeComApi implements ICredentialType {
 		properties: {},
 	};
 
-	// 测试认证是否有效
+	// 测试认证是否有效：authenticate 不注入 access_token，因此直接用 Corp ID + Secret 换取 token
 	test: ICredentialTestRequest = {
 		request: {
-			baseURL: '={{$credentials.baseUrl || "https://qyapi.weixin.qq.com"}}',
-			url: '/cgi-bin/user/get',
+			baseURL: '={{($credentials.baseUrl || "https://qyapi.weixin.qq.com").replace(/\\/+$/, "")}}',
+			url: '/cgi-bin/gettoken',
 			method: 'GET',
 			qs: {
-				userid: '@me',
+				corpid: '={{$credentials.corpId}}',
+				corpsecret: '={{$credentials.corpSecret}}',
 			},
 		},
 		rules: [

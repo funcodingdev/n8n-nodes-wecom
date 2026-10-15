@@ -5,8 +5,9 @@ specfusion_id: wecom_724191dd4d4e
 source_url: "https://developer.work.weixin.qq.com/document/path/97173"
 last_updated: "2026-02-12T17:39:06.651Z"
 calibrated_from: "SpecFusion"
-calibrated_at: "2026-08-11T08:04:21Z"
+synced_at: "2026-10-15T15:24:46Z"
 ---
+企业微信服务器会定时（每十分钟）向指令回调url推送ticket，suite_ticket实际有效期为30分钟，ticket会实时变更，并用于后续接口的调用。
 > 若开发者想立即获得ticket推送值，可登录<a href="https://open.work.weixin.qq.com/wwopen/developer" target="_blank">服务商平台</a>，在第三方应用详情-回调配置，手动刷新ticket推送。
 
 **请求方式：**POST（**HTTPS**）
@@ -16,13 +17,10 @@ calibrated_at: "2026-08-11T08:04:21Z"
 xml请求示例：
 ```
 <xml>
-<SuiteId><
-- ![CDATA[ww4asffe99e54c0fxxxx]]></SuiteId>
-<InfoType> <
-- ![CDATA[suite_ticket]]></InfoType>
+<SuiteId><![CDATA[ww4asffe99e54c0fxxxx]]></SuiteId>
+<InfoType> <![CDATA[suite_ticket]]></InfoType>
 <TimeStamp>1403610513</TimeStamp>
-<SuiteTicket><
-- ![CDATA[asdfasfdasdfasdf]]></SuiteTicket>
+<SuiteTicket><![CDATA[asdfasfdasdfasdf]]></SuiteTicket>
 </xml>
 ```
 

@@ -1,6 +1,9 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
+import { chunkedUpload, SINGLE_UPLOAD_LIMIT } from '../../shared/chunkedUpload';
+import { SMARTDOC_OPERATIONS } from './smartdocOps';
+import { executeSmartdocOperation } from './smartdocExecute';
 
 const WEDOC_OPERATIONS = new Set([
 	'createDoc', 'renameDoc', 'deleteDoc', 'getDocInfo', 'shareDoc', 'modDocContent',
@@ -16,7 +19,8 @@ const WEDOC_OPERATIONS = new Set([
 	'modPrivRuleMember', 'deletePrivRule', 'addFieldGroup', 'updateFieldGroup',
 	'deleteFieldGroups', 'getFieldGroups', 'createForm', 'modForm', 'getFormInfo',
 	'getFormStatistic', 'getFormAnswer', 'allocateAdvancedAccount',
-	'deallocateAdvancedAccount', 'getAdvancedAccountList', 'uploadDocImage',
+	'deallocateAdvancedAccount', 'getAdvancedAccountList', 'uploadDocImage', 'uploadDocFile',
+	...SMARTDOC_OPERATIONS,
 ]);
 
 const DOCID_OPERATIONS = new Set([
@@ -30,7 +34,7 @@ const DOCID_OPERATIONS = new Set([
 	'getDocAuth', 'modDocMemberRule', 'modDocShareScope', 'modDocSafeRule',
 	'manageSmartsheetAuth', 'getSheetPriv', 'createPrivRule', 'updateSheetPrivFull',
 	'modPrivRuleMember', 'deletePrivRule', 'addFieldGroup', 'updateFieldGroup',
-	'deleteFieldGroups', 'getFieldGroups', 'uploadDocImage',
+	'deleteFieldGroups', 'getFieldGroups', 'uploadDocImage', 'uploadDocFile',
 ]);
 
 const SHEET_ID_OPERATIONS = new Set([
@@ -1078,8 +1082,11 @@ export async function executeWedoc(
 				requiredText(this, this.getNodeParameter('sheet_id', i, ''), '子表 ID', i);
 			}
 
+			if (SMARTDOC_OPERATIONS.includes(operation)) {
+				response = await executeSmartdocOperation.call(this, operation, i);
+			}
 			// 管理文档
-			if (operation === 'createDoc') {
+			else if (operation === 'createDoc') {
 				const doc_type = integerInRange(
 					this,
 					this.getNodeParameter('doctype', i),
@@ -3403,6 +3410,31 @@ export async function executeWedoc(
 					docid,
 					base64_content: base64Content,
 				});
+			} else if (operation === 'uploadDocFile') {
+				// https://developer.work.weixin.qq.com/document/path/101870
+				// https://developer.work.weixin.qq.com/document/path/101871
+				const docid = requiredText(this, this.getNodeParameter('docid', i), '文档 ID', i);
+				const binaryPropertyName = requiredText(
+					this,
+					this.getNodeParameter('binaryProperty', i),
+					'二进制数据属性',
+					i,
+				);
+				const binaryData = this.helpers.assertBinaryData(i, binaryPropertyName);
+				const file_name = String(this.getNodeParameter('fileName', i, '') || binaryData.fileName || '').trim();
+				if (!file_name) fail(this, '文件名不能为空，二进制数据中也没有文件名', i);
+				const nameWidth = [...file_name].reduce((width, char) => width + (char.charCodeAt(0) > 0xff ? 2 : 1), 0);
+				if (nameWidth > 255) fail(this, '文件名不能超过 255 个字符（汉字算 2 个）', i);
+				const dataBuffer = await this.helpers.getBinaryDataBuffer(i, binaryPropertyName);
+				if (!dataBuffer.length) fail(this, '二进制文件内容不能为空', i);
+				if (dataBuffer.length > 20 * 1024 * 1024 * 1024) fail(this, '文件不能超过 20GB', i);
+				response = dataBuffer.length > SINGLE_UPLOAD_LIMIT
+					? await chunkedUpload.call(this, '/cgi-bin/wedoc', { docid, file_name }, dataBuffer)
+					: await weComApiRequest.call(this, 'POST', '/cgi-bin/wedoc/file_upload', {
+						docid,
+						file_name,
+						file_base64_content: dataBuffer.toString('base64'),
+					});
 			} else if (operation === 'getSheetPriv') {
 				const docid = requiredText(this, this.getNodeParameter('docid', i), '文档 ID', i);
 				const type = this.getNodeParameter('priv_type', i, 1) as number;

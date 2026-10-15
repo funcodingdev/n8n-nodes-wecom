@@ -11,7 +11,7 @@ export const getProInfoDescription: INodeProperties[] = [
 		default: {},
 		placeholder: '参数',
 		typeOptions: { multipleValues: false },
-		description: '该接口用于获取微盘专业版信息<a href="https://developer.work.weixin.qq.com/document/path/93676" target="_blank">更多信息</a>',
+		description: '该接口用于获取微盘专业版信息<a href="https://developer.work.weixin.qq.com/document/path/95856" target="_blank">更多信息</a>',
 		options: [
 			{
 				displayName: '参数',

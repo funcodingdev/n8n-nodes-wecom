@@ -249,7 +249,7 @@ export class WeComBase implements INodeType {
 						description: '被动回复管理（文本、图片、图文等，需配合消息接收触发器）',
 					},
 					{
-						name: '智能机器人被动回复',
+						name: '智能机器人回复',
 						value: 'aibotPassiveReply',
 						description: '智能机器人回复管理（欢迎语、流式回复、模板卡片与主动回复，需配合机器人触发器）',
 					},

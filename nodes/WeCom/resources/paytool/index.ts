@@ -217,7 +217,7 @@ export const paytoolDescription: INodeProperties[] = [
 		description: '支付方式选择服务商代支付时，需上传企业已支付服务商订单费用的凭证。该ID即通过服务商上传临时素材上传文件后得到的media_id。支持图片(jpg/png/jpeg/bmp)、pdf）。注意调用上传素材接口时，需要指定参数attachment_type=3，专用于收银台',
 	},
 	{
-		displayName: '订单创建人（可选）',
+		displayName: '订单创建人',
 		name: 'creator',
 		type: 'string',
 		displayOptions: {

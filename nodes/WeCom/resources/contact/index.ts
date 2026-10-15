@@ -1,4 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { contactRuleDescription, contactRuleOperationOptions } from './contactRuleOps';
 import { getUserDescription } from './getUser';
 import { createUserDescription } from './createUser';
 import { updateUserDescription } from './updateUser';
@@ -285,10 +286,12 @@ export const contactDescription: INodeProperties[] = [
 				action: '获取导出结果',
 				description: '获取异步导出任务结果',
 			},
+			...contactRuleOperationOptions,
 		],
 		default: 'getUser',
 	},
 	...getUserDescription,
+	...contactRuleDescription,
 	...createUserDescription,
 	...updateUserDescription,
 	...deleteUserDescription,

@@ -14,6 +14,24 @@ function asObjectArray(value: unknown): IDataObject[] {
 	return Array.isArray(value) ? (value as IDataObject[]) : [];
 }
 
+/** 超出官方上限时报错，避免静默丢弃用户填写的内容 */
+function withinLimit<T>(
+	context: IExecuteFunctions,
+	list: T[],
+	maximum: number,
+	label: string,
+	itemIndex: number,
+): T[] {
+	if (list.length > maximum) {
+		throw new NodeOperationError(
+			context.getNode(),
+			`${label}最多 ${maximum} 个，当前 ${list.length} 个`,
+			{ itemIndex },
+		);
+	}
+	return list;
+}
+
 export function validateTemplateCard(
 	context: IExecuteFunctions,
 	card: IDataObject,
@@ -87,6 +105,12 @@ export function validateTemplateCard(
 		if (!item.title) fail('jump_list[].title 必填');
 		if (Number(item.type) === 1 && !item.url) fail('jump_list[].url 在 type=1 时必填');
 		if (Number(item.type) === 2 && !item.appid) fail('jump_list[].appid 在 type=2 时必填');
+		if (Number(item.type) === 3) {
+			if (!item.question) fail('jump_list[].question 在 type=3 时必填');
+			if (Buffer.byteLength(String(item.question), 'utf8') > 200) {
+				fail('jump_list[].question 不能超过 200 字节');
+			}
+		}
 	}
 
 	const actionMenu = asObject(card.action_menu);
@@ -572,7 +596,7 @@ export async function executeMessage(
 					}
 					articleList = newsPayload.articles as IDataObject[];
 				} else {
-					articleList = ((articles.article as IDataObject[]) || []).slice(0, 8).map((article) => {
+					articleList = withinLimit(this, (articles.article as IDataObject[]) || [], 8, '图文', i).map((article) => {
 						const processedArticle: IDataObject = {
 							title: article.title,
 						};
@@ -665,7 +689,7 @@ export async function executeMessage(
 					}
 					articleList = mpnewsPayload.articles as IDataObject[];
 				} else {
-					articleList = ((articles.article as IDataObject[]) || []).slice(0, 8).map((article) => ({
+					articleList = withinLimit(this, (articles.article as IDataObject[]) || [], 8, '图文', i).map((article) => ({
 						title: article.title,
 						thumb_media_id: article.thumb_media_id || article.thumb_media_ID,
 						author: article.author,
@@ -774,7 +798,7 @@ export async function executeMessage(
 					);
 				}
 				if (Array.isArray(miniprogramNotice.content_item)) {
-					miniprogramNotice.content_item = miniprogramNotice.content_item.slice(0, 10);
+					withinLimit(this, miniprogramNotice.content_item, 10, '小程序通知内容项', i);
 				}
 
 				body = {
@@ -832,7 +856,7 @@ export async function executeMessage(
 					}
 					taskcard = taskcardJson;
 				} else {
-					const buttonList = ((buttons.button as IDataObject[]) || []).slice(0, 2).map((btn) => ({
+					const buttonList = withinLimit(this, (buttons.button as IDataObject[]) || [], 2, '任务卡片按钮', i).map((btn) => ({
 						key: btn.key,
 						name: btn.name,
 						color: btn.color || 'blue',

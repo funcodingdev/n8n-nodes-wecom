@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-08-11T14:09:22.544Z",
+  "generatedAt": "2026-10-15T16:17:29.112Z",
   "summary": {
-    "docPaths": 611,
-    "covered": 611,
+    "docPaths": 649,
+    "covered": 649,
     "missing": 0,
     "coveragePct": "100.00%",
-    "remainingExtraHttpOps": 55,
+    "remainingExtraHttpOps": 56,
     "resourceMenuBad": 0
   },
   "missing": [],
@@ -26,8 +26,8 @@
     },
     {
       "ch": "004-通讯录管理",
-      "total": 37,
-      "covered": 37,
+      "total": 41,
+      "covered": 41,
       "missing": 0,
       "pct": "100.0%"
     },
@@ -89,8 +89,8 @@
     },
     {
       "ch": "013-数据与智能专区",
-      "total": 14,
-      "covered": 14,
+      "total": 15,
+      "covered": 15,
       "missing": 0,
       "pct": "100.0%"
     },
@@ -159,8 +159,8 @@
     },
     {
       "ch": "025-文档",
-      "total": 50,
-      "covered": 50,
+      "total": 70,
+      "covered": 70,
       "missing": 0,
       "pct": "100.0%"
     },
@@ -172,77 +172,84 @@
       "pct": "100.0%"
     },
     {
-      "ch": "027-会议",
-      "total": 104,
-      "covered": 104,
-      "missing": 0,
-      "pct": "100.0%"
-    },
-    {
-      "ch": "028-微盘",
-      "total": 31,
-      "covered": 31,
-      "missing": 0,
-      "pct": "100.0%"
-    },
-    {
-      "ch": "029-直播",
-      "total": 9,
-      "covered": 9,
-      "missing": 0,
-      "pct": "100.0%"
-    },
-    {
-      "ch": "030-公费电话",
-      "total": 1,
-      "covered": 1,
-      "missing": 0,
-      "pct": "100.0%"
-    },
-    {
-      "ch": "031-打卡",
-      "total": 15,
-      "covered": 15,
-      "missing": 0,
-      "pct": "100.0%"
-    },
-    {
-      "ch": "032-审批",
-      "total": 11,
-      "covered": 11,
-      "missing": 0,
-      "pct": "100.0%"
-    },
-    {
-      "ch": "033-汇报",
-      "total": 4,
-      "covered": 4,
-      "missing": 0,
-      "pct": "100.0%"
-    },
-    {
-      "ch": "034-人事助手",
-      "total": 3,
-      "covered": 3,
-      "missing": 0,
-      "pct": "100.0%"
-    },
-    {
-      "ch": "035-会议室",
-      "total": 10,
-      "covered": 10,
-      "missing": 0,
-      "pct": "100.0%"
-    },
-    {
-      "ch": "036-高级功能",
+      "ch": "027-待办",
       "total": 2,
       "covered": 2,
       "missing": 0,
       "pct": "100.0%"
     },
     {
-      "ch": "037-紧急通知应用",
+      "ch": "028-会议",
+      "total": 105,
+      "covered": 105,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "029-微盘",
+      "total": 31,
+      "covered": 31,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "030-直播",
+      "total": 9,
+      "covered": 9,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "031-公费电话",
+      "total": 1,
+      "covered": 1,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "032-打卡",
+      "total": 15,
+      "covered": 15,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "033-审批",
+      "total": 11,
+      "covered": 11,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "034-汇报",
+      "total": 4,
+      "covered": 4,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "035-人事助手",
+      "total": 3,
+      "covered": 3,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "036-会议室",
+      "total": 10,
+      "covered": 10,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "037-高级功能",
+      "total": 3,
+      "covered": 3,
+      "missing": 0,
+      "pct": "100.0%"
+    },
+    {
+      "ch": "038-紧急通知应用",
       "total": 2,
       "covered": 2,
       "missing": 0,
@@ -294,6 +301,6 @@
     "docs": 611,
     "covered": 611,
     "missing": 0,
-    "rate": 1.0
+    "rate": 1
   }
 }

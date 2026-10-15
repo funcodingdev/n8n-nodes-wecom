@@ -10,7 +10,7 @@ export const removeFileMembersDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: showOnly },
 		default: '',
-		description: '文件或文件夹的ID<a href="https://developer.work.weixin.qq.com/document/path/93659" target="_blank">更多信息</a>',
+		description: '文件或文件夹的ID<a href="https://developer.work.weixin.qq.com/document/path/97888" target="_blank">更多信息</a>',
 	},
 	{
 		displayName: '成员列表',
@@ -21,7 +21,7 @@ export const removeFileMembersDescription: INodeProperties[] = [
 		default: {},
 		placeholder: '添加成员',
 		typeOptions: { multipleValues: true },
-		description: '要移除的成员或部门<a href="https://developer.work.weixin.qq.com/document/path/93659" target="_blank">更多信息</a>',
+		description: '要移除的成员或部门<a href="https://developer.work.weixin.qq.com/document/path/97888" target="_blank">更多信息</a>',
 		options: [
 			{
 				displayName: '成员',

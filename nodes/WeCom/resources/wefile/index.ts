@@ -72,6 +72,12 @@ export const wefileDescription: INodeProperties[] = [
 				action: '获取空间信息',
 			},
 			{
+				name: '[权限管理] 获取空间权限信息',
+				value: 'getSpaceAuthInfo',
+				description: '获取空间成员、权限及安全设置',
+				action: '获取空间权限信息',
+			},
+			{
 				name: '[空间管理] 获取空间邀请链接',
 				value: 'getSpaceInviteLink',
 				description: '获取空间的邀请链接',

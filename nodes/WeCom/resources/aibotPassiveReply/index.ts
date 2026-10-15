@@ -23,25 +23,25 @@ export const aibotPassiveReplyDescription: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: '[智能机器人被动回复] 回复欢迎语',
+				name: '[被动回复] 回复欢迎语',
 				value: 'replyWelcome',
 				action: '回复欢迎语',
 				description: '回复进入会话事件的欢迎语',
 			},
 			{
-				name: '[智能机器人被动回复] 回复用户消息',
+				name: '[被动回复] 回复用户消息',
 				value: 'replyMessage',
 				action: '回复用户消息',
 				description: '回复用户发送的消息',
 			},
 			{
-				name: '[智能机器人被动回复] 更新模板卡片',
+				name: '[被动回复] 更新模板卡片',
 				value: 'updateTemplateCard',
 				action: '更新模板卡片',
 				description: '更新模板卡片消息',
 			},
 			{
-				name: '[智能机器人被动回复] 主动回复消息',
+				name: '[主动回复] 主动回复消息',
 				value: 'activeReply',
 				action: '主动回复消息',
 				description: '使用 response_url 主动回复消息（支持 Markdown、模板卡片）',

@@ -45,7 +45,7 @@ export const transferCustomerDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '要转移的客户external_userid列表，多个用英文逗号分隔，一次最多转移100个客户。<a href="https://developer.work.weixin.qq.com/document/path/92125" target="_blank">官方文档</a>。要转移的客户external_userid列表，多个用逗号分隔',
+		description: '要转移的客户external_userid列表，多个用英文逗号分隔，一次最多转移100个客户。<a href="https://developer.work.weixin.qq.com/document/path/92125" target="_blank">官方文档</a>',
 		placeholder: 'wmxxxxxxxxxxxxxxxxxx,wmyyyyyyyyyyyyyyyyyy',
 	},
 	{
@@ -56,7 +56,7 @@ export const transferCustomerDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '转移成功后自动发送给客户的消息，用于告知客户更换跟进人。最多200个字符。<a href="https://developer.work.weixin.qq.com/document/path/92125" target="_blank">官方文档</a>。可选。转移成功后发给客户的消息，最多200个字符',
+		description: '转移成功后自动发送给客户的消息，用于告知客户更换跟进人。最多200个字符。<a href="https://developer.work.weixin.qq.com/document/path/92125" target="_blank">官方文档</a>',
 		placeholder: '您好，您的专属服务人员已更换为xxx',
 	},
 ];
