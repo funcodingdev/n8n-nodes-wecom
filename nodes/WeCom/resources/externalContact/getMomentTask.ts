@@ -17,7 +17,7 @@ export const getMomentTaskDescription: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'Cursor',
+		displayName: '分页游标',
 		name: 'cursor',
 		type: 'string',
 		default: '',

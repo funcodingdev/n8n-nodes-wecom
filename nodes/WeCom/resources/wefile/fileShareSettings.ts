@@ -25,7 +25,7 @@ export const fileShareSettingsDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: showOnly },
 		default: '',
-		description: '文件或文件夹的ID<a href="https://developer.work.weixin.qq.com/document/path/93660" target="_blank">更多信息</a>',
+		description: '文件或文件夹的ID<a href="https://developer.work.weixin.qq.com/document/path/97889" target="_blank">更多信息</a>',
 	},
 	{
 		displayName: '分享范围',

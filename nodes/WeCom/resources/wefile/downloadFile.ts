@@ -31,7 +31,7 @@ export const downloadFileDescription: INodeProperties[] = [
 		required: true,
 		default: '',
 		placeholder: 'file_id_123',
-		description: '要下载的文件ID（只支持下载普通文件，不支持下载文件夹或微文档）<a href="https://developer.work.weixin.qq.com/document/path/93663" target="_blank">更多信息</a>',
+		description: '要下载的文件ID（只支持下载普通文件，不支持下载文件夹或微文档）<a href="https://developer.work.weixin.qq.com/document/path/97881" target="_blank">更多信息</a>',
 		displayOptions: {
 			show: {
 				...showOnly,
@@ -46,7 +46,7 @@ export const downloadFileDescription: INodeProperties[] = [
 		required: true,
 		default: '',
 		placeholder: 'SELECTED_TICKET',
-		description: '微盘和文件选择器jsapi返回的selectedTicket<a href="https://developer.work.weixin.qq.com/document/path/93663" target="_blank">更多信息</a>',
+		description: '微盘和文件选择器jsapi返回的selectedTicket<a href="https://developer.work.weixin.qq.com/document/path/97881" target="_blank">更多信息</a>',
 		displayOptions: {
 			show: {
 				...showOnly,

@@ -64,7 +64,7 @@ export const checkinExtraHttpOpsDescription: INodeProperties[] = [
 		description: 'effective_now，默认 false',
 	},
 	{
-		displayName: '请求体JSON',
+		displayName: '请求体（JSON）',
 		name: 'requestBody',
 		type: 'json',
 		displayOptions: {
@@ -74,7 +74,7 @@ export const checkinExtraHttpOpsDescription: INodeProperties[] = [
 		description: '其余字段与 groupid 合并',
 	},
 	{
-		displayName: 'Query参数JSON',
+		displayName: '查询参数（JSON）',
 		name: 'requestQuery',
 		type: 'json',
 		displayOptions: {

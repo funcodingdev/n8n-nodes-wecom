@@ -15,7 +15,7 @@ export const editCorpTagDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '标签或标签组的ID，用于指定要编辑的对象。<a href="https://developer.work.weixin.qq.com/document/path/92117" target="_blank">官方文档</a>。标签或标签组的ID',
+		description: '标签或标签组的ID，用于指定要编辑的对象。<a href="https://developer.work.weixin.qq.com/document/path/92117" target="_blank">官方文档</a>',
 		placeholder: 'etXXXXXXXXXX',
 	},
 	{
@@ -33,7 +33,7 @@ export const editCorpTagDescription: INodeProperties[] = [
 		default: '',
 		typeOptions: { maxValue: 30 },
 		displayOptions: { show: { ...showOnly, updateName: [true] } },
-		description: '新的标签或标签组名称。<a href="https://developer.work.weixin.qq.com/document/path/92117" target="_blank">官方文档</a>。可选。新的标签或标签组名称，最长30个字符',
+		description: '新的标签或标签组名称。<a href="https://developer.work.weixin.qq.com/document/path/92117" target="_blank">官方文档</a>',
 		placeholder: '重要客户',
 	},
 	{
@@ -51,7 +51,7 @@ export const editCorpTagDescription: INodeProperties[] = [
 		typeOptions: { minValue: 0, maxValue: 4294967295, numberStepSize: 1 },
 		default: 0,
 		displayOptions: { show: { ...showOnly, updateOrder: [true] } },
-		description: '标签/标签组的次序值，order值大的排序靠前。<a href="https://developer.work.weixin.qq.com/document/path/92117" target="_blank">官方文档</a>。可选。标签/标签组的次序值，值越大排序越靠前',
+		description: '标签/标签组的次序值，order值大的排序靠前。<a href="https://developer.work.weixin.qq.com/document/path/92117" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '旧套件 AgentID',

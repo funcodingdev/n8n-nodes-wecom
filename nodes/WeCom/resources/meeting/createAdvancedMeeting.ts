@@ -284,7 +284,7 @@ export const createAdvancedMeetingDescription: INodeProperties[] = [
 		description: 'settings.ring_users.userid',
 	},
 	{
-		displayName: '扩展请求JSON',
+		displayName: '扩展请求（JSON）',
 		name: 'createMeetingExtraJson',
 		type: 'json',
 		displayOptions: { show: showOnly },

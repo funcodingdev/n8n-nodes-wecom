@@ -6,6 +6,7 @@ import type {
 } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { getWeComBaseUrl } from '../../shared/transport';
+import { weComErrorSuffix } from '../../shared/errorHints';
 
 interface DownloadResponse {
 	body?: unknown;
@@ -58,7 +59,7 @@ function assertBinaryResponse(
 		if (parsed.errcode !== undefined && Number(parsed.errcode) !== 0) {
 			throw new NodeOperationError(
 				context.getNode(),
-				`获取应用二维码失败: ${parsed.errmsg} (错误码: ${parsed.errcode})`,
+				`获取应用二维码失败: ${parsed.errmsg} (错误码: ${parsed.errcode})${weComErrorSuffix(parsed.errcode)}`,
 				{ itemIndex: index },
 			);
 		}
@@ -190,7 +191,7 @@ export async function getAppQrcode(
 		if (response.errcode !== undefined && Number(response.errcode) !== 0) {
 			throw new NodeOperationError(
 				this.getNode(),
-				`获取应用二维码失败: ${response.errmsg} (错误码: ${response.errcode})`,
+				`获取应用二维码失败: ${response.errmsg} (错误码: ${response.errcode})${weComErrorSuffix(response.errcode)}`,
 				{ itemIndex: index },
 			);
 		}

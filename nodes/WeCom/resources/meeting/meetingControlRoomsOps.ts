@@ -201,6 +201,12 @@ export const controlRoomsOperationOptions = [
 		description: '获取电话入会临时 OpenID',
 	},
 	{
+		name: '[高级账号] 查询批量分配任务结果',
+		value: 'vipBatchAddJobResult',
+		action: '查询批量分配任务结果',
+		description: '查询批量分配高级账号任务结果',
+	},
+	{
 		name: '[高级账号] 查询批量取消任务结果',
 		value: 'vipBatchDelJobResult',
 		action: '查询批量取消任务结果',
@@ -218,6 +224,7 @@ const needMeetingId = allOps.filter(
 			'roomsListControllers',
 			'roomsListDevices',
 			'roomsListMeetings',
+			'vipBatchAddJobResult',
 			'vipBatchDelJobResult',
 			'pollGetThemeInfo',
 			'checkDeviceInMeeting',
@@ -410,7 +417,7 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '投票问题扩展JSON',
+		displayName: '投票问题扩展（JSON）',
 		name: 'poll_questions_json',
 		type: 'json',
 		displayOptions: {
@@ -467,10 +474,10 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		type: 'string',
 		required: true,
 		displayOptions: {
-			show: { resource: ['meeting'], operation: ['vipBatchDelJobResult'] },
+			show: { resource: ['meeting'], operation: ['vipBatchAddJobResult', 'vipBatchDelJobResult'] },
 		},
 		default: '',
-		description: '批量取消高级账号任务的 jobid',
+		description: '批量分配或取消高级账号任务返回的 jobid',
 	},
 	{
 		displayName: '被操作用户',
@@ -545,7 +552,7 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '被操作用户扩展JSON',
+		displayName: '被操作用户扩展（JSON）',
 		name: 'operated_users_json',
 		type: 'json',
 		displayOptions: { show: { resource: ['meeting'], operation: needOperatedUsers } },
@@ -668,7 +675,7 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '列表数据扩展JSON',
+		displayName: '列表数据扩展（JSON）',
 		name: 'list_data_json',
 		type: 'json',
 		displayOptions: { show: { resource: ['meeting'], operation: needListJson } },
@@ -1083,7 +1090,7 @@ export const meetingControlRoomsOpsDescription: INodeProperties[] = [
 		description: '分页大小；等候室/健康度最大 50',
 	},
 	{
-		displayName: '扩展请求JSON',
+		displayName: '扩展请求（JSON）',
 		name: 'cr_extra_json',
 		type: 'json',
 		displayOptions: { show: { resource: ['meeting'], operation: allOps } },

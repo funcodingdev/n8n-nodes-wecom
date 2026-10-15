@@ -5,8 +5,10 @@ specfusion_id: wecom_2a627a846087
 source_url: "https://developer.work.weixin.qq.com/document/path/97062"
 last_updated: "2026-07-26T06:50:10.098Z"
 calibrated_from: "SpecFusion"
-calibrated_at: "2026-08-11T07:49:33Z"
+synced_at: "2026-10-15T15:24:46Z"
 ---
+## 已明确企业身份场景
+
 将企业主体下的明文userid转换为服务商主体下的密文userid。
 
 **请求方式：**POST（**HTTPS**）

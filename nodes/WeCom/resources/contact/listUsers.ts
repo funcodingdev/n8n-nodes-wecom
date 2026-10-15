@@ -18,7 +18,7 @@ export const listUsersDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyListUsers,
 		},
-		description: '从列表中选择部门，或使用表达式指定部门 ID。从2022年8月15日10点开始，"企业管理后台 - 管理工具 - 通讯录同步"的新增IP将不能再调用此接口，企业可通过「获取成员ID列表」和「获取部门ID列表」接口获取userid和部门ID列表。<a href="https://developer.work.weixin.qq.com/document/path/90200" target="_blank">官方文档</a>。Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+		description: '从列表中选择部门，或使用表达式指定部门 ID。通讯录同步的新增 IP 已不能调用此接口，可改用“获取成员ID列表”。<a href="https://developer.work.weixin.qq.com/document/path/90200" target="_blank">官方文档</a>。Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
 	},
 	{
 		displayName: '是否递归获取',

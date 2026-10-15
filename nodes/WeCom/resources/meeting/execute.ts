@@ -1186,7 +1186,7 @@ export async function executeMeeting(
 
 				response = await weComApiRequest.call(this, 'POST', '/cgi-bin/meeting/get_info', body);
 			} else if (operation === 'getUserMeetings') {
-				// https://developer.work.weixin.qq.com/document/path/98150
+				// https://developer.work.weixin.qq.com/document/path/99050
 				const userid = text(this, this.getNodeParameter('userid', i), '成员 UserID', i, 64);
 				const cursor = text(this, this.getNodeParameter('cursor', i, ''), '游标', i, 4096, false);
 				const limit = this.getNodeParameter('limit', i, 50) as number;
@@ -3323,6 +3323,7 @@ export async function executeMeeting(
 					'createCustomerShortUrl',
 					'getCustomerShortUrl',
 					'phoneGetTmpOpenid',
+					'vipBatchAddJobResult',
 					'vipBatchDelJobResult',
 				].includes(operation)
 			) {
@@ -3927,7 +3928,7 @@ export async function executeMeeting(
 						if (extension) normalized.extension_number = extension;
 						return normalized;
 					});
-				} else if (operation === 'vipBatchDelJobResult') {
+				} else if (operation === 'vipBatchAddJobResult' || operation === 'vipBatchDelJobResult') {
 					body.jobid = text(this, this.getNodeParameter('vip_jobid', i, ''), '任务 ID', i, 128);
 				}
 
@@ -3995,6 +3996,7 @@ export async function executeMeeting(
 					createCustomerShortUrl: '/cgi-bin/meeting/create_customer_short_url',
 					getCustomerShortUrl: '/cgi-bin/meeting/get_customer_short_url',
 					phoneGetTmpOpenid: '/cgi-bin/meeting/phone/get_tmp_openid',
+					vipBatchAddJobResult: '/cgi-bin/meeting/vip/batch_add_job_result',
 					vipBatchDelJobResult: '/cgi-bin/meeting/vip/batch_del_job_result',
 				};
 				response = await weComApiRequest.call(this, 'POST', pathMap[operation], body);

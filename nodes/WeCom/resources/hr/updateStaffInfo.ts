@@ -148,7 +148,7 @@ export const updateStaffInfoDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '插入字段组JSON',
+		displayName: '插入字段组（JSON）',
 		name: 'insertItemsJson',
 		type: 'json',
 		displayOptions: { show: showOnly },
@@ -157,7 +157,7 @@ export const updateStaffInfoDescription: INodeProperties[] = [
 			'insert_items 数组。每项包含 group_type 和 item 字段；item 内字段结构与 update_items 相同',
 	},
 	{
-		displayName: '完整请求体JSON',
+		displayName: '完整请求体（JSON）',
 		name: 'requestBody',
 		type: 'json',
 		displayOptions: { show: showOnly },

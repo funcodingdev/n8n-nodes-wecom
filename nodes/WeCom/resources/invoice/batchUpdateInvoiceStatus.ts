@@ -110,7 +110,7 @@ export const batchUpdateInvoiceStatusDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '发票列表 JSON',
+		displayName: '发票列表（JSON）',
 		name: 'invoiceListJson',
 		type: 'json',
 		required: true,

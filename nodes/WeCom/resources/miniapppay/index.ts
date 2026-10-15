@@ -479,7 +479,7 @@ export const miniapppayDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
-		displayName: '进件申请其余字段JSON',
+		displayName: '进件申请其余字段（JSON）',
 		name: 'applyMchJson',
 		type: 'json',
 		displayOptions: { show: { ...showOnly, operation: ['applyMch'] } },
@@ -628,7 +628,7 @@ export const miniapppayDescription: INodeProperties[] = [
 		default: '',
 	},
 	{
-		displayName: '优惠详情JSON',
+		displayName: '优惠详情（JSON）',
 		name: 'detail_json',
 		type: 'json',
 		displayOptions: { show: { ...showOnly, operation: ['createOrder'] } },
@@ -636,7 +636,7 @@ export const miniapppayDescription: INodeProperties[] = [
 		description: 'detail 优惠功能字段，见微信支付优惠说明',
 	},
 	{
-		displayName: '高级下单JSON',
+		displayName: '高级下单（JSON）',
 		name: 'advancedJson',
 		type: 'json',
 		displayOptions: { show: { ...showOnly, operation: ['createOrder'] } },

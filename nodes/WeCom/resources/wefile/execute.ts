@@ -2,11 +2,12 @@ import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-wor
 import { NodeOperationError } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
 import { executeExtraHttpOp } from '../../shared/extraHttpOp';
+import { chunkedUpload, SINGLE_UPLOAD_LIMIT } from '../../shared/chunkedUpload';
 import { wefileExtraHttpOpsById } from './extraHttpOps';
 
 const WEFILE_OPERATIONS = new Set([
 	'createSpace', 'deleteSpace', 'renameSpace', 'getSpaceInfo', 'getSpaceInviteLink',
-	'spaceSecuritySettings', 'uploadFile', 'downloadFile', 'createFolder', 'deleteFile',
+	'spaceSecuritySettings', 'getSpaceAuthInfo', 'uploadFile', 'downloadFile', 'createFolder', 'deleteFile',
 	'moveFile', 'renameFile', 'getFileList', 'getFileInfo', 'addSpaceMembers',
 	'removeSpaceMembers', 'addFileMembers', 'removeFileMembers', 'getFilePermissions',
 	'fileShareSettings', 'getFileShareLink', 'fileSecuritySettings', 'assignVipAccounts',
@@ -17,6 +18,7 @@ const WEFILE_OPERATIONS = new Set([
 const LIST_SEPARATOR = /[,，|\n\r]+/;
 const MAX_UINT32 = 4294967295;
 const TWO_MIB = 2 * 1024 * 1024;
+const MAX_CHUNKED_FILE_SIZE = 20 * 1024 * 1024 * 1024;
 
 function fail(context: IExecuteFunctions, message: string, itemIndex: number): never {
 	throw new NodeOperationError(context.getNode(), message, { itemIndex });
@@ -208,6 +210,15 @@ export async function executeWefile(
 					'/cgi-bin/wedrive/space_info',
 					{ spaceid: spaceId },
 				);
+			} else if (operation === 'getSpaceAuthInfo') {
+				// https://developer.work.weixin.qq.com/document/path/97878
+				const spaceId = text(this, this.getNodeParameter('spaceId', i), '空间 ID', i);
+				responseData = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/wedrive/new_space_info',
+					{ spaceid: spaceId },
+				);
 			}
 			// 空间权限管理
 			else if (operation === 'addSpaceMembers') {
@@ -320,15 +331,13 @@ export async function executeWefile(
 					if (!dataBuffer.length) fail(this, '二进制文件内容不能为空', i);
 				}
 
-				// 验证文件大小（10MB = 10 * 1024 * 1024 bytes）
-				const maxFileSize = 10 * 1024 * 1024;
-				if (dataBuffer.length > maxFileSize) {
-					fail(this, `文件大小超过限制（最大 10MB）。当前文件大小: ${(dataBuffer.length / 1024 / 1024).toFixed(2)}MB`, i);
+				// 超过 10MiB 自动改用分块上传，单文件最大 20GiB
+				if (dataBuffer.length > MAX_CHUNKED_FILE_SIZE) {
+					fail(this, `文件大小超过限制（最大 20GB）。当前文件大小: ${(dataBuffer.length / 1024 / 1024).toFixed(2)}MB`, i);
 				}
 
 				const body: IDataObject = {
 					file_name: normalizedFileName,
-					file_base64_content: dataBuffer.toString('base64'),
 				};
 
 				// 根据位置选择方式设置参数
@@ -345,12 +354,18 @@ export async function executeWefile(
 					body.fatherid = fatherId || spaceId; // 如果未指定 fatherId，使用 spaceId
 				}
 
-				responseData = await weComApiRequest.call(
-					this,
-					'POST',
-					'/cgi-bin/wedrive/file_upload',
-					body,
-				);
+				if (dataBuffer.length > SINGLE_UPLOAD_LIMIT) {
+					// https://developer.work.weixin.qq.com/document/path/98004
+					responseData = await chunkedUpload.call(this, '/cgi-bin/wedrive', body, dataBuffer);
+				} else {
+					body.file_base64_content = dataBuffer.toString('base64');
+					responseData = await weComApiRequest.call(
+						this,
+						'POST',
+						'/cgi-bin/wedrive/file_upload',
+						body,
+					);
+				}
 			} else if (operation === 'downloadFile') {
 				const downloadMethod = text(this, this.getNodeParameter('downloadMethod', i), '下载方式', i);
 				if (!['fileId', 'ticket'].includes(downloadMethod)) fail(this, '下载方式只能是文件 ID 或选择凭证', i);
@@ -545,7 +560,7 @@ export async function executeWefile(
 				responseData = await weComApiRequest.call(
 					this,
 					'POST',
-					'/cgi-bin/wedoc/vip/batch_add',
+					'/cgi-bin/wedrive/vip/batch_add',
 					body,
 				);
 			} else if (operation === 'revokeVipAccounts') {
@@ -562,7 +577,7 @@ export async function executeWefile(
 				responseData = await weComApiRequest.call(
 					this,
 					'POST',
-					'/cgi-bin/wedoc/vip/batch_del',
+					'/cgi-bin/wedrive/vip/batch_del',
 					body,
 				);
 			} else if (operation === 'getVipAccountsList') {
@@ -581,7 +596,7 @@ export async function executeWefile(
 				responseData = await weComApiRequest.call(
 					this,
 					'POST',
-					'/cgi-bin/wedoc/vip/list',
+					'/cgi-bin/wedrive/vip/list',
 					body,
 				);
 			} else if (operation === 'getProInfo') {

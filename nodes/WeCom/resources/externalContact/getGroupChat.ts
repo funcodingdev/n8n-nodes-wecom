@@ -15,7 +15,7 @@ export const getGroupChatDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '客户群ID，可以通过"获取客户群列表"接口获取。<a href="https://developer.work.weixin.qq.com/document/path/92122" target="_blank">官方文档</a>。客户群ID',
+		description: '客户群ID，可以通过"获取客户群列表"接口获取。<a href="https://developer.work.weixin.qq.com/document/path/92122" target="_blank">官方文档</a>',
 		placeholder: 'wrXXXXXXXXXXXXXXXXXXXXXXXX',
 	},
 	{

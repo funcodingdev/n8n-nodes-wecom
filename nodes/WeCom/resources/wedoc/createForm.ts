@@ -254,7 +254,7 @@ export const createFormDescription: INodeProperties[] = [
 				description: 'remind_time，秒级时间戳',
 			},
 			{
-				displayName: '定时重复扩展JSON',
+				displayName: '定时重复扩展（JSON）',
 				name: 'timed_repeat_info',
 				type: 'json',
 				default: '{}',

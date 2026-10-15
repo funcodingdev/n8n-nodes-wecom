@@ -14,7 +14,7 @@ export const delCorpTagDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '要删除的标签ID列表，多个ID用英文逗号分隔。<a href="https://developer.work.weixin.qq.com/document/path/92117" target="_blank">官方文档</a>。可选。标签的ID列表，多个用逗号分隔',
+		description: '要删除的标签ID列表，多个ID用英文逗号分隔。<a href="https://developer.work.weixin.qq.com/document/path/92117" target="_blank">官方文档</a>',
 		placeholder: 'etXXXXXXXXXX,etYYYYYYYYYY',
 	},
 	{
@@ -25,7 +25,7 @@ export const delCorpTagDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnly,
 		},
-		description: '要删除的标签组ID列表，多个ID用英文逗号分隔，删除标签组会同时删除其下所有标签。<a href="https://developer.work.weixin.qq.com/document/path/92117" target="_blank">官方文档</a>。可选。标签组的ID列表，多个用逗号分隔',
+		description: '要删除的标签组ID列表，多个ID用英文逗号分隔，删除标签组会同时删除其下所有标签。<a href="https://developer.work.weixin.qq.com/document/path/92117" target="_blank">官方文档</a>',
 		placeholder: 'etXXXXXXXXXX,etYYYYYYYYYY',
 	},
 	{

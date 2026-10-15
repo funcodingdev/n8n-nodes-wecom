@@ -5,8 +5,10 @@ specfusion_id: wecom_ad41ba6d9c29
 source_url: "https://developer.work.weixin.qq.com/document/path/97105"
 last_updated: "2026-02-12T17:41:00.917Z"
 calibrated_from: "SpecFusion"
-calibrated_at: "2026-08-11T08:05:16Z"
+synced_at: "2026-10-15T15:24:46Z"
 ---
+用于将企业主体的明文corpid转换为服务商主体的密文corpid。
+
 **请求方式：**POST（**HTTPS**）
 **请求地址**：https://qyapi.weixin.qq.com/cgi-bin/service/corpid_to_opencorpid?provider_access_token=ACCESS_TOKEN 
 

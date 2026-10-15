@@ -42,7 +42,7 @@ export const sendMiniprogramNoticeDescription: INodeProperties[] = [
 			'使用 JSON 直接输入 miniprogram_notice 对象。<a href="https://developer.work.weixin.qq.com/document/path/90236#小程序通知消息" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '小程序Appid',
+		displayName: '小程序AppID',
 		name: 'appid',
 		type: 'string',
 		required: true,
@@ -107,7 +107,7 @@ export const sendMiniprogramNoticeDescription: INodeProperties[] = [
 			'可选。消息描述，长度限制4-12个汉字（支持ID转译）。<a href="https://developer.work.weixin.qq.com/document/path/90236#小程序通知消息" target="_blank">官方文档</a>',
 	},
 	{
-		displayName: '是否放大第一个Content_item',
+		displayName: '是否放大第一个内容项',
 		name: 'emphasis_first_item',
 		type: 'boolean',
 		default: false,

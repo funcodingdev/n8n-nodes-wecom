@@ -5,8 +5,9 @@ specfusion_id: wecom_38a93a09f1d4
 source_url: "https://developer.work.weixin.qq.com/document/path/90338"
 last_updated: "2026-02-12T17:14:01.715Z"
 calibrated_from: "SpecFusion"
-calibrated_at: "2026-08-11T07:49:51Z"
+synced_at: "2026-10-15T15:24:46Z"
 ---
+## userid转openid
 该接口使用场景为企业支付，在使用企业红包和向员工付款时，需要自行将企业微信的userid转成openid。
 
 注：需要成员使用微信登录企业微信或者关注微信插件（原企业号）才能转成openid;

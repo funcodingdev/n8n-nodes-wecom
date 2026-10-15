@@ -5,7 +5,7 @@ specfusion_id: wecom_cf97850b508e
 source_url: "https://developer.work.weixin.qq.com/document/path/97063"
 last_updated: "2026-02-12T17:14:01.715Z"
 calibrated_from: "SpecFusion"
-calibrated_at: "2026-08-11T07:49:34Z"
+synced_at: "2026-10-15T15:24:46Z"
 ---
 将企业主体下的external_userid转换为服务商主体下的external_userid。
 

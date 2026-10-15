@@ -655,7 +655,7 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '嘉宾列表扩展JSON',
+		displayName: '嘉宾列表扩展（JSON）',
 		name: 'guestsJson',
 		type: 'json',
 		displayOptions: {
@@ -873,7 +873,7 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		description: 'action',
 	},
 	{
-		displayName: '报名/审批扩展JSON',
+		displayName: '报名/审批扩展（JSON）',
 		name: 'webinarEnrollJson',
 		type: 'json',
 		displayOptions: {
@@ -1057,7 +1057,7 @@ export const meetingWebinarRecordOpsDescription: INodeProperties[] = [
 		default: false,
 	},
 	{
-		displayName: '扩展请求JSON',
+		displayName: '扩展请求（JSON）',
 		name: 'webinarExtraJson',
 		type: 'json',
 		displayOptions: {

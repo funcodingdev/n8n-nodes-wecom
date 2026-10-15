@@ -117,7 +117,7 @@ export const sendNewsDescription: INodeProperties[] = [
 						description: '点击后跳转的链接。最长2048字节，请确保包含了协议头(http/https)，小程序或者URL必须填写一个。<a href="https://developer.work.weixin.qq.com/document/path/90236#图文消息" target="_blank">官方文档</a>',
 					},
 					{
-						displayName: '小程序Appid',
+						displayName: '小程序AppID',
 						name: 'appid',
 						type: 'string',
 						default: '',

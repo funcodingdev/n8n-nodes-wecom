@@ -74,7 +74,7 @@ export const addSmartsheetFieldDescription: INodeProperties[] = [
 						placeholder: '例如: 选项1,选项2,选项3',
 					},
 					{
-						displayName: '字段属性JSON',
+						displayName: '字段属性（JSON）',
 						name: 'field_json',
 						type: 'json',
 						default: '{}',

@@ -17,6 +17,6 @@ export const sendSchoolMessageImageDescription: INodeProperties[] = [
 		default: '',
 		placeholder: 'MEDIA_ID',
 		required: true,
-		description: '图片媒体文件ID，可以调用上传临时素材接口获取。<a href="https://developer.work.weixin.qq.com/document/path/92320" target="_blank">官方文档</a>。必填。图片媒体文件ID，可以调用上传临时素材接口获取',
+		description: '图片媒体文件ID，可以调用上传临时素材接口获取。<a href="https://developer.work.weixin.qq.com/document/path/92320" target="_blank">官方文档</a>',
 	},
 ];

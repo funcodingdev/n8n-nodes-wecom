@@ -300,7 +300,7 @@ export const licenseDescription: INodeProperties[] = [
 		typeOptions: { minValue: 0, maxValue: 60, numberStepSize: 1 },
 	},
 	{
-		displayName: '购买天数（可选）',
+		displayName: '购买天数',
 		name: 'days',
 		type: 'number',
 		displayOptions: {
@@ -410,7 +410,7 @@ export const licenseDescription: INodeProperties[] = [
 		description: '1–1000 项的 JSON 数组。每项包含 userid 和 type（1 为基础账号，2 为互通账号）',
 	},
 	{
-		displayName: '任务ID（可选）',
+		displayName: '任务ID',
 		name: 'jobid',
 		type: 'string',
 		displayOptions: {
@@ -506,7 +506,7 @@ export const licenseDescription: INodeProperties[] = [
 		description: '指定的新到期时间。不可为今天和过去的时间，不可为1860天后的时间。须填当天的24时0分0秒，否则系统自动处理为当天的24时0分0秒。若企业为服务商测试企业，不支持指定新的到期时间来续期',
 	},
 	{
-		displayName: '企业ID（可选）',
+		displayName: '企业ID',
 		name: 'corpid',
 		type: 'string',
 		displayOptions: {
@@ -519,7 +519,7 @@ export const licenseDescription: INodeProperties[] = [
 		description: '若指定corpid且corpid为服务商测试企业，则返回的订单列表为测试订单列表。否则只返回正式订单列表',
 	},
 	{
-		displayName: '开始时间（可选）',
+		displayName: '开始时间',
 		name: 'startTime',
 		type: 'dateTime',
 		displayOptions: {
@@ -532,7 +532,7 @@ export const licenseDescription: INodeProperties[] = [
 		description: '开始时间（下单时间），时间戳（秒）。start_time 和 end_time 必须同时指定，不能单独指定。起始时间跟结束时间不能超过31天',
 	},
 	{
-		displayName: '结束时间（可选）',
+		displayName: '结束时间',
 		name: 'endTime',
 		type: 'dateTime',
 		displayOptions: {
@@ -545,7 +545,7 @@ export const licenseDescription: INodeProperties[] = [
 		description: '结束时间（下单时间），时间戳（秒）。start_time 和 end_time 必须同时指定，不能单独指定。起始时间跟结束时间不能超过31天',
 	},
 	{
-		displayName: '分页游标（可选）',
+		displayName: '分页游标',
 		name: 'cursor',
 		type: 'string',
 		displayOptions: {
@@ -558,7 +558,7 @@ export const licenseDescription: INodeProperties[] = [
 		description: '用于分页查询的游标。字符串类型，由上一次调用返回，首次调用可不填',
 	},
 	{
-		displayName: '返回最大记录数（可选）',
+		displayName: '返回最大记录数',
 		name: 'limit',
 		type: 'number',
 		displayOptions: {
@@ -604,7 +604,7 @@ export const licenseDescription: INodeProperties[] = [
 		description: '通过"获取订单列表"或"下单购买账号"等接口获取的订单ID。如果是多企业订单，请使用子订单ID (sub_order_id)',
 	},
 	{
-		displayName: '分页游标（可选）',
+		displayName: '分页游标',
 		name: 'cursor',
 		type: 'string',
 		displayOptions: {
@@ -617,7 +617,7 @@ export const licenseDescription: INodeProperties[] = [
 		description: '用于分页查询的游标。字符串类型，由上一次调用返回，首次调用可不填',
 	},
 	{
-		displayName: '返回最大记录数（可选）',
+		displayName: '返回最大记录数',
 		name: 'limit',
 		type: 'number',
 		displayOptions: {
@@ -649,7 +649,7 @@ export const licenseDescription: INodeProperties[] = [
 		description: '待取消的订单ID',
 	},
 	{
-		displayName: '是否多企业新购订单（可选）',
+		displayName: '是否多企业新购订单',
 		name: 'isMultiCorpOrder',
 		type: 'boolean',
 		displayOptions: {
@@ -719,21 +719,21 @@ export const licenseDescription: INodeProperties[] = [
 						required: true,
 					},
 					{
-						displayName: '基础账号个数（可选）',
+						displayName: '基础账号个数',
 						name: 'baseCount',
 						type: 'number',
 						default: 0,
 						typeOptions: { minValue: 0, maxValue: 1000000, numberStepSize: 1 },
 					},
 					{
-						displayName: '互通账号个数（可选）',
+						displayName: '互通账号个数',
 						name: 'externalContactCount',
 						type: 'number',
 						default: 0,
 						typeOptions: { minValue: 0, maxValue: 1000000, numberStepSize: 1 },
 					},
 					{
-						displayName: '购买月数（可选）',
+						displayName: '购买月数',
 						name: 'months',
 						type: 'number',
 						default: 1,
@@ -741,7 +741,7 @@ export const licenseDescription: INodeProperties[] = [
 						typeOptions: { minValue: 0, maxValue: 60, numberStepSize: 1 },
 					},
 					{
-						displayName: '购买天数（可选）',
+						displayName: '购买天数',
 						name: 'days',
 						type: 'number',
 						default: 0,
@@ -749,7 +749,7 @@ export const licenseDescription: INodeProperties[] = [
 						typeOptions: { minValue: 0, maxValue: 1860, numberStepSize: 1 },
 					},
 					{
-						displayName: '是否开启自动激活（可选）',
+						displayName: '是否开启自动激活',
 						name: 'autoActiveStatus',
 						type: 'options',
 						default: 1,
@@ -784,7 +784,7 @@ export const licenseDescription: INodeProperties[] = [
 		description: '1–10 项的 JSON 数组。支持 base_count、external_contact_count、months、days 和 auto_active_status 字段',
 	},
 	{
-		displayName: '任务ID（可选）',
+		displayName: '任务ID',
 		name: 'jobid',
 		type: 'string',
 		displayOptions: {
@@ -853,7 +853,7 @@ export const licenseDescription: INodeProperties[] = [
 		description: '多企业订单ID',
 	},
 	{
-		displayName: '分页游标（可选）',
+		displayName: '分页游标',
 		name: 'cursor',
 		type: 'string',
 		displayOptions: {
@@ -866,7 +866,7 @@ export const licenseDescription: INodeProperties[] = [
 		description: '用于分页查询的游标。字符串类型，填写上一次调用返回的 next_cursor，首次调用可不填',
 	},
 	{
-		displayName: '返回最大记录数（可选）',
+		displayName: '返回最大记录数',
 		name: 'limit',
 		type: 'number',
 		displayOptions: {
@@ -1176,7 +1176,7 @@ export const licenseDescription: INodeProperties[] = [
 		description: '若为上下游场景，为上游企业corpid。若为上下游场景，corpid指定的为上游企业，仅返回上游企业激活的账号；若corpid指定为下游企业，若激活码为上游企业分享过来的且已绑定，也会返回',
 	},
 	{
-		displayName: '分页游标（可选）',
+		displayName: '分页游标',
 		name: 'cursor',
 		type: 'string',
 		displayOptions: {
@@ -1189,7 +1189,7 @@ export const licenseDescription: INodeProperties[] = [
 		description: '用于分页查询的游标。字符串类型，由上一次调用返回，首次调用可不填',
 	},
 	{
-		displayName: '返回最大记录数（可选）',
+		displayName: '返回最大记录数',
 		name: 'limit',
 		type: 'number',
 		displayOptions: {
@@ -1409,7 +1409,7 @@ export const licenseDescription: INodeProperties[] = [
 		description: '1–1000 项的 JSON 数组。每项包含 active_code',
 	},
 	{
-		displayName: '分配场景（可选）',
+		displayName: '分配场景',
 		name: 'corpLinkType',
 		type: 'options',
 		displayOptions: {

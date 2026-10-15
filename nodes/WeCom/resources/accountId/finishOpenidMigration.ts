@@ -2,6 +2,7 @@ import type { IExecuteFunctions, IDataObject, IHttpRequestOptions } from 'n8n-wo
 import { NodeOperationError } from 'n8n-workflow';
 import { getWeComBaseUrl } from '../../shared/transport';
 import { requireStringList, requireText } from './utils';
+import { weComErrorSuffix } from '../../shared/errorHints';
 
 export async function finishOpenidMigration(
 	this: IExecuteFunctions,
@@ -34,7 +35,7 @@ export async function finishOpenidMigration(
 		if (response.errcode !== undefined && response.errcode !== 0) {
 			throw new NodeOperationError(
 				this.getNode(),
-				`ID迁移完成状态设置失败: ${response.errmsg} (错误码: ${response.errcode})`,
+				`ID迁移完成状态设置失败: ${response.errmsg} (错误码: ${response.errcode})${weComErrorSuffix(response.errcode)}`,
 				{ itemIndex: index },
 			);
 		}

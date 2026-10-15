@@ -27,6 +27,14 @@ export const approvalExtraHttpOps: ExtraHttpOp[] = [
 		path: '/cgi-bin/advanced_feature/set_approval_detail',
 		method: 'POST',
 	},
+	{
+		id: 'advancedFeatureGetApprovalInfo',
+		name: '[高级功能] 获取申请单详情',
+		action: '获取高级功能申请单详情',
+		description: '获取成员高级功能申请单的详细信息',
+		path: '/cgi-bin/advanced_feature/get_approval_info',
+		method: 'POST',
+	},
 ];
 
 export const approvalExtraHttpOpsById: Record<string, ExtraHttpOp> = Object.fromEntries(
@@ -158,11 +166,11 @@ export const approvalExtraHttpOpsDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource: ['approval'],
-				operation: ['advancedFeatureSetApprovalDetail'],
+				operation: ['advancedFeatureSetApprovalDetail', 'advancedFeatureGetApprovalInfo'],
 			},
 		},
 		default: '',
-		description: 'apply_id',
+		description: '申请单 ID（apply_id），可通过“获取申请单列表”获得',
 	},
 	{
 		displayName: '审批ID',
@@ -280,7 +288,7 @@ export const approvalExtraHttpOpsDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '审批节点扩展JSON',
+		displayName: '审批节点扩展（JSON）',
 		name: 'af_process_node_list_json',
 		type: 'json',
 		displayOptions: {
@@ -293,7 +301,7 @@ export const approvalExtraHttpOpsDescription: INodeProperties[] = [
 		description: '非空数组时覆盖上方节点表单',
 	},
 	{
-		displayName: '请求体JSON',
+		displayName: '请求体（JSON）',
 		name: 'requestBody',
 		type: 'json',
 		displayOptions: {
@@ -303,7 +311,7 @@ export const approvalExtraHttpOpsDescription: INodeProperties[] = [
 		description: '其余字段与上方合并，同名字段以 JSON 为准',
 	},
 	{
-		displayName: 'Query参数JSON',
+		displayName: '查询参数（JSON）',
 		name: 'requestQuery',
 		type: 'json',
 		displayOptions: {

@@ -294,7 +294,7 @@ export const createMeetingDescription: INodeProperties[] = [
 		description: 'settings.ring_users.userid，remind_scope=4 时生效',
 	},
 	{
-		displayName: '扩展请求JSON',
+		displayName: '扩展请求（JSON）',
 		name: 'createMeetingExtraJson',
 		type: 'json',
 		displayOptions: { show: showOnly },

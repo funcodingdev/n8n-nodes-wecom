@@ -14,7 +14,7 @@ export const getUserMeetingsDescription: INodeProperties[] = [
 		displayOptions: { show: showOnlyForGet },
 		default: '',
 		description:
-			'userid。<a href="https://developer.work.weixin.qq.com/document/path/98150" target="_blank">官方文档</a>',
+			'userid。<a href="https://developer.work.weixin.qq.com/document/path/99050" target="_blank">官方文档</a>',
 	},
 	{
 		displayName: '开始时间',

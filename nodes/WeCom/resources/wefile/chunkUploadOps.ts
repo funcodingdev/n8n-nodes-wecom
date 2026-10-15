@@ -73,7 +73,7 @@ export const chunkUploadOpsDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: show(['uploadInit']),
 		default: '',
-		description: '每个 2MiB 分块的累积 SHA-1（40 位十六进制），可用逗号、中文逗号、竖线或换行分隔',
+		description: '每个 2MiB 分块的累积 SHA-1（40 位十六进制），可用逗号、中文逗号、竖线或换行分隔。一般无需手动分块：“上传文件”操作会自动计算并分块上传大文件',
 	},
 	{
 		displayName: '跳过推送卡片',
@@ -83,7 +83,7 @@ export const chunkUploadOpsDescription: INodeProperties[] = [
 		default: false,
 	},
 	{
-		displayName: 'upload_key',
+		displayName: '上传凭证',
 		name: 'upload_key',
 		type: 'string',
 		required: true,

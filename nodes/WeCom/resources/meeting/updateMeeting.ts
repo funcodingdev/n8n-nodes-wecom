@@ -253,7 +253,7 @@ export const updateMeetingDescription: INodeProperties[] = [
 			'开启后将上方等候室/静音/水印等 settings 写入请求（密码与主持人列表有值时始终写入）',
 	},
 	{
-		displayName: '扩展请求JSON',
+		displayName: '扩展请求（JSON）',
 		name: 'updateMeetingExtraJson',
 		type: 'json',
 		displayOptions: { show: showOnlyForUpdate },

@@ -132,6 +132,18 @@ export async function executeChatdata(
 					'/cgi-bin/chatdata/get_auth_user_list',
 					body,
 				);
+			} else if (operation === 'getFileArchiveAuthUserList') {
+				// https://developer.work.weixin.qq.com/document/path/101873
+				const cursor = optionalText(this, this.getNodeParameter('cursor', i, ''), '游标', i);
+				const limit = requireInteger(this, this.getNodeParameter('limit', i, 200), '条数限制', i, 1, 1000);
+				const body: IDataObject = { limit };
+				if (cursor) body.cursor = cursor;
+				responseData = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/docdata/get_auth_user_list',
+					body,
+				);
 			} else if (operation === 'setReceiveCallback') {
 				// https://developer.work.weixin.qq.com/document/path/99850
 				const program_id = requireProgramId(this, this.getNodeParameter('program_id', i), i);

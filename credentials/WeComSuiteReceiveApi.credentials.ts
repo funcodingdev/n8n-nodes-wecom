@@ -1,10 +1,10 @@
 import type {
 	IAuthenticateGeneric,
-	ICredentialTestRequest,
 	ICredentialType,
 	INodeProperties,
 } from 'n8n-workflow';
 
+// 回调凭证没有可主动调用的校验接口，由节点的 weComSuiteReceiveApiTest 在本地校验格式
 export class WeComSuiteReceiveApi implements ICredentialType {
 	name = 'weComSuiteReceiveApi';
 
@@ -56,18 +56,5 @@ export class WeComSuiteReceiveApi implements ICredentialType {
 	authenticate: IAuthenticateGeneric = {
 		type: 'generic',
 		properties: {},
-	};
-
-	test: ICredentialTestRequest = {
-		request: {
-			baseURL: '={{$credentials.baseUrl || "https://qyapi.weixin.qq.com"}}',
-			url: '/cgi-bin/service/get_suite_token',
-			method: 'POST',
-			body: {
-				suite_id: '={{$credentials.suiteId}}',
-				suite_secret: 'test',
-				suite_ticket: 'test',
-			},
-		},
 	};
 }

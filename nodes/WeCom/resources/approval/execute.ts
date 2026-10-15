@@ -901,6 +901,27 @@ export async function executeApproval(
 					body,
 					requestQuery,
 				);
+			} else if (operation === 'advancedFeatureGetApprovalInfo') {
+				// https://developer.work.weixin.qq.com/document/path/99885
+				const requestBody = parseRequestJson.call(this, i);
+				const requestQuery = parseQueryJson.call(this, i);
+				const body: IDataObject = {
+					...requestBody,
+					apply_id: text(
+						this,
+						requestBody.apply_id ?? this.getNodeParameter('af_apply_id', i),
+						'申请 ID',
+						i,
+						128,
+					),
+				};
+				response = await weComApiRequest.call(
+					this,
+					'POST',
+					'/cgi-bin/advanced_feature/get_approval_info',
+					body,
+					requestQuery,
+				);
 			} else if (operation === 'advancedFeatureSetApprovalDetail') {
 				const requestBody = parseRequestJson.call(this, i);
 				const requestQuery = parseQueryJson.call(this, i);

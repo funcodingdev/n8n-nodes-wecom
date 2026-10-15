@@ -752,7 +752,7 @@ export const externalContactExtraHttpOpsDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '群发附件JSON',
+		displayName: '群发附件（JSON）',
 		name: 'crm_attachments_json',
 		type: 'json',
 		displayOptions: {

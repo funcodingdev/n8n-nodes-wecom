@@ -158,7 +158,7 @@ export const mchpayDescription: INodeProperties[] = [
 		description: '以个人名义发红包时可选，素材 media_id',
 	},
 	{
-		displayName: '扩展字段JSON',
+		displayName: '扩展字段（JSON）',
 		name: 'extraXmlFields',
 		type: 'json',
 		displayOptions: { show: showOnly },

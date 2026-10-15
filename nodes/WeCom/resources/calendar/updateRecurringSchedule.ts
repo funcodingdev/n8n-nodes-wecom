@@ -56,7 +56,7 @@ export const updateRecurringScheduleDescription: INodeProperties[] = [
 		description: 'schedule.location',
 	},
 	{
-		displayName: '日程扩展JSON',
+		displayName: '日程扩展（JSON）',
 		name: 'schedule',
 		type: 'json',
 		displayOptions: { show: showOnlyForUpdateRecurring },

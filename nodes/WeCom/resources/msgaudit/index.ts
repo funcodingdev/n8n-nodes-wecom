@@ -120,7 +120,7 @@ export const msgauditDescription: INodeProperties[] = [
 		description: '内部群 roomid',
 	},
 	{
-		displayName: '同意情况扩展JSON',
+		displayName: '同意情况扩展（JSON）',
 		name: 'infoJson',
 		type: 'json',
 		displayOptions: {

@@ -84,7 +84,7 @@ export const batchImportChainContactDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '联系人列表 JSON',
+		displayName: '联系人列表（JSON）',
 		name: 'contact_list_json',
 		type: 'json',
 		required: true,

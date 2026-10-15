@@ -1,11 +1,11 @@
 ---
-title: "获取下级-下游企业小程序session"
+title: "获取下级/下游企业小程序session"
 path: "003-服务商代开发/001-服务端API/009-企业互联/004-获取下级-下游企业小程序session"
 specfusion_id: wecom_a5cb8bbf0eef
 source_url: "https://developer.work.weixin.qq.com/document/path/96813"
 last_updated: "2026-02-12T17:42:16.584Z"
 calibrated_from: "SpecFusion"
-calibrated_at: "2026-08-11T08:06:14Z"
+synced_at: "2026-10-15T15:24:46Z"
 ---
 上级/上游企业通过该接口转换为下级/下游企业的小程序session
 

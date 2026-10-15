@@ -4,6 +4,7 @@ import { buildTemplateCardFromForm } from './templateCardForm';
 import { validateTemplateCard } from '../message/execute';
 import { WeComCrypto } from '../../shared/crypto';
 import { createHash } from 'crypto';
+import { weComErrorSuffix } from '../../shared/errorHints';
 
 /** 智能机器人主动回复官方路径（response_url 中包含此 path） */
 const AIBOT_RESPONSE_PATH = '/cgi-bin/aibot/response';
@@ -167,11 +168,15 @@ export async function executeAIBotPassiveReply(
 			} else fail(`回复欢迎语不支持类型：${replyType}`);
 		} else if (operation === 'replyMessage') {
 			const replyType = this.getNodeParameter('replyType', itemIndex) as string;
-			if (incomingMessageType === 'event' && incomingEventType !== 'enter_chat') {
-				fail('回复用户消息不适用于当前事件回调；模板卡片事件请使用“更新模板卡片”');
+			if (incomingMessageType === 'event') {
+				fail(
+					incomingEventType === 'enter_chat'
+						? '进入会话事件请使用“回复欢迎语”'
+						: '回复用户消息不适用于事件回调；模板卡片事件请使用“更新模板卡片”',
+				);
 			}
-			if (incomingMessageType === 'stream' && replyType !== 'stream') {
-				fail('流式消息刷新回调仅支持回复“流式消息”');
+			if (incomingMessageType === 'stream' && replyType === 'template_card') {
+				fail('流式消息刷新回调仅支持回复“流式消息”或“流式消息+模板卡片”');
 			}
 
 			if (replyType === 'stream') {
@@ -410,7 +415,7 @@ export async function executeAIBotPassiveReply(
 			timeout: 5000,
 		}) as IDataObject;
 		if (response.errcode !== undefined && Number(response.errcode) !== 0) {
-			fail(`主动回复失败：${String(response.errmsg ?? '未知错误')}（错误码 ${String(response.errcode)}）`);
+			fail(`主动回复失败：${String(response.errmsg ?? '未知错误')}（错误码 ${String(response.errcode)}）${weComErrorSuffix(response.errcode)}`);
 		}
 		return [{
 			json: {

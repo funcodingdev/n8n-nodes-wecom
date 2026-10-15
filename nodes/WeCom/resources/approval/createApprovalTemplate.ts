@@ -36,7 +36,7 @@ export const createApprovalTemplateDescription: INodeProperties[] = [
 		options: [{ displayName: '控件', name: 'controls', values: templateControlFields }],
 	},
 	{
-		displayName: '模板控件内容JSON',
+		displayName: '模板控件内容（JSON）',
 		name: 'template_content_json',
 		type: 'json',
 		displayOptions: { show: showOnly },
@@ -44,7 +44,7 @@ export const createApprovalTemplateDescription: INodeProperties[] = [
 		description: '完整 template_content。非空对象时优先；空对象则使用上方控件表单',
 	},
 	{
-		displayName: '扩展请求JSON',
+		displayName: '扩展请求（JSON）',
 		name: 'templateExtraJson',
 		type: 'json',
 		displayOptions: { show: showOnly },

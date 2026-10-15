@@ -178,7 +178,7 @@ export const smartsheetExtraOpsDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '规则扩展JSON',
+		displayName: '规则扩展（JSON）',
 		name: 'privRuleJson',
 		type: 'json',
 		displayOptions: show(['updateSheetPrivFull']),

@@ -4,6 +4,7 @@ import { weComApiRequest } from '../../shared/transport';
 import { getApiDomainIp } from './getApiDomainIp';
 import { getCallbackIp } from './getCallbackIp';
 import { getAccessToken } from './getAccessToken';
+import { weComErrorSuffix } from '../../shared/errorHints';
 
 /** 执行系统信息、身份验证、JS-SDK 与小程序登录操作。 */
 export async function executeSystem(
@@ -24,7 +25,7 @@ export async function executeSystem(
 	};
 	const ensureSuccess = (response: IDataObject): IDataObject => {
 		if (response.errcode !== undefined && Number(response.errcode) !== 0) {
-			fail(`${response.errmsg ?? '企业微信接口调用失败'} (错误码: ${response.errcode})`);
+			fail(`${response.errmsg ?? '企业微信接口调用失败'} (错误码: ${response.errcode})${weComErrorSuffix(response.errcode)}`);
 		}
 		return response;
 	};

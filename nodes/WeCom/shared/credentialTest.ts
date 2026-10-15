@@ -10,13 +10,28 @@ import type {
 export async function weComReceiveApiTest(
 	credential: ICredentialsDecrypted,
 ): Promise<INodeCredentialTestResult> {
+	return validateCallbackCredential(credential, 'corpId', '企业 ID');
+}
+
+/** 第三方应用指令回调凭证同样只能在本地校验，ReceiveId 为 SuiteID。 */
+export async function weComSuiteReceiveApiTest(
+	credential: ICredentialsDecrypted,
+): Promise<INodeCredentialTestResult> {
+	return validateCallbackCredential(credential, 'suiteId', '第三方应用 ID');
+}
+
+function validateCallbackCredential(
+	credential: ICredentialsDecrypted,
+	receiveIdField: string,
+	receiveIdLabel: string,
+): INodeCredentialTestResult {
 	const data = credential.data ?? {};
-	const corpId = String(data.corpId ?? '').trim();
+	const receiveId = String(data[receiveIdField] ?? '').trim();
 	const token = String(data.token ?? '').trim();
 	const encodingAESKey = String(data.encodingAESKey ?? '').trim();
 	const errors: string[] = [];
 
-	if (!corpId) errors.push('企业 ID 不能为空');
+	if (!receiveId) errors.push(`${receiveIdLabel}不能为空`);
 	if (!token) errors.push('Token 不能为空');
 	if (!/^[A-Za-z0-9+/]{43}$/.test(encodingAESKey)) {
 		errors.push('EncodingAESKey 必须是 43 位 Base64 字符串');

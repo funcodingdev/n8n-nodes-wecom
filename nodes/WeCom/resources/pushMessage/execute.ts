@@ -2,6 +2,7 @@ import { createHash } from 'crypto';
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { getWeComBaseUrl } from '../../shared/transport';
+import { weComErrorSuffix } from '../../shared/errorHints';
 
 /** 群机器人发送消息官方路径 */
 const WEBHOOK_SEND_PATH = '/cgi-bin/webhook/send';
@@ -400,7 +401,7 @@ export async function executePushMessage(
 				if (response.errcode !== undefined && Number(response.errcode) !== 0) {
 					throw new NodeOperationError(
 						this.getNode(),
-						`上传媒体文件失败: ${response.errmsg} (错误码: ${response.errcode})`,
+						`上传媒体文件失败: ${response.errmsg} (错误码: ${response.errcode})${weComErrorSuffix(response.errcode)}`,
 						{ itemIndex: i },
 					);
 				}
@@ -779,7 +780,7 @@ export async function executePushMessage(
 				if (response.errcode !== undefined && Number(response.errcode) !== 0) {
 					throw new NodeOperationError(
 						this.getNode(),
-						`发送消息失败: ${String(response.errmsg ?? '未知错误')} (错误码: ${String(response.errcode)})`,
+						`发送消息失败: ${String(response.errmsg ?? '未知错误')} (错误码: ${String(response.errcode)})${weComErrorSuffix(response.errcode)}`,
 						{ itemIndex: i },
 					);
 				}

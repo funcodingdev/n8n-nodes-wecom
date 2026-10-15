@@ -29,7 +29,7 @@ export const addSmartsheetViewDescription: INodeProperties[] = [
 		description: '视图的类型',
 	},
 	{
-		displayName: '视图属性JSON',
+		displayName: '视图属性（JSON）',
 		name: 'viewExtraJson',
 		type: 'json',
 		displayOptions: { show: showOnly },

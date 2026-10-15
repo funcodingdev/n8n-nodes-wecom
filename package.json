@@ -38,6 +38,7 @@
 		"build:watch": "tsc --watch",
 		"dev": "n8n-node dev",
 		"docs:ui-tree": "npm run build && node scripts/dump-ui-tree.mjs",
+		"docs:error-codes": "node scripts/gen-error-codes.mjs",
 		"deploy:local": "bash scripts/deploy-community-node.sh",
 		"deploy:local:start": "bash scripts/deploy-community-node.sh --install-n8n --start",
 		"lint": "n8n-node lint",

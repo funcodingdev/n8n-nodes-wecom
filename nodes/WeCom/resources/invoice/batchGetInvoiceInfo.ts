@@ -58,7 +58,7 @@ export const batchGetInvoiceInfoDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '发票列表 JSON',
+		displayName: '发票列表（JSON）',
 		name: 'itemListJson',
 		type: 'json',
 		required: true,

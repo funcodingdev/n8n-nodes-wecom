@@ -25,6 +25,7 @@ export function templateCardFormProperties(
 ): INodeProperties[] {
 	return sendTemplateCardDescription
 		.filter((property) => !excludedFields.has(property.name))
+		.map(withAiBotJumpQuestion)
 		.map((property): INodeProperties => ({
 			...property,
 			displayOptions: {
@@ -56,7 +57,40 @@ function compactAction(value: IDataObject | undefined): IDataObject | undefined 
 		delete action.appid;
 		delete action.pagepath;
 	}
+	if (type !== 3) delete action.question;
 	return action;
+}
+
+/** 智能机器人的跳转指引额外支持 type=3（触发消息智能回复） */
+function withAiBotJumpQuestion(property: INodeProperties): INodeProperties {
+	if (property.name !== 'jump_list' || !Array.isArray(property.options)) return property;
+	return {
+		...property,
+		options: property.options.map((group) => {
+			if (!('values' in group) || !Array.isArray(group.values)) return group;
+			return {
+				...group,
+				values: group.values.flatMap((field): INodeProperties[] => {
+					if (field.name === 'type' && Array.isArray(field.options)) {
+						return [{
+							...field,
+							options: [...field.options, { name: '触发消息智能回复', value: 3 }],
+						}];
+					}
+					if (field.name !== 'title') return [field];
+					return [field, {
+						displayName: '智能问答问题',
+						name: 'question',
+						type: 'string',
+						default: '',
+						placeholder: '今天天气怎么样？',
+						description: '用户点击后机器人收到的问题，最长 200 字节，type 是 3 时必填',
+						displayOptions: { show: { type: [3] } },
+					}];
+				}),
+			};
+		}),
+	} as INodeProperties;
 }
 
 function compactItems(value: unknown): IDataObject[] {

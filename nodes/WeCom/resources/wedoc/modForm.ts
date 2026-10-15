@@ -47,7 +47,7 @@ export const modFormDescription: INodeProperties[] = [
 		description: '收集表表头背景图链接',
 	},
 	{
-		displayName: '完整Form Info JSON',
+		displayName: '完整收集表信息（JSON）',
 		name: 'formInfoJson',
 		type: 'json',
 		displayOptions: { show: showOnly },

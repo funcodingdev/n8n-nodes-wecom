@@ -5,7 +5,7 @@ specfusion_id: wecom_6fcbe512a2c1
 source_url: "https://developer.work.weixin.qq.com/document/path/97163"
 last_updated: "2026-02-12T17:39:06.651Z"
 calibrated_from: "SpecFusion"
-calibrated_at: "2026-08-11T08:04:13Z"
+synced_at: "2026-10-15T15:24:46Z"
 ---
 ## secret的获取
 对于企业自建应用开发模式，secret由企业管理员登录管理端获取。而代开发应用的secret获取方式与第三方应用中的企业永久授权码更为相似，流程如下：

@@ -12,7 +12,7 @@ function walk(d, a = [], pred = () => true) {
   }
   return a;
 }
-const docsRoot = 'docs/001-企业内部开发/002-服务端API';
+const docsRoot = 'docs/001-企业自建应用开发/002-服务端API';
 const cgiRe = /\/cgi-bin\/[a-zA-Z0-9_./-]+/g;
 const mchRe = /https?:\/\/api\.mch\.weixin\.qq\.com\/[a-zA-Z0-9_./-]+/g;
 function extract(t) {

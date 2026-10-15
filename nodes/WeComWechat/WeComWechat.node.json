@@ -1,5 +1,5 @@
 {
-	"node": "n8n-nodes-base.weComWechat",
+	"node": "n8n-nodes-wecom.weComWechat",
 	"nodeVersion": "1.0",
 	"codexVersion": "1.0",
 	"categories": ["Communication"],

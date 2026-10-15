@@ -2,6 +2,7 @@ import type { IExecuteFunctions, IDataObject, IHttpRequestOptions } from 'n8n-wo
 import { NodeOperationError } from 'n8n-workflow';
 import { getWeComBaseUrl } from '../../shared/transport';
 import { requireText } from './utils';
+import { weComErrorSuffix } from '../../shared/errorHints';
 
 /**
  * 设置通讯录同步完成
@@ -44,7 +45,7 @@ export async function setContactSyncSuccess(
 		if (response.errcode !== undefined && response.errcode !== 0) {
 			throw new NodeOperationError(
 				this.getNode(),
-				`设置通讯录同步完成失败: ${response.errmsg} (错误码: ${response.errcode})`,
+				`设置通讯录同步完成失败: ${response.errmsg} (错误码: ${response.errcode})${weComErrorSuffix(response.errcode)}`,
 				{ itemIndex: index },
 			);
 		}

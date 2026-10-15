@@ -1,6 +1,7 @@
 import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { weComApiRequest } from '../../shared/transport';
+import { weComErrorSuffix } from '../../shared/errorHints';
 
 const REIMBURSE_STATUSES = [
 	'INVOICE_REIMBURSE_INIT',
@@ -76,7 +77,7 @@ export async function executeInvoice(
 	};
 	const ensureSuccess = (response: IDataObject, label: string, itemIndex: number) => {
 		if (response.errcode !== undefined && Number(response.errcode) !== 0) {
-			fail(`${label}失败: ${response.errmsg} (错误码: ${response.errcode})`, itemIndex);
+			fail(`${label}失败: ${response.errmsg} (错误码: ${response.errcode})${weComErrorSuffix(response.errcode)}`, itemIndex);
 		}
 	};
 

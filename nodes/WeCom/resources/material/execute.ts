@@ -2,6 +2,7 @@ import type { IExecuteFunctions, INodeExecutionData, IDataObject } from 'n8n-wor
 import { NodeOperationError } from 'n8n-workflow';
 import { weComMultipartUpload } from '../../shared/multipartUpload';
 import { getAccessToken, getWeComBaseUrl, weComApiRequest } from '../../shared/transport';
+import { weComErrorSuffix } from '../../shared/errorHints';
 
 const MEBIBYTE = 1024 * 1024;
 const MAX_RANGE_BYTES = 20 * MEBIBYTE;
@@ -101,7 +102,7 @@ export async function executeMaterial(
 	};
 	const ensureApiSuccess = (response: IDataObject, label: string, itemIndex: number) => {
 		if (response.errcode !== undefined && Number(response.errcode) !== 0) {
-			fail(`${label}失败: ${response.errmsg} (错误码: ${response.errcode})`, itemIndex);
+			fail(`${label}失败: ${response.errmsg} (错误码: ${response.errcode})${weComErrorSuffix(response.errcode)}`, itemIndex);
 		}
 	};
 	const assertNoDownloadError = (
@@ -116,7 +117,7 @@ export async function executeMaterial(
 		try {
 			const parsed = JSON.parse(buffer.toString('utf8')) as IDataObject;
 			if (parsed.errcode !== undefined && Number(parsed.errcode) !== 0) {
-				fail(`${label}失败: ${parsed.errmsg} (错误码: ${parsed.errcode})`, itemIndex);
+				fail(`${label}失败: ${parsed.errmsg} (错误码: ${parsed.errcode})${weComErrorSuffix(parsed.errcode)}`, itemIndex);
 			}
 		} catch (error) {
 			if (error instanceof NodeOperationError) throw error;

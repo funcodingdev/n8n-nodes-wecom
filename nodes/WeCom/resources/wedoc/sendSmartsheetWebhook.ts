@@ -26,7 +26,7 @@ export const sendSmartsheetWebhookDescription: INodeProperties[] = [
 		default: 'json',
 	},
 	{
-		displayName: '记录列表JSON',
+		displayName: '记录列表（JSON）',
 		name: 'records_json',
 		type: 'json',
 		displayOptions: {
@@ -37,7 +37,7 @@ export const sendSmartsheetWebhookDescription: INodeProperties[] = [
 			'记录数组。新增示例：[{"values":{"FIELD_ID":[{"type":"text","text":"内容"}]}}]；更新需含 record_id',
 	},
 	{
-		displayName: 'JSON 请求体',
+		displayName: '请求体（JSON）',
 		name: 'payload_json',
 		type: 'json',
 		typeOptions: { rows: 10 },

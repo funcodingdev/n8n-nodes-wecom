@@ -333,7 +333,7 @@ export const updateAdvancedMeetingDescription: INodeProperties[] = [
 		],
 	},
 	{
-		displayName: '扩展请求JSON',
+		displayName: '扩展请求（JSON）',
 		name: 'updateMeetingExtraJson',
 		type: 'json',
 		displayOptions: { show: showOnly },

@@ -5,8 +5,10 @@ specfusion_id: wecom_98de6c626a0c
 source_url: "https://developer.work.weixin.qq.com/document/path/96959"
 last_updated: "2026-02-12T17:55:36.779Z"
 calibrated_from: "SpecFusion"
-calibrated_at: "2026-08-11T08:14:39Z"
+synced_at: "2026-10-15T15:24:46Z"
 ---
+临时登录凭证校验接口是一个```服务端HTTPS 接口```，开发者服务器使用临时登录凭证code获取 session_key、用户userid以及用户所在企业的corpid等信息。
+
 **请求方式**：GET（HTTPS）
 
 **接口地址：**

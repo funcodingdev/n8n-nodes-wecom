@@ -11,6 +11,7 @@ import {
 	WeComCrypto,
 	parseXML,
 } from '../WeCom/shared/crypto';
+import { weComSuiteReceiveApiTest } from '../WeCom/shared/credentialTest';
 
 // eslint-disable-next-line @n8n/community-nodes/node-usable-as-tool
 export class WeComSuiteTrigger implements INodeType {
@@ -32,6 +33,7 @@ export class WeComSuiteTrigger implements INodeType {
 			{
 				name: 'weComSuiteReceiveApi',
 				required: true,
+				testedBy: 'weComSuiteReceiveApiTest',
 			},
 		],
 		webhooks: [
@@ -52,7 +54,7 @@ export class WeComSuiteTrigger implements INodeType {
 		],
 		properties: [
 			{
-				displayName: 'Path',
+				displayName: '路径',
 				name: 'path',
 				type: 'string',
 				default: '',
@@ -242,6 +244,12 @@ export class WeComSuiteTrigger implements INodeType {
 				hint: '开启后会在输出中包含原始的XML字符串',
 			},
 		],
+	};
+
+	methods = {
+		credentialTest: {
+			weComSuiteReceiveApiTest,
+		},
 	};
 
 	webhookMethods = {
