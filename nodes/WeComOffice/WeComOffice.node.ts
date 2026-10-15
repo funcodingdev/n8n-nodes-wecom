@@ -36,6 +36,7 @@ import { executeEmergency } from '../WeCom/resources/emergency/execute';
 import { executePhone } from '../WeCom/resources/phone/execute';
 import { executeTodo } from '../WeCom/resources/todo/execute';
 import { weComApiRequest } from '../WeCom/shared/transport';
+import { executeWithPagination, withPagination } from '../WeCom/shared/pagination';
 
 export class WeComOffice implements INodeType {
 	description: INodeTypeDescription = {
@@ -65,7 +66,7 @@ export class WeComOffice implements INodeType {
 				'Content-Type': 'application/json',
 			},
 		},
-		properties: [
+		properties: withPagination([
 			{
 				displayName: '资源',
 				name: 'resource',
@@ -160,7 +161,7 @@ export class WeComOffice implements INodeType {
 			...emergencyDescription,
 			...phoneDescription,
 			...todoDescription,
-		],
+		]),
 		usableAsTool: true,
 	};
 
@@ -205,6 +206,23 @@ export class WeComOffice implements INodeType {
 		const items = this.getInputData();
 		const resource = this.getNodeParameter('resource', 0);
 		const operation = this.getNodeParameter('operation', 0);
+
+		const paginatedExecutors: Record<string, typeof executeMeeting> = {
+			meeting: executeMeeting,
+			wedoc: executeWedoc,
+			wefile: executeWefile,
+			mail: executeMail,
+			approval: executeApproval,
+			journal: executeJournal,
+		};
+		const paginated = await executeWithPagination.call(
+			this,
+			resource as string,
+			operation as string,
+			items,
+			paginatedExecutors[resource as string],
+		);
+		if (paginated) return [paginated];
 
 		let returnData: INodeExecutionData[] = [];
 

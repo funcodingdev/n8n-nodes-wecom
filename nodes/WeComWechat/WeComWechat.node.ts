@@ -16,6 +16,7 @@ import { schoolDescription } from '../WeCom/resources/school';
 import { executeLiving } from '../WeCom/resources/living/execute';
 import { livingDescription } from '../WeCom/resources/living';
 import { weComApiRequest } from '../WeCom/shared/transport';
+import { executeWithPagination, withPagination } from '../WeCom/shared/pagination';
 
 export class WeComWechat implements INodeType {
 	description: INodeTypeDescription = {
@@ -45,7 +46,7 @@ export class WeComWechat implements INodeType {
 				'Content-Type': 'application/json',
 			},
 		},
-		properties: [
+		properties: withPagination([
 			{
 				displayName: '资源',
 				name: 'resource',
@@ -79,7 +80,7 @@ export class WeComWechat implements INodeType {
 			...kfDescription,
 			...schoolDescription,
 			...livingDescription,
-		],
+		]),
 		usableAsTool: true,
 	};
 
@@ -174,6 +175,21 @@ export class WeComWechat implements INodeType {
 		const items = this.getInputData();
 		const resource = this.getNodeParameter('resource', 0);
 		const operation = this.getNodeParameter('operation', 0);
+
+		const paginatedExecutors: Record<string, typeof executeExternalContact> = {
+			externalContact: executeExternalContact,
+			kf: executeKf,
+			school: executeSchool,
+			living: executeLiving,
+		};
+		const paginated = await executeWithPagination.call(
+			this,
+			resource as string,
+			operation as string,
+			items,
+			paginatedExecutors[resource as string],
+		);
+		if (paginated) return [paginated];
 
 		let returnData: INodeExecutionData[] = [];
 

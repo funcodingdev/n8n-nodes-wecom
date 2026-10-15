@@ -56,6 +56,7 @@ import { executeAccountId } from '../WeCom/resources/accountId/execute';
 import { executeFile } from '../WeCom/resources/file/execute';
 import { executeSecurity } from '../WeCom/resources/security/execute';
 import { weComApiRequest } from '../WeCom/shared/transport';
+import { executeWithPagination, withPagination } from '../WeCom/shared/pagination';
 import { weComReceiveApiTest } from '../WeCom/shared/credentialTest';
 import {
 	SEND_AND_WAIT_WAITING_TOOLTIP,
@@ -208,7 +209,7 @@ export class WeComBase implements INodeType {
 				'Content-Type': 'application/json',
 			},
 		},
-		properties: [
+		properties: withPagination([
 			{
 				// 固定 n8n 凭证选择器的位置；实际显示的凭证仍由上方 credentials 配置决定
 				displayName: '',
@@ -366,7 +367,7 @@ export class WeComBase implements INodeType {
 			...accountIdDescription,
 			...fileDescription,
 			...securityDescription,
-		],
+		]),
 		usableAsTool: true,
 	};
 
@@ -521,6 +522,25 @@ export class WeComBase implements INodeType {
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
 		const resource = this.getNodeParameter('resource', 0);
+
+		const paginatedExecutors: Record<string, typeof executeContact> = {
+			contact: executeContact,
+			linkedcorp: executeLinkedcorp,
+			agent: executeAgent,
+			license: executeLicense,
+			paytool: executePaytool,
+			externalpay: executeExternalpay,
+			chatdata: executeChatdata,
+			security: executeSecurity,
+		};
+		const paginated = await executeWithPagination.call(
+			this,
+			resource as string,
+			this.getNodeParameter('operation', 0, '') as string,
+			items,
+			paginatedExecutors[resource as string],
+		);
+		if (paginated) return [paginated];
 
 		let returnData: INodeExecutionData[] = [];
 
