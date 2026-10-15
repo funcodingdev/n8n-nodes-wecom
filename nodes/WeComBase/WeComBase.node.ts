@@ -57,6 +57,7 @@ import { executeFile } from '../WeCom/resources/file/execute';
 import { executeSecurity } from '../WeCom/resources/security/execute';
 import { weComApiRequest } from '../WeCom/shared/transport';
 import { executeWithPagination, withPagination } from '../WeCom/shared/pagination';
+import { withPermissionNotices } from '../WeCom/shared/permissionNotices';
 import { weComReceiveApiTest } from '../WeCom/shared/credentialTest';
 import {
 	SEND_AND_WAIT_WAITING_TOOLTIP,
@@ -209,7 +210,7 @@ export class WeComBase implements INodeType {
 				'Content-Type': 'application/json',
 			},
 		},
-		properties: withPagination([
+		properties: withPermissionNotices(withPagination([
 			{
 				// 固定 n8n 凭证选择器的位置；实际显示的凭证仍由上方 credentials 配置决定
 				displayName: '',
@@ -367,7 +368,7 @@ export class WeComBase implements INodeType {
 			...accountIdDescription,
 			...fileDescription,
 			...securityDescription,
-		]),
+		])),
 		usableAsTool: true,
 	};
 

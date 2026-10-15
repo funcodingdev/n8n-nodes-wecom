@@ -37,6 +37,7 @@ import { executePhone } from '../WeCom/resources/phone/execute';
 import { executeTodo } from '../WeCom/resources/todo/execute';
 import { weComApiRequest } from '../WeCom/shared/transport';
 import { executeWithPagination, withPagination } from '../WeCom/shared/pagination';
+import { withPermissionNotices } from '../WeCom/shared/permissionNotices';
 
 export class WeComOffice implements INodeType {
 	description: INodeTypeDescription = {
@@ -66,7 +67,7 @@ export class WeComOffice implements INodeType {
 				'Content-Type': 'application/json',
 			},
 		},
-		properties: withPagination([
+		properties: withPermissionNotices(withPagination([
 			{
 				displayName: '资源',
 				name: 'resource',
@@ -161,7 +162,7 @@ export class WeComOffice implements INodeType {
 			...emergencyDescription,
 			...phoneDescription,
 			...todoDescription,
-		]),
+		])),
 		usableAsTool: true,
 	};
 

@@ -17,6 +17,7 @@ import { executeLiving } from '../WeCom/resources/living/execute';
 import { livingDescription } from '../WeCom/resources/living';
 import { weComApiRequest } from '../WeCom/shared/transport';
 import { executeWithPagination, withPagination } from '../WeCom/shared/pagination';
+import { withPermissionNotices } from '../WeCom/shared/permissionNotices';
 
 export class WeComWechat implements INodeType {
 	description: INodeTypeDescription = {
@@ -46,7 +47,7 @@ export class WeComWechat implements INodeType {
 				'Content-Type': 'application/json',
 			},
 		},
-		properties: withPagination([
+		properties: withPermissionNotices(withPagination([
 			{
 				displayName: '资源',
 				name: 'resource',
@@ -80,7 +81,7 @@ export class WeComWechat implements INodeType {
 			...kfDescription,
 			...schoolDescription,
 			...livingDescription,
-		]),
+		])),
 		usableAsTool: true,
 	};
 
